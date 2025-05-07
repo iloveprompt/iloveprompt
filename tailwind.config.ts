@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,26 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+                brand: {
+                    50: '#f5f3ff',
+                    100: '#ede8ff',
+                    200: '#dcd6ff',
+                    300: '#c4b5fc',
+                    400: '#aa8df8',
+                    500: '#9361fc',
+                    600: '#8047f5',
+                    700: '#7035e4',
+                    800: '#5c2dbd',
+                    900: '#4d299a',
+                    950: '#2e1065',
+                },
+                accent1: {
+                    300: '#67e8f9',
+                    400: '#22d3ee',
+                    500: '#06b6d4',
+                    600: '#0891b2',
+                }
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,12 +104,32 @@ export default {
 					to: {
 						height: '0'
 					}
-				}
+				},
+                'fade-in': {
+                    '0%': {
+                        opacity: '0',
+                        transform: 'translateY(10px)'
+                    },
+                    '100%': {
+                        opacity: '1',
+                        transform: 'translateY(0)'
+                    }
+                },
+                'slide-in-right': {
+                    '0%': { transform: 'translateX(100%)' },
+                    '100%': { transform: 'translateX(0)' }
+                },
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
+				'accordion-up': 'accordion-up 0.2s ease-out',
+                'fade-in': 'fade-in 0.5s ease-out',
+                'slide-in-right': 'slide-in-right 0.5s ease-out'
+			},
+            backgroundImage: {
+                'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                'hero-pattern': 'linear-gradient(to right bottom, rgba(99, 102, 241, 0.8), rgba(14, 165, 233, 0.8))',
+            },
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
