@@ -7,8 +7,11 @@ import Footer from '@/components/Footer';
 import FeatureCard from '@/components/FeatureCard';
 import PricingCard from '@/components/PricingCard';
 import { Code, Shield, Zap } from 'lucide-react';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 const Index = () => {
+  const { t } = useLanguage();
+  
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -19,20 +22,20 @@ const Index = () => {
           <div className="flex flex-col md:flex-row md:items-center">
             <div className="md:w-1/2 mb-10 md:mb-0">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                Craft Perfect AI Prompts for Developers
+                {t('hero.title')}
               </h1>
               <p className="text-lg md:text-xl text-white/90 mb-8 max-w-lg">
-                Generate highly effective prompts tailored for software development through our guided questionnaire system.
+                {t('hero.description')}
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link to="/prompt-generator">
                   <Button className="bg-white text-brand-700 hover:bg-gray-100 hover:text-brand-800 text-lg px-6 py-6 h-auto">
-                    Start Creating Now
+                    {t('hero.ctaStart')}
                   </Button>
                 </Link>
                 <Link to="/features">
                   <Button variant="outline" className="border-white text-white hover:bg-white/10 text-lg px-6 py-6 h-auto">
-                    Learn More
+                    {t('common.learnMore')}
                   </Button>
                 </Link>
               </div>
@@ -41,20 +44,20 @@ const Index = () => {
               <div className="glass-card rounded-2xl p-6 shadow-xl">
                 <div className="bg-gray-100 rounded-lg p-4 border border-gray-200 mb-4">
                   <pre className="text-sm text-gray-800 font-mono">
-                    <code>// Generated AI Prompt Example</code>
+                    <code>{t('hero.codeExample')}</code>
                     <br />
-                    <code className="text-brand-700">Create a React component that:</code>
+                    <code className="text-brand-700">{t('hero.promptComponents.intro')}</code>
                     <br />
-                    <code>1. Fetches data from an API</code>
+                    <code>{t('hero.promptComponents.item1')}</code>
                     <br />
-                    <code>2. Implements proper error handling</code>
+                    <code>{t('hero.promptComponents.item2')}</code>
                     <br />
-                    <code>3. Uses TypeScript interfaces for type safety</code>
+                    <code>{t('hero.promptComponents.item3')}</code>
                     <br />
-                    <code>4. Follows SOLID principles...</code>
+                    <code>{t('hero.promptComponents.item4')}</code>
                   </pre>
                 </div>
-                <p className="text-gray-600 text-sm italic">Our system creates detailed, optimized prompts tailored for your specific development needs.</p>
+                <p className="text-gray-600 text-sm italic">{t('hero.promptDescription')}</p>
               </div>
             </div>
           </div>
@@ -65,9 +68,9 @@ const Index = () => {
       <section className="py-16 md:py-24 bg-white">
         <div className="container px-4 mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">How iloveprompt Works</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('howItWorks.title')}</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Our guided questionnaire system helps you create the perfect prompt for your development needs.
+              {t('howItWorks.description')}
             </p>
           </div>
           
@@ -76,24 +79,24 @@ const Index = () => {
               <div className="mx-auto w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center mb-4">
                 <span className="text-2xl font-bold text-brand-600">1</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Answer Questions</h3>
-              <p className="text-gray-600">Complete our guided questionnaire about your development requirements.</p>
+              <h3 className="text-xl font-semibold mb-2">{t('howItWorks.step1.title')}</h3>
+              <p className="text-gray-600">{t('howItWorks.step1.description')}</p>
             </div>
             
             <div className="text-center p-6">
               <div className="mx-auto w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center mb-4">
                 <span className="text-2xl font-bold text-brand-600">2</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Generate Prompt</h3>
-              <p className="text-gray-600">Our system crafts a detailed prompt optimized for AI code generation.</p>
+              <h3 className="text-xl font-semibold mb-2">{t('howItWorks.step2.title')}</h3>
+              <p className="text-gray-600">{t('howItWorks.step2.description')}</p>
             </div>
             
             <div className="text-center p-6">
               <div className="mx-auto w-16 h-16 bg-brand-100 rounded-full flex items-center justify-center mb-4">
                 <span className="text-2xl font-bold text-brand-600">3</span>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Get Results</h3>
-              <p className="text-gray-600">Use the prompt with your favorite AI to receive high-quality code solutions.</p>
+              <h3 className="text-xl font-semibold mb-2">{t('howItWorks.step3.title')}</h3>
+              <p className="text-gray-600">{t('howItWorks.step3.description')}</p>
             </div>
           </div>
         </div>
@@ -103,28 +106,28 @@ const Index = () => {
       <section className="py-16 md:py-24 bg-gray-50">
         <div className="container px-4 mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Key Features</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('features.title')}</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Designed specifically for developers, our platform offers everything you need to create effective AI prompts.
+              {t('features.description')}
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <FeatureCard 
-              title="Comprehensive Questionnaire" 
-              description="Our guided question system covers all aspects of software development requirements."
+              title={t('features.feature1.title')}
+              description={t('features.feature1.description')}
               icon={<Code className="h-6 w-6" />}
               delay="delay-100"
             />
             <FeatureCard 
-              title="Security Focus" 
-              description="Includes specialized sections for security considerations and best practices."
+              title={t('features.feature2.title')}
+              description={t('features.feature2.description')}
               icon={<Shield className="h-6 w-6" />}
               delay="delay-200"
             />
             <FeatureCard 
-              title="Multiple AI Integration" 
-              description="Execute your prompts with various AI models directly in our platform."
+              title={t('features.feature3.title')}
+              description={t('features.feature3.description')}
               icon={<Zap className="h-6 w-6" />}
               delay="delay-300"
             />
@@ -136,39 +139,39 @@ const Index = () => {
       <section className="py-16 md:py-24 bg-white">
         <div className="container px-4 mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('pricing.title')}</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Choose the plan that fits your development needs.
+              {t('pricing.description')}
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <PricingCard 
-              title="Free"
-              price="$0"
-              description="Perfect for trying out our platform"
+              title={t('pricing.free.title')}
+              price={t('pricing.free.price')}
+              description={t('pricing.free.description')}
               features={[
-                { text: "5 prompts per month", included: true },
-                { text: "Basic questionnaire", included: true },
-                { text: "GPT-3.5 integration", included: true },
-                { text: "Prompt history (limited)", included: true },
-                { text: "Use your own API keys", included: false },
-                { text: "Advanced security section", included: false },
+                { text: `5 ${t('pricing.features.promptsPerMonth')}`, included: true },
+                { text: t('pricing.features.basicQuestionnaire'), included: true },
+                { text: t('pricing.features.gpt35Integration'), included: true },
+                { text: t('pricing.features.promptHistory'), included: true },
+                { text: t('pricing.features.useOwnApiKeys'), included: false },
+                { text: t('pricing.features.advancedSecuritySection'), included: false },
               ]}
-              ctaText="Start Free"
+              ctaText={t('common.startFree')}
             />
             
             <PricingCard 
-              title="Pro"
-              price="$19"
-              description="For professional developers"
+              title={t('pricing.pro.title')}
+              price={t('pricing.pro.price')}
+              description={t('pricing.pro.description')}
               features={[
-                { text: "50 prompts per month", included: true },
-                { text: "Full questionnaire access", included: true },
-                { text: "All AI model integrations", included: true },
-                { text: "Prompt history & templates", included: true },
-                { text: "Use your own API keys", included: true },
-                { text: "Advanced security sections", included: true },
+                { text: `50 ${t('pricing.features.promptsPerMonth')}`, included: true },
+                { text: t('pricing.features.fullQuestionnaire'), included: true },
+                { text: t('pricing.features.aiModelIntegrations'), included: true },
+                { text: t('pricing.features.promptHistoryTemplates'), included: true },
+                { text: t('pricing.features.useOwnApiKeys'), included: true },
+                { text: t('pricing.features.advancedSecuritySections'), included: true },
               ]}
               ctaText="Upgrade to Pro"
               popular={true}
@@ -176,16 +179,16 @@ const Index = () => {
             />
             
             <PricingCard 
-              title="Team"
-              price="$49"
-              description="For development teams"
+              title={t('pricing.team.title')}
+              price={t('pricing.team.price')}
+              description={t('pricing.team.description')}
               features={[
-                { text: "Unlimited prompts", included: true },
-                { text: "Full questionnaire access", included: true },
-                { text: "All AI model integrations", included: true },
-                { text: "Prompt library & sharing", included: true },
-                { text: "Use your own API keys", included: true },
-                { text: "Priority support", included: true },
+                { text: t('pricing.features.unlimitedPrompts'), included: true },
+                { text: t('pricing.features.fullQuestionnaire'), included: true },
+                { text: t('pricing.features.aiModelIntegrations'), included: true },
+                { text: t('pricing.features.promptLibrarySharing'), included: true },
+                { text: t('pricing.features.useOwnApiKeys'), included: true },
+                { text: t('pricing.features.prioritySupport'), included: true },
               ]}
               ctaText="Choose Team"
               apiOption={true}
@@ -197,13 +200,13 @@ const Index = () => {
       {/* CTA */}
       <section className="py-16 md:py-24 bg-brand-50">
         <div className="container px-4 mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to create better prompts?</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">{t('cta.title')}</h2>
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            Start generating optimized prompts for your development needs today.
+            {t('cta.description')}
           </p>
           <Link to="/prompt-generator">
             <Button className="bg-brand-600 hover:bg-brand-700 text-white text-lg px-8 py-6 h-auto rounded-lg">
-              Get Started for Free
+              {t('cta.button')}
             </Button>
           </Link>
         </div>

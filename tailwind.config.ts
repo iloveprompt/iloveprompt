@@ -1,5 +1,6 @@
 
 import type { Config } from "tailwindcss";
+import { colors } from "./src/styles/colors";
 
 export default {
 	darkMode: ["class"],
@@ -63,25 +64,9 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-                brand: {
-                    50: '#f5f3ff',
-                    100: '#ede8ff',
-                    200: '#dcd6ff',
-                    300: '#c4b5fc',
-                    400: '#aa8df8',
-                    500: '#9361fc',
-                    600: '#8047f5',
-                    700: '#7035e4',
-                    800: '#5c2dbd',
-                    900: '#4d299a',
-                    950: '#2e1065',
-                },
-                accent1: {
-                    300: '#67e8f9',
-                    400: '#22d3ee',
-                    500: '#06b6d4',
-                    600: '#0891b2',
-                }
+                brand: colors.darkBlue,
+                accent1: colors.blue,
+                accent2: colors.yellow,
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -128,7 +113,7 @@ export default {
 			},
             backgroundImage: {
                 'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-                'hero-pattern': 'linear-gradient(to right bottom, rgba(99, 102, 241, 0.8), rgba(14, 165, 233, 0.8))',
+                'hero-pattern': 'linear-gradient(to right bottom, rgba(12, 56, 93, 0.8), rgba(34, 136, 195, 0.8))',
             },
 		}
 	},
