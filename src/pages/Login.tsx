@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -53,7 +52,7 @@ const LoginPage = () => {
         description: t('auth.welcomeBack'),
       });
       
-      navigate('/prompt-generator');
+      // Redirecionamento é feito no hook useAuth, não mais aqui
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -69,7 +68,7 @@ const LoginPage = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/prompt-generator`,
+          redirectTo: `${window.location.origin}/dashboard`,
         },
       });
       if (error) throw error;
@@ -87,7 +86,7 @@ const LoginPage = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${window.location.origin}/prompt-generator`,
+          redirectTo: `${window.location.origin}/dashboard`,
         },
       });
       if (error) throw error;

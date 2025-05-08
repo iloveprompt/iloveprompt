@@ -17,7 +17,10 @@ const Index = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-24 pb-16 md:pt-32 md:pb-24 hero-gradient">
+      <section 
+        className="pt-24 pb-16 md:pt-32 md:pb-24 bg-cover bg-center"
+        style={{ backgroundImage: 'url("/lovable-uploads/eecd25b5-caab-48fd-88bb-c6a40aa68e93.png")' }}
+      >
         <div className="container px-4 mx-auto">
           <div className="flex flex-col md:flex-row md:items-center">
             <div className="md:w-1/2 mb-10 md:mb-0">
@@ -41,7 +44,7 @@ const Index = () => {
               </div>
             </div>
             <div className="md:w-1/2 md:pl-10">
-              <div className="glass-card rounded-2xl p-6 shadow-xl">
+              <div className="glass-card rounded-2xl p-6 shadow-xl bg-black/30 backdrop-blur-sm">
                 <div className="bg-gray-100 rounded-lg p-4 border border-gray-200 mb-4">
                   <pre className="text-sm text-gray-800 font-mono">
                     <code>{t('hero.codeExample')}</code>
@@ -57,7 +60,7 @@ const Index = () => {
                     <code>{t('hero.promptComponents.item4')}</code>
                   </pre>
                 </div>
-                <p className="text-gray-600 text-sm italic">{t('hero.promptDescription')}</p>
+                <p className="text-gray-200 text-sm italic">{t('hero.promptDescription')}</p>
               </div>
             </div>
           </div>

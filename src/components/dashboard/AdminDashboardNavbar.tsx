@@ -1,90 +1,111 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, Users, BarChart, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Menu } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import UserProfileMenu from './UserProfileMenu';
 
 const AdminDashboardNavbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { t } = useLanguage();
+  
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
-    <header className="sticky top-0 z-50 bg-gray-900 text-white border-b border-gray-800 shadow-sm">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+    <header className="bg-gray-900 text-white sticky top-0 z-30">
+      <div className="px-4 sm:px-6 py-3">
+        <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link to="/admin" className="flex items-center">
-              <img src="/lovable-uploads/4c0e25c9-7a84-42ff-92f3-643522f86121.png" alt="iloveprompt logo" className="h-8 mr-2" />
-              <span className="text-lg font-bold text-white">Admin</span>
+              <img 
+                src="/lovable-uploads/38e9462c-ec41-45c6-b98e-95e9a854929c.png" 
+                alt="iloveprompt logo" 
+                className="h-8 mr-2" 
+              />
+              <span className="font-semibold text-xl hidden sm:inline">Admin</span>
             </Link>
           </div>
           
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/admin" className="text-gray-300 hover:text-white transition-colors flex items-center gap-2">
-              <BarChart className="h-4 w-4" />
-              Dashboard
+          {/* Desktop navigation */}
+          <nav className="hidden md:flex items-center space-x-4">
+            <Link to="/admin" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
+              Overview
             </Link>
-            <Link to="/admin/users" className="text-gray-300 hover:text-white transition-colors flex items-center gap-2">
-              <Users className="h-4 w-4" />
+            <Link to="/admin/users" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
               Users
             </Link>
-            <Link to="/admin/settings" className="text-gray-300 hover:text-white transition-colors flex items-center gap-2">
-              <Settings className="h-4 w-4" />
+            <Link to="/admin/prompts" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
+              Prompts
+            </Link>
+            <Link to="/admin/settings" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
               Settings
+            </Link>
+            <Link to="/admin/logs" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
+              Logs
             </Link>
           </nav>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center">
             <UserProfileMenu showPlan={false} />
             
             {/* Mobile menu button */}
-            <div className="md:hidden">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-white"
-              >
-                <Menu className="h-6 w-6" />
-              </Button>
-            </div>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="md:hidden ml-2 text-white" 
+              onClick={toggleMenu}
+            >
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Open menu</span>
+            </Button>
           </div>
         </div>
       </div>
       
-      {/* Mobile Navigation */}
+      {/* Mobile navigation */}
       {isMenuOpen && (
-        <div className="md:hidden bg-gray-800 border-t border-gray-700">
-          <div className="px-4 pt-2 pb-3 space-y-1">
+        <nav className="md:hidden bg-gray-800 px-4 py-3 shadow-lg">
+          <div className="flex flex-col space-y-2">
             <Link 
               to="/admin" 
-              className="block px-3 py-2 text-gray-300 hover:bg-gray-700 rounded-md flex items-center gap-2"
+              className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
-              <BarChart className="h-4 w-4" />
-              Dashboard
+              Overview
             </Link>
             <Link 
               to="/admin/users" 
-              className="block px-3 py-2 text-gray-300 hover:bg-gray-700 rounded-md flex items-center gap-2"
+              className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
-              <Users className="h-4 w-4" />
               Users
             </Link>
             <Link 
-              to="/admin/settings" 
-              className="block px-3 py-2 text-gray-300 hover:bg-gray-700 rounded-md flex items-center gap-2"
+              to="/admin/prompts" 
+              className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
-              <Settings className="h-4 w-4" />
+              Prompts
+            </Link>
+            <Link 
+              to="/admin/settings" 
+              className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              onClick={() => setIsMenuOpen(false)}
+            >
               Settings
             </Link>
+            <Link 
+              to="/admin/logs" 
+              className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Logs
+            </Link>
           </div>
-        </div>
+        </nav>
       )}
     </header>
   );

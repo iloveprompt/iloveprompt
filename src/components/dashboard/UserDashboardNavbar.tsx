@@ -1,86 +1,101 @@
 
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Menu } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Menu } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import UserProfileMenu from './UserProfileMenu';
-import { useAuth } from '@/hooks/useAuth';
 
 const UserDashboardNavbar = () => {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { t } = useLanguage();
-  const { user } = useAuth();
-  const navigate = useNavigate();
+  
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+      <div className="px-4 sm:px-6 py-3">
+        <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link to="/dashboard" className="flex items-center">
-              <img src="/lovable-uploads/4c0e25c9-7a84-42ff-92f3-643522f86121.png" alt="iloveprompt logo" className="h-8 mr-2" />
+              <img 
+                src="/lovable-uploads/38e9462c-ec41-45c6-b98e-95e9a854929c.png" 
+                alt="iloveprompt logo" 
+                className="h-8 mr-2" 
+              />
+              <span className="font-semibold text-xl hidden sm:inline">Dashboard</span>
             </Link>
           </div>
           
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/dashboard" className="text-gray-700 hover:text-brand-600 transition-colors font-medium">
-              {t('common.dashboard')}
+          {/* Desktop navigation */}
+          <nav className="hidden md:flex items-center space-x-4">
+            <Link to="/dashboard" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+              {t('dashboard.overview')}
             </Link>
-            <Link to="/prompt-generator" className="text-gray-700 hover:text-brand-600 transition-colors">
-              Prompt Generator
+            <Link to="/prompt-generator" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+              {t('dashboard.createPrompt')}
             </Link>
-            <Link to="/history" className="text-gray-700 hover:text-brand-600 transition-colors">
-              {t('common.history')}
+            <Link to="/dashboard/history" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+              {t('dashboard.promptHistory')}
+            </Link>
+            <Link to="/dashboard/settings" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+              {t('dashboard.settings')}
             </Link>
           </nav>
           
-          <div className="flex items-center space-x-4">
-            <UserProfileMenu showPlan={true} plan="Pro" />
+          <div className="flex items-center">
+            <UserProfileMenu showPlan={true} plan="Free" />
             
             {/* Mobile menu button */}
-            <div className="md:hidden">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-gray-700"
-              >
-                <Menu className="h-6 w-6" />
-              </Button>
-            </div>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="md:hidden ml-2" 
+              onClick={toggleMenu}
+            >
+              <Menu className="h-5 w-5" />
+              <span className="sr-only">Open menu</span>
+            </Button>
           </div>
         </div>
       </div>
       
-      {/* Mobile Navigation */}
+      {/* Mobile navigation */}
       {isMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 shadow-lg">
-          <div className="px-4 pt-2 pb-3 space-y-1">
+        <nav className="md:hidden bg-white px-4 py-3 shadow-lg">
+          <div className="flex flex-col space-y-2">
             <Link 
               to="/dashboard" 
-              className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md"
+              className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
-              {t('common.dashboard')}
+              {t('dashboard.overview')}
             </Link>
             <Link 
               to="/prompt-generator" 
-              className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md"
+              className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
-              Prompt Generator
+              {t('dashboard.createPrompt')}
             </Link>
             <Link 
-              to="/history" 
-              className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md"
+              to="/dashboard/history" 
+              className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
-              {t('common.history')}
+              {t('dashboard.promptHistory')}
+            </Link>
+            <Link 
+              to="/dashboard/settings" 
+              className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {t('dashboard.settings')}
             </Link>
           </div>
-        </div>
+        </nav>
       )}
     </header>
   );

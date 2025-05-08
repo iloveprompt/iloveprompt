@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { User, Session } from '@supabase/supabase-js';
 import { useToast } from './use-toast';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
@@ -27,6 +28,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Get initial session and user
@@ -60,6 +62,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             title: t('auth.signedIn'),
             description: t('auth.welcomeMessage'),
           });
+          
+          // Redirecionar para o dashboard quando o usuário fizer login
+          if (currentSession?.user?.email?.includes('admin')) {
+            navigate('/admin');
+          } else {
+            navigate('/dashboard');
+          }
         }
         
         if (event === 'SIGNED_OUT') {
@@ -74,7 +83,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => {
       authListener?.subscription?.unsubscribe();
     };
-  }, [toast, t]);
+  }, [toast, t, navigate]);
 
   const signOut = async () => {
     try {
