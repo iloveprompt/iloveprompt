@@ -4,7 +4,6 @@ import { supabase } from '@/lib/supabase';
 import { User, Session } from '@supabase/supabase-js';
 import { useToast } from './use-toast';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
@@ -12,6 +11,7 @@ interface AuthContextType {
   loading: boolean;
   signOut: () => Promise<void>;
   isAuthenticated: boolean;
+  redirectAfterLogin: (userEmail: string | undefined) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -20,15 +20,23 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   signOut: async () => {},
   isAuthenticated: false,
+  redirectAfterLogin: () => {},
 });
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+interface AuthProviderProps {
+  children: ReactNode;
+  navigateFunction?: (path: string) => void;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ 
+  children, 
+  navigateFunction 
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const { t } = useLanguage();
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Get initial session and user
@@ -63,12 +71,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             description: t('auth.welcomeMessage'),
           });
           
-          // Redirecionar para o dashboard quando o usuário fizer login
-          if (currentSession?.user?.email?.includes('admin')) {
-            navigate('/admin');
-          } else {
-            navigate('/dashboard');
-          }
+          // Redirect to appropriate dashboard
+          redirectAfterLogin(currentSession?.user?.email);
         }
         
         if (event === 'SIGNED_OUT') {
@@ -83,7 +87,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return () => {
       authListener?.subscription?.unsubscribe();
     };
-  }, [toast, t, navigate]);
+  }, [toast, t]);
+
+  // Function to handle redirect after login
+  const redirectAfterLogin = (userEmail: string | undefined) => {
+    if (navigateFunction) {
+      if (userEmail?.includes('admin')) {
+        navigateFunction('/admin');
+      } else {
+        navigateFunction('/dashboard');
+      }
+    }
+  };
 
   const signOut = async () => {
     try {
@@ -101,6 +116,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     loading,
     signOut,
     isAuthenticated: !!user,
+    redirectAfterLogin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
