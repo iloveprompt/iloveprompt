@@ -14,6 +14,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import PromptGenerator from "./pages/PromptGenerator";
 import NotFound from "./pages/NotFound";
+import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +38,22 @@ const App = () => (
                 element={
                   <AuthGuard>
                     <PromptGenerator />
+                  </AuthGuard>
+                } 
+              />
+              <Route 
+                path="/dashboard" 
+                element={
+                  <AuthGuard>
+                    <Dashboard />
+                  </AuthGuard>
+                } 
+              />
+              <Route 
+                path="/admin" 
+                element={
+                  <AuthGuard>
+                    <AdminDashboard />
                   </AuthGuard>
                 } 
               />

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, LogOut, User } from 'lucide-react';
+import { Menu, LogOut, User, LayoutDashboard } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -27,13 +27,16 @@ const Navbar = () => {
     navigate('/');
   };
 
+  // Check if user is admin (for demo purposes, can be replaced with actual role check)
+  const isAdmin = user?.email?.includes('admin');
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <span className="text-xl font-bold bg-clip-text text-transparent prompt-gradient">iloveprompt</span>
+              <img src="/lovable-uploads/4c0e25c9-7a84-42ff-92f3-643522f86121.png" alt="iloveprompt logo" className="h-8" />
             </Link>
           </div>
           
@@ -47,14 +50,27 @@ const Navbar = () => {
               
               {isAuthenticated ? (
                 <div className="flex items-center space-x-4">
-                  <Link to="/prompt-generator">
-                    <Button 
-                      style={{ backgroundColor: colors.blue[600] }}
-                      className="text-white hover:bg-opacity-90"
-                    >
-                      {t('common.startFree')}
-                    </Button>
-                  </Link>
+                  {isAdmin ? (
+                    <Link to="/admin">
+                      <Button 
+                        style={{ backgroundColor: colors.blue[600] }}
+                        className="text-white hover:bg-opacity-90 flex items-center gap-2"
+                      >
+                        <LayoutDashboard className="h-4 w-4" />
+                        Admin
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link to="/dashboard">
+                      <Button 
+                        style={{ backgroundColor: colors.blue[600] }}
+                        className="text-white hover:bg-opacity-90 flex items-center gap-2"
+                      >
+                        <LayoutDashboard className="h-4 w-4" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                  )}
                   
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -71,6 +87,11 @@ const Navbar = () => {
                       <DropdownMenuItem asChild>
                         <Link to="/settings" className="w-full cursor-pointer">{t('common.settings')}</Link>
                       </DropdownMenuItem>
+                      {isAdmin && (
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin" className="w-full cursor-pointer">Admin Dashboard</Link>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
                         <LogOut className="mr-2 h-4 w-4" />
@@ -130,6 +151,11 @@ const Navbar = () => {
                   <div className="text-sm text-gray-500 pb-2">{user?.email}</div>
                   <Link to="/profile" className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">{t('common.profile')}</Link>
                   <Link to="/settings" className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">{t('common.settings')}</Link>
+                  {isAdmin ? (
+                    <Link to="/admin" className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">Admin Dashboard</Link>
+                  ) : (
+                    <Link to="/dashboard" className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">Dashboard</Link>
+                  )}
                   <Button 
                     onClick={handleSignOut} 
                     variant="outline" 
@@ -138,14 +164,6 @@ const Navbar = () => {
                     <LogOut className="mr-2 h-4 w-4" />
                     {t('common.logout')}
                   </Button>
-                  <Link to="/prompt-generator">
-                    <Button 
-                      className="w-full mt-2" 
-                      style={{ backgroundColor: colors.blue[600] }}
-                    >
-                      {t('common.startFree')}
-                    </Button>
-                  </Link>
                 </>
               ) : (
                 <>
