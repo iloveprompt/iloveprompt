@@ -34,7 +34,7 @@ const Index = () => {
                   </Button>
                 </Link>
                 <Link to="/features">
-                  <Button variant="outline" className="border-white text-white hover:bg-white/10 text-lg px-6 py-6 h-auto">
+                  <Button variant="outline" className="border-white text-white hover:bg-white/10 h-auto px-[50px] py-[7px] font-bold text-lg rounded-3xl">
                     {t('common.learnMore')}
                   </Button>
                 </Link>
