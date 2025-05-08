@@ -24,7 +24,7 @@ const Index = () => {
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
                 {t('hero.title')}
               </h1>
-              <p className="text-lg md:text-xl mb-8 max-w-lg font-bold text-slate-50">
+              <p className="text-lg md:text-xl mb-8 max-w-lg font-bold text-slate-50 background-color:white">
                 {t('hero.description')}
               </p>
               <div className="flex flex-wrap gap-4">
