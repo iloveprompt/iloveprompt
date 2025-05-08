@@ -29,7 +29,7 @@ const Index = () => {
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link to="/prompt-generator">
-                  <Button className="bg-white hover:bg-gray-100 text-lg h-auto rounded-3xl text-slate-900 px-[50px] py-[7px] font-medium">
+                  <Button className="bg-white hover:bg-gray-100 text-lg h-auto text-slate-900 px-[50px] py-[7px] font-medium rounded-xl">
                     {t('hero.ctaStart')}
                   </Button>
                 </Link>
