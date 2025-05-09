@@ -1,16 +1,23 @@
-
 import React, { useState } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Edit, Trash2, Eye, Plus, Search } from 'lucide-react';
 import PromptGeneratorWizard from '../wizard/PromptGeneratorWizard';
+
+// Custom badge styles for success variant
+const getBadgeVariant = (status: string) => {
+  if (status === 'active') {
+    return "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-green-100 text-green-800 hover:bg-green-200";
+  }
+  return "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-red-100 text-red-800 hover:bg-red-200";
+};
 
 const AdminPrompts = () => {
   const { t } = useLanguage();
@@ -139,9 +146,9 @@ const AdminPrompts = () => {
                       <TableCell>{prompt.type}</TableCell>
                       <TableCell>{prompt.author}</TableCell>
                       <TableCell>
-                        <Badge variant={prompt.status === 'active' ? 'success' : 'destructive'} className={prompt.status === 'active' ? 'bg-green-100 text-green-800 hover:bg-green-200' : ''}>
+                        <span className={getBadgeVariant(prompt.status)}>
                           {prompt.status === 'active' ? t('admin.active') : t('admin.inactive')}
-                        </Badge>
+                        </span>
                       </TableCell>
                       <TableCell>{prompt.modified}</TableCell>
                       <TableCell className="text-right">

@@ -20,6 +20,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPrompts from "./pages/admin/AdminPrompts";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminLogs from "./pages/admin/AdminLogs";
+import AdminProfile from "./pages/admin/AdminProfile";
 import Settings from "./pages/dashboard/Settings";
 import Profile from "./pages/dashboard/Profile";
 import History from "./pages/dashboard/History";
@@ -179,6 +180,21 @@ const App = () => (
                       footerComponent={<AdminDashboardFooter />}
                     >
                       <AdminLogs />
+                    </DashboardLayout>
+                  </AuthGuard>
+                } 
+              />
+
+              {/* New admin profile route */}
+              <Route 
+                path="/admin/profile" 
+                element={
+                  <AuthGuard>
+                    <DashboardLayout
+                      navbarComponent={<AdminDashboardNavbar />}
+                      footerComponent={<AdminDashboardFooter />}
+                    >
+                      <AdminProfile />
                     </DashboardLayout>
                   </AuthGuard>
                 } 

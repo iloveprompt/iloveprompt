@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import UserProfileMenu from './UserProfileMenu';
+import AdminProfileMenu from './AdminProfileMenu';
 import LanguageSwitcher from '../LanguageSwitcher';
 
 const AdminDashboardNavbar = () => {
@@ -16,7 +16,7 @@ const AdminDashboardNavbar = () => {
   };
 
   return (
-    <header className="bg-gray-900 text-white sticky top-0 z-30">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
       <div className="container mx-auto px-4 sm:px-6 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -26,38 +26,38 @@ const AdminDashboardNavbar = () => {
                 alt="iloveprompt logo" 
                 className="h-10" 
               />
-              <span className="font-semibold text-xl hidden sm:inline ml-2">Admin</span>
+              <span className="font-semibold text-xl ml-2">Admin</span>
             </Link>
           </div>
           
           {/* Desktop navigation */}
           <nav className="hidden md:flex items-center space-x-4">
-            <Link to="/admin" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
+            <Link to="/admin" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
               {t('admin.overview')}
             </Link>
-            <Link to="/admin/users" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
+            <Link to="/admin/users" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
               {t('admin.users')}
             </Link>
-            <Link to="/admin/prompts" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
+            <Link to="/admin/prompts" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
               {t('admin.prompts')}
             </Link>
-            <Link to="/admin/settings" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
+            <Link to="/admin/settings" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
               {t('admin.settings')}
             </Link>
-            <Link to="/admin/logs" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
+            <Link to="/admin/logs" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
               {t('admin.logs')}
             </Link>
             <LanguageSwitcher />
           </nav>
           
           <div className="flex items-center">
-            <UserProfileMenu showPlan={false} />
+            <AdminProfileMenu />
             
             {/* Mobile menu button */}
             <Button 
               variant="ghost" 
               size="icon"
-              className="md:hidden ml-2 text-white" 
+              className="md:hidden ml-2" 
               onClick={toggleMenu}
             >
               <Menu className="h-5 w-5" />
@@ -69,39 +69,39 @@ const AdminDashboardNavbar = () => {
       
       {/* Mobile navigation */}
       {isMenuOpen && (
-        <nav className="md:hidden bg-gray-800 px-4 py-3 shadow-lg">
+        <nav className="md:hidden bg-white px-4 py-3 shadow-lg">
           <div className="flex flex-col space-y-2">
             <Link 
               to="/admin" 
-              className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
               {t('admin.overview')}
             </Link>
             <Link 
               to="/admin/users" 
-              className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
               {t('admin.users')}
             </Link>
             <Link 
               to="/admin/prompts" 
-              className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
               {t('admin.prompts')}
             </Link>
             <Link 
               to="/admin/settings" 
-              className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
               {t('admin.settings')}
             </Link>
             <Link 
               to="/admin/logs" 
-              className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+              className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
               {t('admin.logs')}
