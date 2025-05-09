@@ -53,18 +53,26 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
 
   // Function to get translation based on key
   const t = (key: string): string => {
+    // If the key is empty, return empty string
+    if (!key) return '';
+    
     const keys = key.split('.');
     
+    // Get the translation object for the current language
     let value: any = translations[language];
+    
+    // Navigate through the nested keys
     for (const k of keys) {
-      if (value && value[k]) {
+      if (value && value[k] !== undefined) {
         value = value[k];
       } else {
-        console.warn(`Translation key not found: ${key}`);
+        console.warn(`Translation key not found: ${key} in language ${language}`);
+        // Return the key if translation not found
         return key;
       }
     }
     
+    // Return the translation or the key if the value is not a string
     return typeof value === 'string' ? value : key;
   };
 

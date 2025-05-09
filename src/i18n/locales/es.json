@@ -33,11 +33,23 @@
   },
   "dashboard": {
     "welcome": "Bienvenido",
+    "welcomeBack": "Bienvenido de nuevo",
+    "title": "Panel",
     "overview": "Visión general",
     "recentProjects": "Proyectos recientes",
     "statistics": "Estadísticas",
     "activities": "Actividades",
-    "systemTypes": "Tipos de sistema"
+    "systemTypes": "Tipos de sistema",
+    "promptsCreated": "Prompts Creados",
+    "totalPrompts": "Total de prompts creados",
+    "usage": "Uso",
+    "currentMonthUsage": "Uso del mes actual",
+    "savedTemplates": "Plantillas Guardadas",
+    "templateLibrary": "Biblioteca de plantillas",
+    "recentActivity": "Actividad Reciente",
+    "latestPromptGenerations": "Generaciones de prompt más recientes",
+    "proTips": "Consejos Pro",
+    "getMore": "Obtenga más de la plataforma"
   },
   "promptGenerator": {
     "title": "Generador de Prompts",
