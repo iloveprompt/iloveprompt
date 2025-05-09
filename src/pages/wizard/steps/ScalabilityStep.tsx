@@ -2,10 +2,10 @@
 import React from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card } from '@/components/ui/card';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import OtherSpecifyItem from '@/components/OtherSpecifyItem';
 
 interface ScalabilityData {
@@ -23,46 +23,54 @@ interface ScalabilityStepProps {
 
 const ScalabilityStep: React.FC<ScalabilityStepProps> = ({ formData, updateFormData }) => {
   const { t } = useLanguage();
+  
+  const scalabilityOptions = [
+    'redis',
+    'caching',
+    'autoScaling'
+  ];
 
-  const scalabilityOptions = ['redis', 'caching', 'autoScaling'];
-  const performanceOptions = ['lazyLoading', 'minification', 'serverRendering', 'optimization'];
+  const performanceOptions = [
+    'lazyLoading',
+    'minification',
+    'serverRendering',
+    'optimization'
+  ];
 
-  const handleScalabilityToggle = (value: string) => {
-    const isScalable = value === 'true';
-    updateFormData({ 
-      isScalable,
-      ...(isScalable ? {} : { 
-        scalabilityFeatures: [], 
-        performanceFeatures: [],
-        otherScalabilityFeature: '',
-        otherPerformanceFeature: ''
-      })
-    });
-  };
-
-  const handleScalabilityFeatureChange = (feature: string, checked: boolean) => {
-    const updatedFeatures = checked
-      ? [...formData.scalabilityFeatures, feature]
-      : formData.scalabilityFeatures.filter(f => f !== feature);
+  const handleScalabilityChange = (option: string, checked: boolean) => {
+    const updatedOptions = checked
+      ? [...formData.scalabilityFeatures, option]
+      : formData.scalabilityFeatures.filter(o => o !== option);
     
-    updateFormData({ scalabilityFeatures: updatedFeatures });
+    updateFormData({ scalabilityFeatures: updatedOptions });
   };
 
-  const handlePerformanceFeatureChange = (feature: string, checked: boolean) => {
-    const updatedFeatures = checked
-      ? [...formData.performanceFeatures, feature]
-      : formData.performanceFeatures.filter(f => f !== feature);
+  const handlePerformanceChange = (option: string, checked: boolean) => {
+    const updatedOptions = checked
+      ? [...formData.performanceFeatures, option]
+      : formData.performanceFeatures.filter(o => o !== option);
     
-    updateFormData({ performanceFeatures: updatedFeatures });
+    updateFormData({ performanceFeatures: updatedOptions });
   };
 
-  const selectAllScalability = () => {
-    updateFormData({ scalabilityFeatures: [...scalabilityOptions] });
+  const toggleScalabilitySelectAll = () => {
+    if (formData.scalabilityFeatures.length === scalabilityOptions.length) {
+      updateFormData({ scalabilityFeatures: [] });
+    } else {
+      updateFormData({ scalabilityFeatures: [...scalabilityOptions] });
+    }
   };
 
-  const selectAllPerformance = () => {
-    updateFormData({ performanceFeatures: [...performanceOptions] });
+  const togglePerformanceSelectAll = () => {
+    if (formData.performanceFeatures.length === performanceOptions.length) {
+      updateFormData({ performanceFeatures: [] });
+    } else {
+      updateFormData({ performanceFeatures: [...performanceOptions] });
+    }
   };
+
+  const allScalabilitySelected = formData.scalabilityFeatures.length === scalabilityOptions.length;
+  const allPerformanceSelected = formData.performanceFeatures.length === performanceOptions.length;
 
   return (
     <div className="space-y-6">
@@ -71,48 +79,50 @@ const ScalabilityStep: React.FC<ScalabilityStepProps> = ({ formData, updateFormD
         <p className="text-gray-500 mb-4">{t('promptGenerator.scalability.description')}</p>
       </div>
 
-      <Card className="p-6">
-        <div className="flex items-center mb-4">
-          <h4 className="font-medium mr-4">{t('promptGenerator.scalability.isScalable')}</h4>
-          <RadioGroup
-            value={formData.isScalable ? 'true' : 'false'}
-            onValueChange={handleScalabilityToggle}
-            className="flex space-x-4"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="true" id="scalable-yes" />
-              <Label htmlFor="scalable-yes">{t('promptGenerator.uxui.yes')}</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="false" id="scalable-no" />
-              <Label htmlFor="scalable-no">{t('promptGenerator.uxui.no')}</Label>
-            </div>
-          </RadioGroup>
-        </div>
-        
-        {formData.isScalable && (
-          <>
-            {/* Scalability Features */}
-            <div className="border-t pt-4 mt-4">
-              <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-row items-center space-x-4 mb-4">
+        <Label className="text-base font-medium mr-4">
+          {t('promptGenerator.scalability.isScalable')}
+        </Label>
+        <RadioGroup
+          value={formData.isScalable ? 'yes' : 'no'}
+          onValueChange={(value) => updateFormData({ isScalable: value === 'yes' })}
+          className="flex space-x-4"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="yes" id="scalable-yes" />
+            <Label htmlFor="scalable-yes">{t('promptGenerator.common.yes')}</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="no" id="scalable-no" />
+            <Label htmlFor="scalable-no">{t('promptGenerator.common.no')}</Label>
+          </div>
+        </RadioGroup>
+      </div>
+
+      {formData.isScalable && (
+        <>
+          {/* Scalability Features */}
+          <Card className="p-6">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
                 <h4 className="font-medium">{t('promptGenerator.scalability.scalability')}</h4>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  onClick={selectAllScalability}
+                  onClick={toggleScalabilitySelectAll}
                 >
-                  {t('promptGenerator.common.selectAll')}
+                  {allScalabilitySelected ? t('promptGenerator.common.unselectAll') : t('promptGenerator.common.selectAll')}
                 </Button>
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {scalabilityOptions.map((option) => (
                   <div key={option} className="flex items-center space-x-2">
                     <Checkbox 
                       id={`scalability-${option}`}
                       checked={formData.scalabilityFeatures.includes(option)}
                       onCheckedChange={(checked) => 
-                        handleScalabilityFeatureChange(option, checked === true)
+                        handleScalabilityChange(option, checked === true)
                       }
                     />
                     <Label htmlFor={`scalability-${option}`} className="cursor-pointer">
@@ -122,7 +132,7 @@ const ScalabilityStep: React.FC<ScalabilityStepProps> = ({ formData, updateFormD
                 ))}
                 
                 <OtherSpecifyItem
-                  id="scalability-other"
+                  id="scalability-otherFeature"
                   label={t('promptGenerator.scalability.otherScalabilityFeature')}
                   checked={formData.scalabilityFeatures.includes('otherScalabilityFeature')}
                   value={formData.otherScalabilityFeature}
@@ -143,28 +153,30 @@ const ScalabilityStep: React.FC<ScalabilityStepProps> = ({ formData, updateFormD
                 />
               </div>
             </div>
+          </Card>
 
-            {/* Performance Features */}
-            <div className="border-t pt-4 mt-4">
-              <div className="flex justify-between items-center mb-4">
+          {/* Performance Features */}
+          <Card className="p-6">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
                 <h4 className="font-medium">{t('promptGenerator.scalability.performance')}</h4>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  onClick={selectAllPerformance}
+                  onClick={togglePerformanceSelectAll}
                 >
-                  {t('promptGenerator.common.selectAll')}
+                  {allPerformanceSelected ? t('promptGenerator.common.unselectAll') : t('promptGenerator.common.selectAll')}
                 </Button>
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {performanceOptions.map((option) => (
                   <div key={option} className="flex items-center space-x-2">
                     <Checkbox 
                       id={`performance-${option}`}
                       checked={formData.performanceFeatures.includes(option)}
                       onCheckedChange={(checked) => 
-                        handlePerformanceFeatureChange(option, checked === true)
+                        handlePerformanceChange(option, checked === true)
                       }
                     />
                     <Label htmlFor={`performance-${option}`} className="cursor-pointer">
@@ -174,7 +186,7 @@ const ScalabilityStep: React.FC<ScalabilityStepProps> = ({ formData, updateFormD
                 ))}
                 
                 <OtherSpecifyItem
-                  id="performance-other"
+                  id="performance-otherFeature"
                   label={t('promptGenerator.scalability.otherPerformanceFeature')}
                   checked={formData.performanceFeatures.includes('otherPerformanceFeature')}
                   value={formData.otherPerformanceFeature}
@@ -195,9 +207,9 @@ const ScalabilityStep: React.FC<ScalabilityStepProps> = ({ formData, updateFormD
                 />
               </div>
             </div>
-          </>
-        )}
-      </Card>
+          </Card>
+        </>
+      )}
     </div>
   );
 };

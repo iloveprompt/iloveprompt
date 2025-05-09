@@ -19,9 +19,13 @@ interface SecurityStepProps {
 
 const SecurityStep: React.FC<SecurityStepProps> = ({ formData, updateFormData }) => {
   const { t } = useLanguage();
-
+  
   const securityOptions = [
-    'protection', 'authenticationSec', 'https', 'auditLogs', 'apiSecurity'
+    'protection',
+    'authenticationSec',
+    'https',
+    'auditLogs',
+    'apiSecurity'
   ];
 
   const handleSecurityChange = (option: string, checked: boolean) => {
@@ -32,9 +36,15 @@ const SecurityStep: React.FC<SecurityStepProps> = ({ formData, updateFormData })
     updateFormData({ selectedSecurity: updatedOptions });
   };
 
-  const selectAll = () => {
-    updateFormData({ selectedSecurity: [...securityOptions] });
+  const toggleSelectAll = () => {
+    if (formData.selectedSecurity.length === securityOptions.length) {
+      updateFormData({ selectedSecurity: [] });
+    } else {
+      updateFormData({ selectedSecurity: [...securityOptions] });
+    }
   };
+
+  const allSelected = formData.selectedSecurity.length === securityOptions.length;
 
   return (
     <div className="space-y-6">
@@ -50,13 +60,13 @@ const SecurityStep: React.FC<SecurityStepProps> = ({ formData, updateFormData })
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={selectAll}
+              onClick={toggleSelectAll}
             >
-              {t('promptGenerator.common.selectAll')}
+              {allSelected ? t('promptGenerator.common.unselectAll') : t('promptGenerator.common.selectAll')}
             </Button>
           </div>
           
-          <div className="space-y-2">
+          <div className="space-y-3">
             {securityOptions.map((option) => (
               <div key={option} className="flex items-center space-x-2">
                 <Checkbox 
@@ -73,7 +83,7 @@ const SecurityStep: React.FC<SecurityStepProps> = ({ formData, updateFormData })
             ))}
             
             <OtherSpecifyItem
-              id="security-other"
+              id="security-otherSecurityFeature"
               label={t('promptGenerator.security.otherSecurityFeature')}
               checked={formData.selectedSecurity.includes('otherSecurityFeature')}
               value={formData.otherSecurityFeature}
@@ -85,7 +95,7 @@ const SecurityStep: React.FC<SecurityStepProps> = ({ formData, updateFormData })
                   });
                 } else {
                   updateFormData({
-                    selectedSecurity: formData.selectedSecurity.filter(s => s !== 'otherSecurityFeature'),
+                    selectedSecurity: formData.selectedSecurity.filter(o => o !== 'otherSecurityFeature'),
                     otherSecurityFeature: ''
                   });
                 }

@@ -60,17 +60,33 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({ formData, updateF
     updateFormData({ bestPractices: updatedOptions });
   };
 
-  const selectAllFolders = () => {
-    updateFormData({ folderOrganization: [...folderOptions] });
+  const toggleFolderSelectAll = () => {
+    if (formData.folderOrganization.length === folderOptions.length) {
+      updateFormData({ folderOrganization: [] });
+    } else {
+      updateFormData({ folderOrganization: [...folderOptions] });
+    }
   };
 
-  const selectAllArchitectures = () => {
-    updateFormData({ architecturalPattern: [...architectureOptions] });
+  const toggleArchitectureSelectAll = () => {
+    if (formData.architecturalPattern.length === architectureOptions.length) {
+      updateFormData({ architecturalPattern: [] });
+    } else {
+      updateFormData({ architecturalPattern: [...architectureOptions] });
+    }
   };
 
-  const selectAllBestPractices = () => {
-    updateFormData({ bestPractices: [...bestPracticeOptions] });
+  const toggleBestPracticesSelectAll = () => {
+    if (formData.bestPractices.length === bestPracticeOptions.length) {
+      updateFormData({ bestPractices: [] });
+    } else {
+      updateFormData({ bestPractices: [...bestPracticeOptions] });
+    }
   };
+
+  const allFoldersSelected = formData.folderOrganization.length === folderOptions.length;
+  const allArchitecturesSelected = formData.architecturalPattern.length === architectureOptions.length;
+  const allBestPracticesSelected = formData.bestPractices.length === bestPracticeOptions.length;
 
   return (
     <div className="space-y-6">
@@ -87,9 +103,9 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({ formData, updateF
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={selectAllFolders}
+              onClick={toggleFolderSelectAll}
             >
-              {t('promptGenerator.common.selectAll')}
+              {allFoldersSelected ? t('promptGenerator.common.unselectAll') : t('promptGenerator.common.selectAll')}
             </Button>
           </div>
           
@@ -141,9 +157,9 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({ formData, updateF
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={selectAllArchitectures}
+              onClick={toggleArchitectureSelectAll}
             >
-              {t('promptGenerator.common.selectAll')}
+              {allArchitecturesSelected ? t('promptGenerator.common.unselectAll') : t('promptGenerator.common.selectAll')}
             </Button>
           </div>
           
@@ -195,9 +211,9 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({ formData, updateF
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={selectAllBestPractices}
+              onClick={toggleBestPracticesSelectAll}
             >
-              {t('promptGenerator.common.selectAll')}
+              {allBestPracticesSelected ? t('promptGenerator.common.unselectAll') : t('promptGenerator.common.selectAll')}
             </Button>
           </div>
           

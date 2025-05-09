@@ -1,3 +1,4 @@
+
 export const promptGeneratorTranslations = {
   en: {
     promptGenerator: {
@@ -351,7 +352,7 @@ export const promptGeneratorTranslations = {
         urlPlaceholder: "https://url-do-seu-projeto.com",
         urlHelp: "URL opcional para o seu projeto",
         createdDate: "Data de Criação",
-        updatedDate: "��ltima Atualização",
+        updatedDate: "Última Atualização",
         version: "Versão",
         versionHelp: "Versão atual do projeto"
       },

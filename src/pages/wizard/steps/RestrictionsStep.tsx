@@ -19,22 +19,33 @@ interface RestrictionsStepProps {
 
 const RestrictionsStep: React.FC<RestrictionsStepProps> = ({ formData, updateFormData }) => {
   const { t } = useLanguage();
-
+  
   const restrictionOptions = [
-    'eval', 'globalVars', 'callbackHell', 'unmaintained', 'important', 'paidDeps'
+    'eval',
+    'globalVars',
+    'callbackHell',
+    'unmaintained',
+    'important',
+    'paidDeps'
   ];
 
-  const handleRestrictionChange = (restriction: string, checked: boolean) => {
-    const updatedRestrictions = checked
-      ? [...formData.avoidInCode, restriction]
-      : formData.avoidInCode.filter(r => r !== restriction);
+  const handleRestrictionChange = (option: string, checked: boolean) => {
+    const updatedOptions = checked
+      ? [...formData.avoidInCode, option]
+      : formData.avoidInCode.filter(o => o !== option);
     
-    updateFormData({ avoidInCode: updatedRestrictions });
+    updateFormData({ avoidInCode: updatedOptions });
   };
 
-  const selectAll = () => {
-    updateFormData({ avoidInCode: [...restrictionOptions] });
+  const toggleSelectAll = () => {
+    if (formData.avoidInCode.length === restrictionOptions.length) {
+      updateFormData({ avoidInCode: [] });
+    } else {
+      updateFormData({ avoidInCode: [...restrictionOptions] });
+    }
   };
+
+  const allSelected = formData.avoidInCode.length === restrictionOptions.length;
 
   return (
     <div className="space-y-6">
@@ -50,13 +61,13 @@ const RestrictionsStep: React.FC<RestrictionsStepProps> = ({ formData, updateFor
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={selectAll}
+              onClick={toggleSelectAll}
             >
-              {t('promptGenerator.common.selectAll')}
+              {allSelected ? t('promptGenerator.common.unselectAll') : t('promptGenerator.common.selectAll')}
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {restrictionOptions.map((option) => (
               <div key={option} className="flex items-center space-x-2">
                 <Checkbox 
@@ -71,28 +82,28 @@ const RestrictionsStep: React.FC<RestrictionsStepProps> = ({ formData, updateFor
                 </Label>
               </div>
             ))}
+            
+            <OtherSpecifyItem
+              id="restriction-other"
+              label={t('promptGenerator.restrictions.otherRestriction')}
+              checked={formData.avoidInCode.includes('otherRestriction')}
+              value={formData.otherRestriction}
+              placeholder={t('promptGenerator.restrictions.otherRestrictionPlaceholder')}
+              onCheckedChange={(checked) => {
+                if (checked) {
+                  updateFormData({
+                    avoidInCode: [...formData.avoidInCode, 'otherRestriction']
+                  });
+                } else {
+                  updateFormData({
+                    avoidInCode: formData.avoidInCode.filter(r => r !== 'otherRestriction'),
+                    otherRestriction: ''
+                  });
+                }
+              }}
+              onValueChange={(value) => updateFormData({ otherRestriction: value })}
+            />
           </div>
-          
-          <OtherSpecifyItem
-            id="restriction-other"
-            label={t('promptGenerator.restrictions.otherRestriction')}
-            checked={formData.avoidInCode.includes('otherRestriction')}
-            value={formData.otherRestriction}
-            placeholder={t('promptGenerator.restrictions.otherRestrictionPlaceholder')}
-            onCheckedChange={(checked) => {
-              if (checked) {
-                updateFormData({
-                  avoidInCode: [...formData.avoidInCode, 'otherRestriction']
-                });
-              } else {
-                updateFormData({
-                  avoidInCode: formData.avoidInCode.filter(r => r !== 'otherRestriction'),
-                  otherRestriction: ''
-                });
-              }
-            }}
-            onValueChange={(value) => updateFormData({ otherRestriction: value })}
-          />
         </div>
       </Card>
     </div>
