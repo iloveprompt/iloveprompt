@@ -1,5 +1,5 @@
 
-import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import React, { createContext, useState, useContext, ReactNode } from 'react';
 import enTranslations from './locales/en.json';
 import ptTranslations from './locales/pt.json';
 import esTranslations from './locales/es.json';

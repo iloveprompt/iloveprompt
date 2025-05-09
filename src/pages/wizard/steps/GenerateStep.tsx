@@ -46,14 +46,14 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
     let prompt = '';
     
     // Project Information
-    prompt += `# Projeto: ${data.project.title || 'Sem título'}\n`;
-    prompt += `Autor: ${data.project.author || 'Não especificado'}\n`;
-    prompt += `Email: ${data.project.email || 'Não especificado'}\n`;
-    if (data.project.url) prompt += `URL: ${data.project.url}\n`;
-    prompt += `Versão: ${data.project.version}\n\n`;
+    prompt += `# ${t('promptGenerator.project.title')}: ${data.project.title || t('common.loading')}\n`;
+    prompt += `${t('promptGenerator.project.author')}: ${data.project.author || t('common.loading')}\n`;
+    prompt += `${t('promptGenerator.project.email')}: ${data.project.email || t('common.loading')}\n`;
+    if (data.project.url) prompt += `${t('promptGenerator.project.url')}: ${data.project.url}\n`;
+    prompt += `${t('promptGenerator.project.version')}: ${data.project.version}\n\n`;
     
     // System Type
-    prompt += `## Tipo de Sistema\n`;
+    prompt += `## ${t('promptGenerator.systemType.title')}\n`;
     if (data.systemType.selected) {
       const systemType = data.systemType.selected === 'other' 
         ? data.systemType.otherType 
@@ -63,13 +63,13 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
     
     // Objective
     if (data.objective.defineObjectives) {
-      prompt += `## Objetivo\n`;
+      prompt += `## ${t('promptGenerator.objective.title')}\n`;
       if (data.objective.primaryObjective) {
         prompt += `${data.objective.primaryObjective}\n\n`;
       }
       
       if (data.objective.selectedObjectives.length > 0) {
-        prompt += `Objetivos de Negócios:\n`;
+        prompt += `${t('promptGenerator.objective.businessObjectives')}:\n`;
         data.objective.selectedObjectives.forEach((obj: string) => {
           if (obj === 'Other') {
             prompt += `- ${data.objective.otherObjective}\n`;
@@ -83,10 +83,10 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
     
     // Requirements
     if (data.requirements.defineRequirements) {
-      prompt += `## Requisitos\n`;
+      prompt += `## ${t('promptGenerator.requirements.title')}\n`;
       
       if (data.requirements.userTypes.length > 0) {
-        prompt += `### Tipos de Usuários:\n`;
+        prompt += `### ${t('promptGenerator.requirements.userTypes')}:\n`;
         data.requirements.userTypes.forEach((user: string) => {
           prompt += `- ${user}\n`;
         });
@@ -94,7 +94,7 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
       }
       
       if (data.requirements.functionalRequirements.length > 0) {
-        prompt += `### Requisitos Funcionais:\n`;
+        prompt += `### ${t('promptGenerator.requirements.functionalRequirements')}:\n`;
         data.requirements.functionalRequirements.forEach((req: string) => {
           prompt += `- ${req}\n`;
         });
@@ -102,7 +102,7 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
       }
       
       if (data.requirements.nonFunctionalRequirements.length > 0) {
-        prompt += `### Requisitos Não Funcionais:\n`;
+        prompt += `### ${t('promptGenerator.requirements.nonFunctionalRequirements')}:\n`;
         data.requirements.nonFunctionalRequirements.forEach((req: string) => {
           if (req === 'Other') {
             prompt += `- ${data.requirements.otherRequirement}\n`;
@@ -115,10 +115,10 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
     }
     
     // Stack
-    prompt += `## Stack Tecnológica\n`;
+    prompt += `## ${t('promptGenerator.stack.title')}\n`;
     
     if (data.stack.frontend.length > 0) {
-      prompt += `### Frontend:\n`;
+      prompt += `### ${t('promptGenerator.stack.frontendTitle')}:\n`;
       data.stack.frontend.forEach((tech: string) => {
         prompt += `- ${tech}\n`;
       });
@@ -126,7 +126,7 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
     }
     
     if (data.stack.backend.length > 0) {
-      prompt += `### Backend:\n`;
+      prompt += `### ${t('promptGenerator.stack.backendTitle')}:\n`;
       data.stack.backend.forEach((tech: string) => {
         prompt += `- ${tech}\n`;
       });
@@ -134,7 +134,7 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
     }
     
     if (data.stack.database.length > 0) {
-      prompt += `### Banco de Dados:\n`;
+      prompt += `### ${t('promptGenerator.stack.databaseTitle')}:\n`;
       data.stack.database.forEach((tech: string) => {
         prompt += `- ${tech}\n`;
       });
@@ -142,7 +142,7 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
     }
     
     if (data.stack.hosting.length > 0) {
-      prompt += `### Hospedagem/Infraestrutura:\n`;
+      prompt += `### ${t('promptGenerator.stack.hostingTitle')}:\n`;
       data.stack.hosting.forEach((tech: string) => {
         prompt += `- ${tech}\n`;
       });
@@ -151,7 +151,7 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
     
     // Security
     if (data.security.selectedSecurity.length > 0) {
-      prompt += `## Segurança\n`;
+      prompt += `## ${t('promptGenerator.security.title')}\n`;
       data.security.selectedSecurity.forEach((security: string) => {
         if (security === 'Other') {
           prompt += `- ${data.security.otherSecurityFeature}\n`;
@@ -162,7 +162,7 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
       prompt += '\n';
     }
     
-    prompt += `\nCom base nas informações acima, por favor desenvolva um prompt detalhado para o meu sistema.`;
+    prompt += `\n${t('promptGenerator.generate.createPrompt')}`;
     
     return prompt;
   };
