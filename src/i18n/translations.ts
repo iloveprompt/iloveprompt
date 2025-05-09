@@ -30,7 +30,8 @@ export const translations: Record<string, Translation> = {
       addMoreItems: "Add more items",
       deleteItem: "Delete",
       incompleteProfile: "Incomplete profile",
-      completeProfile: "Complete profile"
+      completeProfile: "Complete profile",
+      pick: "Pick"
     }
   },
   pt: {
@@ -45,7 +46,8 @@ export const translations: Record<string, Translation> = {
       addMoreItems: "Adicionar mais itens",
       deleteItem: "Excluir",
       incompleteProfile: "Cadastro incompleto",
-      completeProfile: "Completar cadastro"
+      completeProfile: "Completar cadastro",
+      pick: "Escolher"
     }
   }
 };

@@ -38,7 +38,9 @@ const UserProfileMenu: React.FC<UserProfileMenuProps> = ({ showPlan = true, plan
     : 'US';
 
   // Traduzir o plano
-  const translatedPlan = plan === 'Free' ? (language === 'pt' ? 'Básico' : 'Free') : plan;
+  const translatedPlan = plan === 'Free' 
+    ? (language === 'pt' ? 'Básico' : 'Free') 
+    : plan;
 
   return (
     <div className="flex items-center gap-3">
@@ -52,7 +54,7 @@ const UserProfileMenu: React.FC<UserProfileMenuProps> = ({ showPlan = true, plan
                     <span className="absolute -top-1 -right-1 bg-red-500 rounded-full w-3 h-3 border border-white z-10"></span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>{language === 'pt' ? 'Cadastro incompleto' : 'Incomplete profile'}</p>
+                    <p>{t('common.incompleteProfile')}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -72,7 +74,7 @@ const UserProfileMenu: React.FC<UserProfileMenuProps> = ({ showPlan = true, plan
           {isProfileIncomplete && (
             <DropdownMenuItem onClick={() => navigate('/dashboard/profile')} className="text-red-600">
               <AlertCircle className="mr-2 h-4 w-4" />
-              {language === 'pt' ? 'Completar cadastro' : 'Complete profile'}
+              {t('common.completeProfile')}
             </DropdownMenuItem>
           )}
           <DropdownMenuItem onClick={() => navigate('/dashboard/profile')}>

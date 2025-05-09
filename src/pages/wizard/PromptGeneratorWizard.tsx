@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -269,7 +270,7 @@ const PromptGeneratorWizard = () => {
       }
     },
     stack: {
-      separateFrontendBackend: true,
+      separateFrontendBackend: false, // Changed from true to false as default
       frontend: [],
       backend: [],
       database: [],

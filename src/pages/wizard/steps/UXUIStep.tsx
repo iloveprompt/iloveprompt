@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card } from '@/components/ui/card';
@@ -268,10 +269,11 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
           ))}
           
           <RadioSpecifyItem
+            id="visual-style-other"
             groupValue={formData.visualStyle}
             value="otherVisualStyle"
             label={t('promptGenerator.uxui.otherVisualStyle')}
-            specifyValue={formData.otherVisualStyle as string}
+            specifyValue={formData.otherVisualStyle}
             placeholder={t('promptGenerator.uxui.otherVisualStylePlaceholder')}
             onValueChange={(value) => updateFormData({ visualStyle: value })}
             onSpecifyValueChange={(value) => updateFormData({ otherVisualStyle: value })}
@@ -298,10 +300,11 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
           ))}
           
           <RadioSpecifyItem
+            id="menu-type-other"
             groupValue={formData.menuType}
             value="otherMenuType"
             label={t('promptGenerator.uxui.otherMenuType')}
-            specifyValue={formData.otherMenuType as string}
+            specifyValue={formData.otherMenuType}
             placeholder={t('promptGenerator.uxui.otherMenuTypePlaceholder')}
             onValueChange={(value) => updateFormData({ menuType: value })}
             onSpecifyValueChange={(value) => updateFormData({ otherMenuType: value })}
