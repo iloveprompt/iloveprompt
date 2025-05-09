@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from "@/components/ui/switch";
 import OtherSpecifyItem from '@/components/OtherSpecifyItem';
+import { ToggleLeft, ToggleRight } from 'lucide-react';
 
 interface StackData {
   separateFrontendBackend: boolean;
@@ -24,7 +25,6 @@ interface StackData {
   otherHosting: string;
   otherFullstack: string;
   otherOrm: string;
-  defineStack?: boolean;
 }
 
 interface StackStepProps {
@@ -144,7 +144,6 @@ const StackStep: React.FC<StackStepProps> = ({ formData, updateFormData }) => {
     help?: string
   ) => {
     const allSelected = isAllSelected(category, options);
-    const otherKey = `other${category.charAt(0).toUpperCase() + category.slice(1)}` as keyof StackData;
     
     return (
       <Card className="p-6 mb-4">
@@ -215,86 +214,86 @@ const StackStep: React.FC<StackStepProps> = ({ formData, updateFormData }) => {
         <p className="text-gray-500 mb-4">{t('promptGenerator.stack.description')}</p>
       </div>
 
-      {/* Define stack section */}
-      <div className="flex items-center space-x-3 mb-6">
-        <Switch
-          id="defineStack-switch"
-          checked={formData.defineStack !== false}
-          onCheckedChange={(value) => updateFormData({ defineStack: value })}
-        />
-        <Label htmlFor="defineStack-switch">
-          {t('promptGenerator.stack.defineStack')}
-        </Label>
+      {/* Frontend/Backend Separation Option - styled like in the image */}
+      <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-3 w-full">
+          <div className="flex items-center flex-grow">
+            <div className="flex-grow">
+              <Label 
+                htmlFor="separateFrontendBackend-switch" 
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                {t('promptGenerator.stack.separateFrontendBackend')}
+              </Label>
+            </div>
+            <div className="flex items-center">
+              {formData.separateFrontendBackend ? (
+                <ToggleRight 
+                  className="h-7 w-7 text-primary cursor-pointer" 
+                  onClick={() => updateFormData({ separateFrontendBackend: false })}
+                />
+              ) : (
+                <ToggleLeft 
+                  className="h-7 w-7 text-muted-foreground cursor-pointer" 
+                  onClick={() => updateFormData({ separateFrontendBackend: true })}
+                />
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Show stack options only if defineStack is true or undefined */}
-      {formData.defineStack !== false && (
+      {/* Separate Frontend/Backend or Fullstack */}
+      {formData.separateFrontendBackend ? (
         <>
-          {/* Frontend/Backend Separation Option */}
-          <div className="flex items-center space-x-3 mb-6">
-            <Switch
-              id="separateFrontendBackend-switch"
-              checked={formData.separateFrontendBackend}
-              onCheckedChange={(value) => updateFormData({ separateFrontendBackend: value })}
-            />
-            <Label htmlFor="separateFrontendBackend-switch">
-              {t('promptGenerator.stack.separateFrontendBackend')}
-            </Label>
-          </div>
-
-          {/* Separate Frontend/Backend or Fullstack */}
-          {formData.separateFrontendBackend ? (
-            <>
-              {renderTechOptions(
-                'frontend',
-                frontendOptions,
-                t('promptGenerator.stack.frontendTitle'),
-                'otherFrontend',
-                t('promptGenerator.stack.frontendHelp')
-              )}
-              {renderTechOptions(
-                'backend',
-                backendOptions,
-                t('promptGenerator.stack.backendTitle'),
-                'otherBackend',
-                t('promptGenerator.stack.backendHelp')
-              )}
-            </>
-          ) : (
-            renderTechOptions(
-              'fullstack',
-              fullstackOptions,
-              t('promptGenerator.stack.fullstack'),
-              'otherFullstack'
-            )
-          )}
-
-          {/* Database and Hosting options */}
-          <Separator className="my-6" />
-          
           {renderTechOptions(
-            'database',
-            databaseOptions,
-            t('promptGenerator.stack.databaseTitle'),
-            'otherDatabase',
-            t('promptGenerator.stack.databaseHelp')
+            'frontend',
+            frontendOptions,
+            t('promptGenerator.stack.frontendTitle'),
+            'otherFrontend',
+            t('promptGenerator.stack.frontendHelp')
           )}
-          
           {renderTechOptions(
-            'orm',
-            ormOptions,
-            t('promptGenerator.stack.orm'),
-            'otherOrm'
-          )}
-          
-          {renderTechOptions(
-            'hosting',
-            hostingOptions,
-            t('promptGenerator.stack.hostingTitle'),
-            'otherHosting',
-            t('promptGenerator.stack.hostingHelp')
+            'backend',
+            backendOptions,
+            t('promptGenerator.stack.backendTitle'),
+            'otherBackend',
+            t('promptGenerator.stack.backendHelp')
           )}
         </>
+      ) : (
+        renderTechOptions(
+          'fullstack',
+          fullstackOptions,
+          t('promptGenerator.stack.fullstack'),
+          'otherFullstack'
+        )
+      )}
+
+      {/* Database and Hosting options */}
+      <Separator className="my-6" />
+      
+      {renderTechOptions(
+        'database',
+        databaseOptions,
+        t('promptGenerator.stack.databaseTitle'),
+        'otherDatabase',
+        t('promptGenerator.stack.databaseHelp')
+      )}
+      
+      {renderTechOptions(
+        'orm',
+        ormOptions,
+        t('promptGenerator.stack.orm'),
+        'otherOrm'
+      )}
+      
+      {renderTechOptions(
+        'hosting',
+        hostingOptions,
+        t('promptGenerator.stack.hostingTitle'),
+        'otherHosting',
+        t('promptGenerator.stack.hostingHelp')
       )}
     </div>
   );

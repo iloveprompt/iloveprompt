@@ -211,7 +211,7 @@ export const promptGeneratorTranslations = {
       stack: {
         title: "Technology Stack",
         description: "Select the technologies you want to use for your project",
-        separateFrontendBackend: "Separate Frontend and Backend?",
+        separateFrontendBackend: "Would you like to separate Frontend and Backend?",
         hasSeparation: "Yes (Separate)",
         noSeparation: "No (Fullstack)",
         frontend: "Frontend",
@@ -229,8 +229,7 @@ export const promptGeneratorTranslations = {
         fullstack: "Fullstack Integrated",
         orm: "ORM/ODM",
         deployment: "Deploy / Infrastructure",
-        specifyOther: "Describe your custom technology",
-        defineStack: "Would you like to define a technology stack?"
+        specifyOther: "Describe your custom technology"
       },
       security: {
         title: "Security Requirements",
@@ -535,7 +534,7 @@ export const promptGeneratorTranslations = {
       stack: {
         title: "Stack Tecnológica",
         description: "Selecione as tecnologias que você deseja usar em seu projeto",
-        separateFrontendBackend: "Separar Frontend e Backend?",
+        separateFrontendBackend: "Você gostaria de separar Frontend e Backend?",
         hasSeparation: "Sim (Separado)",
         noSeparation: "Não (Fullstack)",
         frontend: "Frontend",
@@ -553,8 +552,7 @@ export const promptGeneratorTranslations = {
         fullstack: "Fullstack Integrado",
         orm: "ORM/ODM",
         deployment: "Deploy / Infraestrutura",
-        specifyOther: "Descreva sua tecnologia personalizada",
-        defineStack: "Você gostaria de definir uma stack tecnológica?"
+        specifyOther: "Descreva sua tecnologia personalizada"
       },
       security: {
         title: "Requisitos de Segurança",
