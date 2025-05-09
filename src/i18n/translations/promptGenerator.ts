@@ -128,7 +128,6 @@ export const promptGeneratorTranslations = {
           other: "Other Element"
         },
         elementsOtherPlaceholder: "Describe the other element",
-        style: "Style",
         styleOption: "Select style preferences:",
         styleItems: {
           modern: "Modern",
@@ -141,7 +140,7 @@ export const promptGeneratorTranslations = {
         authentication: "Authentication",
         emailPassword: "Email + Password",
         socialLogin: "Social Login (Google, Facebook, etc.)",
-        twoFactorAuth: "Two-factor Authentication",
+        twoFactorAuth: "Two-Factor Authentication",
         otherAuthMethod: "Other Authentication Method",
         otherAuthMethodPlaceholder: "Describe your authentication method",
         userDashboard: "User Dashboard",
@@ -388,7 +387,6 @@ export const promptGeneratorTranslations = {
           other: "Outro Elemento"
         },
         elementsOtherPlaceholder: "Descreva o outro elemento",
-        style: "Estilo",
         styleOption: "Selecione preferências de estilo:",
         styleItems: {
           modern: "Moderno",

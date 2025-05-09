@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -5,14 +6,17 @@ import { Menu } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import AdminProfileMenu from './AdminProfileMenu';
 import LanguageSwitcher from '../LanguageSwitcher';
+
 const AdminDashboardNavbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const {
     t
   } = useLanguage();
+  
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+  
   return <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
       <div className="container mx-auto px-4 sm:px-6 py-3">
         <div className="flex items-center justify-between">
@@ -80,4 +84,5 @@ const AdminDashboardNavbar = () => {
         </nav>}
     </header>;
 };
+
 export default AdminDashboardNavbar;

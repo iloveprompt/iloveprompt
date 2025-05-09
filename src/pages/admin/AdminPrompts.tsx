@@ -1,15 +1,17 @@
+
 import React, { useState } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Edit, Trash2, Eye, Plus, Search } from 'lucide-react';
 import PromptGeneratorWizard from '../wizard/PromptGeneratorWizard';
+import WizardItemsManager from '@/components/admin/WizardItemsManager';
 
 // Custom badge styles for success variant
 const getBadgeVariant = (status: string) => {
@@ -104,6 +106,7 @@ const AdminPrompts = () => {
       <Tabs defaultValue="prompts" className="space-y-4" value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="prompts">{t('admin.prompts')}</TabsTrigger>
+          <TabsTrigger value="wizardItems">{t('dashboard.wizardItems')}</TabsTrigger>
           <TabsTrigger value="templates">{t('dashboard.templates')}</TabsTrigger>
           <TabsTrigger value="categories">{t('dashboard.categories')}</TabsTrigger>
         </TabsList>
@@ -188,6 +191,10 @@ const AdminPrompts = () => {
               </Table>
             </CardContent>
           </Card>
+        </TabsContent>
+        
+        <TabsContent value="wizardItems" className="space-y-4">
+          <WizardItemsManager />
         </TabsContent>
         
         <TabsContent value="templates" className="space-y-4">
