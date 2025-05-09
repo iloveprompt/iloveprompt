@@ -1,16 +1,9 @@
 
 import React from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { 
-  Card, 
-  Checkbox, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  RadioGroup, 
-  RadioGroupItem 
-} from '@/components/ui/index';
+import { Card } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { CheckboxItem } from '@/components/CheckboxItem';
 
 interface UXUIData {
@@ -123,7 +116,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
           {visualStyleOptions.map(style => (
             <div key={style} className="flex items-center space-x-2">
               <RadioGroupItem value={style} id={`style-${style}`} />
-              <label 
+              <label
                 htmlFor={`style-${style}`}
                 className="text-sm cursor-pointer"
               >
