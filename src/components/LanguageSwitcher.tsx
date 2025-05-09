@@ -1,35 +1,55 @@
 
 import React from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Button } from '@/components/ui/button';
-import { Globe } from 'lucide-react';
+import { Flag } from 'lucide-react';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const LanguageSwitcher: React.FC = () => {
   const { language, setLanguage, t } = useLanguage();
   
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="text-gray-700 hover:text-brand-600 flex items-center">
-          <Globe className="h-5 w-5 mr-1" />
-          <span className="text-sm">{language === 'pt' ? 'Pt-Br' : 'En-US'}</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setLanguage('pt')} className={language === 'pt' ? 'bg-accent/50' : ''}>
-          {t('languageSwitcher.pt')} (Pt-Br)
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setLanguage('en')} className={language === 'en' ? 'bg-accent/50' : ''}>
-          {t('languageSwitcher.en')} (En-US)
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Select
+      value={language}
+      onValueChange={(value: 'pt' | 'en') => setLanguage(value)}
+    >
+      <SelectTrigger className="w-[130px] h-9 bg-slate-900 border-slate-800 text-white">
+        <SelectValue>
+          <div className="flex items-center">
+            {language === 'pt' ? (
+              <>
+                <span className="mr-2 text-green-500">●</span>
+                <span>Português</span>
+              </>
+            ) : (
+              <>
+                <span className="mr-2 text-blue-500">●</span>
+                <span>English</span>
+              </>
+            )}
+          </div>
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent className="bg-slate-900 border-slate-800 text-white">
+        <SelectItem value="pt" className="focus:bg-slate-800 focus:text-white hover:bg-slate-800">
+          <div className="flex items-center">
+            <span className="mr-2 text-green-500">●</span>
+            <span>Português</span>
+          </div>
+        </SelectItem>
+        <SelectItem value="en" className="focus:bg-slate-800 focus:text-white hover:bg-slate-800">
+          <div className="flex items-center">
+            <span className="mr-2 text-blue-500">●</span>
+            <span>English</span>
+          </div>
+        </SelectItem>
+      </SelectContent>
+    </Select>
   );
 };
 
