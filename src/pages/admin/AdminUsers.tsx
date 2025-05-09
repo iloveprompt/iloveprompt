@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge';
 import { Edit, Trash2, Eye, Search, UserPlus } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
-import { User } from '@supabase/supabase-js';
 
 interface UserWithRole {
   id: string;
@@ -19,11 +18,6 @@ interface UserWithRole {
   status: string;
   plan: string;
   created: string;
-}
-
-interface UserProfile {
-  id: string;
-  full_name?: string;
 }
 
 const AdminUsers = () => {
@@ -145,7 +139,8 @@ const AdminUsers = () => {
                 const userName = (profileData && profileData.full_name) || 
                   (authUser.email ? authUser.email.split('@')[0] : 'Unknown');
                 
-                const userStatus = authUser.banned_until ? 'inactive' : 'active';
+                // Verificar status do usuário - não use banned_until que não existe no tipo User
+                const userStatus = authUser.banned ? 'inactive' : 'active';
                 const createdDate = authUser.created_at ? 
                   new Date(authUser.created_at).toLocaleDateString() : 
                   'Unknown';
@@ -164,28 +159,30 @@ const AdminUsers = () => {
           } catch (authError) {
             console.error('Erro ao buscar usuários:', authError);
             
-            // Fallback para buscar usuários diretamente da tabela auth.users
-            const { data: authUsers, error } = await supabase
-              .from('auth.users')
-              .select('id, email, created_at');
+            // Fallback para buscar usuários diretamente da tabela profiles
+            const { data: profileUsers, error } = await supabase
+              .from('user_profiles')
+              .select('id, full_name, created_at');
             
             if (error) {
               throw error;
             }
             
-            if (authUsers) {
-              for (const authUser of authUsers) {
-                let userName = authUser.email ? authUser.email.split('@')[0] : 'Unknown';
+            if (profileUsers) {
+              for (const profileUser of profileUsers) {
+                let userName = profileUser.full_name || 'Unknown';
                 
+                // Buscar email diretamente do auth.users não é possível pelo cliente
+                // Usar uma abordagem alternativa para mostrar informações do usuário
                 usersList.push({
-                  id: authUser.id as string,
+                  id: profileUser.id,
                   name: userName,
-                  email: authUser.email as string || 'No email',
+                  email: 'Private', // Não podemos acessar o email diretamente
                   role: 'User',
                   status: 'active',
                   plan: 'Free',
-                  created: authUser.created_at ? 
-                    new Date(authUser.created_at as string).toLocaleDateString() : 
+                  created: profileUser.created_at ? 
+                    new Date(profileUser.created_at).toLocaleDateString() : 
                     'Unknown'
                 });
               }

@@ -1,4 +1,3 @@
-
 import { supabase } from '@/lib/supabase';
 
 export const createDatabaseStructure = async () => {
@@ -327,63 +326,97 @@ CREATE INDEX IF NOT EXISTS idx_system_logs_created_at ON system_logs(created_at)
   `;
 
   try {
-    // Executar o script SQL usando Supabase
-    const { error } = await supabase.rpc('exec_sql', { sql: sqlScript });
-
-    if (error) {
-      if (error.message.includes('Function "exec_sql" not found')) {
-        // Caso a função exec_sql não exista, precisamos primeiro criar uma função que execute SQL
-        const createFunctionSQL = `
-          CREATE OR REPLACE FUNCTION exec_sql(sql text) RETURNS void AS $$
-          BEGIN
-            EXECUTE sql;
-          END;
-          $$ LANGUAGE plpgsql SECURITY DEFINER;
-        `;
+    // Verificar se a função já existe
+    const { data: tables, error: tablesError } = await supabase.rpc('get_tables');
+    
+    if (tablesError) {
+      console.error('Erro ao verificar tabelas existentes:', tablesError);
+      
+      // A função get_tables não existe ou houve outro erro
+      // Tentar criar manualmente a estrutura usando fetch direta para a API REST do Supabase
+      
+      // Verificar se os erros são devido à falta da função exec_sql
+      if (tablesError.message.includes('Function "get_tables" not found')) {
+        console.log('Função get_tables não encontrada. Tentando criar a estrutura manualmente...');
         
-        console.log('Criando função exec_sql...');
-        
-        // Tentativa de criar a função usando a API REST do Supabase
-        // Isso geralmente exigirá permissões especiais no banco de dados
-        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/rest/v1/rpc/exec_sql`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({ sql: createFunctionSQL }),
-        });
-        
-        if (!response.ok) {
+        try {
+          // Essa abordagem requer permissões de administrador no banco de dados
+          // Informar ao usuário que ele precisará criar o script SQL manualmente
           return {
             success: false,
-            message: 'Erro ao criar função exec_sql. Você precisa executar o script SQL manualmente no console do Supabase.'
+            message: 'A função get_tables não foi encontrada. Por favor, execute o script SQL manualmente no console do Supabase.'
           };
-        }
-        
-        // Agora tente executar o script SQL novamente
-        const { error: retryError } = await supabase.rpc('exec_sql', { sql: sqlScript });
-        if (retryError) {
-          console.error('Erro ao executar script SQL:', retryError);
+        } catch (directError) {
+          console.error('Erro ao tentar método alternativo:', directError);
           return {
             success: false,
             message: 'Erro ao criar tabelas. Por favor, execute o script SQL manualmente no console do Supabase.'
           };
         }
-      } else {
-        console.error('Erro ao executar script SQL:', error);
+      }
+    } else {
+      // Verificar se as tabelas necessárias já existem
+      if (tables && Array.isArray(tables)) {
+        const requiredTables = [
+          'user_roles', 
+          'user_role_assignments', 
+          'subscription_plans', 
+          'user_subscriptions'
+        ];
+        
+        const missingTables = requiredTables.filter(table => !tables.includes(table));
+        
+        if (missingTables.length === 0) {
+          console.log('Todas as tabelas necessárias já existem!');
+          return {
+            success: true,
+            message: 'Estrutura do banco de dados já existe!'
+          };
+        } else {
+          console.log(`Tabelas faltantes: ${missingTables.join(', ')}. Prosseguindo com a criação...`);
+        }
+      }
+    }
+    
+    // A abordagem abaixo só funcionará se o usuário tiver permissões apropriadas
+    // e se a função SQL específica já existir no banco de dados
+    
+    // Tentativa alternativa: usar a SQL API REST diretamente
+    try {
+      const supabaseUrl = supabase.supabaseUrl;
+      const supabaseKey = supabase.supabaseKey;
+      
+      const response = await fetch(`${supabaseUrl}/rest/v1/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ query: sqlScript })
+      });
+      
+      if (!response.ok) {
+        console.error('Erro ao executar SQL via API REST:', await response.text());
         return {
           success: false,
           message: 'Erro ao criar tabelas. Por favor, execute o script SQL manualmente no console do Supabase.'
         };
       }
+      
+      return {
+        success: true,
+        message: 'Estrutura do banco de dados criada com sucesso!'
+      };
+      
+    } catch (directError) {
+      console.error('Erro ao executar SQL diretamente:', directError);
+      return {
+        success: false,
+        message: 'Erro ao criar tabelas. Por favor, execute o script SQL manualmente no console do Supabase.'
+      };
     }
-    
-    return {
-      success: true,
-      message: 'Estrutura do banco de dados criada com sucesso!'
-    };
   } catch (error) {
     console.error('Erro ao criar estrutura do banco de dados:', error);
     return {
