@@ -4,9 +4,11 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { Card } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import RadioSpecifyItem from '@/components/RadioSpecifyItem';
 
 interface SystemTypeData {
   selected: string;
+  otherType: string;
   examples: string[];
 }
 
@@ -69,7 +71,7 @@ const SystemTypeStep: React.FC<SystemTypeStepProps> = ({ formData, updateFormDat
             onValueChange={handleSystemTypeChange}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
           >
-            {systemTypes.map((type) => (
+            {systemTypes.filter(type => type !== 'other').map((type) => (
               <div key={type} className="flex items-center space-x-2">
                 <RadioGroupItem value={type} id={type} />
                 <Label htmlFor={type} className="cursor-pointer">
@@ -77,6 +79,17 @@ const SystemTypeStep: React.FC<SystemTypeStepProps> = ({ formData, updateFormDat
                 </Label>
               </div>
             ))}
+            
+            <RadioSpecifyItem 
+              id="system-type-other"
+              groupValue={formData.selected}
+              value="other"
+              label={t('promptGenerator.systemType.other')}
+              specifyValue={formData.otherType}
+              placeholder={t('promptGenerator.systemType.otherTypePlaceholder')}
+              onValueChange={handleSystemTypeChange}
+              onSpecifyValueChange={(value) => updateFormData({ otherType: value })}
+            />
           </RadioGroup>
 
           {formData.selected && (

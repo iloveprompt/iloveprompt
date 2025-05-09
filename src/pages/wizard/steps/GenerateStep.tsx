@@ -48,47 +48,70 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
     // Project Information
     prompt += `# Projeto: ${data.project.title || 'Sem título'}\n`;
     prompt += `Autor: ${data.project.author || 'Não especificado'}\n`;
+    prompt += `Email: ${data.project.email || 'Não especificado'}\n`;
+    if (data.project.url) prompt += `URL: ${data.project.url}\n`;
     prompt += `Versão: ${data.project.version}\n\n`;
     
-    // Objective
-    prompt += `## Objetivo\n`;
-    if (data.objective.primaryObjective) {
-      prompt += `${data.objective.primaryObjective}\n\n`;
+    // System Type
+    prompt += `## Tipo de Sistema\n`;
+    if (data.systemType.selected) {
+      const systemType = data.systemType.selected === 'other' 
+        ? data.systemType.otherType 
+        : t(`promptGenerator.systemType.${data.systemType.selected}`);
+      prompt += `${systemType}\n\n`;
     }
     
-    if (data.objective.selectedObjectives.length > 0) {
-      prompt += `Objetivos de Negócios:\n`;
-      data.objective.selectedObjectives.forEach((obj: string) => {
-        prompt += `- ${obj}\n`;
-      });
-      prompt += '\n';
+    // Objective
+    if (data.objective.defineObjectives) {
+      prompt += `## Objetivo\n`;
+      if (data.objective.primaryObjective) {
+        prompt += `${data.objective.primaryObjective}\n\n`;
+      }
+      
+      if (data.objective.selectedObjectives.length > 0) {
+        prompt += `Objetivos de Negócios:\n`;
+        data.objective.selectedObjectives.forEach((obj: string) => {
+          if (obj === 'Other') {
+            prompt += `- ${data.objective.otherObjective}\n`;
+          } else {
+            prompt += `- ${obj}\n`;
+          }
+        });
+        prompt += '\n';
+      }
     }
     
     // Requirements
-    prompt += `## Requisitos\n`;
-    
-    if (data.requirements.userTypes.length > 0) {
-      prompt += `### Tipos de Usuários:\n`;
-      data.requirements.userTypes.forEach((user: string) => {
-        prompt += `- ${user}\n`;
-      });
-      prompt += '\n';
-    }
-    
-    if (data.requirements.functionalRequirements.length > 0) {
-      prompt += `### Requisitos Funcionais:\n`;
-      data.requirements.functionalRequirements.forEach((req: string) => {
-        prompt += `- ${req}\n`;
-      });
-      prompt += '\n';
-    }
-    
-    if (data.requirements.nonFunctionalRequirements.length > 0) {
-      prompt += `### Requisitos Não Funcionais:\n`;
-      data.requirements.nonFunctionalRequirements.forEach((req: string) => {
-        prompt += `- ${req}\n`;
-      });
-      prompt += '\n';
+    if (data.requirements.defineRequirements) {
+      prompt += `## Requisitos\n`;
+      
+      if (data.requirements.userTypes.length > 0) {
+        prompt += `### Tipos de Usuários:\n`;
+        data.requirements.userTypes.forEach((user: string) => {
+          prompt += `- ${user}\n`;
+        });
+        prompt += '\n';
+      }
+      
+      if (data.requirements.functionalRequirements.length > 0) {
+        prompt += `### Requisitos Funcionais:\n`;
+        data.requirements.functionalRequirements.forEach((req: string) => {
+          prompt += `- ${req}\n`;
+        });
+        prompt += '\n';
+      }
+      
+      if (data.requirements.nonFunctionalRequirements.length > 0) {
+        prompt += `### Requisitos Não Funcionais:\n`;
+        data.requirements.nonFunctionalRequirements.forEach((req: string) => {
+          if (req === 'Other') {
+            prompt += `- ${data.requirements.otherRequirement}\n`;
+          } else {
+            prompt += `- ${req}\n`;
+          }
+        });
+        prompt += '\n';
+      }
     }
     
     // Stack
@@ -126,20 +149,15 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
       prompt += '\n';
     }
     
-    // Integrations
-    if (data.integrations.selectedIntegrations.length > 0) {
-      prompt += `## Integrações\n`;
-      data.integrations.selectedIntegrations.forEach((integration: string) => {
-        prompt += `- ${integration}\n`;
-      });
-      prompt += '\n';
-    }
-    
     // Security
     if (data.security.selectedSecurity.length > 0) {
       prompt += `## Segurança\n`;
       data.security.selectedSecurity.forEach((security: string) => {
-        prompt += `- ${security}\n`;
+        if (security === 'Other') {
+          prompt += `- ${data.security.otherSecurityFeature}\n`;
+        } else {
+          prompt += `- ${security}\n`;
+        }
       });
       prompt += '\n';
     }

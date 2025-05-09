@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -43,6 +42,12 @@ const getWizardSteps = (t: (key: string) => string) => [
     color: '#9b87f5' // Primary Purple
   },
   { 
+    id: 'systemType', 
+    title: t('promptGenerator.systemType.title'),
+    icon: Grid2X2,
+    color: '#8B5CF6' // Vivid Purple
+  },
+  { 
     id: 'objective', 
     title: t('promptGenerator.objective.title'),
     icon: Target,
@@ -53,12 +58,6 @@ const getWizardSteps = (t: (key: string) => string) => [
     title: t('promptGenerator.requirements.title'),
     icon: List,
     color: '#6E59A5' // Tertiary Purple
-  },
-  { 
-    id: 'systemType', 
-    title: t('promptGenerator.systemType.title'),
-    icon: Grid2X2,
-    color: '#8B5CF6' // Vivid Purple
   },
   { 
     id: 'features', 
@@ -115,6 +114,82 @@ const PromptGeneratorWizard = () => {
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   
+  // Reorder the steps to make System Type the second item
+  const getWizardSteps = (t: (key: string) => string) => [
+    { 
+      id: 'project', 
+      title: t('promptGenerator.project.title'),
+      icon: Info,
+      color: '#9b87f5' // Primary Purple
+    },
+    { 
+      id: 'systemType', 
+      title: t('promptGenerator.systemType.title'),
+      icon: Grid2X2,
+      color: '#8B5CF6' // Vivid Purple
+    },
+    { 
+      id: 'objective', 
+      title: t('promptGenerator.objective.title'),
+      icon: Target,
+      color: '#7E69AB' // Secondary Purple
+    },
+    { 
+      id: 'requirements', 
+      title: t('promptGenerator.requirements.title'),
+      icon: List,
+      color: '#6E59A5' // Tertiary Purple
+    },
+    { 
+      id: 'features', 
+      title: t('promptGenerator.features.title'),
+      icon: LayoutGrid,
+      color: '#D946EF' // Magenta Pink
+    },
+    { 
+      id: 'uxui', 
+      title: t('promptGenerator.uxui.title'),
+      icon: Palette,
+      color: '#F97316' // Bright Orange
+    },
+    { 
+      id: 'stack', 
+      title: t('promptGenerator.stack.title'),
+      icon: Server,
+      color: '#0EA5E9' // Ocean Blue
+    },
+    { 
+      id: 'security', 
+      title: t('promptGenerator.security.title'),
+      icon: Shield,
+      color: '#28A745' // Green
+    },
+    { 
+      id: 'codeStructure', 
+      title: t('promptGenerator.codeStructure.title'),
+      icon: FileText,
+      color: '#1EAEDB' // Bright Blue
+    },
+    { 
+      id: 'scalability', 
+      title: t('promptGenerator.scalability.title'),
+      icon: TrendingUp,
+      color: '#33C3F0' // Sky Blue
+    },
+    { 
+      id: 'restrictions', 
+      title: t('promptGenerator.restrictions.title'),
+      icon: Ban,
+      color: '#DC3545' // Red
+    },
+    { 
+      id: 'generate', 
+      title: t('promptGenerator.generate.title'),
+      icon: Pencil,
+      color: '#FD7E14' // Orange
+    }
+  ];
+  
   // Get translated wizard steps
   const wizardSteps = getWizardSteps(t);
   
@@ -122,37 +197,56 @@ const PromptGeneratorWizard = () => {
   const [formData, setFormData] = useState({
     project: {
       title: '',
-      author: user?.email || '',
+      author: user?.user_metadata?.name || '',
+      email: user?.email || '',
+      url: '',
       createdAt: new Date(),
       updatedAt: new Date(),
       version: '1.0.0'
     },
     objective: {
+      defineObjectives: false,
       primaryObjective: '',
-      selectedObjectives: []
+      selectedObjectives: [],
+      otherObjective: ''
     },
     requirements: {
+      defineRequirements: false,
       userTypes: [],
       functionalRequirements: [],
-      nonFunctionalRequirements: []
+      nonFunctionalRequirements: [],
+      otherRequirement: ''
     },
     systemType: {
       selected: '',
+      otherType: '',
       examples: []
     },
     features: {
       specificFeatures: [],
+      otherFeature: '',
       dynamicFeatures: []
     },
     uxui: {
       colorPalette: [],
+      customColors: {},
       visualStyle: '',
+      otherVisualStyle: '',
       menuType: '',
+      otherMenuType: '',
       landingPage: false,
-      landingPageDetails: {},
+      landingPageDetails: {
+        structure: false,
+        elements: false,
+        style: false
+      },
       authentication: [],
+      otherAuthMethod: '',
       userDashboard: false,
-      userDashboardDetails: {}
+      userDashboardDetails: {
+        features: [],
+        otherFeature: ''
+      }
     },
     stack: {
       separateFrontendBackend: true,
@@ -164,20 +258,27 @@ const PromptGeneratorWizard = () => {
       orm: []
     },
     security: {
-      selectedSecurity: []
+      selectedSecurity: [],
+      otherSecurityFeature: ''
     },
     codeStructure: {
       folderOrganization: [],
+      otherOrganizationStyle: '',
       architecturalPattern: [],
-      bestPractices: []
+      otherArchPattern: '',
+      bestPractices: [],
+      otherBestPractice: ''
     },
     scalability: {
       isScalable: false,
       scalabilityFeatures: [],
-      performanceFeatures: []
+      otherScalabilityFeature: '',
+      performanceFeatures: [],
+      otherPerformanceFeature: ''
     },
     restrictions: {
-      avoidInCode: []
+      avoidInCode: [],
+      otherRestriction: ''
     }
   });
   
@@ -185,7 +286,7 @@ const PromptGeneratorWizard = () => {
   const updateFormData = (step: string, data: any) => {
     setFormData(prev => ({
       ...prev,
-      [step]: {
+      [step as keyof typeof prev]: {
         ...prev[step as keyof typeof prev],
         ...data
       }
@@ -217,7 +318,7 @@ const PromptGeneratorWizard = () => {
   // Calculate progress percentage
   const progressPercentage = ((currentStep + 1) / wizardSteps.length) * 100;
   
-  // Render current step
+  // Render current step - update order to match the new wizardSteps array
   const renderCurrentStep = () => {
     switch (currentStep) {
       case 0: // Project
@@ -225,20 +326,20 @@ const PromptGeneratorWizard = () => {
           formData={formData.project} 
           updateFormData={(data) => updateFormData('project', data)} 
         />;
-      case 1: // Objective
+      case 1: // System Type (reordered)
+        return <SystemTypeStep 
+          formData={formData.systemType} 
+          updateFormData={(data) => updateFormData('systemType', data)} 
+        />;
+      case 2: // Objective
         return <ObjectiveStep 
           formData={formData.objective} 
           updateFormData={(data) => updateFormData('objective', data)} 
         />;
-      case 2: // Requirements
+      case 3: // Requirements
         return <RequirementsStep 
           formData={formData.requirements} 
           updateFormData={(data) => updateFormData('requirements', data)} 
-        />;
-      case 3: // System Type
-        return <SystemTypeStep 
-          formData={formData.systemType} 
-          updateFormData={(data) => updateFormData('systemType', data)} 
         />;
       case 4: // Features
         return <FeaturesStep 

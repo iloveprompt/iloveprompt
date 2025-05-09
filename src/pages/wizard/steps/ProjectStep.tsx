@@ -11,6 +11,8 @@ interface ProjectStepProps {
   formData: {
     title: string;
     author: string;
+    email: string;
+    url: string;
     createdAt: Date;
     updatedAt: Date;
     version: string;
@@ -69,6 +71,35 @@ const ProjectStep: React.FC<ProjectStepProps> = ({ formData, updateFormData }) =
             />
             <p className="text-sm text-gray-500">
               {t('promptGenerator.project.authorHelp')}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="project-email" className="text-base font-medium">
+              {t('promptGenerator.project.email')}
+            </Label>
+            <Input 
+              id="project-email"
+              value={formData.email}
+              onChange={(e) => updateFormData({ email: e.target.value })}
+              disabled
+              className="text-base bg-gray-50"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="project-url" className="text-base font-medium">
+              {t('promptGenerator.project.url')} <span className="text-sm text-gray-500">({t('promptGenerator.common.optional')})</span>
+            </Label>
+            <Input 
+              id="project-url"
+              value={formData.url || ''}
+              onChange={(e) => updateFormData({ url: e.target.value })}
+              placeholder={t('promptGenerator.project.urlPlaceholder')}
+              className="text-base"
+            />
+            <p className="text-sm text-gray-500">
+              {t('promptGenerator.project.urlHelp')}
             </p>
           </div>
           

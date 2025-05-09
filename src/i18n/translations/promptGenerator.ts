@@ -7,7 +7,11 @@ export const promptGeneratorTranslations = {
       common: {
         selectAll: "Select All",
         unselectAll: "Unselect All",
-        add: "Add"
+        add: "Add",
+        other: "Other (Specify)",
+        yes: "Yes",
+        no: "No",
+        optional: "Optional"
       },
       project: {
         title: "Project Information",
@@ -18,6 +22,10 @@ export const promptGeneratorTranslations = {
         author: "Author",
         authorPlaceholder: "Your name or organization",
         authorHelp: "Who is creating this project",
+        email: "Email",
+        url: "Project URL",
+        urlPlaceholder: "https://your-project-url.com",
+        urlHelp: "Optional URL for your project",
         createdDate: "Created Date",
         updatedDate: "Last Updated",
         version: "Version",
@@ -26,15 +34,20 @@ export const promptGeneratorTranslations = {
       objective: {
         title: "Project Objective",
         description: "Define the main objectives of your project",
+        defineObjectives: "Would you like to define project objectives?",
+        enhanceWithAI: "Enhance with AI",
         primaryObjective: "Primary Objective",
         primaryObjectivePlaceholder: "Describe the main goal of your project",
         primaryObjectiveHelp: "What is the main purpose of this project?",
         businessObjectives: "Business Objectives",
-        businessObjectivesHelp: "Select all objectives that apply to this project"
+        businessObjectivesHelp: "Select all objectives that apply to this project",
+        otherObjective: "Other (Specify)",
+        otherObjectivePlaceholder: "Describe your custom objective"
       },
       requirements: {
         title: "Requirements",
         description: "Define the requirements for your project",
+        defineRequirements: "Would you like to define project requirements?",
         userTypes: "User Types",
         userTypesHelp: "What types of users will interact with your application?",
         functionalRequirements: "Functional Requirements",
@@ -44,7 +57,9 @@ export const promptGeneratorTranslations = {
         userTypePlaceholder: "E.g., Admin, Customer, Guest...",
         functionalRequirementPlaceholder: "E.g., Users should be able to register...",
         noUserTypes: "No user types added yet",
-        noFunctionalRequirements: "No functional requirements added yet"
+        noFunctionalRequirements: "No functional requirements added yet",
+        otherRequirement: "Other (Specify)",
+        otherRequirementPlaceholder: "Describe your custom requirement"
       },
       systemType: {
         title: "System Type",
@@ -64,6 +79,7 @@ export const promptGeneratorTranslations = {
         streamingPlatform: "Streaming Platform",
         staticPage: "Static Page (Landing Page)",
         other: "Other (Specify)",
+        otherTypePlaceholder: "Describe your system type",
         suggestedExamples: "Suggested Examples",
         socialLogin: "Social login system",
         platformWithLanding: "Platform with landing page and dashboard",
@@ -91,6 +107,7 @@ export const promptGeneratorTranslations = {
         darkMode: "Dark/light theme",
         customLandingPage: "Customizable landing page",
         otherFeature: "Other (Specify)",
+        otherFeaturePlaceholder: "Describe your custom feature",
         ecommerceFeatures: "E-commerce Features",
         customCheckout: "Custom checkout",
         paymentGateways: "Payment gateway integration",
@@ -124,6 +141,7 @@ export const promptGeneratorTranslations = {
         white: "White (#FFFFFF)",
         gray: "Gray (#6C757D)",
         custom: "Custom: HEX/RGB/HSL Selector",
+        customColorPlaceholder: "Enter HEX code (#RRGGBB)",
         visualStyle: "Visual Style",
         minimalist: "Minimalist",
         modern: "Modern with shadows",
@@ -131,6 +149,7 @@ export const promptGeneratorTranslations = {
         ios: "iOS-inspired",
         android: "Android-inspired",
         otherVisualStyle: "Other (Specify)",
+        otherVisualStylePlaceholder: "Describe your visual style",
         menuType: "Menu Type",
         topFixed: "Fixed top",
         sideFixed: "Fixed sidebar",
@@ -138,31 +157,40 @@ export const promptGeneratorTranslations = {
         horizontalTabs: "Horizontal tabs",
         customMenu: "Custom (describe)",
         otherMenuType: "Other (Specify)",
+        otherMenuTypePlaceholder: "Describe your menu type",
         landingPage: "Landing Page",
         hasLandingPage: "Yes",
         noLandingPage: "No",
-        structure: "Structure: Hero | Benefits | Testimonials | CTA",
-        elements: "Elements: Video, Form, Animations",
-        style: "Style: Modern | Minimalist | Corporate | Creative",
+        structure: "Structure",
+        structureOption: "Hero | Benefits | Testimonials | CTA",
+        elements: "Elements",
+        elementsOption: "Video, Form, Animations",
+        style: "Style",
+        styleOption: "Modern | Minimalist | Corporate | Creative",
         otherLandingStyle: "Other (Specify)",
+        otherLandingStylePlaceholder: "Describe your landing page style",
         authentication: "Login and Authentication",
         emailPassword: "Email + Password",
         socialLogin: "Google | Facebook | GitHub | Apple",
         twoFactorAuth: "Two-factor authentication (2FA)",
         otherAuthMethod: "Other (Specify)",
+        otherAuthMethodPlaceholder: "Describe your auth method",
         userDashboard: "Dashboard for Logged-in Users",
         customizable: "Customizable",
         statistics: "Charts and statistics",
         activityHistory: "Activity history",
         responsiveThemes: "Light/dark theme and responsive",
-        otherDashboardFeature: "Other (Specify)"
+        otherDashboardFeature: "Other (Specify)",
+        otherDashboardFeaturePlaceholder: "Describe your dashboard feature",
+        yes: "Yes",
+        no: "No"
       },
       stack: {
         title: "Technology Stack",
         description: "Select the technologies you want to use for your project",
         separateFrontendBackend: "Separate Frontend and Backend?",
-        hasSeparation: "Yes",
-        noSeparation: "No",
+        hasSeparation: "Yes (Separate)",
+        noSeparation: "No (Fullstack)",
         frontend: "Frontend",
         frontendTitle: "Frontend Technologies",
         frontendHelp: "Select the frontend technologies",
@@ -188,7 +216,8 @@ export const promptGeneratorTranslations = {
         https: "HTTPS (SSL/TLS), CSP, Helmet.js",
         auditLogs: "Audit logs, Rate limiting",
         apiSecurity: "Security for public/private APIs",
-        otherSecurityFeature: "Other (Specify)"
+        otherSecurityFeature: "Other (Specify)",
+        otherSecurityFeaturePlaceholder: "Describe your security feature"
       },
       codeStructure: {
         title: "Code Structure",
@@ -199,6 +228,7 @@ export const promptGeneratorTranslations = {
         frontBackSeparation: "Front/back separation",
         modularDI: "Modular with dependency injection",
         otherOrganizationStyle: "Other (Specify)",
+        otherOrganizationStylePlaceholder: "Describe your organization style",
         architecturalPattern: "Architectural Pattern",
         mvc: "MVC",
         mvvm: "MVVM",
@@ -206,12 +236,14 @@ export const promptGeneratorTranslations = {
         ddd: "DDD",
         hexagonal: "Hexagonal",
         otherArchPattern: "Other (Specify)",
+        otherArchPatternPlaceholder: "Describe your architectural pattern",
         bestPractices: "Best Practices",
         stateless: "Stateless",
         lowCoupling: "Low coupling",
         testing: "Testing: Unit | Integration | E2E",
         reusableComponents: "Reusable components with single interface",
-        otherBestPractice: "Other (Specify)"
+        otherBestPractice: "Other (Specify)",
+        otherBestPracticePlaceholder: "Describe your best practice"
       },
       scalability: {
         title: "Scalability and Performance",
@@ -221,12 +253,14 @@ export const promptGeneratorTranslations = {
         caching: "Dynamic caching, Queues (RabbitMQ, Kafka)",
         autoScaling: "Auto Scaling, Monitoring, High availability",
         otherScalabilityFeature: "Other (Specify)",
+        otherScalabilityFeaturePlaceholder: "Describe your scalability feature",
         performance: "Performance",
         lazyLoading: "Lazy loading, Code splitting",
         minification: "Minification, Gzip/Brotli",
         serverRendering: "SSR/SSG (Next.js/Nuxt.js)",
         optimization: "Image and JS/CSS optimization",
-        otherPerformanceFeature: "Other (Specify)"
+        otherPerformanceFeature: "Other (Specify)",
+        otherPerformanceFeaturePlaceholder: "Describe your performance feature"
       },
       restrictions: {
         title: "Technical Restrictions",
@@ -238,7 +272,8 @@ export const promptGeneratorTranslations = {
         unmaintained: "Unmaintained libraries",
         important: "Excessive use of !important",
         paidDeps: "Paid/proprietary dependencies",
-        otherRestriction: "Other (Specify)"
+        otherRestriction: "Other (Specify)",
+        otherRestrictionPlaceholder: "Describe your restriction"
       },
       generate: {
         title: "Generate Prompt",
@@ -269,7 +304,11 @@ export const promptGeneratorTranslations = {
       common: {
         selectAll: "Selecionar Todos",
         unselectAll: "Desmarcar Todos",
-        add: "Adicionar"
+        add: "Adicionar",
+        other: "Outro (Especificar)",
+        yes: "Sim",
+        no: "Não",
+        optional: "Opcional"
       },
       project: {
         title: "Informações do Projeto",
@@ -280,6 +319,10 @@ export const promptGeneratorTranslations = {
         author: "Autor",
         authorPlaceholder: "Seu nome ou organização",
         authorHelp: "Quem está criando este projeto",
+        email: "Email",
+        url: "URL do Projeto",
+        urlPlaceholder: "https://url-do-seu-projeto.com",
+        urlHelp: "URL opcional para o seu projeto",
         createdDate: "Data de Criação",
         updatedDate: "Última Atualização",
         version: "Versão",
@@ -288,15 +331,20 @@ export const promptGeneratorTranslations = {
       objective: {
         title: "Objetivo do Projeto",
         description: "Defina os principais objetivos do seu projeto",
+        defineObjectives: "Você gostaria de definir objetivos para o projeto?",
+        enhanceWithAI: "Melhorar com IA",
         primaryObjective: "Objetivo Principal",
         primaryObjectivePlaceholder: "Descreva o objetivo principal do seu projeto",
         primaryObjectiveHelp: "Qual é o propósito principal deste projeto?",
         businessObjectives: "Objetivos de Negócio",
-        businessObjectivesHelp: "Selecione todos os objetivos que se aplicam a este projeto"
+        businessObjectivesHelp: "Selecione todos os objetivos que se aplicam a este projeto",
+        otherObjective: "Outro (Especificar)",
+        otherObjectivePlaceholder: "Descreva seu objetivo personalizado"
       },
       requirements: {
         title: "Requisitos",
         description: "Defina os requisitos para o seu projeto",
+        defineRequirements: "Você gostaria de definir requisitos para o projeto?",
         userTypes: "Tipos de Usuários",
         userTypesHelp: "Quais tipos de usuários irão interagir com sua aplicação?",
         functionalRequirements: "Requisitos Funcionais",
@@ -306,7 +354,9 @@ export const promptGeneratorTranslations = {
         userTypePlaceholder: "Ex.: Administrador, Cliente, Visitante...",
         functionalRequirementPlaceholder: "Ex.: Usuários devem poder se registrar...",
         noUserTypes: "Nenhum tipo de usuário adicionado ainda",
-        noFunctionalRequirements: "Nenhum requisito funcional adicionado ainda"
+        noFunctionalRequirements: "Nenhum requisito funcional adicionado ainda",
+        otherRequirement: "Outro (Especificar)",
+        otherRequirementPlaceholder: "Descreva seu requisito personalizado"
       },
       systemType: {
         title: "Tipo de Sistema",
@@ -326,6 +376,7 @@ export const promptGeneratorTranslations = {
         streamingPlatform: "Plataforma de Streaming",
         staticPage: "Página Estática (Landing Page)",
         other: "Outro (Especificar)",
+        otherTypePlaceholder: "Descreva seu tipo de sistema",
         suggestedExamples: "Exemplos Sugeridos",
         socialLogin: "Sistema de login com redes sociais",
         platformWithLanding: "Plataforma com landing page e dashboard",
@@ -353,6 +404,7 @@ export const promptGeneratorTranslations = {
         darkMode: "Tema escuro/claro",
         customLandingPage: "Landing page customizável",
         otherFeature: "Outro (Especificar)",
+        otherFeaturePlaceholder: "Descreva sua funcionalidade personalizada",
         ecommerceFeatures: "Funcionalidades de E-commerce",
         customCheckout: "Checkout personalizado",
         paymentGateways: "Integração com gateways de pagamento",
@@ -386,6 +438,7 @@ export const promptGeneratorTranslations = {
         white: "Branco (#FFFFFF)",
         gray: "Cinza (#6C757D)",
         custom: "Personalizada: Seletor HEX/RGB/HSL",
+        customColorPlaceholder: "Digite o código HEX (#RRGGBB)",
         visualStyle: "Estilo Visual",
         minimalist: "Minimalista",
         modern: "Moderna com sombras",
@@ -393,6 +446,7 @@ export const promptGeneratorTranslations = {
         ios: "Inspirada em iOS",
         android: "Inspirada em Android",
         otherVisualStyle: "Outro (Especificar)",
+        otherVisualStylePlaceholder: "Descreva seu estilo visual",
         menuType: "Tipo de Menu",
         topFixed: "Superior fixo",
         sideFixed: "Lateral fixo",
@@ -400,31 +454,40 @@ export const promptGeneratorTranslations = {
         horizontalTabs: "Abas horizontais",
         customMenu: "Personalizado (descrever)",
         otherMenuType: "Outro (Especificar)",
+        otherMenuTypePlaceholder: "Descreva seu tipo de menu",
         landingPage: "Landing Page",
         hasLandingPage: "Sim",
         noLandingPage: "Não",
-        structure: "Estrutura: Hero | Benefícios | Depoimentos | CTA",
-        elements: "Elementos: Vídeo, Formulário, Animações",
-        style: "Estilo: Moderno | Minimalista | Corporativo | Criativo",
+        structure: "Estrutura",
+        structureOption: "Hero | Benefícios | Depoimentos | CTA",
+        elements: "Elementos",
+        elementsOption: "Vídeo, Formulário, Animações",
+        style: "Estilo",
+        styleOption: "Moderno | Minimalista | Corporativo | Criativo",
         otherLandingStyle: "Outro (Especificar)",
+        otherLandingStylePlaceholder: "Descreva seu estilo de landing page",
         authentication: "Login e Autenticação",
         emailPassword: "Email + Senha",
         socialLogin: "Google | Facebook | GitHub | Apple",
         twoFactorAuth: "Autenticação em 2 etapas (2FA)",
         otherAuthMethod: "Outro (Especificar)",
+        otherAuthMethodPlaceholder: "Descreva seu método de autenticação",
         userDashboard: "Dashboard para Usuários Logados",
         customizable: "Personalizável",
         statistics: "Gráficos e estatísticas",
         activityHistory: "Histórico de atividades",
         responsiveThemes: "Tema claro/escuro e responsivo",
-        otherDashboardFeature: "Outro (Especificar)"
+        otherDashboardFeature: "Outro (Especificar)",
+        otherDashboardFeaturePlaceholder: "Descreva sua funcionalidade de dashboard",
+        yes: "Sim",
+        no: "Não"
       },
       stack: {
         title: "Stack Tecnológica",
         description: "Selecione as tecnologias que você deseja usar em seu projeto",
         separateFrontendBackend: "Separar Frontend e Backend?",
-        hasSeparation: "Sim",
-        noSeparation: "Não",
+        hasSeparation: "Sim (Separado)",
+        noSeparation: "Não (Fullstack)",
         frontend: "Frontend",
         frontendTitle: "Tecnologias de Frontend",
         frontendHelp: "Selecione as tecnologias de frontend",
@@ -450,7 +513,8 @@ export const promptGeneratorTranslations = {
         https: "HTTPS (SSL/TLS), CSP, Helmet.js",
         auditLogs: "Logs de auditoria, Rate limiting",
         apiSecurity: "Segurança para APIs públicas/privadas",
-        otherSecurityFeature: "Outro (Especificar)"
+        otherSecurityFeature: "Outro (Especificar)",
+        otherSecurityFeaturePlaceholder: "Descreva seu recurso de segurança"
       },
       codeStructure: {
         title: "Estrutura de Código",
@@ -461,6 +525,7 @@ export const promptGeneratorTranslations = {
         frontBackSeparation: "Separação front/back",
         modularDI: "Modular com injeção de dependência",
         otherOrganizationStyle: "Outro (Especificar)",
+        otherOrganizationStylePlaceholder: "Descreva seu estilo de organização",
         architecturalPattern: "Padrão Arquitetural",
         mvc: "MVC",
         mvvm: "MVVM",
@@ -468,12 +533,14 @@ export const promptGeneratorTranslations = {
         ddd: "DDD",
         hexagonal: "Hexagonal",
         otherArchPattern: "Outro (Especificar)",
+        otherArchPatternPlaceholder: "Descreva seu padrão arquitetural",
         bestPractices: "Boas Práticas",
         stateless: "Stateless",
         lowCoupling: "Baixo acoplamento",
         testing: "Testes: Unitários | Integração | E2E",
         reusableComponents: "Componentes reutilizáveis com interface única",
-        otherBestPractice: "Outro (Especificar)"
+        otherBestPractice: "Outro (Especificar)",
+        otherBestPracticePlaceholder: "Descreva sua boa prática"
       },
       scalability: {
         title: "Escalabilidade e Performance",
@@ -483,12 +550,14 @@ export const promptGeneratorTranslations = {
         caching: "Cache dinâmico, Filas (RabbitMQ, Kafka)",
         autoScaling: "Auto Scaling, Monitoramento, Alta disponibilidade",
         otherScalabilityFeature: "Outro (Especificar)",
+        otherScalabilityFeaturePlaceholder: "Descreva seu recurso de escalabilidade",
         performance: "Performance",
         lazyLoading: "Lazy loading, Code splitting",
         minification: "Minificação, Gzip/Brotli",
         serverRendering: "SSR/SSG (Next.js/Nuxt.js)",
         optimization: "Otimização de imagens e JS/CSS",
-        otherPerformanceFeature: "Outro (Especificar)"
+        otherPerformanceFeature: "Outro (Especificar)",
+        otherPerformanceFeaturePlaceholder: "Descreva seu recurso de performance"
       },
       restrictions: {
         title: "Restrições Técnicas",
@@ -500,7 +569,8 @@ export const promptGeneratorTranslations = {
         unmaintained: "Bibliotecas sem manutenção",
         important: "Uso excessivo de !important",
         paidDeps: "Dependências pagas/proprietárias",
-        otherRestriction: "Outro (Especificar)"
+        otherRestriction: "Outro (Especificar)",
+        otherRestrictionPlaceholder: "Descreva sua restrição"
       },
       generate: {
         title: "Gerar Prompt",
