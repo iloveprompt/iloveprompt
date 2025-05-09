@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card } from '@/components/ui/card';
@@ -361,7 +362,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
                     placeholder={t('promptGenerator.uxui.structureOtherPlaceholder')}
                     value={formData.landingPageDetails.structure.otherValue}
                     onChange={(e) => 
-                      handleLandingPageDetailChange('structure', 'otherValue', e.target.value)
+                      handleLandingPageDetailChange('structure', 'otherValue', e.target.value as unknown as boolean)
                     }
                     className="max-w-md"
                   />
@@ -398,9 +399,19 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
                   <Input
                     placeholder={t('promptGenerator.uxui.elementsOtherPlaceholder')}
                     value={formData.landingPageDetails.elements.otherValue}
-                    onChange={(e) => 
-                      handleLandingPageDetailChange('elements', 'otherValue', e.target.value)
-                    }
+                    onChange={(e) => {
+                      const updatedElements = {
+                        ...formData.landingPageDetails.elements,
+                        otherValue: e.target.value
+                      };
+                      
+                      updateFormData({
+                        landingPageDetails: {
+                          ...formData.landingPageDetails,
+                          elements: updatedElements
+                        }
+                      });
+                    }}
                     className="max-w-md"
                   />
                 </div>
@@ -436,9 +447,19 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
                   <Input
                     placeholder={t('promptGenerator.uxui.styleOtherPlaceholder')}
                     value={formData.landingPageDetails.style.otherValue}
-                    onChange={(e) => 
-                      handleLandingPageDetailChange('style', 'otherValue', e.target.value)
-                    }
+                    onChange={(e) => {
+                      const updatedStyle = {
+                        ...formData.landingPageDetails.style,
+                        otherValue: e.target.value
+                      };
+                      
+                      updateFormData({
+                        landingPageDetails: {
+                          ...formData.landingPageDetails,
+                          style: updatedStyle
+                        }
+                      });
+                    }}
                     className="max-w-md"
                   />
                 </div>

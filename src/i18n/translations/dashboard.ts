@@ -1,10 +1,11 @@
+
 export const dashboardTranslations = {
   en: {
     dashboard: {
       home: "Home",
       createPrompt: "Create Prompt",
       promptHistory: "Prompt History",
-      settings: "Settings",
+      settingsLink: "Settings",
       title: "Dashboard",
       profile: "Profile",
       welcomeBack: "Welcome back",
@@ -20,7 +21,6 @@ export const dashboardTranslations = {
       getMore: "Get more from iloveprompt",
       welcome: "Welcome to your dashboard",
       settings: "Settings",
-      profile: "Profile",
       history: "History",
       promptGenerator: "Prompt Generator",
       addPrompt: "Add Prompt",
@@ -190,7 +190,7 @@ export const dashboardTranslations = {
       home: "Início",
       createPrompt: "Criar Prompt",
       promptHistory: "Histórico de Prompts",
-      settings: "Configurações",
+      settingsLink: "Configurações",
       title: "Painel",
       profile: "Perfil",
       welcomeBack: "Bem-vindo de volta",
