@@ -37,9 +37,44 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const { toast } = useToast();
   const { t } = useLanguage();
-  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Função para verificar se o usuário é administrador
+  const checkIfUserIsAdmin = async (userId: string) => {
+    try {
+      // Primeiro tentamos verificar usando a função RPC que criamos
+      const { data, error } = await supabase.rpc('is_admin', { user_id: userId });
+      
+      if (error) {
+        console.error('Erro ao verificar função is_admin:', error.message);
+        
+        // Fallback: verificar diretamente via consulta às tabelas
+        const { data: roleData, error: roleError } = await supabase
+          .from('user_role_assignments')
+          .select('role_id')
+          .eq('user_id', userId)
+          .inner_join('user_roles as roles', { 'role_id': 'roles.id' })
+          .eq('roles.name', 'admin');
+          
+        if (roleError) {
+          console.error('Erro ao verificar role:', roleError.message);
+          
+          // Fallback final: se as tabelas ainda não existirem, usar o método antigo
+          return userId === 'ander_dorneles@hotmail.com';
+        }
+        
+        return roleData && roleData.length > 0;
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Erro ao verificar permissões:', error);
+      // Fallback para o método antigo caso ocorra qualquer erro
+      return user?.email === 'ander_dorneles@hotmail.com';
+    }
+  };
 
   useEffect(() => {
     // Get initial session and user
@@ -56,7 +91,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         
         // Check if user is admin
         if (data?.session?.user) {
-          const isUserAdmin = data.session.user.email === 'ander_dorneles@hotmail.com';
+          const isUserAdmin = await checkIfUserIsAdmin(data.session.user.id);
           setIsAdmin(isUserAdmin);
         }
       } catch (error) {
@@ -76,8 +111,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         
         // Check if user is admin
         if (currentSession?.user) {
-          const isUserAdmin = currentSession.user.email === 'ander_dorneles@hotmail.com';
+          const isUserAdmin = await checkIfUserIsAdmin(currentSession.user.id);
           setIsAdmin(isUserAdmin);
+        } else {
+          setIsAdmin(false);
         }
         
         if (event === 'SIGNED_IN') {
@@ -87,7 +124,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           });
           
           // Redirect to appropriate dashboard
-          redirectAfterLogin(currentSession?.user?.email);
+          if (currentSession?.user) {
+            redirectAfterLogin(currentSession.user.email);
+          }
         }
         
         if (event === 'SIGNED_OUT') {
@@ -105,13 +144,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   }, [toast, t]);
 
   // Function to handle redirect after login
-  const redirectAfterLogin = (userEmail: string | undefined) => {
-    if (navigateFunction) {
-      if (userEmail === 'ander_dorneles@hotmail.com') {
+  const redirectAfterLogin = async (userEmail: string | undefined) => {
+    if (!navigateFunction || !user) return;
+    
+    try {
+      const isUserAdmin = await checkIfUserIsAdmin(user.id);
+      
+      if (isUserAdmin) {
         navigateFunction('/admin');
       } else {
         navigateFunction('/dashboard');
       }
+    } catch (error) {
+      console.error('Error in redirectAfterLogin:', error);
+      navigateFunction('/dashboard');
     }
   };
 

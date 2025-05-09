@@ -82,6 +82,101 @@ CREATE TABLE IF NOT EXISTS wizard_item_examples (
   active BOOLEAN DEFAULT true
 );
 
+-- NOVAS TABELAS PARA GESTÃO DE USUÁRIOS E PLANOS
+
+-- Tabela para perfis de usuários (complementa a auth.users do Supabase)
+CREATE TABLE IF NOT EXISTS user_profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  full_name TEXT,
+  avatar_url TEXT,
+  timezone TEXT,
+  bio TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Tabela para roles/funções de usuários
+CREATE TABLE IF NOT EXISTS user_roles (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE,
+  description TEXT,
+  permissions JSONB DEFAULT '{}',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Tabela de associação entre usuários e roles
+CREATE TABLE IF NOT EXISTS user_role_assignments (
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  role_id UUID REFERENCES user_roles(id) ON DELETE CASCADE,
+  assigned_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  PRIMARY KEY (user_id, role_id)
+);
+
+-- Tabela para planos de assinatura
+CREATE TABLE IF NOT EXISTS subscription_plans (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT,
+  price NUMERIC(10,2) NOT NULL,
+  interval TEXT NOT NULL CHECK (interval IN ('monthly', 'yearly')),
+  features JSONB DEFAULT '[]',
+  is_active BOOLEAN DEFAULT true,
+  prompt_limit INTEGER,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Tabela para assinaturas de usuários
+CREATE TABLE IF NOT EXISTS user_subscriptions (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  plan_id UUID REFERENCES subscription_plans(id),
+  status TEXT NOT NULL CHECK (status IN ('active', 'canceled', 'past_due', 'trialing', 'incomplete')),
+  current_period_start TIMESTAMP WITH TIME ZONE,
+  current_period_end TIMESTAMP WITH TIME ZONE,
+  cancel_at_period_end BOOLEAN DEFAULT false,
+  payment_method_id TEXT,
+  stripe_subscription_id TEXT UNIQUE,
+  stripe_customer_id TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Tabela para rastrear uso de prompts pelos usuários
+CREATE TABLE IF NOT EXISTS prompt_usage (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  prompt_id UUID REFERENCES prompts(id) ON DELETE SET NULL,
+  tokens_used INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Tabela para registros de log do sistema (para admin visualizar)
+CREATE TABLE IF NOT EXISTS system_logs (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  action TEXT NOT NULL,
+  entity TEXT NOT NULL,
+  entity_id UUID,
+  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  details JSONB,
+  ip_address TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);
+
+-- Inserir roles padrão
+INSERT INTO user_roles (name, description, permissions)
+VALUES 
+  ('admin', 'Administrador do sistema', '{"all": true}'),
+  ('user', 'Usuário comum', '{"prompts": {"create": true, "read_own": true, "update_own": true, "delete_own": true}}'),
+  ('premium', 'Usuário premium', '{"prompts": {"create": true, "read_own": true, "update_own": true, "delete_own": true}, "premium_features": true}');
+
+-- Inserir planos padrão
+INSERT INTO subscription_plans (name, description, price, interval, features, prompt_limit)
+VALUES 
+  ('Gratuito', 'Plano básico com recursos limitados', 0, 'monthly', '["5 prompts por mês", "Acesso a modelos básicos"]', 5),
+  ('Premium', 'Plano completo com todos os recursos', 19.90, 'monthly', '["Prompts ilimitados", "Acesso a todos os modelos", "Suporte prioritário"]', 1000),
+  ('Profissional', 'Plano para empresas e equipes', 49.90, 'monthly', '["Prompts ilimitados", "Acesso a modelos avançados", "API de integração", "Suporte 24/7"]', 10000);
+
 -- Configurar RLS (Row Level Security)
 
 -- Política para prompts
@@ -93,11 +188,34 @@ CREATE POLICY prompts_users_policy ON prompts
   TO authenticated 
   USING (auth.uid() = user_id);
 
--- Admins podem ver todos os prompts (para implementação futura)
--- CREATE POLICY prompts_admin_policy ON prompts 
---   FOR SELECT 
---   TO authenticated 
---   USING (auth.uid() IN (SELECT user_id FROM admin_users));
+-- Políticas para user_profiles
+ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
+CREATE POLICY user_profiles_select_own ON user_profiles FOR SELECT TO authenticated USING (auth.uid() = id);
+CREATE POLICY user_profiles_update_own ON user_profiles FOR UPDATE TO authenticated USING (auth.uid() = id);
+
+-- Admin pode ver todos os perfis
+CREATE POLICY user_profiles_admin_all ON user_profiles 
+  FOR ALL 
+  TO authenticated 
+  USING (EXISTS (
+    SELECT 1 FROM user_role_assignments ura
+    JOIN user_roles ur ON ura.role_id = ur.id
+    WHERE ura.user_id = auth.uid() AND ur.name = 'admin'
+  ));
+
+-- Políticas para user_subscriptions
+ALTER TABLE user_subscriptions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY user_subscriptions_select_own ON user_subscriptions FOR SELECT TO authenticated USING (auth.uid() = user_id);
+
+-- Admin pode ver todas as assinaturas
+CREATE POLICY user_subscriptions_admin_all ON user_subscriptions 
+  FOR ALL 
+  TO authenticated 
+  USING (EXISTS (
+    SELECT 1 FROM user_role_assignments ura
+    JOIN user_roles ur ON ura.role_id = ur.id
+    WHERE ura.user_id = auth.uid() AND ur.name = 'admin'
+  ));
 
 -- Políticas para tabelas de wizard (somente leitura para usuários)
 
@@ -148,3 +266,56 @@ CREATE INDEX idx_wizard_option_translations_option_id ON wizard_option_translati
 CREATE INDEX idx_wizard_option_translations_language ON wizard_option_translations(language);
 
 CREATE INDEX idx_wizard_item_examples_item_id ON wizard_item_examples(item_id);
+
+-- Índices para as novas tabelas
+CREATE INDEX idx_user_role_assignments_user_id ON user_role_assignments(user_id);
+CREATE INDEX idx_user_role_assignments_role_id ON user_role_assignments(role_id);
+CREATE INDEX idx_user_subscriptions_user_id ON user_subscriptions(user_id);
+CREATE INDEX idx_user_subscriptions_plan_id ON user_subscriptions(plan_id);
+CREATE INDEX idx_prompt_usage_user_id ON prompt_usage(user_id);
+CREATE INDEX idx_system_logs_user_id ON system_logs(user_id);
+CREATE INDEX idx_system_logs_created_at ON system_logs(created_at);
+
+-- Função para verificar se um usuário é administrador
+CREATE OR REPLACE FUNCTION is_admin(user_id UUID)
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM user_role_assignments ura
+    JOIN user_roles ur ON ura.role_id = ur.id
+    WHERE ura.user_id = $1 AND ur.name = 'admin'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Função para obter o plano atual de um usuário
+CREATE OR REPLACE FUNCTION get_user_plan(user_id UUID)
+RETURNS TABLE (
+  plan_id UUID,
+  plan_name TEXT,
+  prompt_limit INTEGER
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT sp.id, sp.name, sp.prompt_limit
+  FROM user_subscriptions us
+  JOIN subscription_plans sp ON us.plan_id = sp.id
+  WHERE us.user_id = $1 AND us.status = 'active'
+  ORDER BY us.created_at DESC
+  LIMIT 1;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Criação de uma função RPC para verificar as tabelas existentes (para diagnóstico)
+CREATE OR REPLACE FUNCTION get_tables()
+RETURNS TEXT[] AS $$
+DECLARE
+  tables TEXT[];
+BEGIN
+  SELECT array_agg(tablename::TEXT) INTO tables
+  FROM pg_tables
+  WHERE schemaname = 'public';
+  
+  RETURN tables;
+END;
+$$ LANGUAGE plpgsql;
