@@ -5,8 +5,15 @@ import { dashboardTranslations } from './translations/dashboard';
 import { landingTranslations } from './translations/landing';
 import { promptGeneratorTranslations } from './translations/promptGenerator';
 
+// Create a more flexible type definition that allows for deeply nested objects
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
+type TranslationValue = string | Record<string, string | Record<string, string | Record<string, string>>>;
+
 type Translation = {
-  [key: string]: string | Record<string, string | Record<string, string>>;
+  [key: string]: TranslationValue;
 };
 
 // Merge all translation modules into one object

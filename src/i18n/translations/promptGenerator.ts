@@ -126,7 +126,7 @@ export const promptGeneratorTranslations = {
         customerSegmentation: "Customer segmentation",
         emailIntegration: "Integration with email and WhatsApp",
         performanceDashboard: "Performance dashboard",
-        tasksReminders: "Tasks and reminders system"
+        tasksReminders: "Tasks and reminders system",
       },
       uxui: {
         title: "UX/UI and Design",
