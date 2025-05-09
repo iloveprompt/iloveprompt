@@ -1,3 +1,4 @@
+
 type Translation = {
   [key: string]: string | Record<string, string | Record<string, string>>;
 };
@@ -554,7 +555,6 @@ export const translations: Record<string, Translation> = {
       createPrompt: "Criar Prompt",
       promptHistory: "Histórico de Prompts",
       settings: "Configurações",
-      profile: "Perfil",
       title: "Painel",
       welcomeBack: "Bem-vindo de volta",
       promptsCreated: "Prompts Criados",
