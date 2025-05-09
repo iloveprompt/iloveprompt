@@ -9,7 +9,7 @@ import OtherSpecifyItem from '@/components/OtherSpecifyItem';
 
 interface SecurityData {
   selectedSecurity: string[];
-  otherSecurityFeature: string;
+  otherSecurityFeature: string | string[];
 }
 
 interface SecurityStepProps {
@@ -96,7 +96,7 @@ const SecurityStep: React.FC<SecurityStepProps> = ({ formData, updateFormData })
                 } else {
                   updateFormData({
                     selectedSecurity: formData.selectedSecurity.filter(o => o !== 'otherSecurityFeature'),
-                    otherSecurityFeature: ''
+                    otherSecurityFeature: []
                   });
                 }
               }}

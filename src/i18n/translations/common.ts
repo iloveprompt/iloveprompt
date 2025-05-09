@@ -16,7 +16,10 @@ export const commonTranslations = {
       selectAll: "Select All",
       unselectAll: "Unselect All",
       add: "Add",
-      selected: "selected"
+      selected: "selected",
+      addedItems: "Added Items",
+      deleteItem: "Delete",
+      addMoreItems: "Add another item"
     }
   },
   pt: {
@@ -35,7 +38,10 @@ export const commonTranslations = {
       selectAll: "Selecionar Todos",
       unselectAll: "Desmarcar Todos",
       add: "Adicionar",
-      selected: "selecionados"
+      selected: "selecionados",
+      addedItems: "Itens Adicionados",
+      deleteItem: "Excluir",
+      addMoreItems: "Adicionar outro item"
     }
   }
 };

@@ -9,7 +9,7 @@ import OtherSpecifyItem from '@/components/OtherSpecifyItem';
 
 interface RestrictionsData {
   avoidInCode: string[];
-  otherRestriction: string;
+  otherRestriction: string | string[];
 }
 
 interface RestrictionsStepProps {
@@ -97,7 +97,7 @@ const RestrictionsStep: React.FC<RestrictionsStepProps> = ({ formData, updateFor
                 } else {
                   updateFormData({
                     avoidInCode: formData.avoidInCode.filter(r => r !== 'otherRestriction'),
-                    otherRestriction: ''
+                    otherRestriction: []
                   });
                 }
               }}

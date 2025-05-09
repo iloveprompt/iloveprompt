@@ -15,7 +15,7 @@ interface ObjectiveStepProps {
     defineObjectives: boolean;
     primaryObjective: string;
     selectedObjectives: string[];
-    otherObjective: string;
+    otherObjective: string | string[];
   };
   updateFormData: (data: Partial<ObjectiveStepProps['formData']>) => void;
 }
@@ -149,7 +149,7 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({ formData, updateFormData 
                       } else {
                         updateFormData({
                           selectedObjectives: formData.selectedObjectives.filter(obj => obj !== 'Other'),
-                          otherObjective: ''
+                          otherObjective: []
                         });
                       }
                     }}

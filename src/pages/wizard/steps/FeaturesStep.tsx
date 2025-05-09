@@ -9,7 +9,7 @@ import OtherSpecifyItem from '@/components/OtherSpecifyItem';
 
 interface FeaturesData {
   specificFeatures: string[];
-  otherFeature: string;
+  otherFeature: string | string[];
   dynamicFeatures: string[];
 }
 
@@ -129,7 +129,7 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({ formData, systemType, updat
               id="specific-other"
               label={t('promptGenerator.features.other')}
               checked={formData.specificFeatures.includes('other')}
-              value={formData.otherFeature || ''}
+              value={formData.otherFeature}
               placeholder={t('promptGenerator.features.otherFeaturePlaceholder')}
               onCheckedChange={(checked) => {
                 if (checked) {
@@ -139,7 +139,7 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({ formData, systemType, updat
                 } else {
                   updateFormData({
                     specificFeatures: formData.specificFeatures.filter(f => f !== 'other'),
-                    otherFeature: ''
+                    otherFeature: []
                   });
                 }
               }}
