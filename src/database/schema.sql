@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS prompts (
 CREATE TABLE IF NOT EXISTS wizard_categories (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   key TEXT NOT NULL UNIQUE,
-  order INT NOT NULL,
+  sort_order INT NOT NULL,
   icon TEXT NOT NULL,
   color TEXT NOT NULL,
   active BOOLEAN DEFAULT true
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS wizard_items (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   category_id UUID REFERENCES wizard_categories(id) ON DELETE CASCADE,
   key TEXT NOT NULL,
-  order INT NOT NULL,
+  sort_order INT NOT NULL,
   type TEXT NOT NULL,
   has_other_option BOOLEAN DEFAULT false,
   active BOOLEAN DEFAULT true,
@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS wizard_item_options (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   item_id UUID REFERENCES wizard_items(id) ON DELETE CASCADE,
   key TEXT NOT NULL,
-  order INT NOT NULL,
+  sort_order INT NOT NULL,
   active BOOLEAN DEFAULT true,
   UNIQUE(item_id, key)
 );

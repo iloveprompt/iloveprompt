@@ -37,7 +37,7 @@ const AdminUsers = () => {
         
         let usersList: UserWithRole[] = [];
         
-        if (tablesError || !tables || !tables.includes('user_role_assignments')) {
+        if (tablesError || !tables || !Array.isArray(tables) || !tables.includes('user_role_assignments')) {
           // Se as tabelas não existirem, retornar dados mockados
           usersList = [
             { 
@@ -102,52 +102,62 @@ const AdminUsers = () => {
             }
             
             // Processar usuários
-            for (const authUser of allUsers.users) {
-              // Buscar role do usuário
-              const { data: roleData } = await supabase
-                .from('user_role_assignments')
-                .select('user_roles(name)')
-                .eq('user_id', authUser.id)
-                .maybeSingle();
+            if (allUsers && allUsers.users) {
+              for (const authUser of allUsers.users) {
+                // Buscar role do usuário
+                const { data: roleData } = await supabase
+                  .from('user_role_assignments')
+                  .select('user_roles(name)')
+                  .eq('user_id', authUser.id)
+                  .maybeSingle();
+                  
+                // Buscar plano do usuário
+                const { data: subscriptionData } = await supabase
+                  .from('user_subscriptions')
+                  .select('subscription_plans(name)')
+                  .eq('user_id', authUser.id)
+                  .eq('status', 'active')
+                  .order('created_at', { ascending: false })
+                  .maybeSingle();
+                  
+                // Buscar perfil do usuário
+                const { data: profileData } = await supabase
+                  .from('user_profiles')
+                  .select('full_name')
+                  .eq('id', authUser.id)
+                  .maybeSingle();
+                  
+                const roleName = roleData && roleData.user_roles ? roleData.user_roles.name : 'User';
+                const planName = subscriptionData && subscriptionData.subscription_plans ? subscriptionData.subscription_plans.name : 'Free';
+                const userName = profileData?.full_name || (authUser.email ? authUser.email.split('@')[0] : 'Unknown');
                 
-              // Buscar plano do usuário
-              const { data: subscriptionData } = await supabase
-                .from('user_subscriptions')
-                .select('subscription_plans(name)')
-                .eq('user_id', authUser.id)
-                .eq('status', 'active')
-                .order('created_at', { ascending: false })
-                .maybeSingle();
-                
-              // Buscar perfil do usuário
-              const { data: profileData } = await supabase
-                .from('user_profiles')
-                .select('full_name')
-                .eq('id', authUser.id)
-                .maybeSingle();
-                
-              usersList.push({
-                id: authUser.id,
-                name: profileData?.full_name || authUser.email?.split('@')[0] || 'Unknown',
-                email: authUser.email || 'No email',
-                role: roleData?.user_roles?.name || 'User',
-                status: !authUser.banned_until ? 'active' : 'inactive',
-                plan: subscriptionData?.subscription_plans?.name || 'Free',
-                created: new Date(authUser.created_at).toLocaleDateString()
-              });
+                usersList.push({
+                  id: authUser.id,
+                  name: userName,
+                  email: authUser.email || 'No email',
+                  role: roleName,
+                  status: authUser.banned_until ? 'inactive' : 'active',
+                  plan: planName,
+                  created: new Date(authUser.created_at).toLocaleDateString()
+                });
+              }
             }
-          } else {
+          } else if (authUsers) {
             // Processar usuários
             for (const authUser of authUsers) {
-              // Processar semelhante ao bloco acima
+              let userName = 'Unknown';
+              if (authUser.email && typeof authUser.email === 'string') {
+                userName = authUser.email.split('@')[0];
+              }
+              
               usersList.push({
-                id: authUser.id,
-                name: authUser.email?.split('@')[0] || 'Unknown',
-                email: authUser.email || 'No email',
+                id: authUser.id as string,
+                name: userName,
+                email: authUser.email as string || 'No email',
                 role: 'User', // Valor padrão
                 status: 'active',
                 plan: 'Free', // Valor padrão
-                created: new Date(authUser.created_at).toLocaleDateString()
+                created: authUser.created_at ? new Date(authUser.created_at).toLocaleDateString() : 'Unknown'
               });
             }
           }

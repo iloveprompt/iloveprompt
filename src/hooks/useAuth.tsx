@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const { t } = useLanguage();
 
   // Função para verificar se o usuário é administrador
-  const checkIfUserIsAdmin = async (userId: string) => {
+  const checkIfUserIsAdmin = async (userId: string): Promise<boolean> => {
     try {
       // Primeiro tentamos verificar usando a função RPC que criamos
       const { data, error } = await supabase.rpc('is_admin', { user_id: userId });
@@ -55,8 +55,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           .from('user_role_assignments')
           .select('role_id')
           .eq('user_id', userId)
-          .inner_join('user_roles as roles', { 'role_id': 'roles.id' })
-          .eq('roles.name', 'admin');
+          .join('user_roles', { 'user_role_assignments.role_id': 'user_roles.id' })
+          .eq('user_roles.name', 'admin');
           
         if (roleError) {
           console.error('Erro ao verificar role:', roleError.message);
@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         return roleData && roleData.length > 0;
       }
       
-      return data;
+      return data === true;
     } catch (error) {
       console.error('Erro ao verificar permissões:', error);
       // Fallback para o método antigo caso ocorra qualquer erro
