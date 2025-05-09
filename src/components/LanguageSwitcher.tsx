@@ -15,12 +15,12 @@ const LanguageSwitcher: React.FC = () => {
   return (
     <Select
       value={language}
-      onValueChange={(value: 'pt' | 'en') => setLanguage(value)}
+      onValueChange={(value: 'pt' | 'en' | 'es') => setLanguage(value)}
     >
       <SelectTrigger className="w-[130px] h-9 bg-white border-gray-200 text-gray-800">
         <SelectValue>
           <div className="flex items-center">
-            {language === 'pt' ? (
+            {language === 'pt' && (
               <>
                 <img 
                   src="https://flagcdn.com/w20/br.png" 
@@ -31,7 +31,8 @@ const LanguageSwitcher: React.FC = () => {
                 />
                 <span className="text-gray-800">Português</span>
               </>
-            ) : (
+            )}
+            {language === 'en' && (
               <>
                 <img 
                   src="https://flagcdn.com/w20/us.png" 
@@ -41,6 +42,18 @@ const LanguageSwitcher: React.FC = () => {
                   className="mr-2"
                 />
                 <span className="text-gray-800">English</span>
+              </>
+            )}
+            {language === 'es' && (
+              <>
+                <img 
+                  src="https://flagcdn.com/w20/es.png" 
+                  width="20" 
+                  height="15" 
+                  alt="Spain" 
+                  className="mr-2"
+                />
+                <span className="text-gray-800">Español</span>
               </>
             )}
           </div>
@@ -69,6 +82,18 @@ const LanguageSwitcher: React.FC = () => {
               className="mr-2"
             />
             <span className="text-gray-800">English</span>
+          </div>
+        </SelectItem>
+        <SelectItem value="es" className="focus:bg-gray-100 focus:text-gray-900 hover:bg-gray-100">
+          <div className="flex items-center">
+            <img 
+              src="https://flagcdn.com/w20/es.png" 
+              width="20" 
+              height="15" 
+              alt="Spain" 
+              className="mr-2"
+            />
+            <span className="text-gray-800">Español</span>
           </div>
         </SelectItem>
       </SelectContent>

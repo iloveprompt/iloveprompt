@@ -1,37 +1,46 @@
 
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
-import { translations } from './translations';
+import enTranslations from './locales/en.json';
+import ptTranslations from './locales/pt.json';
+import esTranslations from './locales/es.json';
 
-// Define os tipos disponíveis para o idioma
-type LanguageType = 'pt' | 'en';
+// Define the available language types
+type LanguageType = 'en' | 'pt' | 'es';
 
-// Define o tipo para o contexto
+// Define the type for the context
 interface LanguageContextType {
   language: LanguageType;
   setLanguage: (language: LanguageType) => void;
   t: (key: string) => string;
 }
 
-// Cria o contexto com um valor padrão
+// Create context with a default value
 const LanguageContext = createContext<LanguageContextType>({
   language: 'pt',
   setLanguage: () => {},
   t: () => '',
 });
 
-// Hook personalizado para usar o contexto
+// Custom hook to use the context
 export const useLanguage = () => useContext(LanguageContext);
 
-// Componente Provider que vai envolver a aplicação
+// Provider component that will wrap the application
 interface LanguageProviderProps {
   children: ReactNode;
 }
+
+// Consolidate all translations in one object
+const translations = {
+  en: enTranslations,
+  pt: ptTranslations,
+  es: esTranslations
+};
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   // Get language from localStorage or default to Portuguese
   const getInitialLanguage = (): LanguageType => {
     const savedLanguage = localStorage.getItem('language');
-    return (savedLanguage === 'en' || savedLanguage === 'pt') ? savedLanguage : 'pt';
+    return (savedLanguage === 'en' || savedLanguage === 'pt' || savedLanguage === 'es') ? savedLanguage as LanguageType : 'pt';
   };
   
   const [language, setLanguageState] = useState<LanguageType>(getInitialLanguage);
@@ -42,7 +51,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     setLanguageState(lang);
   };
 
-  // Função para obter a tradução baseada na chave
+  // Function to get translation based on key
   const t = (key: string): string => {
     const keys = key.split('.');
     

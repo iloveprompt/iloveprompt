@@ -11,7 +11,8 @@ const initialSystemTypes: WizardItem[] = [
     active: true,
     translations: {
       en: 'Web Application',
-      pt: 'Aplicação Web'
+      pt: 'Aplicação Web',
+      es: 'Aplicación Web'
     },
     examples: [
       { id: 1, text: 'Facebook', active: true },
@@ -25,7 +26,8 @@ const initialSystemTypes: WizardItem[] = [
     active: true,
     translations: {
       en: 'Mobile App',
-      pt: 'Aplicativo Móvel'
+      pt: 'Aplicativo Móvel',
+      es: 'Aplicación Móvil'
     },
     examples: [
       { id: 4, text: 'Instagram', active: true },
@@ -39,7 +41,8 @@ const initialSystemTypes: WizardItem[] = [
     active: true,
     translations: {
       en: 'API / Backend',
-      pt: 'API / Backend'
+      pt: 'API / Backend',
+      es: 'API / Backend'
     },
     examples: [
       { id: 7, text: 'REST API', active: true },
@@ -52,7 +55,8 @@ const initialSystemTypes: WizardItem[] = [
     active: true,
     translations: {
       en: 'Desktop Application',
-      pt: 'Aplicação Desktop'
+      pt: 'Aplicação Desktop',
+      es: 'Aplicación de Escritorio'
     },
     examples: [
       { id: 9, text: 'Slack', active: true },
