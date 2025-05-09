@@ -53,10 +53,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         // Fallback: verificar diretamente via consulta às tabelas
         const { data: roleData, error: roleError } = await supabase
           .from('user_role_assignments')
-          .select('role_id')
-          .eq('user_id', userId)
-          .join('user_roles', { 'user_role_assignments.role_id': 'user_roles.id' })
-          .eq('user_roles.name', 'admin');
+          .select(`
+            role_id,
+            user_roles!inner(name)
+          `)
+          .eq('user_id', userId);
           
         if (roleError) {
           console.error('Erro ao verificar role:', roleError.message);
@@ -65,7 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           return userId === 'ander_dorneles@hotmail.com';
         }
         
-        return roleData && roleData.length > 0;
+        return roleData && roleData.length > 0 && roleData.some(r => r.user_roles?.name === 'admin');
       }
       
       return data === true;
