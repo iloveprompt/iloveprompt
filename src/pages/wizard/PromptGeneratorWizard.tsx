@@ -13,21 +13,24 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 
-// Define wizard steps
-const wizardSteps = [
-  { id: 'project', title: 'Projeto' },
-  { id: 'objective', title: 'Objetivo' },
+// Define wizard steps with dynamic title based on language
+const getWizardSteps = (t: (key: string) => string) => [
+  { id: 'project', title: t('promptGenerator.project.title') },
+  { id: 'objective', title: t('promptGenerator.objective.title') },
   { id: 'requirements', title: 'Requisitos' },
   { id: 'stack', title: 'Stack' },
   { id: 'integrations', title: 'Integrações' },
-  { id: 'security', title: 'Segurança' },
-  { id: 'generate', title: 'Gerar' }
+  { id: 'security', title: t('promptGenerator.security.title') },
+  { id: 'generate', title: t('promptGenerator.generate.title') }
 ];
 
 const PromptGeneratorWizard = () => {
   const { t } = useLanguage();
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
+  
+  // Get translated wizard steps
+  const wizardSteps = getWizardSteps(t);
   
   // Form data state
   const [formData, setFormData] = useState({

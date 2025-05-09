@@ -14,6 +14,8 @@ export const translations: Record<string, Translation> = {
       logout: "Log out",
       profile: "Profile",
       settings: "Settings",
+      back: "Back",
+      next: "Next",
     },
     hero: {
       title: "Craft Perfect AI Prompts for Developers",
@@ -260,6 +262,91 @@ export const translations: Record<string, Translation> = {
       saving: "Saving...",
       saved: "Saved!",
       error: "Error"
+    },
+    profile: {
+      title: "Meu Perfil",
+      personalInfo: "Informações Pessoais",
+      updateProfile: "Atualize suas informações de perfil",
+      accountInfo: "Informações da Conta",
+      yourAccount: "Informações sobre sua conta",
+      name: "Nome",
+      email: "Email",
+      role: "Função",
+      joinDate: "Data de Cadastro",
+      lastLogin: "Último Acesso",
+      changeAvatar: "Alterar Avatar",
+      uploadNew: "Fazer Upload",
+      removeAvatar: "Remover",
+      bio: "Biografia",
+      bioPlaceholder: "Conte um pouco sobre você...",
+      country: "País",
+      language: "Idioma",
+      timezone: "Fuso Horário",
+      website: "Site",
+      saveChanges: "Salvar Alterações",
+      accountType: "Tipo de Conta",
+      currentPlan: "Plano Atual",
+      memberSince: "Membro Desde",
+      upgradeAccount: "Atualizar Conta",
+      securitySettings: "Configurações de Segurança",
+      changePassword: "Alterar Senha",
+      twoFactorAuth: "Autenticação de Dois Fatores",
+      enable: "Habilitar",
+      disable: "Desabilitar",
+      connectedApps: "Aplicações Conectadas",
+      noConnectedApps: "Nenhuma aplicação conectada",
+      connect: "Conectar",
+      disconnect: "Desconectar",
+      savedChanges: "Alterações salvas!",
+      errorSaving: "Erro ao salvar alterações."
+    },
+    promptGenerator: {
+      title: "Prompt Generator",
+      generate: "Generate",
+      common: {
+        selectAll: "Select All",
+        unselectAll: "Unselect All",
+      },
+      project: {
+        title: "Project Information",
+        description: "Enter basic information about your project",
+        projectTitle: "Project Title",
+        projectTitlePlaceholder: "Enter your project title",
+        projectTitleHelp: "A clear title helps identify your project",
+        author: "Author",
+        authorPlaceholder: "Your name or organization",
+        authorHelp: "Who is creating this project",
+        createdDate: "Created Date",
+        updatedDate: "Last Updated",
+        version: "Version",
+        versionHelp: "Current version of the project"
+      },
+      objective: {
+        title: "Project Objective",
+        description: "Define the main objectives of your project",
+        primaryObjective: "Primary Objective",
+        primaryObjectivePlaceholder: "Describe the main goal of your project",
+        primaryObjectiveHelp: "What is the main purpose of this project?",
+        businessObjectives: "Business Objectives",
+        businessObjectivesHelp: "Select all objectives that apply to this project"
+      },
+      security: {
+        title: "Security Requirements",
+        description: "Select the security features needed for your project",
+        securityFeatures: "Security Features"
+      },
+      generate: {
+        title: "Generate Prompt",
+        description: "Review your information and generate your AI prompt",
+        generating: "Generating...",
+        createPrompt: "Create Prompt",
+        result: "Generated Prompt",
+        copyToClipboard: "Copy to Clipboard",
+        copied: "Copied!",
+        copiedToClipboard: "Prompt copied to clipboard",
+        success: "Success",
+        promptGenerated: "Your prompt has been generated successfully"
+      }
     }
   },
   pt: {
@@ -273,6 +360,8 @@ export const translations: Record<string, Translation> = {
       logout: "Sair",
       profile: "Perfil",
       settings: "Configurações",
+      back: "Voltar",
+      next: "Avançar",
     },
     hero: {
       title: "Crie Prompts de IA Perfeitos para Desenvolvedores",
@@ -557,6 +646,54 @@ export const translations: Record<string, Translation> = {
       disconnect: "Desconectar",
       savedChanges: "Alterações salvas!",
       errorSaving: "Erro ao salvar alterações."
+    },
+    promptGenerator: {
+      title: "Gerador de Prompts",
+      generate: "Gerar",
+      common: {
+        selectAll: "Selecionar Todos",
+        unselectAll: "Desmarcar Todos",
+      },
+      project: {
+        title: "Informações do Projeto",
+        description: "Insira informações básicas sobre seu projeto",
+        projectTitle: "Título do Projeto",
+        projectTitlePlaceholder: "Digite o título do seu projeto",
+        projectTitleHelp: "Um título claro ajuda a identificar seu projeto",
+        author: "Autor",
+        authorPlaceholder: "Seu nome ou organização",
+        authorHelp: "Quem está criando este projeto",
+        createdDate: "Data de Criação",
+        updatedDate: "Última Atualização",
+        version: "Versão",
+        versionHelp: "Versão atual do projeto"
+      },
+      objective: {
+        title: "Objetivo do Projeto",
+        description: "Defina os principais objetivos do seu projeto",
+        primaryObjective: "Objetivo Principal",
+        primaryObjectivePlaceholder: "Descreva o objetivo principal do seu projeto",
+        primaryObjectiveHelp: "Qual é o propósito principal deste projeto?",
+        businessObjectives: "Objetivos de Negócio",
+        businessObjectivesHelp: "Selecione todos os objetivos que se aplicam a este projeto"
+      },
+      security: {
+        title: "Requisitos de Segurança",
+        description: "Selecione os recursos de segurança necessários para seu projeto",
+        securityFeatures: "Recursos de Segurança"
+      },
+      generate: {
+        title: "Gerar Prompt",
+        description: "Revise suas informações e gere seu prompt de IA",
+        generating: "Gerando...",
+        createPrompt: "Criar Prompt",
+        result: "Prompt Gerado",
+        copyToClipboard: "Copiar para Área de Transferência",
+        copied: "Copiado!",
+        copiedToClipboard: "Prompt copiado para a área de transferência",
+        success: "Sucesso",
+        promptGenerated: "Seu prompt foi gerado com sucesso"
+      }
     }
   }
 };
