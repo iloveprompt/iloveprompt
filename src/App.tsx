@@ -12,10 +12,17 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-import PromptGenerator from "./pages/PromptGenerator";
+import PromptGeneratorWizard from "./pages/wizard/PromptGeneratorWizard";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import Settings from "./pages/dashboard/Settings";
+import History from "./pages/dashboard/History";
+import DashboardLayout from "./components/layouts/DashboardLayout";
+import UserDashboardNavbar from "./components/dashboard/UserDashboardNavbar";
+import UserDashboardFooter from "./components/dashboard/UserDashboardFooter";
+import AdminDashboardNavbar from "./components/dashboard/AdminDashboardNavbar";
+import AdminDashboardFooter from "./components/dashboard/AdminDashboardFooter";
 
 const queryClient = new QueryClient();
 
@@ -39,14 +46,8 @@ const App = () => (
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
-              <Route 
-                path="/prompt-generator" 
-                element={
-                  <AuthGuard>
-                    <PromptGenerator />
-                  </AuthGuard>
-                } 
-              />
+              
+              {/* Dashboard routes */}
               <Route 
                 path="/dashboard" 
                 element={
@@ -55,6 +56,50 @@ const App = () => (
                   </AuthGuard>
                 } 
               />
+              
+              <Route 
+                path="/dashboard/prompt-generator" 
+                element={
+                  <AuthGuard>
+                    <DashboardLayout
+                      navbarComponent={<UserDashboardNavbar />}
+                      footerComponent={<UserDashboardFooter />}
+                    >
+                      <PromptGeneratorWizard />
+                    </DashboardLayout>
+                  </AuthGuard>
+                } 
+              />
+              
+              <Route 
+                path="/dashboard/settings" 
+                element={
+                  <AuthGuard>
+                    <DashboardLayout
+                      navbarComponent={<UserDashboardNavbar />}
+                      footerComponent={<UserDashboardFooter />}
+                    >
+                      <Settings />
+                    </DashboardLayout>
+                  </AuthGuard>
+                } 
+              />
+              
+              <Route 
+                path="/dashboard/history" 
+                element={
+                  <AuthGuard>
+                    <DashboardLayout
+                      navbarComponent={<UserDashboardNavbar />}
+                      footerComponent={<UserDashboardFooter />}
+                    >
+                      <History />
+                    </DashboardLayout>
+                  </AuthGuard>
+                } 
+              />
+              
+              {/* Admin routes */}
               <Route 
                 path="/admin" 
                 element={
@@ -63,6 +108,7 @@ const App = () => (
                   </AuthGuard>
                 } 
               />
+              
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

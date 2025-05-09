@@ -16,16 +16,17 @@ const LanguageSwitcher: React.FC = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="text-gray-700 hover:text-brand-600">
-          <Globe className="h-5 w-5" />
+        <Button variant="ghost" className="text-gray-700 hover:text-brand-600 flex items-center">
+          <Globe className="h-5 w-5 mr-1" />
+          <span className="text-sm">{language === 'pt' ? 'Pt-Br' : 'En-US'}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setLanguage('en')} className={language === 'en' ? 'bg-accent/50' : ''}>
-          {t('languageSwitcher.en')}
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setLanguage('pt')} className={language === 'pt' ? 'bg-accent/50' : ''}>
-          {t('languageSwitcher.pt')}
+          {t('languageSwitcher.pt')} (Pt-Br)
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setLanguage('en')} className={language === 'en' ? 'bg-accent/50' : ''}>
+          {t('languageSwitcher.en')} (En-US)
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

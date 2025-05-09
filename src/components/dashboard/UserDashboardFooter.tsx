@@ -11,7 +11,12 @@ const UserDashboardFooter = () => {
     <footer className="bg-white border-t border-gray-200 py-6">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-4 md:mb-0">
+          <div className="mb-4 md:mb-0 flex items-center">
+            <img 
+              src="/lovable-uploads/38e9462c-ec41-45c6-b98e-95e9a854929c.png" 
+              alt="iloveprompt logo" 
+              className="h-8 mr-3" 
+            />
             <p className="text-sm text-gray-600">
               &copy; {currentYear} iloveprompt. {t('footer.copyright')}
             </p>
@@ -24,7 +29,7 @@ const UserDashboardFooter = () => {
               {t('footer.privacyPolicy')}
             </Link>
             <Link to="/help" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">
-              Help
+              {t('footer.help')}
             </Link>
           </div>
         </div>

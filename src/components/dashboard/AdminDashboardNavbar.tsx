@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import UserProfileMenu from './UserProfileMenu';
+import LanguageSwitcher from '../LanguageSwitcher';
 
 const AdminDashboardNavbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,36 +17,37 @@ const AdminDashboardNavbar = () => {
 
   return (
     <header className="bg-gray-900 text-white sticky top-0 z-30">
-      <div className="px-4 sm:px-6 py-3">
+      <div className="container mx-auto px-4 sm:px-6 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link to="/admin" className="flex items-center">
               <img 
                 src="/lovable-uploads/38e9462c-ec41-45c6-b98e-95e9a854929c.png" 
                 alt="iloveprompt logo" 
-                className="h-8 mr-2" 
+                className="h-10" 
               />
-              <span className="font-semibold text-xl hidden sm:inline">Admin</span>
+              <span className="font-semibold text-xl hidden sm:inline ml-2">Admin</span>
             </Link>
           </div>
           
           {/* Desktop navigation */}
           <nav className="hidden md:flex items-center space-x-4">
             <Link to="/admin" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
-              Overview
+              {t('admin.overview')}
             </Link>
             <Link to="/admin/users" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
-              Users
+              {t('admin.users')}
             </Link>
             <Link to="/admin/prompts" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
-              Prompts
+              {t('admin.prompts')}
             </Link>
             <Link to="/admin/settings" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
-              Settings
+              {t('admin.settings')}
             </Link>
             <Link to="/admin/logs" className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">
-              Logs
+              {t('admin.logs')}
             </Link>
+            <LanguageSwitcher />
           </nav>
           
           <div className="flex items-center">
@@ -74,36 +76,39 @@ const AdminDashboardNavbar = () => {
               className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
-              Overview
+              {t('admin.overview')}
             </Link>
             <Link 
               to="/admin/users" 
               className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
-              Users
+              {t('admin.users')}
             </Link>
             <Link 
               to="/admin/prompts" 
               className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
-              Prompts
+              {t('admin.prompts')}
             </Link>
             <Link 
               to="/admin/settings" 
               className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
-              Settings
+              {t('admin.settings')}
             </Link>
             <Link 
               to="/admin/logs" 
               className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
-              Logs
+              {t('admin.logs')}
             </Link>
+            <div className="px-3 py-2">
+              <LanguageSwitcher />
+            </div>
           </div>
         </nav>
       )}

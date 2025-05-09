@@ -1,18 +1,16 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import { colors } from '@/styles/colors';
+import PasswordInput from '@/components/auth/PasswordInput';
 
 const ResetPasswordPage = () => {
   const { t } = useLanguage();
@@ -65,66 +63,71 @@ const ResetPasswordPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
-      
-      <div className="flex-grow container mx-auto px-4 py-16 flex flex-col items-center justify-center">
-        <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-lg shadow-md">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900">{t('auth.resetPasswordTitle')}</h1>
-            <p className="mt-2 text-sm text-gray-600">{t('auth.resetPasswordSubtitle')}</p>
-          </div>
-          
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('auth.newPasswordLabel')}</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder={t('auth.newPasswordPlaceholder')}
-                        type="password"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('auth.confirmPasswordLabel')}</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder={t('auth.confirmPasswordPlaceholder')}
-                        type="password"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button 
-                type="submit" 
-                className="w-full text-white"
-                style={{ backgroundColor: colors.blue[600] }}
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting ? t('auth.updating') : t('auth.updatePassword')}
-              </Button>
-            </form>
-          </Form>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-lg shadow-md">
+        <div className="text-center">
+          <Link to="/" className="inline-block mb-6">
+            <img 
+              src="/lovable-uploads/38e9462c-ec41-45c6-b98e-95e9a854929c.png" 
+              alt="iloveprompt logo" 
+              className="h-12 mx-auto" 
+            />
+          </Link>
+          <h1 className="text-2xl font-bold text-gray-900">{t('auth.resetPasswordTitle')}</h1>
+          <p className="mt-2 text-sm text-gray-600">{t('auth.resetPasswordSubtitle')}</p>
+        </div>
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('auth.newPasswordLabel')}</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      placeholder={t('auth.newPasswordPlaceholder')}
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('auth.confirmPasswordLabel')}</FormLabel>
+                  <FormControl>
+                    <PasswordInput
+                      placeholder={t('auth.confirmPasswordPlaceholder')}
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button 
+              type="submit" 
+              className="w-full text-white"
+              style={{ backgroundColor: colors.blue[600] }}
+              disabled={form.formState.isSubmitting}
+            >
+              {form.formState.isSubmitting ? t('auth.updating') : t('auth.updatePassword')}
+            </Button>
+          </form>
+        </Form>
+        
+        <div className="text-center mt-6">
+          <Link to="/" className="text-sm text-gray-500 hover:text-blue-500">
+            {t('auth.backToHome')}
+          </Link>
         </div>
       </div>
-      
-      <Footer />
     </div>
   );
 };

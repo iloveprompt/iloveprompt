@@ -10,16 +10,20 @@ const Footer = () => {
   return (
     <footer className="bg-gray-50 border-t border-gray-100">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="flex flex-col items-center mb-8">
+          <Link to="/" className="mb-4">
+            <img 
+              src="/lovable-uploads/38e9462c-ec41-45c6-b98e-95e9a854929c.png" 
+              alt="iloveprompt logo" 
+              className="h-12" 
+            />
+          </Link>
+          <p className="text-gray-600 max-w-md text-center">
+            {t('footer.description')}
+          </p>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          <div>
-            <Link to="/" className="flex items-center space-x-2">
-              <span className="text-xl font-bold bg-clip-text text-transparent prompt-gradient">iloveprompt</span>
-            </Link>
-            <p className="mt-4 text-gray-600 max-w-xs">
-              {t('footer.description')}
-            </p>
-          </div>
-          
           <div>
             <h3 className="font-semibold text-gray-800 mb-4">{t('footer.product')}</h3>
             <ul className="space-y-2">
@@ -43,6 +47,15 @@ const Footer = () => {
             <ul className="space-y-2">
               <li><Link to="/privacy" className="text-gray-600 hover:text-brand-600">{t('footer.privacyPolicy')}</Link></li>
               <li><Link to="/terms" className="text-gray-600 hover:text-brand-600">{t('footer.termsOfService')}</Link></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 className="font-semibold text-gray-800 mb-4">{t('footer.help')}</h3>
+            <ul className="space-y-2">
+              <li><Link to="/faq" className="text-gray-600 hover:text-brand-600">{t('footer.faq')}</Link></li>
+              <li><Link to="/support" className="text-gray-600 hover:text-brand-600">{t('footer.support')}</Link></li>
+              <li><Link to="/documentation" className="text-gray-600 hover:text-brand-600">{t('footer.documentation')}</Link></li>
             </ul>
           </div>
         </div>

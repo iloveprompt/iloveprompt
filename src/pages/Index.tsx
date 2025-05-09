@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,17 +8,21 @@ import FeatureCard from '@/components/FeatureCard';
 import PricingCard from '@/components/PricingCard';
 import { Code, Shield, Zap } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
+
 const Index = () => {
-  const {
-    t
-  } = useLanguage();
-  return <div className="flex flex-col min-h-screen">
+  const { t } = useLanguage();
+  
+  return (
+    <div className="flex flex-col min-h-screen">
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-24 pb-16 md:pt-32 md:pb-24 bg-cover bg-center" style={{
-      backgroundImage: 'url("/lovable-uploads/eecd25b5-caab-48fd-88bb-c6a40aa68e93.png")'
-    }}>
+      <section 
+        className="pt-24 pb-16 md:pt-32 md:pb-24 bg-cover bg-center" 
+        style={{
+          backgroundImage: 'url("/lovable-uploads/eecd25b5-caab-48fd-88bb-c6a40aa68e93.png")'
+        }}
+      >
         <div className="container px-4 mx-auto">
           <div className="flex flex-col md:flex-row md:items-center">
             <div className="md:w-1/2 mb-10 md:mb-0">
@@ -34,7 +39,10 @@ const Index = () => {
                   </Button>
                 </Link>
                 <Link to="/features">
-                  <Button variant="outline" className="border-white text-white hover:bg-white/10 h-auto px-[50px] py-[7px] font-bold text-lg rounded-xl">
+                  <Button 
+                    variant="outline" 
+                    className="border-white text-white hover:bg-white hover:text-slate-900 h-auto px-[50px] py-[7px] font-bold text-lg rounded-xl"
+                  >
                     {t('common.learnMore')}
                   </Button>
                 </Link>
@@ -131,65 +139,107 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <PricingCard title={t('pricing.free.title')} price={t('pricing.free.price')} description={t('pricing.free.description')} features={[{
-            text: `5 ${t('pricing.features.promptsPerMonth')}`,
-            included: true
-          }, {
-            text: t('pricing.features.basicQuestionnaire'),
-            included: true
-          }, {
-            text: t('pricing.features.gpt35Integration'),
-            included: true
-          }, {
-            text: t('pricing.features.promptHistory'),
-            included: true
-          }, {
-            text: t('pricing.features.useOwnApiKeys'),
-            included: false
-          }, {
-            text: t('pricing.features.advancedSecuritySection'),
-            included: false
-          }]} ctaText={t('common.startFree')} />
+            <PricingCard 
+              title={t('pricing.free.title')} 
+              price={t('pricing.free.price')} 
+              description={t('pricing.free.description')} 
+              features={[
+                {
+                  text: `5 ${t('pricing.features.promptsPerMonth')}`,
+                  included: true
+                },
+                {
+                  text: t('pricing.features.basicQuestionnaire'),
+                  included: true
+                },
+                {
+                  text: t('pricing.features.gpt35Integration'),
+                  included: true
+                },
+                {
+                  text: t('pricing.features.promptHistory'),
+                  included: true
+                },
+                {
+                  text: t('pricing.features.useOwnApiKeys'),
+                  included: false
+                },
+                {
+                  text: t('pricing.features.advancedSecuritySection'),
+                  included: false
+                }
+              ]} 
+              ctaText={t('common.startFree')} 
+            />
             
-            <PricingCard title={t('pricing.pro.title')} price={t('pricing.pro.price')} description={t('pricing.pro.description')} features={[{
-            text: `50 ${t('pricing.features.promptsPerMonth')}`,
-            included: true
-          }, {
-            text: t('pricing.features.fullQuestionnaire'),
-            included: true
-          }, {
-            text: t('pricing.features.aiModelIntegrations'),
-            included: true
-          }, {
-            text: t('pricing.features.promptHistoryTemplates'),
-            included: true
-          }, {
-            text: t('pricing.features.useOwnApiKeys'),
-            included: true
-          }, {
-            text: t('pricing.features.advancedSecuritySections'),
-            included: true
-          }]} ctaText="Upgrade to Pro" popular={true} apiOption={true} />
+            <PricingCard 
+              title={t('pricing.pro.title')} 
+              price={t('pricing.pro.price')} 
+              description={t('pricing.pro.description')} 
+              features={[
+                {
+                  text: `50 ${t('pricing.features.promptsPerMonth')}`,
+                  included: true
+                },
+                {
+                  text: t('pricing.features.fullQuestionnaire'),
+                  included: true
+                },
+                {
+                  text: t('pricing.features.aiModelIntegrations'),
+                  included: true
+                },
+                {
+                  text: t('pricing.features.promptHistoryTemplates'),
+                  included: true
+                },
+                {
+                  text: t('pricing.features.useOwnApiKeys'),
+                  included: true
+                },
+                {
+                  text: t('pricing.features.advancedSecuritySections'),
+                  included: true
+                }
+              ]} 
+              ctaText="Upgrade to Pro" 
+              popular={true} 
+              apiOption={true} 
+            />
             
-            <PricingCard title={t('pricing.team.title')} price={t('pricing.team.price')} description={t('pricing.team.description')} features={[{
-            text: t('pricing.features.unlimitedPrompts'),
-            included: true
-          }, {
-            text: t('pricing.features.fullQuestionnaire'),
-            included: true
-          }, {
-            text: t('pricing.features.aiModelIntegrations'),
-            included: true
-          }, {
-            text: t('pricing.features.promptLibrarySharing'),
-            included: true
-          }, {
-            text: t('pricing.features.useOwnApiKeys'),
-            included: true
-          }, {
-            text: t('pricing.features.prioritySupport'),
-            included: true
-          }]} ctaText="Choose Team" apiOption={true} />
+            <PricingCard 
+              title={t('pricing.team.title')} 
+              price={t('pricing.team.price')} 
+              description={t('pricing.team.description')} 
+              features={[
+                {
+                  text: t('pricing.features.unlimitedPrompts'),
+                  included: true
+                },
+                {
+                  text: t('pricing.features.fullQuestionnaire'),
+                  included: true
+                },
+                {
+                  text: t('pricing.features.aiModelIntegrations'),
+                  included: true
+                },
+                {
+                  text: t('pricing.features.promptLibrarySharing'),
+                  included: true
+                },
+                {
+                  text: t('pricing.features.useOwnApiKeys'),
+                  included: true
+                },
+                {
+                  text: t('pricing.features.prioritySupport'),
+                  included: true
+                }
+              ]} 
+              ctaText="Choose Team" 
+              apiOption={true} 
+            />
           </div>
         </div>
       </section>
@@ -210,6 +260,8 @@ const Index = () => {
       </section>
       
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Index;

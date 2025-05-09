@@ -1,5 +1,5 @@
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import { translations } from './translations';
 
 // Define os tipos disponíveis para o idioma
@@ -28,7 +28,19 @@ interface LanguageProviderProps {
 }
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const [language, setLanguage] = useState<LanguageType>('pt');
+  // Get language from localStorage or default to Portuguese
+  const getInitialLanguage = (): LanguageType => {
+    const savedLanguage = localStorage.getItem('language');
+    return (savedLanguage === 'en' || savedLanguage === 'pt') ? savedLanguage : 'pt';
+  };
+  
+  const [language, setLanguageState] = useState<LanguageType>(getInitialLanguage);
+  
+  // Save language preference to localStorage
+  const setLanguage = (lang: LanguageType) => {
+    localStorage.setItem('language', lang);
+    setLanguageState(lang);
+  };
 
   // Função para obter a tradução baseada na chave
   const t = (key: string): string => {

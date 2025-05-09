@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Menu } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import UserProfileMenu from './UserProfileMenu';
+import LanguageSwitcher from '../LanguageSwitcher';
 
 const UserDashboardNavbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,16 +17,16 @@ const UserDashboardNavbar = () => {
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
-      <div className="px-4 sm:px-6 py-3">
+      <div className="container mx-auto px-4 sm:px-6 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link to="/dashboard" className="flex items-center">
               <img 
                 src="/lovable-uploads/38e9462c-ec41-45c6-b98e-95e9a854929c.png" 
                 alt="iloveprompt logo" 
-                className="h-8 mr-2" 
+                className="h-10" 
               />
-              <span className="font-semibold text-xl hidden sm:inline">Dashboard</span>
+              <span className="font-semibold text-xl hidden sm:inline ml-2">Dashboard</span>
             </Link>
           </div>
           
@@ -34,7 +35,7 @@ const UserDashboardNavbar = () => {
             <Link to="/dashboard" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
               {t('dashboard.overview')}
             </Link>
-            <Link to="/prompt-generator" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+            <Link to="/dashboard/prompt-generator" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
               {t('dashboard.createPrompt')}
             </Link>
             <Link to="/dashboard/history" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
@@ -43,6 +44,7 @@ const UserDashboardNavbar = () => {
             <Link to="/dashboard/settings" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
               {t('dashboard.settings')}
             </Link>
+            <LanguageSwitcher />
           </nav>
           
           <div className="flex items-center">
@@ -74,7 +76,7 @@ const UserDashboardNavbar = () => {
               {t('dashboard.overview')}
             </Link>
             <Link 
-              to="/prompt-generator" 
+              to="/dashboard/prompt-generator" 
               className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
@@ -94,6 +96,9 @@ const UserDashboardNavbar = () => {
             >
               {t('dashboard.settings')}
             </Link>
+            <div className="px-3 py-2">
+              <LanguageSwitcher />
+            </div>
           </div>
         </nav>
       )}
