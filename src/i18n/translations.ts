@@ -1,4 +1,3 @@
-
 type Translation = {
   [key: string]: string | Record<string, string | Record<string, string>>;
 };
@@ -754,4 +753,3 @@ export const translations: Record<string, Translation> = {
     }
   }
 };
-
