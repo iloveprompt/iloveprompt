@@ -19,7 +19,7 @@ const RestrictionsStep: React.FC<RestrictionsStepProps> = ({ formData, updateFor
   const { t } = useLanguage();
 
   const restrictionsOptions = [
-    'eval', 'globalVars', 'callbackHell', 'unmaintained', 'important', 'paidDeps', 'other'
+    'eval', 'globalVars', 'callbackHell', 'unmaintained', 'important', 'paidDeps', 'otherRestriction'
   ];
 
   const handleRestrictionChange = (restriction: string, checked: boolean) => {
