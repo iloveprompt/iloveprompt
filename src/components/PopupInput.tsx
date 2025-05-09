@@ -96,7 +96,7 @@ const PopupInput: React.FC<PopupInputProps> = ({
         </div>
         <DialogFooter>
           <Button type="button" onClick={handleSave}>
-            {t('common.add')}
+            {t('promptGenerator.common.add')}
           </Button>
         </DialogFooter>
       </DialogContent>

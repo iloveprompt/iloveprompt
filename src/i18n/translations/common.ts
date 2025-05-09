@@ -16,8 +16,7 @@ export const commonTranslations = {
       selectAll: "Select All",
       unselectAll: "Unselect All",
       add: "Add",
-      selected: "selected",
-      dashboard: "Dashboard"
+      selected: "selected"
     }
   },
   pt: {
@@ -36,8 +35,7 @@ export const commonTranslations = {
       selectAll: "Selecionar Todos",
       unselectAll: "Desmarcar Todos",
       add: "Adicionar",
-      selected: "selecionados",
-      dashboard: "Painel"
+      selected: "selecionados"
     }
   }
 };

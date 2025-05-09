@@ -50,7 +50,7 @@ const Navbar = () => {
                     className="text-white hover:bg-opacity-90 flex items-center gap-2"
                   >
                     <LayoutDashboard className="h-4 w-4" />
-                    {t('common.dashboard')}
+                    Dashboard
                   </Button>
                 </Link>
               ) : (
@@ -99,7 +99,7 @@ const Navbar = () => {
                     <Button className="w-full text-white" style={{
                       backgroundColor: colors.blue[600]
                     }}>
-                      {t('common.dashboard')}
+                      Dashboard
                     </Button>
                   </Link>
                 </>
