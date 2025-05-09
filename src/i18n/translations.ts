@@ -23,13 +23,25 @@ export const translations: Record<string, Translation> = {
     ...authTranslations.en,
     ...dashboardTranslations.en,
     ...landingTranslations.en,
-    ...promptGeneratorTranslations.en
+    ...promptGeneratorTranslations.en,
+    common: {
+      ...commonTranslations.en.common,
+      addedItems: "Added items",
+      addMoreItems: "Add more items",
+      deleteItem: "Delete"
+    }
   },
   pt: {
     ...commonTranslations.pt,
     ...authTranslations.pt,
     ...dashboardTranslations.pt,
     ...landingTranslations.pt,
-    ...promptGeneratorTranslations.pt
+    ...promptGeneratorTranslations.pt,
+    common: {
+      ...commonTranslations.pt.common,
+      addedItems: "Itens adicionados",
+      addMoreItems: "Adicionar mais itens",
+      deleteItem: "Excluir"
+    }
   }
 };

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card } from '@/components/ui/card';
@@ -380,7 +379,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
             groupValue={formData.visualStyle}
             value="otherVisualStyle"
             label={t('promptGenerator.uxui.otherVisualStyle')}
-            specifyValue={formData.otherVisualStyle || ''}
+            specifyValue={formData.otherVisualStyle as string}
             placeholder={t('promptGenerator.uxui.otherVisualStylePlaceholder')}
             onValueChange={(value) => updateFormData({ visualStyle: value })}
             onSpecifyValueChange={(value) => updateFormData({ otherVisualStyle: value })}
@@ -412,7 +411,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
             groupValue={formData.menuType}
             value="otherMenuType"
             label={t('promptGenerator.uxui.otherMenuType')}
-            specifyValue={formData.otherMenuType || ''}
+            specifyValue={formData.otherMenuType as string}
             placeholder={t('promptGenerator.uxui.otherMenuTypePlaceholder')}
             onValueChange={(value) => updateFormData({ menuType: value })}
             onSpecifyValueChange={(value) => updateFormData({ otherMenuType: value })}
