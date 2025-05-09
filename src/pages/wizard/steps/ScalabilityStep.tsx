@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import OtherSpecifyItem from '@/components/OtherSpecifyItem';
+import { Switch } from "@/components/ui/switch";
 
 interface ScalabilityData {
   isScalable: boolean;
@@ -79,24 +80,15 @@ const ScalabilityStep: React.FC<ScalabilityStepProps> = ({ formData, updateFormD
         <p className="text-gray-500 mb-4">{t('promptGenerator.scalability.description')}</p>
       </div>
 
-      <div className="flex flex-row items-center space-x-4 mb-4">
-        <Label className="text-base font-medium mr-4">
+      <div className="flex items-center space-x-3 mb-6">
+        <Switch
+          id="isScalable-switch"
+          checked={formData.isScalable}
+          onCheckedChange={(value) => updateFormData({ isScalable: value })}
+        />
+        <Label htmlFor="isScalable-switch">
           {t('promptGenerator.scalability.isScalable')}
         </Label>
-        <RadioGroup
-          value={formData.isScalable ? 'yes' : 'no'}
-          onValueChange={(value) => updateFormData({ isScalable: value === 'yes' })}
-          className="flex space-x-4"
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="yes" id="scalable-yes" />
-            <Label htmlFor="scalable-yes">{t('promptGenerator.common.yes')}</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="no" id="scalable-no" />
-            <Label htmlFor="scalable-no">{t('promptGenerator.common.no')}</Label>
-          </div>
-        </RadioGroup>
       </div>
 
       {formData.isScalable && (

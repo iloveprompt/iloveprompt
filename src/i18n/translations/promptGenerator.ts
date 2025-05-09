@@ -230,7 +230,8 @@ export const promptGeneratorTranslations = {
         hostingHelp: "Select the hosting options",
         fullstack: "Fullstack Integrated",
         orm: "ORM/ODM",
-        deployment: "Deploy / Infrastructure"
+        deployment: "Deploy / Infrastructure",
+        specifyOther: "Describe your custom technology"
       },
       security: {
         title: "Security Requirements",
@@ -553,7 +554,8 @@ export const promptGeneratorTranslations = {
         hostingHelp: "Selecione as opções de hospedagem",
         fullstack: "Fullstack Integrado",
         orm: "ORM/ODM",
-        deployment: "Deploy / Infraestrutura"
+        deployment: "Deploy / Infraestrutura",
+        specifyOther: "Descreva sua tecnologia personalizada"
       },
       security: {
         title: "Requisitos de Segurança",

@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from "@/components/ui/switch";
+import OtherSpecifyItem from '@/components/OtherSpecifyItem';
 
 interface StackData {
   separateFrontendBackend: boolean;
@@ -16,6 +18,12 @@ interface StackData {
   hosting: string[];
   fullstack: string[];
   orm: string[];
+  otherFrontend: string;
+  otherBackend: string;
+  otherDatabase: string;
+  otherHosting: string;
+  otherFullstack: string;
+  otherOrm: string;
 }
 
 interface StackStepProps {
@@ -128,12 +136,14 @@ const StackStep: React.FC<StackStepProps> = ({ formData, updateFormData }) => {
 
   // Render technology checkboxes
   const renderTechOptions = (
-    category: keyof StackData, 
+    category: 'frontend' | 'backend' | 'database' | 'hosting' | 'fullstack' | 'orm', 
     options: Array<{ value: string; label: string }>,
     title: string,
-    help?: string
+    help?: string,
+    otherProperty: 'otherFrontend' | 'otherBackend' | 'otherDatabase' | 'otherHosting' | 'otherFullstack' | 'otherOrm'
   ) => {
     const allSelected = isAllSelected(category, options);
+    const otherKey = `other${category.charAt(0).toUpperCase() + category.slice(1)}` as keyof StackData;
     
     return (
       <Card className="p-6 mb-4">
@@ -159,12 +169,7 @@ const StackStep: React.FC<StackStepProps> = ({ formData, updateFormData }) => {
               <div key={option.value} className="flex items-center space-x-2">
                 <Checkbox 
                   id={`${category}-${option.value}`}
-                  checked={
-                    category === 'frontend' || category === 'backend' || category === 'database' || 
-                    category === 'hosting' || category === 'fullstack' || category === 'orm'
-                      ? formData[category].includes(option.value)
-                      : false
-                  }
+                  checked={formData[category].includes(option.value)}
                   onCheckedChange={(checked) => 
                     handleTechSelection(category, option.value, checked === true)
                   }
@@ -174,6 +179,28 @@ const StackStep: React.FC<StackStepProps> = ({ formData, updateFormData }) => {
                 </Label>
               </div>
             ))}
+            
+            <OtherSpecifyItem
+              id={`${category}-other`}
+              label={t('promptGenerator.common.other')}
+              checked={formData[category].includes(`other${category.charAt(0).toUpperCase() + category.slice(1)}`)}
+              value={formData[otherProperty]}
+              placeholder={`${t('promptGenerator.stack.specifyOther')}`}
+              onCheckedChange={(checked) => {
+                const otherValue = `other${category.charAt(0).toUpperCase() + category.slice(1)}`;
+                if (checked) {
+                  updateFormData({
+                    [category]: [...formData[category], otherValue]
+                  });
+                } else {
+                  updateFormData({
+                    [category]: formData[category].filter(f => f !== otherValue),
+                    [otherProperty]: ''
+                  });
+                }
+              }}
+              onValueChange={(value) => updateFormData({ [otherProperty]: value })}
+            />
           </div>
         </div>
       </Card>
@@ -188,25 +215,16 @@ const StackStep: React.FC<StackStepProps> = ({ formData, updateFormData }) => {
       </div>
 
       {/* Frontend/Backend Separation Option */}
-      <Card className="p-6">
-        <div>
-          <h4 className="font-medium mb-4">{t('promptGenerator.stack.separateFrontendBackend')}</h4>
-          <RadioGroup
-            value={formData.separateFrontendBackend ? 'separate' : 'fullstack'}
-            onValueChange={(value) => updateFormData({ separateFrontendBackend: value === 'separate' })}
-            className="space-y-3"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="separate" id="separate" />
-              <Label htmlFor="separate">{t('promptGenerator.stack.hasSeparation')}</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="fullstack" id="fullstack" />
-              <Label htmlFor="fullstack">{t('promptGenerator.stack.noSeparation')}</Label>
-            </div>
-          </RadioGroup>
-        </div>
-      </Card>
+      <div className="flex items-center space-x-3 mb-6">
+        <Switch
+          id="separateFrontendBackend-switch"
+          checked={formData.separateFrontendBackend}
+          onCheckedChange={(value) => updateFormData({ separateFrontendBackend: value })}
+        />
+        <Label htmlFor="separateFrontendBackend-switch">
+          {t('promptGenerator.stack.separateFrontendBackend')}
+        </Label>
+      </div>
 
       {/* Separate Frontend/Backend or Fullstack */}
       {formData.separateFrontendBackend ? (
@@ -215,20 +233,24 @@ const StackStep: React.FC<StackStepProps> = ({ formData, updateFormData }) => {
             'frontend',
             frontendOptions,
             t('promptGenerator.stack.frontendTitle'),
-            t('promptGenerator.stack.frontendHelp')
+            t('promptGenerator.stack.frontendHelp'),
+            'otherFrontend'
           )}
           {renderTechOptions(
             'backend',
             backendOptions,
             t('promptGenerator.stack.backendTitle'),
-            t('promptGenerator.stack.backendHelp')
+            t('promptGenerator.stack.backendHelp'),
+            'otherBackend'
           )}
         </>
       ) : (
         renderTechOptions(
           'fullstack',
           fullstackOptions,
-          t('promptGenerator.stack.fullstack')
+          t('promptGenerator.stack.fullstack'),
+          undefined,
+          'otherFullstack'
         )
       )}
 
@@ -239,20 +261,24 @@ const StackStep: React.FC<StackStepProps> = ({ formData, updateFormData }) => {
         'database',
         databaseOptions,
         t('promptGenerator.stack.databaseTitle'),
-        t('promptGenerator.stack.databaseHelp')
+        t('promptGenerator.stack.databaseHelp'),
+        'otherDatabase'
       )}
       
       {renderTechOptions(
         'orm',
         ormOptions,
-        t('promptGenerator.stack.orm')
+        t('promptGenerator.stack.orm'),
+        undefined,
+        'otherOrm'
       )}
       
       {renderTechOptions(
         'hosting',
         hostingOptions,
         t('promptGenerator.stack.hostingTitle'),
-        t('promptGenerator.stack.hostingHelp')
+        t('promptGenerator.stack.hostingHelp'),
+        'otherHosting'
       )}
     </div>
   );

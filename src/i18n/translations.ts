@@ -6,11 +6,11 @@ import { landingTranslations } from './translations/landing';
 import { promptGeneratorTranslations } from './translations/promptGenerator';
 
 // Create a more flexible type definition that allows for deeply nested objects
-type DeepPartial<T> = {
-  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+type DeepRecord<T> = {
+  [key: string]: T | DeepRecord<T>;
 };
 
-type TranslationValue = string | Record<string, string | Record<string, string | Record<string, string>>>;
+type TranslationValue = string | DeepRecord<string>;
 
 type Translation = {
   [key: string]: TranslationValue;

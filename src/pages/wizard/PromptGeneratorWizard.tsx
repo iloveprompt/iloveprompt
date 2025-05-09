@@ -275,7 +275,13 @@ const PromptGeneratorWizard = () => {
       database: [],
       hosting: [],
       fullstack: [],
-      orm: []
+      orm: [],
+      otherFrontend: '',
+      otherBackend: '',
+      otherDatabase: '',
+      otherHosting: '',
+      otherFullstack: '',
+      otherOrm: ''
     },
     security: {
       selectedSecurity: [],

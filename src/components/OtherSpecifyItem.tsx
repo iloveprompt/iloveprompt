@@ -38,7 +38,7 @@ const OtherSpecifyItem: React.FC<OtherSpecifyItemProps> = ({
   };
   
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 max-w-full">
       <div className="flex items-center space-x-2">
         <Checkbox
           id={id}
@@ -51,7 +51,7 @@ const OtherSpecifyItem: React.FC<OtherSpecifyItemProps> = ({
       </div>
       
       {checked && (
-        <div className="ml-6 mt-2 flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2 sm:items-center">
+        <div className="ml-6 mt-2 flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
           <Input
             value={tempValue}
             onChange={(e) => setTempValue(e.target.value)}
@@ -61,7 +61,7 @@ const OtherSpecifyItem: React.FC<OtherSpecifyItemProps> = ({
           />
           <Button 
             size="sm" 
-            className="mt-2 sm:mt-0 whitespace-nowrap" 
+            className="whitespace-nowrap sm:flex-shrink-0" 
             onClick={handleSave}
             disabled={tempValue === value}
           >
