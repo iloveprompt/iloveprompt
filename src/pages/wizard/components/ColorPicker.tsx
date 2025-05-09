@@ -1,49 +1,28 @@
 
-import React, { useState } from 'react';
-import { cn } from '@/lib/utils';
+import React from 'react';
+import { Input } from '@/components/ui/input';
 
-export interface ColorSwatchProps {
-  color: string;
-  label: string;
-  selected: boolean;
-  onToggle: (selected: boolean) => void;
+interface ColorPickerProps {
+  value: string;
+  onChange: (color: string) => void;
+  className?: string;
 }
 
-export const ColorSwatch: React.FC<ColorSwatchProps> = ({ color, label, selected, onToggle }) => {
+const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange, className }) => {
   return (
-    <button
-      type="button"
-      className={cn(
-        "flex flex-col items-center space-y-1 p-2 rounded-md border transition-all",
-        selected ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:bg-gray-50"
-      )}
-      onClick={() => onToggle(!selected)}
-    >
+    <div className={`flex ${className}`}>
       <div 
-        className="w-8 h-8 rounded-full border border-gray-200" 
-        style={{ backgroundColor: color }}
+        className="w-10 h-10 border rounded-l-md flex-shrink-0" 
+        style={{ backgroundColor: value || '#fff' }}
       />
-      <span className="text-xs text-center">{label}</span>
-    </button>
-  );
-};
-
-export const HexColorPicker: React.FC<{ color: string; onChange: (color: string) => void }> = ({ color, onChange }) => {
-  const [value, setValue] = useState(color);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value);
-    onChange(e.target.value);
-  };
-
-  return (
-    <div className="p-4">
-      <input
+      <Input
         type="color"
         value={value}
-        onChange={handleChange}
-        className="w-48 h-48 cursor-pointer"
+        onChange={(e) => onChange(e.target.value)}
+        className="h-10 w-full rounded-l-none"
       />
     </div>
   );
 };
+
+export default ColorPicker;

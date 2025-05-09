@@ -16,6 +16,10 @@ import PromptGeneratorWizard from "./pages/wizard/PromptGeneratorWizard";
 import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminPrompts from "./pages/admin/AdminPrompts";
+import AdminSettings from "./pages/admin/AdminSettings";
+import AdminLogs from "./pages/admin/AdminLogs";
 import Settings from "./pages/dashboard/Settings";
 import Profile from "./pages/dashboard/Profile";
 import History from "./pages/dashboard/History";
@@ -120,6 +124,62 @@ const App = () => (
                 element={
                   <AuthGuard>
                     <AdminDashboard />
+                  </AuthGuard>
+                } 
+              />
+              
+              <Route 
+                path="/admin/users" 
+                element={
+                  <AuthGuard>
+                    <DashboardLayout
+                      navbarComponent={<AdminDashboardNavbar />}
+                      footerComponent={<AdminDashboardFooter />}
+                    >
+                      <AdminUsers />
+                    </DashboardLayout>
+                  </AuthGuard>
+                } 
+              />
+              
+              <Route 
+                path="/admin/prompts" 
+                element={
+                  <AuthGuard>
+                    <DashboardLayout
+                      navbarComponent={<AdminDashboardNavbar />}
+                      footerComponent={<AdminDashboardFooter />}
+                    >
+                      <AdminPrompts />
+                    </DashboardLayout>
+                  </AuthGuard>
+                } 
+              />
+              
+              <Route 
+                path="/admin/settings" 
+                element={
+                  <AuthGuard>
+                    <DashboardLayout
+                      navbarComponent={<AdminDashboardNavbar />}
+                      footerComponent={<AdminDashboardFooter />}
+                    >
+                      <AdminSettings />
+                    </DashboardLayout>
+                  </AuthGuard>
+                } 
+              />
+              
+              <Route 
+                path="/admin/logs" 
+                element={
+                  <AuthGuard>
+                    <DashboardLayout
+                      navbarComponent={<AdminDashboardNavbar />}
+                      footerComponent={<AdminDashboardFooter />}
+                    >
+                      <AdminLogs />
+                    </DashboardLayout>
                   </AuthGuard>
                 } 
               />

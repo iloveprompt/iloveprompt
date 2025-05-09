@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card } from '@/components/ui/card';
@@ -122,9 +121,9 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
         ...formData.landingPageDetails,
         [category]: {
           ...formData.landingPageDetails[category],
-          [item]: checked,
-        },
-      },
+          [item]: checked
+        }
+      }
     });
   };
 
@@ -271,7 +270,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
           <RadioSpecifyItem
             id="visual-style-other"
             groupValue={formData.visualStyle}
-            value="otherVisualStyle"
+            value="other"
             label={t('promptGenerator.uxui.otherVisualStyle')}
             specifyValue={formData.otherVisualStyle}
             placeholder={t('promptGenerator.uxui.otherVisualStylePlaceholder')}
@@ -302,7 +301,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
           <RadioSpecifyItem
             id="menu-type-other"
             groupValue={formData.menuType}
-            value="otherMenuType"
+            value="other"
             label={t('promptGenerator.uxui.otherMenuType')}
             specifyValue={formData.otherMenuType}
             placeholder={t('promptGenerator.uxui.otherMenuTypePlaceholder')}
