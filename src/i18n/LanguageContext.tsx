@@ -53,27 +53,54 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
 
   // Function to get translation based on key
   const t = (key: string): string => {
-    // If the key is empty, return empty string
-    if (!key) return '';
+    // If the key is empty or not a string, return empty string
+    if (!key || typeof key !== 'string') return '';
     
+    // Split the key by dots to navigate through nested objects
     const keys = key.split('.');
     
     // Get the translation object for the current language
     let value: any = translations[language];
+    
+    // If we don't have translations for this language, fallback to English
+    if (!value) {
+      value = translations.en;
+      console.warn(`Missing translations for language: ${language}, falling back to English`);
+    }
     
     // Navigate through the nested keys
     for (const k of keys) {
       if (value && value[k] !== undefined) {
         value = value[k];
       } else {
+        // If translation is missing, check if it exists in English as fallback
+        const englishValue = getNestedEnglishValue(keys);
+        if (englishValue !== null) {
+          return englishValue;
+        }
+        
         console.warn(`Translation key not found: ${key} in language ${language}`);
-        // Return the key if translation not found
-        return key;
+        return key; // Return the key as fallback
       }
     }
     
     // Return the translation or the key if the value is not a string
     return typeof value === 'string' ? value : key;
+  };
+  
+  // Helper function to get nested English value as fallback
+  const getNestedEnglishValue = (keys: string[]): string | null => {
+    let englishValue: any = translations.en;
+    
+    for (const k of keys) {
+      if (englishValue && englishValue[k] !== undefined) {
+        englishValue = englishValue[k];
+      } else {
+        return null;
+      }
+    }
+    
+    return typeof englishValue === 'string' ? englishValue : null;
   };
 
   return (

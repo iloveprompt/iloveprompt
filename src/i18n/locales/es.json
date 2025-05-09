@@ -11,7 +11,9 @@
     "back": "Atrás",
     "next": "Siguiente",
     "previous": "Anterior",
-    "finish": "Finalizar"
+    "finish": "Finalizar",
+    "learnMore": "Saber Más",
+    "startFree": "Empezar Gratis"
   },
   "auth": {
     "signIn": "Iniciar sesión",
@@ -50,6 +52,91 @@
     "latestPromptGenerations": "Generaciones de prompt más recientes",
     "proTips": "Consejos Pro",
     "getMore": "Obtenga más de la plataforma"
+  },
+  "hero": {
+    "title": "Crea Prompts de IA Perfectos para Tu Proyecto",
+    "description": "Genera prompts estructurados y completos para proyectos de programación que te dan exactamente lo que necesitas de los asistentes de IA.",
+    "codeExample": "Crear un nuevo prompt es sencillo:",
+    "promptComponents": {
+      "intro": "# El prompt incluye:",
+      "item1": "1. Objetivos y requisitos del proyecto",
+      "item2": "2. Preferencias de stack técnico",
+      "item3": "3. Directrices de estructura de código",
+      "item4": "4. Consideraciones de seguridad"
+    },
+    "promptDescription": "Personaliza tu prompt de IA con nuestra interfaz tipo asistente",
+    "ctaStart": "Comenzar Ahora"
+  },
+  "howItWorks": {
+    "title": "Cómo Funciona",
+    "description": "Genera el prompt de IA perfecto en solo tres sencillos pasos",
+    "step1": {
+      "title": "Define Tu Proyecto",
+      "description": "Especifica el tipo, requisitos y objetivos de tu proyecto"
+    },
+    "step2": {
+      "title": "Personaliza Detalles Técnicos",
+      "description": "Selecciona tu stack técnico, arquitectura y características preferidas"
+    },
+    "step3": {
+      "title": "Genera Tu Prompt",
+      "description": "Obtén un prompt de IA completo adaptado a tus necesidades específicas"
+    }
+  },
+  "features": {
+    "title": "Características Principales",
+    "description": "Todo lo que necesitas para crear prompts de IA perfectos",
+    "feature1": {
+      "title": "Formato Estructurado",
+      "description": "Genera prompts bien organizados que los modelos de IA entienden"
+    },
+    "feature2": {
+      "title": "Seguridad Primero",
+      "description": "Incluye consideraciones de seguridad en tus prompts de desarrollo"
+    },
+    "feature3": {
+      "title": "Selección de Stack",
+      "description": "Especifica tus tecnologías preferidas para resultados específicos"
+    }
+  },
+  "pricing": {
+    "title": "Precios Sencillos",
+    "description": "Elige el plan adecuado para ti",
+    "free": {
+      "title": "Gratis",
+      "price": "€0",
+      "description": "Para proyectos personales y experimentación"
+    },
+    "pro": {
+      "title": "Pro",
+      "price": "€19/mes",
+      "description": "Para profesionales y equipos pequeños"
+    },
+    "team": {
+      "title": "Equipo",
+      "price": "€49/mes",
+      "description": "Para equipos más grandes y organizaciones"
+    },
+    "features": {
+      "promptsPerMonth": "prompts por mes",
+      "unlimitedPrompts": "Prompts ilimitados",
+      "basicQuestionnaire": "Cuestionario básico",
+      "fullQuestionnaire": "Cuestionario completo",
+      "gpt35Integration": "Integración con GPT-3.5",
+      "aiModelIntegrations": "Integraciones con todos los modelos de IA",
+      "promptHistory": "Historial de prompts",
+      "promptHistoryTemplates": "Historial y plantillas de prompts",
+      "promptLibrarySharing": "Biblioteca de prompts y compartir",
+      "useOwnApiKeys": "Usa tus propias claves de API",
+      "advancedSecuritySection": "Sección de seguridad avanzada",
+      "advancedSecuritySections": "Secciones de seguridad avanzadas",
+      "prioritySupport": "Soporte prioritario"
+    }
+  },
+  "cta": {
+    "title": "¿Listo para Crear Tu Prompt de IA Perfecto?",
+    "description": "Comienza a generar prompts completos para tus proyectos hoy.",
+    "button": "Prueba el Generador de Prompts"
   },
   "promptGenerator": {
     "title": "Generador de Prompts",

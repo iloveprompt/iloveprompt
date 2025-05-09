@@ -11,7 +11,9 @@
     "back": "Voltar",
     "next": "Próximo",
     "previous": "Anterior",
-    "finish": "Finalizar"
+    "finish": "Finalizar",
+    "learnMore": "Saiba Mais",
+    "startFree": "Começar Grátis"
   },
   "auth": {
     "signIn": "Entrar",
@@ -50,6 +52,91 @@
     "latestPromptGenerations": "Gerações de prompt mais recentes",
     "proTips": "Dicas Pro",
     "getMore": "Obtenha mais da plataforma"
+  },
+  "hero": {
+    "title": "Crie Prompts de IA Perfeitos para o seu Projeto",
+    "description": "Gere prompts abrangentes e estruturados para projetos de programação que fornecem exatamente o que você precisa dos assistentes de IA.",
+    "codeExample": "Criar um novo prompt é simples:",
+    "promptComponents": {
+      "intro": "# O prompt inclui:",
+      "item1": "1. Objetivos e requisitos do projeto",
+      "item2": "2. Preferências de stack técnico",
+      "item3": "3. Diretrizes de estrutura de código",
+      "item4": "4. Considerações de segurança"
+    },
+    "promptDescription": "Personalize seu prompt de IA com nossa interface estilo assistente",
+    "ctaStart": "Começar Agora"
+  },
+  "howItWorks": {
+    "title": "Como Funciona",
+    "description": "Gere o prompt de IA perfeito em apenas três etapas simples",
+    "step1": {
+      "title": "Defina Seu Projeto",
+      "description": "Especifique o tipo, requisitos e objetivos do seu projeto"
+    },
+    "step2": {
+      "title": "Personalize Detalhes Técnicos",
+      "description": "Selecione seu stack técnico, arquitetura e recursos preferidos"
+    },
+    "step3": {
+      "title": "Gere Seu Prompt",
+      "description": "Obtenha um prompt de IA abrangente adaptado às suas necessidades específicas"
+    }
+  },
+  "features": {
+    "title": "Principais Recursos",
+    "description": "Tudo o que você precisa para criar prompts de IA perfeitos",
+    "feature1": {
+      "title": "Formato Estruturado",
+      "description": "Gere prompts bem organizados que modelos de IA entendam"
+    },
+    "feature2": {
+      "title": "Segurança em Primeiro Lugar",
+      "description": "Inclua considerações de segurança em seus prompts de desenvolvimento"
+    },
+    "feature3": {
+      "title": "Seleção de Stack",
+      "description": "Especifique suas tecnologias preferidas para resultados direcionados"
+    }
+  },
+  "pricing": {
+    "title": "Preços Simples",
+    "description": "Escolha o plano certo para você",
+    "free": {
+      "title": "Gratuito",
+      "price": "R$0",
+      "description": "Para projetos pessoais e experimentação"
+    },
+    "pro": {
+      "title": "Pro",
+      "price": "R$99/mês",
+      "description": "Para profissionais e pequenas equipes"
+    },
+    "team": {
+      "title": "Equipe",
+      "price": "R$249/mês",
+      "description": "Para equipes maiores e organizações"
+    },
+    "features": {
+      "promptsPerMonth": "prompts por mês",
+      "unlimitedPrompts": "Prompts ilimitados",
+      "basicQuestionnaire": "Questionário básico",
+      "fullQuestionnaire": "Questionário completo",
+      "gpt35Integration": "Integração com GPT-3.5",
+      "aiModelIntegrations": "Integrações com todos os modelos de IA",
+      "promptHistory": "Histórico de prompts",
+      "promptHistoryTemplates": "Histórico e templates de prompts",
+      "promptLibrarySharing": "Biblioteca de prompts e compartilhamento",
+      "useOwnApiKeys": "Use suas próprias chaves de API",
+      "advancedSecuritySection": "Seção de segurança avançada",
+      "advancedSecuritySections": "Seções de segurança avançadas",
+      "prioritySupport": "Suporte prioritário"
+    }
+  },
+  "cta": {
+    "title": "Pronto para Criar Seu Prompt de IA Perfeito?",
+    "description": "Comece a gerar prompts abrangentes para seus projetos hoje.",
+    "button": "Experimente o Gerador de Prompts"
   },
   "promptGenerator": {
     "title": "Gerador de Prompt",

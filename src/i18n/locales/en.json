@@ -11,7 +11,9 @@
     "back": "Back",
     "next": "Next",
     "previous": "Previous",
-    "finish": "Finish"
+    "finish": "Finish",
+    "learnMore": "Learn More",
+    "startFree": "Start Free"
   },
   "auth": {
     "signIn": "Sign In",
@@ -50,6 +52,91 @@
     "latestPromptGenerations": "Latest prompt generations",
     "proTips": "Pro Tips",
     "getMore": "Get more out of the platform"
+  },
+  "hero": {
+    "title": "Create Perfect AI Prompts for Your Project",
+    "description": "Generate comprehensive, structured prompts for coding projects that give you exactly what you need from AI assistants.",
+    "codeExample": "Creating a new prompt is simple:",
+    "promptComponents": {
+      "intro": "# Prompt includes:",
+      "item1": "1. Project objectives & requirements",
+      "item2": "2. Technical stack preferences",
+      "item3": "3. Code structure guidelines",
+      "item4": "4. Security considerations"
+    },
+    "promptDescription": "Customize your AI prompt with our wizard-style interface",
+    "ctaStart": "Start Now"
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "description": "Generate the perfect AI prompt in just three simple steps",
+    "step1": {
+      "title": "Define Your Project",
+      "description": "Specify your project type, requirements, and objectives"
+    },
+    "step2": {
+      "title": "Customize Technical Details",
+      "description": "Select your preferred tech stack, architecture, and features"
+    },
+    "step3": {
+      "title": "Generate Your Prompt",
+      "description": "Get a comprehensive AI prompt tailored to your specific needs"
+    }
+  },
+  "features": {
+    "title": "Key Features",
+    "description": "Everything you need to create perfect AI prompts",
+    "feature1": {
+      "title": "Structured Format",
+      "description": "Generate well-organized prompts that AI models understand"
+    },
+    "feature2": {
+      "title": "Security First",
+      "description": "Include security considerations in your development prompts"
+    },
+    "feature3": {
+      "title": "Stack Selection",
+      "description": "Specify your preferred technologies for targeted results"
+    }
+  },
+  "pricing": {
+    "title": "Simple Pricing",
+    "description": "Choose the plan that's right for you",
+    "free": {
+      "title": "Free",
+      "price": "$0",
+      "description": "For personal projects and experimentation"
+    },
+    "pro": {
+      "title": "Pro",
+      "price": "$19/mo",
+      "description": "For professionals and small teams"
+    },
+    "team": {
+      "title": "Team",
+      "price": "$49/mo",
+      "description": "For larger teams and organizations"
+    },
+    "features": {
+      "promptsPerMonth": "prompts per month",
+      "unlimitedPrompts": "Unlimited prompts",
+      "basicQuestionnaire": "Basic questionnaire",
+      "fullQuestionnaire": "Full questionnaire",
+      "gpt35Integration": "GPT-3.5 integration",
+      "aiModelIntegrations": "All AI model integrations",
+      "promptHistory": "Prompt history",
+      "promptHistoryTemplates": "Prompt history & templates",
+      "promptLibrarySharing": "Prompt library & sharing",
+      "useOwnApiKeys": "Use your own API keys",
+      "advancedSecuritySection": "Advanced security section",
+      "advancedSecuritySections": "Advanced security sections",
+      "prioritySupport": "Priority support"
+    }
+  },
+  "cta": {
+    "title": "Ready to Create Your Perfect AI Prompt?",
+    "description": "Start generating comprehensive prompts for your projects today.",
+    "button": "Try the Prompt Generator"
   },
   "promptGenerator": {
     "title": "Prompt Generator",
