@@ -32,15 +32,6 @@ export const translations: Record<string, Translation> = {
       incompleteProfile: "Incomplete profile",
       completeProfile: "Complete profile",
       pick: "Pick"
-    },
-    dashboard: {
-      ...dashboardTranslations.en.dashboard,
-      requirements: "Requirements",
-      codeStructure: "Code Structure",
-      scalability: "Scalability",
-      restrictions: "Restrictions",
-      itemNameCategory: "Category",
-      categoryPlaceholder: "Select a category"
     }
   },
   pt: {
@@ -57,15 +48,6 @@ export const translations: Record<string, Translation> = {
       incompleteProfile: "Cadastro incompleto",
       completeProfile: "Completar cadastro",
       pick: "Escolher"
-    },
-    dashboard: {
-      ...dashboardTranslations.pt.dashboard,
-      requirements: "Requisitos",
-      codeStructure: "Estrutura de Código",
-      scalability: "Escalabilidade",
-      restrictions: "Restrições",
-      itemNameCategory: "Categoria",
-      categoryPlaceholder: "Selecione uma categoria"
     }
   }
 };

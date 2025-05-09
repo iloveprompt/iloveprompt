@@ -58,19 +58,6 @@ const initialSystemTypes: WizardItem[] = [
       { id: 9, text: 'Slack', active: true },
       { id: 10, text: 'VS Code', active: true }
     ]
-  },
-  {
-    id: 5,
-    key: 'plugin',
-    active: true,
-    translations: {
-      en: 'Plugin / Extension',
-      pt: 'Plugin / Extensão'
-    },
-    examples: [
-      { id: 11, text: 'Chrome Extension', active: true },
-      { id: 12, text: 'VS Code Extension', active: true }
-    ]
   }
 ];
 
@@ -80,7 +67,7 @@ const SystemTypesManager: React.FC = () => {
 
   const handleAddItem = (item: Partial<WizardItem>) => {
     const newId = Math.max(...systemTypes.map(item => item.id), 0) + 1;
-    setSystemTypes(prev => [...prev, { ...item, id: newId, examples: [] } as WizardItem]);
+    setSystemTypes(prev => [...prev, { ...item, id: newId } as WizardItem]);
   };
 
   const handleUpdateItem = (id: number, item: Partial<WizardItem>) => {
