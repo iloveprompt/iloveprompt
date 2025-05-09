@@ -17,9 +17,9 @@ import { Progress } from '@/components/ui/progress';
 const getWizardSteps = (t: (key: string) => string) => [
   { id: 'project', title: t('promptGenerator.project.title') },
   { id: 'objective', title: t('promptGenerator.objective.title') },
-  { id: 'requirements', title: 'Requisitos' },
-  { id: 'stack', title: 'Stack' },
-  { id: 'integrations', title: 'Integrações' },
+  { id: 'requirements', title: t('promptGenerator.requirements.title') },
+  { id: 'stack', title: t('promptGenerator.stack.title') },
+  { id: 'integrations', title: t('promptGenerator.integrations.title') },
   { id: 'security', title: t('promptGenerator.security.title') },
   { id: 'generate', title: t('promptGenerator.generate.title') }
 ];

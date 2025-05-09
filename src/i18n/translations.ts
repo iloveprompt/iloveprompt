@@ -1,3 +1,4 @@
+
 type Translation = {
   [key: string]: string | Record<string, string | Record<string, string>>;
 };
@@ -264,41 +265,41 @@ export const translations: Record<string, Translation> = {
       error: "Error"
     },
     profile: {
-      title: "Meu Perfil",
-      personalInfo: "Informações Pessoais",
-      updateProfile: "Atualize suas informações de perfil",
-      accountInfo: "Informações da Conta",
-      yourAccount: "Informações sobre sua conta",
-      name: "Nome",
+      title: "My Profile",
+      personalInfo: "Personal Information",
+      updateProfile: "Update your profile information",
+      accountInfo: "Account Information",
+      yourAccount: "Information about your account",
+      name: "Name",
       email: "Email",
-      role: "Função",
-      joinDate: "Data de Cadastro",
-      lastLogin: "Último Acesso",
-      changeAvatar: "Alterar Avatar",
-      uploadNew: "Fazer Upload",
-      removeAvatar: "Remover",
-      bio: "Biografia",
-      bioPlaceholder: "Conte um pouco sobre você...",
-      country: "País",
-      language: "Idioma",
-      timezone: "Fuso Horário",
-      website: "Site",
-      saveChanges: "Salvar Alterações",
-      accountType: "Tipo de Conta",
-      currentPlan: "Plano Atual",
-      memberSince: "Membro Desde",
-      upgradeAccount: "Atualizar Conta",
-      securitySettings: "Configurações de Segurança",
-      changePassword: "Alterar Senha",
-      twoFactorAuth: "Autenticação de Dois Fatores",
-      enable: "Habilitar",
-      disable: "Desabilitar",
-      connectedApps: "Aplicações Conectadas",
-      noConnectedApps: "Nenhuma aplicação conectada",
-      connect: "Conectar",
-      disconnect: "Desconectar",
-      savedChanges: "Alterações salvas!",
-      errorSaving: "Erro ao salvar alterações."
+      role: "Role",
+      joinDate: "Join Date",
+      lastLogin: "Last Login",
+      changeAvatar: "Change Avatar",
+      uploadNew: "Upload New",
+      removeAvatar: "Remove",
+      bio: "Bio",
+      bioPlaceholder: "Tell us a bit about yourself...",
+      country: "Country",
+      language: "Language",
+      timezone: "Timezone",
+      website: "Website",
+      saveChanges: "Save Changes",
+      accountType: "Account Type",
+      currentPlan: "Current Plan",
+      memberSince: "Member Since",
+      upgradeAccount: "Upgrade Account",
+      securitySettings: "Security Settings",
+      changePassword: "Change Password",
+      twoFactorAuth: "Two-Factor Authentication",
+      enable: "Enable",
+      disable: "Disable",
+      connectedApps: "Connected Apps",
+      noConnectedApps: "No connected apps",
+      connect: "Connect",
+      disconnect: "Disconnect",
+      savedChanges: "Changes saved!",
+      errorSaving: "Error saving changes."
     },
     promptGenerator: {
       title: "Prompt Generator",
@@ -329,6 +330,34 @@ export const translations: Record<string, Translation> = {
         primaryObjectiveHelp: "What is the main purpose of this project?",
         businessObjectives: "Business Objectives",
         businessObjectivesHelp: "Select all objectives that apply to this project"
+      },
+      requirements: {
+        title: "Requirements",
+        description: "Define the requirements for your project",
+        userTypes: "User Types",
+        userTypesHelp: "What types of users will interact with your application?",
+        functionalRequirements: "Functional Requirements",
+        functionalRequirementsHelp: "What should the system do?",
+        nonFunctionalRequirements: "Non-Functional Requirements",
+        nonFunctionalRequirementsHelp: "Quality attributes of the system"
+      },
+      stack: {
+        title: "Technology Stack",
+        description: "Select the technologies you want to use",
+        frontend: "Frontend",
+        frontendHelp: "Select the frontend technologies",
+        backend: "Backend",
+        backendHelp: "Select the backend technologies",
+        database: "Database",
+        databaseHelp: "Select the database technologies",
+        hosting: "Hosting",
+        hostingHelp: "Select the hosting options"
+      },
+      integrations: {
+        title: "Integrations",
+        description: "Select the third-party services to integrate",
+        selectedIntegrations: "Selected Integrations",
+        integrationsHelp: "What external services do you need to integrate with?"
       },
       security: {
         title: "Security Requirements",
@@ -677,6 +706,34 @@ export const translations: Record<string, Translation> = {
         businessObjectives: "Objetivos de Negócio",
         businessObjectivesHelp: "Selecione todos os objetivos que se aplicam a este projeto"
       },
+      requirements: {
+        title: "Requisitos",
+        description: "Defina os requisitos para seu projeto",
+        userTypes: "Tipos de Usuário",
+        userTypesHelp: "Quais tipos de usuários irão interagir com sua aplicação?",
+        functionalRequirements: "Requisitos Funcionais",
+        functionalRequirementsHelp: "O que o sistema deve fazer?",
+        nonFunctionalRequirements: "Requisitos Não Funcionais",
+        nonFunctionalRequirementsHelp: "Atributos de qualidade do sistema"
+      },
+      stack: {
+        title: "Stack Tecnológica",
+        description: "Selecione as tecnologias que você quer usar",
+        frontend: "Frontend",
+        frontendHelp: "Selecione as tecnologias de frontend",
+        backend: "Backend",
+        backendHelp: "Selecione as tecnologias de backend",
+        database: "Banco de Dados",
+        databaseHelp: "Selecione as tecnologias de banco de dados",
+        hosting: "Hospedagem",
+        hostingHelp: "Selecione as opções de hospedagem"
+      },
+      integrations: {
+        title: "Integrações",
+        description: "Selecione os serviços de terceiros para integrar",
+        selectedIntegrations: "Integrações Selecionadas",
+        integrationsHelp: "Quais serviços externos você precisa integrar?"
+      },
       security: {
         title: "Requisitos de Segurança",
         description: "Selecione os recursos de segurança necessários para seu projeto",
@@ -697,3 +754,4 @@ export const translations: Record<string, Translation> = {
     }
   }
 };
+
