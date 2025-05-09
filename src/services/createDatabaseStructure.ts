@@ -1,3 +1,4 @@
+
 import { supabase } from '@/lib/supabase';
 
 export const createDatabaseStructure = async () => {
@@ -383,8 +384,13 @@ CREATE INDEX IF NOT EXISTS idx_system_logs_created_at ON system_logs(created_at)
     
     // Tentativa alternativa: usar a SQL API REST diretamente
     try {
-      const supabaseUrl = supabase.supabaseUrl;
-      const supabaseKey = supabase.supabaseKey;
+      // Corrigido: Não é possível acessar diretamente supabaseUrl e supabaseKey
+      // Em vez disso, vamos usar o objeto de configuração para formar a URL da API
+      
+      // Obtém a URL do projeto do ambiente ou forma de maneira alternativa
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://lmovpaablzagtkedhbtb.supabase.co';
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxtb3ZwYWFibHphZ3RrZWRoYnRiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY2MjQzNjksImV4cCI6MjA2MjIwMDM2OX0.cAUnuIQgi_QNIpkHddUIbMQfubdQy6BN_SSMMd8xGg4';
       
       const response = await fetch(`${supabaseUrl}/rest/v1/`, {
         method: 'POST',

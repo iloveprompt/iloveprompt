@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -139,8 +138,10 @@ const AdminUsers = () => {
                 const userName = (profileData && profileData.full_name) || 
                   (authUser.email ? authUser.email.split('@')[0] : 'Unknown');
                 
-                // Verificar status do usuário - não use banned_until que não existe no tipo User
-                const userStatus = authUser.banned ? 'inactive' : 'active';
+                // Verificar status do usuário
+                // Fix: Alterado 'banned' para verificar se o usuário está inativo de outra forma
+                // já que 'banned' não existe no tipo User do Supabase
+                const userStatus = authUser.user_metadata?.banned === true ? 'inactive' : 'active';
                 const createdDate = authUser.created_at ? 
                   new Date(authUser.created_at).toLocaleDateString() : 
                   'Unknown';
@@ -172,7 +173,6 @@ const AdminUsers = () => {
               for (const profileUser of profileUsers) {
                 let userName = profileUser.full_name || 'Unknown';
                 
-                // Buscar email diretamente do auth.users não é possível pelo cliente
                 // Usar uma abordagem alternativa para mostrar informações do usuário
                 usersList.push({
                   id: profileUser.id,
