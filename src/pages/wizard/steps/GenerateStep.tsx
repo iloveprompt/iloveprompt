@@ -1,10 +1,13 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { savePromptToDatabase } from '@/services/promptService';
+import { supabase } from '@/lib/supabase';
 
 interface GenerateStepProps {
   formData: any;
@@ -13,22 +16,53 @@ interface GenerateStepProps {
 const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
   const { t } = useLanguage();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const [isSaving, setIsSaving] = React.useState(false);
   const [generatedPrompt, setGeneratedPrompt] = React.useState('');
   
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setIsGenerating(true);
     
     // Simulate generation delay
-    setTimeout(() => {
+    setTimeout(async () => {
       const prompt = generatePromptFromFormData(formData);
       setGeneratedPrompt(prompt);
       setIsGenerating(false);
       
-      toast({
-        title: t('promptGenerator.generate.success'),
-        description: t('promptGenerator.generate.promptGenerated'),
-      });
+      if (user) {
+        // Auto-save the generated prompt
+        try {
+          setIsSaving(true);
+          await savePromptToDatabase({
+            user_id: user.id,
+            title: formData.project.title || 'Prompt sem título',
+            content: prompt,
+            wizard_data: formData,
+            created_at: new Date(),
+            updated_at: new Date(),
+          });
+          
+          toast({
+            title: t('promptGenerator.generate.success'),
+            description: t('promptGenerator.generate.promptGenerated'),
+          });
+        } catch (error) {
+          console.error('Erro ao salvar prompt:', error);
+          toast({
+            title: t('promptGenerator.generate.error'),
+            description: t('promptGenerator.generate.errorSaving'),
+            variant: 'destructive',
+          });
+        } finally {
+          setIsSaving(false);
+        }
+      } else {
+        toast({
+          title: t('promptGenerator.generate.success'),
+          description: t('promptGenerator.generate.promptGenerated'),
+        });
+      }
     }, 1500);
   };
   
@@ -181,9 +215,13 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
             <Button 
               onClick={handleGenerate} 
               className="w-64"
-              disabled={isGenerating}
+              disabled={isGenerating || isSaving}
             >
-              {isGenerating ? t('promptGenerator.generate.generating') : t('promptGenerator.generate.createPrompt')}
+              {isGenerating 
+                ? t('promptGenerator.generate.generating') 
+                : isSaving 
+                  ? t('promptGenerator.generate.saving')
+                  : t('promptGenerator.generate.createPrompt')}
             </Button>
           </div>
           
