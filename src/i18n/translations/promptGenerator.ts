@@ -206,9 +206,7 @@ export const promptGeneratorTranslations = {
         activityHistory: "Activity history",
         responsiveThemes: "Light/dark theme and responsive",
         otherDashboardFeature: "Other (Specify)",
-        otherDashboardFeaturePlaceholder: "Describe your dashboard feature",
-        yes: "Yes",
-        no: "No"
+        otherDashboardFeaturePlaceholder: "Describe your dashboard feature"
       },
       stack: {
         title: "Technology Stack",
@@ -231,7 +229,8 @@ export const promptGeneratorTranslations = {
         fullstack: "Fullstack Integrated",
         orm: "ORM/ODM",
         deployment: "Deploy / Infrastructure",
-        specifyOther: "Describe your custom technology"
+        specifyOther: "Describe your custom technology",
+        defineStack: "Would you like to define a technology stack?"
       },
       security: {
         title: "Security Requirements",
@@ -275,6 +274,7 @@ export const promptGeneratorTranslations = {
         title: "Scalability and Performance",
         description: "Define scalability and performance requirements",
         isScalable: "Is scalability important for this project?",
+        defineScalability: "Would you like to define scalability and performance requirements?",
         scalability: "Scalability",
         redis: "Redis, CDN, Load Balancer",
         caching: "Dynamic caching, Queues (RabbitMQ, Kafka)",
@@ -530,9 +530,7 @@ export const promptGeneratorTranslations = {
         activityHistory: "Histórico de atividades",
         responsiveThemes: "Tema claro/escuro e responsivo",
         otherDashboardFeature: "Outro (Especificar)",
-        otherDashboardFeaturePlaceholder: "Descreva sua funcionalidade de dashboard",
-        yes: "Sim",
-        no: "Não"
+        otherDashboardFeaturePlaceholder: "Descreva sua funcionalidade de dashboard"
       },
       stack: {
         title: "Stack Tecnológica",
@@ -555,7 +553,8 @@ export const promptGeneratorTranslations = {
         fullstack: "Fullstack Integrado",
         orm: "ORM/ODM",
         deployment: "Deploy / Infraestrutura",
-        specifyOther: "Descreva sua tecnologia personalizada"
+        specifyOther: "Descreva sua tecnologia personalizada",
+        defineStack: "Você gostaria de definir uma stack tecnológica?"
       },
       security: {
         title: "Requisitos de Segurança",
@@ -599,6 +598,7 @@ export const promptGeneratorTranslations = {
         title: "Escalabilidade e Performance",
         description: "Defina requisitos de escalabilidade e performance",
         isScalable: "A escalabilidade é importante para este projeto?",
+        defineScalability: "Você gostaria de definir requisitos de escalabilidade e performance?",
         scalability: "Escalabilidade",
         redis: "Redis, CDN, Load Balancer",
         caching: "Cache dinâmico, Filas (RabbitMQ, Kafka)",

@@ -24,6 +24,7 @@ interface StackData {
   otherHosting: string;
   otherFullstack: string;
   otherOrm: string;
+  defineStack?: boolean;
 }
 
 interface StackStepProps {
@@ -139,8 +140,8 @@ const StackStep: React.FC<StackStepProps> = ({ formData, updateFormData }) => {
     category: 'frontend' | 'backend' | 'database' | 'hosting' | 'fullstack' | 'orm', 
     options: Array<{ value: string; label: string }>,
     title: string,
-    help?: string,
-    otherProperty: 'otherFrontend' | 'otherBackend' | 'otherDatabase' | 'otherHosting' | 'otherFullstack' | 'otherOrm'
+    otherProperty: 'otherFrontend' | 'otherBackend' | 'otherDatabase' | 'otherHosting' | 'otherFullstack' | 'otherOrm',
+    help?: string
   ) => {
     const allSelected = isAllSelected(category, options);
     const otherKey = `other${category.charAt(0).toUpperCase() + category.slice(1)}` as keyof StackData;
@@ -214,71 +215,86 @@ const StackStep: React.FC<StackStepProps> = ({ formData, updateFormData }) => {
         <p className="text-gray-500 mb-4">{t('promptGenerator.stack.description')}</p>
       </div>
 
-      {/* Frontend/Backend Separation Option */}
+      {/* Define stack section */}
       <div className="flex items-center space-x-3 mb-6">
         <Switch
-          id="separateFrontendBackend-switch"
-          checked={formData.separateFrontendBackend}
-          onCheckedChange={(value) => updateFormData({ separateFrontendBackend: value })}
+          id="defineStack-switch"
+          checked={formData.defineStack !== false}
+          onCheckedChange={(value) => updateFormData({ defineStack: value })}
         />
-        <Label htmlFor="separateFrontendBackend-switch">
-          {t('promptGenerator.stack.separateFrontendBackend')}
+        <Label htmlFor="defineStack-switch">
+          {t('promptGenerator.stack.defineStack')}
         </Label>
       </div>
 
-      {/* Separate Frontend/Backend or Fullstack */}
-      {formData.separateFrontendBackend ? (
+      {/* Show stack options only if defineStack is true or undefined */}
+      {formData.defineStack !== false && (
         <>
-          {renderTechOptions(
-            'frontend',
-            frontendOptions,
-            t('promptGenerator.stack.frontendTitle'),
-            t('promptGenerator.stack.frontendHelp'),
-            'otherFrontend'
+          {/* Frontend/Backend Separation Option */}
+          <div className="flex items-center space-x-3 mb-6">
+            <Switch
+              id="separateFrontendBackend-switch"
+              checked={formData.separateFrontendBackend}
+              onCheckedChange={(value) => updateFormData({ separateFrontendBackend: value })}
+            />
+            <Label htmlFor="separateFrontendBackend-switch">
+              {t('promptGenerator.stack.separateFrontendBackend')}
+            </Label>
+          </div>
+
+          {/* Separate Frontend/Backend or Fullstack */}
+          {formData.separateFrontendBackend ? (
+            <>
+              {renderTechOptions(
+                'frontend',
+                frontendOptions,
+                t('promptGenerator.stack.frontendTitle'),
+                'otherFrontend',
+                t('promptGenerator.stack.frontendHelp')
+              )}
+              {renderTechOptions(
+                'backend',
+                backendOptions,
+                t('promptGenerator.stack.backendTitle'),
+                'otherBackend',
+                t('promptGenerator.stack.backendHelp')
+              )}
+            </>
+          ) : (
+            renderTechOptions(
+              'fullstack',
+              fullstackOptions,
+              t('promptGenerator.stack.fullstack'),
+              'otherFullstack'
+            )
           )}
+
+          {/* Database and Hosting options */}
+          <Separator className="my-6" />
+          
           {renderTechOptions(
-            'backend',
-            backendOptions,
-            t('promptGenerator.stack.backendTitle'),
-            t('promptGenerator.stack.backendHelp'),
-            'otherBackend'
+            'database',
+            databaseOptions,
+            t('promptGenerator.stack.databaseTitle'),
+            'otherDatabase',
+            t('promptGenerator.stack.databaseHelp')
+          )}
+          
+          {renderTechOptions(
+            'orm',
+            ormOptions,
+            t('promptGenerator.stack.orm'),
+            'otherOrm'
+          )}
+          
+          {renderTechOptions(
+            'hosting',
+            hostingOptions,
+            t('promptGenerator.stack.hostingTitle'),
+            'otherHosting',
+            t('promptGenerator.stack.hostingHelp')
           )}
         </>
-      ) : (
-        renderTechOptions(
-          'fullstack',
-          fullstackOptions,
-          t('promptGenerator.stack.fullstack'),
-          undefined,
-          'otherFullstack'
-        )
-      )}
-
-      {/* Database and Hosting options */}
-      <Separator className="my-6" />
-      
-      {renderTechOptions(
-        'database',
-        databaseOptions,
-        t('promptGenerator.stack.databaseTitle'),
-        t('promptGenerator.stack.databaseHelp'),
-        'otherDatabase'
-      )}
-      
-      {renderTechOptions(
-        'orm',
-        ormOptions,
-        t('promptGenerator.stack.orm'),
-        undefined,
-        'otherOrm'
-      )}
-      
-      {renderTechOptions(
-        'hosting',
-        hostingOptions,
-        t('promptGenerator.stack.hostingTitle'),
-        t('promptGenerator.stack.hostingHelp'),
-        'otherHosting'
       )}
     </div>
   );
