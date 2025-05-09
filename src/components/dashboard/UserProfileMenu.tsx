@@ -21,11 +21,11 @@ interface UserProfileMenuProps {
 }
 
 const UserProfileMenu: React.FC<UserProfileMenuProps> = ({ showPlan = true, plan = 'Free' }) => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
 
-  // Estado para verificação de perfil incompleto (simulado)
+  // Estado para verificação de perfil incompleto
   const isProfileIncomplete = true;
 
   const handleSignOut = async () => {
@@ -68,6 +68,11 @@ const UserProfileMenu: React.FC<UserProfileMenuProps> = ({ showPlan = true, plan
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel>
             {user?.email}
+            {isAdmin && (
+              <div className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full inline-block ml-2">
+                Admin
+              </div>
+            )}
             {showPlan && <div className="text-xs text-gray-500 mt-1">{language === 'pt' ? 'Plano: ' : 'Plan: '}{translatedPlan}</div>}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />

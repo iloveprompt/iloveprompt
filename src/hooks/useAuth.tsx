@@ -12,6 +12,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   isAuthenticated: boolean;
   redirectAfterLogin: (userEmail: string | undefined) => void;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -21,6 +22,7 @@ const AuthContext = createContext<AuthContextType>({
   signOut: async () => {},
   isAuthenticated: false,
   redirectAfterLogin: () => {},
+  isAdmin: false,
 });
 
 interface AuthProviderProps {
@@ -37,6 +39,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const { t } = useLanguage();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     // Get initial session and user
@@ -50,6 +53,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         
         setSession(data?.session || null);
         setUser(data?.session?.user || null);
+        
+        // Check if user is admin
+        if (data?.session?.user) {
+          const isUserAdmin = data.session.user.email === 'ander_dorneles@hotmail.com';
+          setIsAdmin(isUserAdmin);
+        }
       } catch (error) {
         console.error('Error in getInitialSession:', error);
       } finally {
@@ -64,6 +73,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       async (event, currentSession) => {
         setSession(currentSession);
         setUser(currentSession?.user || null);
+        
+        // Check if user is admin
+        if (currentSession?.user) {
+          const isUserAdmin = currentSession.user.email === 'ander_dorneles@hotmail.com';
+          setIsAdmin(isUserAdmin);
+        }
         
         if (event === 'SIGNED_IN') {
           toast({
@@ -92,7 +107,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   // Function to handle redirect after login
   const redirectAfterLogin = (userEmail: string | undefined) => {
     if (navigateFunction) {
-      if (userEmail?.includes('admin')) {
+      if (userEmail === 'ander_dorneles@hotmail.com') {
         navigateFunction('/admin');
       } else {
         navigateFunction('/dashboard');
@@ -105,6 +120,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       await supabase.auth.signOut();
       setUser(null);
       setSession(null);
+      setIsAdmin(false);
     } catch (error) {
       console.error('Error signing out:', error);
     }
@@ -117,6 +133,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     signOut,
     isAuthenticated: !!user,
     redirectAfterLogin,
+    isAdmin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

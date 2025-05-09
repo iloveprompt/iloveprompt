@@ -52,7 +52,7 @@ const LoginPage = () => {
         description: t('auth.welcomeBack'),
       });
       
-      // Redirecionamento é feito no hook useAuth, não mais aqui
+      // Redirection happens in useAuth hook now
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -68,7 +68,7 @@ const LoginPage = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}`,
         },
       });
       if (error) throw error;
@@ -86,7 +86,7 @@ const LoginPage = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}`,
         },
       });
       if (error) throw error;
