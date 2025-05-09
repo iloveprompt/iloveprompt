@@ -134,7 +134,7 @@ export const promptGeneratorTranslations = {
           minimalist: "Minimalist",
           corporate: "Corporate",
           creative: "Creative",
-          other: "Other Style"
+          otherStyle: "Other Style"
         },
         styleOtherPlaceholder: "Describe the other style",
         authentication: "Authentication",
@@ -393,7 +393,7 @@ export const promptGeneratorTranslations = {
           minimalist: "Minimalista",
           corporate: "Corporativo",
           creative: "Criativo",
-          other: "Outro Estilo"
+          otherStyle: "Outro Estilo"
         },
         styleOtherPlaceholder: "Descreva o outro estilo",
         authentication: "Autenticação",
