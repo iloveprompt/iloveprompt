@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
+import { Menu, Database } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import AdminProfileMenu from './AdminProfileMenu';
 import LanguageSwitcher from '../LanguageSwitcher';
@@ -44,6 +44,10 @@ const AdminDashboardNavbar = () => {
             <Link to="/admin/logs" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
               {t('admin.logs')}
             </Link>
+            <Link to="/admin/database-setup" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium flex items-center">
+              <Database className="h-4 w-4 mr-1" />
+              {t('admin.database') || 'Database'}
+            </Link>
             <LanguageSwitcher />
           </nav>
           
@@ -76,6 +80,10 @@ const AdminDashboardNavbar = () => {
             </Link>
             <Link to="/admin/logs" className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium" onClick={() => setIsMenuOpen(false)}>
               {t('admin.logs')}
+            </Link>
+            <Link to="/admin/database-setup" className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium flex items-center" onClick={() => setIsMenuOpen(false)}>
+              <Database className="h-4 w-4 mr-1" />
+              {t('admin.database') || 'Database'}
             </Link>
             <div className="px-3 py-2">
               <LanguageSwitcher />

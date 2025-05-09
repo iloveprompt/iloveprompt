@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 interface AuthGuardProps {
@@ -8,7 +8,8 @@ interface AuthGuardProps {
 }
 
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     // Você pode adicionar um componente de loading aqui
@@ -19,8 +20,15 @@ const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
     );
   }
 
+  // Verificar se o usuário está autenticado
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" state={{ from: location }} />;
+  }
+
+  // Verificar se as rotas administrativas estão sendo acessadas por um administrador
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  if (isAdminRoute && !isAdmin) {
+    return <Navigate to="/dashboard" />;
   }
 
   return <>{children}</>;

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,6 +20,7 @@ import AdminPrompts from "./pages/admin/AdminPrompts";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminLogs from "./pages/admin/AdminLogs";
 import AdminProfile from "./pages/admin/AdminProfile";
+import DatabaseSetup from "./pages/admin/DatabaseSetup";
 import Settings from "./pages/dashboard/Settings";
 import Profile from "./pages/dashboard/Profile";
 import History from "./pages/dashboard/History";
@@ -195,6 +195,21 @@ const App = () => (
                       footerComponent={<AdminDashboardFooter />}
                     >
                       <AdminProfile />
+                    </DashboardLayout>
+                  </AuthGuard>
+                } 
+              />
+              
+              {/* New database setup route */}
+              <Route 
+                path="/admin/database-setup" 
+                element={
+                  <AuthGuard>
+                    <DashboardLayout
+                      navbarComponent={<AdminDashboardNavbar />}
+                      footerComponent={<AdminDashboardFooter />}
+                    >
+                      <DatabaseSetup />
                     </DashboardLayout>
                   </AuthGuard>
                 } 
