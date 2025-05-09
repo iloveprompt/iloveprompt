@@ -1,341 +1,461 @@
+import { supabase } from '@/lib/supabase';
 
-// Este arquivo contém os dados existentes do wizard para migração
-
-import enTranslations from '@/i18n/locales/en.json';
-import ptTranslations from '@/i18n/locales/pt.json';
-import esTranslations from '@/i18n/locales/es.json';
-
-// Função para extrair os dados do wizard
+// Função para extrair dados do wizard para migração
 export const extractWizardData = () => {
-  // Construir a estrutura do wizard a partir dos arquivos de tradução
-  const enSteps = getWizardStepsData('en');
-  const ptSteps = getWizardStepsData('pt');
-  const esSteps = getWizardStepsData('es');
-
-  // Extrair categorias
-  const categories = enSteps.map((step, index) => ({
-    key: step.id,
-    order: index,
-    icon: step.icon,
-    color: step.color,
-    translations: [
-      {
-        language: 'en',
-        title: step.title,
-        description: enTranslations.promptGenerator?.[step.id]?.description || '',
-      },
-      {
-        language: 'pt',
-        title: ptSteps[index].title,
-        description: ptTranslations.promptGenerator?.[step.id]?.description || '',
-      },
-      {
-        language: 'es',
-        title: esSteps[index].title,
-        description: esTranslations.promptGenerator?.[step.id]?.description || '',
-      },
-    ],
-  }));
-
-  // Definir dados básicos para alguns itens importantes do wizard
-  const systemTypeOptions = [
-    'microsaas', 'saas', 'erp', 'crm', 'ecommerce', 'cms', 'apiBackend',
-    'mobileApp', 'schedulingSystem', 'helpdesk', 'educationalPlatform',
-    'streamingPlatform', 'staticPage', 'other'
-  ];
-
-  const specificFeaturesOptions = [
-    'uploadFiles', 'notifications', 'advancedFilters', 'interactiveDashboards',
-    'scheduling', 'export', 'rolePermissions', 'apiIntegration', 
-    'multiLanguage', 'accessibility', 'darkMode', 'customLandingPage'
-  ];
-
-  const securityOptions = [
-    'protection',
-    'authenticationSec',
-    'https',
-    'auditLogs',
-    'apiSecurity'
-  ];
-
-  // Exemplos para demonstração - em um caso real, extrairíamos mais dados
-  const items = [
-    // System Type Items
-    {
-      category_key: 'systemType',
-      key: 'selected',
-      order: 0,
-      type: 'radio',
-      has_other_option: true,
-      translations: [
+  try {
+    // Dados estáticos do wizard para compatibilidade com versões antigas
+    // Manter temporariamente para servir de fallback durante a fase de transição
+    const wizardData = {
+      categories: [
         {
-          language: 'en',
-          text: 'System Type',
-          help_text: '',
+          key: 'project',
+          order: 0,
+          icon: 'Info',
+          color: '#9b87f5',
+          translations: [
+            {
+              language: 'en',
+              title: 'Project',
+              description: 'Information about the project'
+            },
+            {
+              language: 'pt',
+              title: 'Projeto',
+              description: 'Informações sobre o projeto'
+            },
+            {
+              language: 'es',
+              title: 'Proyecto',
+              description: 'Información sobre el proyecto'
+            }
+          ]
         },
         {
-          language: 'pt',
-          text: 'Tipo de Sistema',
-          help_text: '',
+          key: 'systemType',
+          order: 1,
+          icon: 'Grid2X2',
+          color: '#8B5CF6',
+          translations: [
+            {
+              language: 'en',
+              title: 'System Type',
+              description: 'Type of system to be developed'
+            },
+            {
+              language: 'pt',
+              title: 'Tipo de Sistema',
+              description: 'Tipo de sistema a ser desenvolvido'
+            },
+            {
+              language: 'es',
+              title: 'Tipo de Sistema',
+              description: 'Tipo de sistema a desarrollar'
+            }
+          ]
         },
         {
-          language: 'es',
-          text: 'Tipo de Sistema',
-          help_text: '',
+          key: 'objective',
+          order: 2,
+          icon: 'Target',
+          color: '#7E69AB',
+          translations: [
+            {
+              language: 'en',
+              title: 'Objective',
+              description: 'Define the main objective of the system'
+            },
+            {
+              language: 'pt',
+              title: 'Objetivo',
+              description: 'Defina o objetivo principal do sistema'
+            },
+            {
+              language: 'es',
+              title: 'Objetivo',
+              description: 'Defina el objetivo principal del sistema'
+            }
+          ]
         },
+        {
+          key: 'requirements',
+          order: 3,
+          icon: 'List',
+          color: '#6E59A5',
+          translations: [
+            {
+              language: 'en',
+              title: 'Requirements',
+              description: 'Specify the requirements for the system'
+            },
+            {
+              language: 'pt',
+              title: 'Requisitos',
+              description: 'Especifique os requisitos para o sistema'
+            },
+            {
+              language: 'es',
+              title: 'Requisitos',
+              description: 'Especifique los requisitos para el sistema'
+            }
+          ]
+        },
+        {
+          key: 'features',
+          order: 4,
+          icon: 'LayoutGrid',
+          color: '#D946EF',
+          translations: [
+            {
+              language: 'en',
+              title: 'Features',
+              description: 'List the features of the system'
+            },
+            {
+              language: 'pt',
+              title: 'Funcionalidades',
+              description: 'Liste as funcionalidades do sistema'
+            },
+            {
+              language: 'es',
+              title: 'Funcionalidades',
+              description: 'Liste las funcionalidades del sistema'
+            }
+          ]
+        },
+        {
+          key: 'uxui',
+          order: 5,
+          icon: 'Palette',
+          color: '#F97316',
+          translations: [
+            {
+              language: 'en',
+              title: 'UX/UI',
+              description: 'Define the user experience and interface'
+            },
+            {
+              language: 'pt',
+              title: 'UX/UI',
+              description: 'Defina a experiência do usuário e a interface'
+            },
+            {
+              language: 'es',
+              title: 'UX/UI',
+              description: 'Defina la experiencia del usuario y la interfaz'
+            }
+          ]
+        },
+        {
+          key: 'stack',
+          order: 6,
+          icon: 'Server',
+          color: '#0EA5E9',
+          translations: [
+            {
+              language: 'en',
+              title: 'Stack',
+              description: 'Specify the technology stack'
+            },
+            {
+              language: 'pt',
+              title: 'Stack',
+              description: 'Especifique o stack de tecnologia'
+            },
+            {
+              language: 'es',
+              title: 'Stack',
+              description: 'Especifique el stack de tecnología'
+            }
+          ]
+        },
+        {
+          key: 'security',
+          order: 7,
+          icon: 'Shield',
+          color: '#28A745',
+          translations: [
+            {
+              language: 'en',
+              title: 'Security',
+              description: 'Define security measures'
+            },
+            {
+              language: 'pt',
+              title: 'Segurança',
+              description: 'Defina as medidas de segurança'
+            },
+            {
+              language: 'es',
+              title: 'Seguridad',
+              description: 'Defina las medidas de seguridad'
+            }
+          ]
+        },
+        {
+          key: 'codeStructure',
+          order: 8,
+          icon: 'FileText',
+          color: '#1EAEDB',
+          translations: [
+            {
+              language: 'en',
+              title: 'Code Structure',
+              description: 'Define the code structure'
+            },
+            {
+              language: 'pt',
+              title: 'Estrutura do Código',
+              description: 'Defina a estrutura do código'
+            },
+            {
+              language: 'es',
+              title: 'Estructura del Código',
+              description: 'Defina la estructura del código'
+            }
+          ]
+        },
+        {
+          key: 'scalability',
+          order: 9,
+          icon: 'TrendingUp',
+          color: '#33C3F0',
+          translations: [
+            {
+              language: 'en',
+              title: 'Scalability',
+              description: 'Define scalability measures'
+            },
+            {
+              language: 'pt',
+              title: 'Escalabilidade',
+              description: 'Defina as medidas de escalabilidade'
+            },
+            {
+              language: 'es',
+              title: 'Escalabilidad',
+              description: 'Defina las medidas de escalabilidad'
+            }
+          ]
+        },
+        {
+          key: 'restrictions',
+          order: 10,
+          icon: 'Ban',
+          color: '#DC3545',
+          translations: [
+            {
+              language: 'en',
+              title: 'Restrictions',
+              description: 'Define restrictions'
+            },
+            {
+              language: 'pt',
+              title: 'Restrições',
+              description: 'Defina as restrições'
+            },
+            {
+              language: 'es',
+              title: 'Restricciones',
+              description: 'Defina las restricciones'
+            }
+          ]
+        }
       ],
-    },
-    // Features Item
-    {
-      category_key: 'features',
-      key: 'specificFeatures',
-      order: 0,
-      type: 'checkbox',
-      has_other_option: true,
-      translations: [
+      items: [
         {
-          language: 'en',
-          text: 'Specific Features',
-          help_text: '',
+          category_key: 'systemType',
+          key: 'selected',
+          order: 0,
+          type: 'radio',
+          has_other_option: true,
+          translations: [
+            {
+              language: 'en',
+              text: 'System Type',
+              help_text: 'Select the type of system to be developed'
+            },
+            {
+              language: 'pt',
+              text: 'Tipo de Sistema',
+              help_text: 'Selecione o tipo de sistema a ser desenvolvido'
+            },
+            {
+              language: 'es',
+              text: 'Tipo de Sistema',
+              help_text: 'Seleccione el tipo de sistema a desarrollar'
+            }
+          ]
         },
         {
-          language: 'pt',
-          text: 'Funcionalidades Específicas',
-          help_text: '',
+          category_key: 'objective',
+          key: 'defineObjectives',
+          order: 0,
+          type: 'boolean',
+          has_other_option: false,
+          translations: [
+            {
+              language: 'en',
+              text: 'Define Objectives',
+              help_text: 'Do you want to define objectives for the system?'
+            },
+            {
+              language: 'pt',
+              text: 'Definir Objetivos',
+              help_text: 'Você quer definir objetivos para o sistema?'
+            },
+            {
+              language: 'es',
+              text: 'Definir Objetivos',
+              help_text: '¿Quieres definir objetivos para el sistema?'
+            }
+          ]
         },
         {
-          language: 'es',
-          text: 'Características Específicas',
-          help_text: '',
+          category_key: 'objective',
+          key: 'primaryObjective',
+          order: 1,
+          type: 'text',
+          has_other_option: false,
+          translations: [
+            {
+              language: 'en',
+              text: 'Primary Objective',
+              help_text: 'Define the primary objective of the system'
+            },
+            {
+              language: 'pt',
+              text: 'Objetivo Primário',
+              help_text: 'Defina o objetivo primário do sistema'
+            },
+            {
+              language: 'es',
+              text: 'Objetivo Primario',
+              help_text: 'Defina el objetivo primario del sistema'
+            }
+          ]
         },
+        {
+          category_key: 'requirements',
+          key: 'defineRequirements',
+          order: 0,
+          type: 'boolean',
+          has_other_option: false,
+          translations: [
+            {
+              language: 'en',
+              text: 'Define Requirements',
+              help_text: 'Do you want to define requirements for the system?'
+            },
+            {
+              language: 'pt',
+              text: 'Definir Requisitos',
+              help_text: 'Você quer definir requisitos para o sistema?'
+            },
+            {
+              language: 'es',
+              text: 'Definir Requisitos',
+              help_text: '¿Quieres definir requisitos para el sistema?'
+            }
+          ]
+        }
       ],
-    },
-    // Security Item
-    {
-      category_key: 'security',
-      key: 'selectedSecurity',
-      order: 0,
-      type: 'checkbox',
-      has_other_option: true,
-      translations: [
+      options: [
         {
-          language: 'en',
-          text: 'Security Features',
-          help_text: '',
+          item_key: 'selected',
+          key: 'microsaas',
+          order: 0,
+          translations: [
+            { language: 'en', text: 'Micro SaaS' },
+            { language: 'pt', text: 'Micro SaaS' },
+            { language: 'es', text: 'Micro SaaS' }
+          ]
         },
         {
-          language: 'pt',
-          text: 'Recursos de Segurança',
-          help_text: '',
+          item_key: 'selected',
+          key: 'saas',
+          order: 1,
+          translations: [
+            { language: 'en', text: 'SaaS' },
+            { language: 'pt', text: 'SaaS' },
+            { language: 'es', text: 'SaaS' }
+          ]
         },
         {
-          language: 'es',
-          text: 'Características de Seguridad',
-          help_text: '',
+          item_key: 'selected',
+          key: 'ecommerce',
+          order: 2,
+          translations: [
+            { language: 'en', text: 'E-commerce' },
+            { language: 'pt', text: 'E-commerce' },
+            { language: 'es', text: 'E-commerce' }
+          ]
         },
+        {
+          item_key: 'selected',
+          key: 'socialNetwork',
+          order: 3,
+          translations: [
+            { language: 'en', text: 'Social Network' },
+            { language: 'pt', text: 'Rede Social' },
+            { language: 'es', text: 'Red Social' }
+          ]
+        },
+        {
+          item_key: 'selected',
+          key: 'blog',
+          order: 4,
+          translations: [
+            { language: 'en', text: 'Blog' },
+            { language: 'pt', text: 'Blog' },
+            { language: 'es', text: 'Blog' }
+          ]
+        }
       ],
-    },
-  ];
+      examples: [
+        { item_key: 'selected', text: 'socialLogin' },
+        { item_key: 'selected', text: 'platformWithLanding' },
+        { item_key: 'selected', text: 'paymentIntegration' },
+        { item_key: 'selected', text: 'userProfile' },
+        { item_key: 'selected', text: 'contentManagement' }
+      ]
+    };
 
-  // Opções para os itens
-  const options = [
-    // System Type Options
-    ...systemTypeOptions.map((option, index) => ({
-      item_key: 'selected',
-      key: option,
-      order: index,
-      translations: [
-        {
-          language: 'en',
-          text: enTranslations.promptGenerator?.systemType?.[option] || option,
-        },
-        {
-          language: 'pt',
-          text: ptTranslations.promptGenerator?.systemType?.[option] || option,
-        },
-        {
-          language: 'es',
-          text: esTranslations.promptGenerator?.systemType?.[option] || option,
-        },
-      ],
-    })),
-    // Features Options
-    ...specificFeaturesOptions.map((option, index) => ({
-      item_key: 'specificFeatures',
-      key: option,
-      order: index,
-      translations: [
-        {
-          language: 'en',
-          text: enTranslations.promptGenerator?.features?.[option] || option,
-        },
-        {
-          language: 'pt',
-          text: ptTranslations.promptGenerator?.features?.[option] || option,
-        },
-        {
-          language: 'es',
-          text: esTranslations.promptGenerator?.features?.[option] || option,
-        },
-      ],
-    })),
-    // Security Options
-    ...securityOptions.map((option, index) => ({
-      item_key: 'selectedSecurity',
-      key: option,
-      order: index,
-      translations: [
-        {
-          language: 'en',
-          text: enTranslations.promptGenerator?.security?.[option] || option,
-        },
-        {
-          language: 'pt',
-          text: ptTranslations.promptGenerator?.security?.[option] || option,
-        },
-        {
-          language: 'es',
-          text: esTranslations.promptGenerator?.security?.[option] || option,
-        },
-      ],
-    })),
-  ];
-
-  // Exemplos
-  const examples = [
-    { item_key: 'selected', text: 'socialLogin' },
-    { item_key: 'selected', text: 'platformWithLanding' },
-    { item_key: 'selected', text: 'interactiveDashboards' },
-    { item_key: 'selected', text: 'jwtAuth' },
-    { item_key: 'selected', text: 'webhooks' },
-    { item_key: 'selected', text: 'pushNotifications' },
-    { item_key: 'selected', text: 'schedulingReminders' },
-    { item_key: 'selected', text: 'subscriptionPlatform' },
-  ];
-
-  return {
-    categories,
-    items,
-    options,
-    examples,
-  };
+    return wizardData;
+  } catch (error) {
+    console.error("Erro ao extrair dados do wizard:", error);
+    throw error;
+  }
 };
 
-// Função auxiliar para obter os passos do wizard com traduções
-function getWizardStepsData(language: 'en' | 'pt' | 'es') {
-  // Selecionar o arquivo de tradução correto
-  const translations = language === 'pt' ? ptTranslations : 
-                      language === 'es' ? esTranslations : 
-                      enTranslations;
-  
-  // Construir os passos com base nas traduções
-  return [
-    { 
-      id: 'project', 
-      title: translations.promptGenerator?.project?.title || 'Project',
-      icon: 'Info',
-      color: '#9b87f5'
-    },
-    { 
-      id: 'systemType', 
-      title: translations.promptGenerator?.systemType?.title || 'System Type',
-      icon: 'Grid2X2',
-      color: '#8B5CF6'
-    },
-    { 
-      id: 'objective', 
-      title: translations.promptGenerator?.objective?.title || 'Objective',
-      icon: 'Target',
-      color: '#7E69AB'
-    },
-    { 
-      id: 'requirements', 
-      title: translations.promptGenerator?.requirements?.title || 'Requirements',
-      icon: 'List',
-      color: '#6E59A5'
-    },
-    { 
-      id: 'features', 
-      title: translations.promptGenerator?.features?.title || 'Features',
-      icon: 'LayoutGrid',
-      color: '#D946EF'
-    },
-    { 
-      id: 'uxui', 
-      title: translations.promptGenerator?.uxui?.title || 'UX/UI',
-      icon: 'Palette',
-      color: '#F97316'
-    },
-    { 
-      id: 'stack', 
-      title: translations.promptGenerator?.stack?.title || 'Stack',
-      icon: 'Server',
-      color: '#0EA5E9'
-    },
-    { 
-      id: 'security', 
-      title: translations.promptGenerator?.security?.title || 'Security',
-      icon: 'Shield',
-      color: '#28A745'
-    },
-    { 
-      id: 'codeStructure', 
-      title: translations.promptGenerator?.codeStructure?.title || 'Code Structure',
-      icon: 'FileText',
-      color: '#1EAEDB'
-    },
-    { 
-      id: 'scalability', 
-      title: translations.promptGenerator?.scalability?.title || 'Scalability',
-      icon: 'TrendingUp',
-      color: '#33C3F0'
-    },
-    { 
-      id: 'restrictions', 
-      title: translations.promptGenerator?.restrictions?.title || 'Restrictions',
-      icon: 'Ban',
-      color: '#DC3545'
-    },
-    { 
-      id: 'generate', 
-      title: translations.promptGenerator?.generate?.title || 'Generate',
-      icon: 'Pencil',
-      color: '#FD7E14'
-    }
-  ];
-}
-
-// Função para migrar dados existentes para o banco de dados
-export const migrateWizardData = async (data: any) => {
-  // Implementação da migração usando o Supabase
-  const { supabase } = await import('@/lib/supabase');
-
-  // Verificar se já existem dados no banco
-  const { count, error: countError } = await supabase
-    .from('wizard_categories')
-    .select('*', { count: 'exact', head: true });
-
-  if (countError) {
-    console.error('Erro ao verificar existência de dados:', countError);
-    throw countError;
-  }
-
-  // Se já existem dados, não realizar a migração
-  if (count && count > 0) {
-    console.log('Dados já existem no banco. Migração não necessária.');
-    return { success: true, message: 'Dados já existem no banco' };
-  }
-
-  // Começar transação de inserção de dados
+// Função para migrar os dados do wizard para o banco de dados
+export const migrateWizardData = async (wizardData: any) => {
   try {
+    console.log('Iniciando migração de dados para o banco de dados...');
+    
+    // Verificar se já existem dados no banco
+    const { count: categoryCount, error: countError } = await supabase
+      .from('wizard_categories')
+      .select('*', { count: 'exact', head: true });
+
+    if (countError) {
+      console.error('Erro ao verificar dados existentes:', countError);
+      return { success: false, message: 'Erro ao verificar dados existentes' };
+    }
+
+    // Se já existem dados, não fazer a migração
+    if (categoryCount && categoryCount > 0) {
+      console.log('Já existem dados no banco. Migração não necessária.');
+      return { success: true, message: 'Dados já existem no banco. Nenhuma alteração necessária.' };
+    }
+
     // 1. Inserir categorias
-    for (const category of data.categories) {
+    for (const category of wizardData.categories) {
       // Inserir categoria
       const { data: categoryData, error: categoryError } = await supabase
         .from('wizard_categories')
         .insert({
           key: category.key,
-          order: category.order,
+          sort_order: category.order,
           icon: category.icon,
           color: category.color,
           active: true
@@ -345,50 +465,73 @@ export const migrateWizardData = async (data: any) => {
 
       if (categoryError) {
         console.error(`Erro ao inserir categoria ${category.key}:`, categoryError);
-        throw categoryError;
+        return { success: false, message: `Erro ao inserir categoria ${category.key}: ${categoryError.message}` };
       }
 
       // Inserir traduções da categoria
-      for (const translation of category.translations) {
-        const { error: translationError } = await supabase
-          .from('wizard_category_translations')
-          .insert({
-            category_id: categoryData.id,
-            language: translation.language,
-            title: translation.title,
-            description: translation.description
-          });
+      if (category.translations && Array.isArray(category.translations)) {
+        for (const translation of category.translations) {
+          const { error: translationError } = await supabase
+            .from('wizard_category_translations')
+            .insert({
+              category_id: categoryData.id,
+              language: translation.language,
+              title: translation.title,
+              description: translation.description
+            });
 
-        if (translationError) {
-          console.error(`Erro ao inserir tradução para categoria ${category.key}:`, translationError);
-          throw translationError;
+          if (translationError) {
+            console.error(`Erro ao inserir tradução para categoria ${category.key}:`, translationError);
+          }
         }
       }
+    }
 
-      // 2. Inserir itens da categoria
-      const categoryItems = data.items.filter((item: any) => item.category_key === category.key);
+    // 2. Inserir itens e suas relações
+    // Primeiro obter mapeamento de chaves para IDs das categorias
+    const { data: categoryMap, error: mapError } = await supabase
+      .from('wizard_categories')
+      .select('id, key');
+
+    if (mapError) {
+      console.error('Erro ao obter mapeamento de categorias:', mapError);
+      return { success: false, message: 'Erro ao obter mapeamento de categorias' };
+    }
+
+    const categoryKeyToId = Object.fromEntries(
+      (categoryMap || []).map(cat => [cat.key, cat.id])
+    );
+
+    // Agora inserir os itens
+    for (const item of wizardData.items) {
+      const categoryId = categoryKeyToId[item.category_key];
       
-      for (const item of categoryItems) {
-        // Inserir item
-        const { data: itemData, error: itemError } = await supabase
-          .from('wizard_items')
-          .insert({
-            category_id: categoryData.id,
-            key: item.key,
-            order: item.order,
-            type: item.type,
-            has_other_option: item.has_other_option,
-            active: true
-          })
-          .select()
-          .single();
+      if (!categoryId) {
+        console.warn(`Categoria ${item.category_key} não encontrada para o item ${item.key}`);
+        continue;
+      }
 
-        if (itemError) {
-          console.error(`Erro ao inserir item ${item.key}:`, itemError);
-          throw itemError;
-        }
+      // Inserir item
+      const { data: itemData, error: itemError } = await supabase
+        .from('wizard_items')
+        .insert({
+          category_id: categoryId,
+          key: item.key,
+          sort_order: item.order,
+          type: item.type,
+          has_other_option: item.has_other_option || false,
+          active: true
+        })
+        .select()
+        .single();
 
-        // Inserir traduções do item
+      if (itemError) {
+        console.error(`Erro ao inserir item ${item.key}:`, itemError);
+        continue;
+      }
+
+      // Inserir traduções do item
+      if (item.translations && Array.isArray(item.translations)) {
         for (const translation of item.translations) {
           const { error: translationError } = await supabase
             .from('wizard_item_translations')
@@ -396,77 +539,105 @@ export const migrateWizardData = async (data: any) => {
               item_id: itemData.id,
               language: translation.language,
               text: translation.text,
-              placeholder: translation.placeholder || '',
-              help_text: translation.help_text || ''
+              placeholder: translation.placeholder,
+              help_text: translation.help_text
             });
 
           if (translationError) {
             console.error(`Erro ao inserir tradução para item ${item.key}:`, translationError);
-            throw translationError;
-          }
-        }
-
-        // 3. Inserir opções do item
-        const itemOptions = data.options.filter((option: any) => option.item_key === item.key);
-        
-        for (const option of itemOptions) {
-          // Inserir opção
-          const { data: optionData, error: optionError } = await supabase
-            .from('wizard_item_options')
-            .insert({
-              item_id: itemData.id,
-              key: option.key,
-              order: option.order,
-              active: true
-            })
-            .select()
-            .single();
-
-          if (optionError) {
-            console.error(`Erro ao inserir opção ${option.key}:`, optionError);
-            throw optionError;
-          }
-
-          // Inserir traduções da opção
-          for (const translation of option.translations) {
-            const { error: translationError } = await supabase
-              .from('wizard_option_translations')
-              .insert({
-                option_id: optionData.id,
-                language: translation.language,
-                text: translation.text
-              });
-
-            if (translationError) {
-              console.error(`Erro ao inserir tradução para opção ${option.key}:`, translationError);
-              throw translationError;
-            }
-          }
-        }
-
-        // 4. Inserir exemplos do item
-        const itemExamples = data.examples.filter((example: any) => example.item_key === item.key);
-        
-        for (const example of itemExamples) {
-          const { error: exampleError } = await supabase
-            .from('wizard_item_examples')
-            .insert({
-              item_id: itemData.id,
-              text: example.text,
-              active: true
-            });
-
-          if (exampleError) {
-            console.error(`Erro ao inserir exemplo para item ${item.key}:`, exampleError);
-            throw exampleError;
           }
         }
       }
     }
 
-    return { success: true, message: 'Migração concluída com sucesso' };
+    // 3. Inserir opções
+    // Obter mapeamento de chaves para IDs dos itens
+    const { data: itemMap, error: itemMapError } = await supabase
+      .from('wizard_items')
+      .select('id, key');
+
+    if (itemMapError) {
+      console.error('Erro ao obter mapeamento de itens:', itemMapError);
+      return { success: false, message: 'Erro ao obter mapeamento de itens' };
+    }
+
+    const itemKeyToId = Object.fromEntries(
+      (itemMap || []).map(item => [item.key, item.id])
+    );
+
+    // Agora inserir as opções
+    for (const option of wizardData.options) {
+      const itemId = itemKeyToId[option.item_key];
+      
+      if (!itemId) {
+        console.warn(`Item ${option.item_key} não encontrado para a opção ${option.key}`);
+        continue;
+      }
+
+      // Inserir opção
+      const { data: optionData, error: optionError } = await supabase
+        .from('wizard_item_options')
+        .insert({
+          item_id: itemId,
+          key: option.key,
+          sort_order: option.order,
+          active: true
+        })
+        .select()
+        .single();
+
+      if (optionError) {
+        console.error(`Erro ao inserir opção ${option.key}:`, optionError);
+        continue;
+      }
+
+      // Inserir traduções da opção
+      if (option.translations && Array.isArray(option.translations)) {
+        for (const translation of option.translations) {
+          const { error: translationError } = await supabase
+            .from('wizard_option_translations')
+            .insert({
+              option_id: optionData.id,
+              language: translation.language,
+              text: translation.text
+            });
+
+          if (translationError) {
+            console.error(`Erro ao inserir tradução para opção ${option.key}:`, translationError);
+          }
+        }
+      }
+    }
+
+    // 4. Inserir exemplos
+    for (const example of wizardData.examples) {
+      const itemId = itemKeyToId[example.item_key];
+      
+      if (!itemId) {
+        console.warn(`Item ${example.item_key} não encontrado para o exemplo ${example.text}`);
+        continue;
+      }
+
+      // Inserir exemplo
+      const { error: exampleError } = await supabase
+        .from('wizard_item_examples')
+        .insert({
+          item_id: itemId,
+          text: example.text,
+          active: true
+        });
+
+      if (exampleError) {
+        console.error(`Erro ao inserir exemplo ${example.text}:`, exampleError);
+      }
+    }
+
+    return { success: true, message: 'Migração concluída com sucesso!' };
   } catch (error) {
-    console.error('Erro durante a migração:', error);
-    throw error;
+    console.error('Erro durante o processo de migração:', error);
+    return { 
+      success: false, 
+      message: `Erro durante o processo de migração: ${error instanceof Error ? error.message : 'Erro desconhecido'}` 
+    };
   }
 };

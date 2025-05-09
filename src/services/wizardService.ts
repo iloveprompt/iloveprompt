@@ -58,11 +58,11 @@ export const getWizardData = async (language: string) => {
     const categoriesResponse: PostgrestResponse<any> = await supabase
       .from('wizard_categories')
       .select(`
-        id, key, order, icon, color, active,
+        id, key, order:sort_order, icon, color, active,
         wizard_category_translations(language, title, description)
       `)
       .eq('active', true)
-      .order('order');
+      .order('sort_order');
 
     const { data: categories, error: categoriesError } = categoriesResponse;
 
@@ -89,16 +89,16 @@ export const getWizardData = async (language: string) => {
         const { data: items, error: itemsError } = await supabase
           .from('wizard_items')
           .select(`
-            id, key, order, type, has_other_option, active,
+            id, key, order:sort_order, type, has_other_option, active,
             wizard_item_translations(language, text, placeholder, help_text),
-            wizard_item_options(id, key, order, active,
+            wizard_item_options(id, key, order:sort_order, active,
               wizard_option_translations(language, text)
             ),
             wizard_item_examples(text, active)
           `)
           .eq('category_id', category.id)
           .eq('active', true)
-          .order('order');
+          .order('sort_order');
 
         if (itemsError) {
           console.error('Erro ao buscar itens:', itemsError);
@@ -123,19 +123,21 @@ export const getWizardData = async (language: string) => {
 
           // Processar opções
           const options = item.wizard_item_options && Array.isArray(item.wizard_item_options) 
-            ? item.wizard_item_options.map((option: any) => {
-                const optionTranslations = option.wizard_option_translations || [];
-                const optionTranslation = Array.isArray(optionTranslations) ?
-                  optionTranslations.find((t: any) => t.language === language) || optionTranslations[0]
-                  : null;
+            ? item.wizard_item_options
+                .filter((option: any) => option.active)
+                .map((option: any) => {
+                  const optionTranslations = option.wizard_option_translations || [];
+                  const optionTranslation = Array.isArray(optionTranslations) ?
+                    optionTranslations.find((t: any) => t.language === language) || optionTranslations[0]
+                    : null;
 
-                return {
-                  id: option.id,
-                  key: option.key,
-                  text: optionTranslation?.text || option.key,
-                  active: option.active
-                };
-              })
+                  return {
+                    id: option.id,
+                    key: option.key,
+                    text: optionTranslation?.text || option.key,
+                    active: option.active
+                  };
+                }).sort((a: any, b: any) => a.order - b.order)
             : [];
 
           // Processar exemplos
