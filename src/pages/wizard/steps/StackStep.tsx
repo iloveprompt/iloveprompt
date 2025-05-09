@@ -1,298 +1,204 @@
 
 import React from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Card } from '@/components/ui/card';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { MultiSelect } from '@/components/MultiSelect';
 
-interface StackStepProps {
-  formData: {
-    frontend: string[];
-    backend: string[];
-    database: string[];
-    hosting: string[];
-  };
-  updateFormData: (data: Partial<StackStepProps['formData']>) => void;
+interface StackData {
+  separateFrontendBackend: boolean;
+  frontend: string[];
+  backend: string[];
+  database: string[];
+  hosting: string[];
+  fullstack: string[];
+  orm: string[];
 }
 
-const frontendOptions = [
-  'React', 'Angular', 'Vue.js', 'Next.js', 'Nuxt.js', 'Svelte',
-  'Ember.js', 'Backbone.js', 'jQuery', 'Vanilla JavaScript',
-  'TypeScript', 'Bootstrap', 'Tailwind CSS', 'Material UI',
-  'Chakra UI', 'Redux', 'MobX', 'React Query'
-];
-
-const backendOptions = [
-  'Node.js', 'Express.js', 'NestJS', 'Django', 'Flask', 'FastAPI',
-  'Ruby on Rails', 'Spring Boot', 'Laravel', 'ASP.NET Core',
-  'Phoenix (Elixir)', 'Gin (Go)', 'Echo (Go)', 'Play Framework',
-  'Kotlin with Ktor', 'PHP', 'WordPress'
-];
-
-const databaseOptions = [
-  'MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'SQLite', 'Oracle',
-  'Microsoft SQL Server', 'MariaDB', 'CouchDB', 'Firestore',
-  'Elasticsearch', 'Cassandra', 'DynamoDB', 'Fauna'
-];
-
-const hostingOptions = [
-  'AWS', 'Google Cloud', 'Microsoft Azure', 'Heroku', 'Vercel',
-  'Netlify', 'Digital Ocean', 'Firebase', 'GitHub Pages',
-  'Cloudflare', 'Render', 'OVHcloud', 'Linode', 'Kubernetes'
-];
+interface StackStepProps {
+  formData: StackData;
+  updateFormData: (data: Partial<StackData>) => void;
+}
 
 const StackStep: React.FC<StackStepProps> = ({ formData, updateFormData }) => {
   const { t } = useLanguage();
-  const [showingTech, setShowingTech] = React.useState<string | null>(null);
   
-  const handleToggleTech = (category: string) => {
-    setShowingTech(showingTech === category ? null : category);
-  };
+  // Technology options for each category
+  const frontendOptions = [
+    { value: 'react', label: 'React' },
+    { value: 'vue', label: 'Vue.js' },
+    { value: 'angular', label: 'Angular' },
+    { value: 'svelte', label: 'Svelte' },
+    { value: 'nextjs', label: 'Next.js' },
+    { value: 'nuxtjs', label: 'Nuxt.js' },
+    { value: 'gatsby', label: 'Gatsby' },
+  ];
   
-  const handleTechToggle = (category: keyof typeof formData, tech: string) => {
-    if (formData[category].includes(tech)) {
-      updateFormData({
-        [category]: formData[category].filter(item => item !== tech)
-      });
-    } else {
-      updateFormData({
-        [category]: [...formData[category], tech]
-      });
-    }
-  };
+  const backendOptions = [
+    { value: 'nodejs', label: 'Node.js' },
+    { value: 'express', label: 'Express' },
+    { value: 'nestjs', label: 'NestJS' },
+    { value: 'fastify', label: 'Fastify' },
+    { value: 'python', label: 'Python' },
+    { value: 'flask', label: 'Flask' },
+    { value: 'django', label: 'Django' },
+    { value: 'ruby', label: 'Ruby on Rails' },
+    { value: 'php', label: 'PHP/Laravel' },
+    { value: 'dotnet', label: '.NET Core' },
+    { value: 'java', label: 'Java/Spring Boot' },
+    { value: 'go', label: 'Go' },
+  ];
   
-  const handleSelectAll = (category: keyof typeof formData, options: string[]) => {
-    if (formData[category].length === options.length) {
-      // Deselect all
-      updateFormData({ [category]: [] });
-    } else {
-      // Select all
-      updateFormData({ [category]: [...options] });
-    }
-  };
+  const databaseOptions = [
+    { value: 'postgresql', label: 'PostgreSQL' },
+    { value: 'mysql', label: 'MySQL' },
+    { value: 'mongodb', label: 'MongoDB' },
+    { value: 'firestore', label: 'Firestore' },
+    { value: 'dynamodb', label: 'DynamoDB' },
+    { value: 'redis', label: 'Redis' },
+    { value: 'sqlite', label: 'SQLite' },
+    { value: 'supabase', label: 'Supabase' },
+  ];
   
-  const getCategoryOptions = (category: string) => {
-    switch(category) {
-      case 'frontend':
-        return frontendOptions;
-      case 'backend':
-        return backendOptions;
-      case 'database':
-        return databaseOptions;
-      case 'hosting':
-        return hostingOptions;
-      default:
-        return [];
-    }
+  const hostingOptions = [
+    { value: 'vercel', label: 'Vercel' },
+    { value: 'netlify', label: 'Netlify' },
+    { value: 'aws', label: 'AWS' },
+    { value: 'gcp', label: 'Google Cloud' },
+    { value: 'azure', label: 'Azure' },
+    { value: 'digitalocean', label: 'Digital Ocean' },
+    { value: 'heroku', label: 'Heroku' },
+    { value: 'firebase', label: 'Firebase' },
+  ];
+  
+  const fullstackOptions = [
+    { value: 'nextjs', label: 'Next.js (App Router)' },
+    { value: 'remix', label: 'Remix' },
+    { value: 'nuxtjs', label: 'Nuxt.js' },
+    { value: 'redwoodjs', label: 'RedwoodJS' },
+    { value: 'blitzjs', label: 'BlitzJS' },
+    { value: 'sveltekit', label: 'SvelteKit' },
+  ];
+  
+  const ormOptions = [
+    { value: 'prisma', label: 'Prisma' },
+    { value: 'sequelize', label: 'Sequelize' },
+    { value: 'typeorm', label: 'TypeORM' },
+    { value: 'mongoose', label: 'Mongoose' },
+    { value: 'drizzle', label: 'Drizzle ORM' },
+    { value: 'sqlx', label: 'sqlx (Rust)' },
+    { value: 'gorm', label: 'GORM (Go)' },
+  ];
+  
+  // Handle separate frontend/backend toggle
+  const handleSeparationToggle = (value: string) => {
+    updateFormData({
+      separateFrontendBackend: value === 'hasSeparation',
+      ...(value === 'hasSeparation' 
+        ? { fullstack: [] } 
+        : { frontend: [], backend: [] })
+    });
   };
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('promptGenerator.stack.title')}</CardTitle>
-          <CardDescription>
-            {t('promptGenerator.stack.description')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Frontend Section */}
-          <div className="space-y-2">
-            <Button 
-              onClick={() => handleToggleTech('frontend')} 
-              variant="outline"
-              className="w-full justify-between font-semibold"
-            >
-              {t('promptGenerator.stack.frontend')}
-              <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">
-                {formData.frontend.length} {t('promptGenerator.common.selected')}
-              </span>
-            </Button>
-            
-            {showingTech === 'frontend' && (
-              <div className="mt-2 border rounded-md p-4 bg-gray-50">
-                <div className="flex justify-between items-center mb-2">
-                  <h4 className="font-medium">{t('promptGenerator.stack.frontendTitle')}</h4>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleSelectAll('frontend', frontendOptions)}
-                  >
-                    {formData.frontend.length === frontendOptions.length ? 
-                      t('promptGenerator.common.unselectAll') : 
-                      t('promptGenerator.common.selectAll')}
-                  </Button>
-                </div>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {frontendOptions.map((tech) => (
-                    <div key={tech} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={`frontend-${tech}`}
-                        checked={formData.frontend.includes(tech)}
-                        onCheckedChange={() => handleTechToggle('frontend', tech)}
-                      />
-                      <Label 
-                        htmlFor={`frontend-${tech}`}
-                        className="cursor-pointer"
-                      >
-                        {tech}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+      <div>
+        <h3 className="text-xl font-medium mb-2">{t('promptGenerator.stack.title')}</h3>
+        <p className="text-gray-500 mb-4">{t('promptGenerator.stack.description')}</p>
+      </div>
+
+      <Card className="p-6">
+        <h4 className="font-medium mb-4">{t('promptGenerator.stack.separateFrontendBackend')}</h4>
+        <RadioGroup
+          value={formData.separateFrontendBackend ? 'hasSeparation' : 'noSeparation'}
+          onValueChange={handleSeparationToggle}
+          className="space-y-2"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="hasSeparation" id="separate-yes" />
+            <Label htmlFor="separate-yes">{t('promptGenerator.stack.hasSeparation')}</Label>
           </div>
-          
-          {/* Backend Section */}
-          <div className="space-y-2">
-            <Button 
-              onClick={() => handleToggleTech('backend')} 
-              variant="outline"
-              className="w-full justify-between font-semibold"
-            >
-              {t('promptGenerator.stack.backend')}
-              <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">
-                {formData.backend.length} {t('promptGenerator.common.selected')}
-              </span>
-            </Button>
-            
-            {showingTech === 'backend' && (
-              <div className="mt-2 border rounded-md p-4 bg-gray-50">
-                <div className="flex justify-between items-center mb-2">
-                  <h4 className="font-medium">{t('promptGenerator.stack.backendTitle')}</h4>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleSelectAll('backend', backendOptions)}
-                  >
-                    {formData.backend.length === backendOptions.length ? 
-                      t('promptGenerator.common.unselectAll') : 
-                      t('promptGenerator.common.selectAll')}
-                  </Button>
-                </div>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {backendOptions.map((tech) => (
-                    <div key={tech} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={`backend-${tech}`}
-                        checked={formData.backend.includes(tech)}
-                        onCheckedChange={() => handleTechToggle('backend', tech)}
-                      />
-                      <Label 
-                        htmlFor={`backend-${tech}`}
-                        className="cursor-pointer"
-                      >
-                        {tech}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="noSeparation" id="separate-no" />
+            <Label htmlFor="separate-no">{t('promptGenerator.stack.noSeparation')}</Label>
           </div>
-          
-          {/* Database Section */}
-          <div className="space-y-2">
-            <Button 
-              onClick={() => handleToggleTech('database')} 
-              variant="outline"
-              className="w-full justify-between font-semibold"
-            >
-              {t('promptGenerator.stack.database')}
-              <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">
-                {formData.database.length} {t('promptGenerator.common.selected')}
-              </span>
-            </Button>
-            
-            {showingTech === 'database' && (
-              <div className="mt-2 border rounded-md p-4 bg-gray-50">
-                <div className="flex justify-between items-center mb-2">
-                  <h4 className="font-medium">{t('promptGenerator.stack.databaseTitle')}</h4>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleSelectAll('database', databaseOptions)}
-                  >
-                    {formData.database.length === databaseOptions.length ? 
-                      t('promptGenerator.common.unselectAll') : 
-                      t('promptGenerator.common.selectAll')}
-                  </Button>
-                </div>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {databaseOptions.map((tech) => (
-                    <div key={tech} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={`database-${tech}`}
-                        checked={formData.database.includes(tech)}
-                        onCheckedChange={() => handleTechToggle('database', tech)}
-                      />
-                      <Label 
-                        htmlFor={`database-${tech}`}
-                        className="cursor-pointer"
-                      >
-                        {tech}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-          
-          {/* Hosting Section */}
-          <div className="space-y-2">
-            <Button 
-              onClick={() => handleToggleTech('hosting')} 
-              variant="outline"
-              className="w-full justify-between font-semibold"
-            >
-              {t('promptGenerator.stack.hosting')}
-              <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-xs">
-                {formData.hosting.length} {t('promptGenerator.common.selected')}
-              </span>
-            </Button>
-            
-            {showingTech === 'hosting' && (
-              <div className="mt-2 border rounded-md p-4 bg-gray-50">
-                <div className="flex justify-between items-center mb-2">
-                  <h4 className="font-medium">{t('promptGenerator.stack.hostingTitle')}</h4>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleSelectAll('hosting', hostingOptions)}
-                  >
-                    {formData.hosting.length === hostingOptions.length ? 
-                      t('promptGenerator.common.unselectAll') : 
-                      t('promptGenerator.common.selectAll')}
-                  </Button>
-                </div>
-                
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {hostingOptions.map((tech) => (
-                    <div key={tech} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={`hosting-${tech}`}
-                        checked={formData.hosting.includes(tech)}
-                        onCheckedChange={() => handleTechToggle('hosting', tech)}
-                      />
-                      <Label 
-                        htmlFor={`hosting-${tech}`}
-                        className="cursor-pointer"
-                      >
-                        {tech}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
+        </RadioGroup>
+      </Card>
+
+      {formData.separateFrontendBackend ? (
+        <>
+          {/* Frontend */}
+          <Card className="p-6">
+            <h4 className="font-medium mb-2">{t('promptGenerator.stack.frontendTitle')}</h4>
+            <p className="text-sm text-gray-500 mb-4">{t('promptGenerator.stack.frontendHelp')}</p>
+            <MultiSelect
+              options={frontendOptions}
+              selected={formData.frontend}
+              onChange={(values) => updateFormData({ frontend: values })}
+              placeholder="Select frontend technologies"
+            />
+          </Card>
+
+          {/* Backend */}
+          <Card className="p-6">
+            <h4 className="font-medium mb-2">{t('promptGenerator.stack.backendTitle')}</h4>
+            <p className="text-sm text-gray-500 mb-4">{t('promptGenerator.stack.backendHelp')}</p>
+            <MultiSelect
+              options={backendOptions}
+              selected={formData.backend}
+              onChange={(values) => updateFormData({ backend: values })}
+              placeholder="Select backend technologies"
+            />
+          </Card>
+        </>
+      ) : (
+        /* Fullstack */
+        <Card className="p-6">
+          <h4 className="font-medium mb-2">{t('promptGenerator.stack.fullstack')}</h4>
+          <p className="text-sm text-gray-500 mb-4">{t('promptGenerator.stack.frontendHelp')}</p>
+          <MultiSelect
+            options={fullstackOptions}
+            selected={formData.fullstack}
+            onChange={(values) => updateFormData({ fullstack: values })}
+            placeholder="Select fullstack technologies"
+          />
+        </Card>
+      )}
+
+      {/* Database */}
+      <Card className="p-6">
+        <h4 className="font-medium mb-2">{t('promptGenerator.stack.databaseTitle')}</h4>
+        <p className="text-sm text-gray-500 mb-4">{t('promptGenerator.stack.databaseHelp')}</p>
+        <MultiSelect
+          options={databaseOptions}
+          selected={formData.database}
+          onChange={(values) => updateFormData({ database: values })}
+          placeholder="Select database technologies"
+        />
+      </Card>
+
+      {/* ORM/ODM */}
+      <Card className="p-6">
+        <h4 className="font-medium mb-2">{t('promptGenerator.stack.orm')}</h4>
+        <MultiSelect
+          options={ormOptions}
+          selected={formData.orm}
+          onChange={(values) => updateFormData({ orm: values })}
+          placeholder="Select ORM/ODM technologies"
+        />
+      </Card>
+
+      {/* Hosting */}
+      <Card className="p-6">
+        <h4 className="font-medium mb-2">{t('promptGenerator.stack.hostingTitle')}</h4>
+        <p className="text-sm text-gray-500 mb-4">{t('promptGenerator.stack.hostingHelp')}</p>
+        <MultiSelect
+          options={hostingOptions}
+          selected={formData.hosting}
+          onChange={(values) => updateFormData({ hosting: values })}
+          placeholder="Select hosting options"
+        />
       </Card>
     </div>
   );

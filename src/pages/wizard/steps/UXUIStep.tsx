@@ -1,11 +1,17 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Card } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Switch } from '@/components/ui/switch';
+import { 
+  Card, 
+  Checkbox, 
+  FormControl, 
+  FormField, 
+  FormItem, 
+  FormLabel, 
+  RadioGroup, 
+  RadioGroupItem 
+} from '@/components/ui/index';
+import { CheckboxItem } from '@/components/CheckboxItem';
 
 interface UXUIData {
   colorPalette: string[];
@@ -25,85 +31,56 @@ interface UXUIStepProps {
 
 const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
   const { t } = useLanguage();
+
+  // Available color options
+  const colorOptions = ['blue', 'green', 'red', 'purple', 'orange', 'black', 'white', 'gray', 'custom'];
   
-  // Color palette options with hex values
-  const colorOptions = [
-    { id: 'blue', color: '#0057D9' },
-    { id: 'green', color: '#28A745' },
-    { id: 'red', color: '#DC3545' },
-    { id: 'purple', color: '#6F42C1' },
-    { id: 'orange', color: '#FD7E14' },
-    { id: 'black', color: '#000000' },
-    { id: 'white', color: '#FFFFFF' },
-    { id: 'gray', color: '#6C757D' },
-    { id: 'custom', color: '#F1F0FB' },
-  ];
-
   // Visual style options
-  const visualStyleOptions = [
-    'minimalist', 'modern', 'flat', 'ios', 'android', 'other'
-  ];
-
+  const visualStyleOptions = ['minimalist', 'modern', 'flat', 'ios', 'android', 'otherVisualStyle'];
+  
   // Menu type options
-  const menuTypeOptions = [
-    'topFixed', 'sideFixed', 'hamburger', 'horizontalTabs', 'custom', 'other'
-  ];
-
-  // Landing page options
-  const landingPageStyleOptions = [
-    'structure', 'elements', 'style', 'other'
-  ];
-
+  const menuTypeOptions = ['topFixed', 'sideFixed', 'hamburger', 'horizontalTabs', 'customMenu', 'otherMenuType'];
+  
   // Authentication options
-  const authenticationOptions = [
-    'emailPassword', 'socialLogin', 'twoFactorAuth', 'other'
-  ];
-
-  // Dashboard options
-  const dashboardOptions = [
-    'customizable', 'statistics', 'activityHistory', 'responsiveThemes', 'other'
-  ];
-
-  const handleColorChange = (color: string, checked: boolean) => {
-    const updatedColors = checked
-      ? [...formData.colorPalette, color]
-      : formData.colorPalette.filter(c => c !== color);
+  const authOptions = ['emailPassword', 'socialLogin', 'twoFactorAuth', 'otherAuthMethod'];
+  
+  // Dashboard feature options
+  const dashboardOptions = ['customizable', 'statistics', 'activityHistory', 'responsiveThemes', 'otherDashboardFeature'];
+  
+  // Handle color palette changes
+  const handleColorChange = (color: string) => {
+    const updatedColors = formData.colorPalette.includes(color)
+      ? formData.colorPalette.filter(c => c !== color)
+      : [...formData.colorPalette, color];
     
     updateFormData({ colorPalette: updatedColors });
   };
-
-  const handleAuthOptionChange = (option: string, checked: boolean) => {
-    const updatedOptions = checked
-      ? [...formData.authentication, option]
-      : formData.authentication.filter(o => o !== option);
+  
+  // Handle landing page toggle
+  const handleLandingPageToggle = (value: string) => {
+    const hasLandingPage = value === 'hasLandingPage';
+    updateFormData({ 
+      landingPage: hasLandingPage,
+      landingPageDetails: hasLandingPage ? {} : null
+    });
+  };
+  
+  // Handle dashboard toggle
+  const handleDashboardToggle = (value: string) => {
+    const hasDashboard = value === 'true';
+    updateFormData({ 
+      userDashboard: hasDashboard,
+      userDashboardDetails: hasDashboard ? {} : null
+    });
+  };
+  
+  // Handle authentication option changes
+  const handleAuthOptionChange = (option: string) => {
+    const updatedOptions = formData.authentication.includes(option)
+      ? formData.authentication.filter(o => o !== option)
+      : [...formData.authentication, option];
     
     updateFormData({ authentication: updatedOptions });
-  };
-
-  const handleLandingPageChange = (value: boolean) => {
-    updateFormData({ 
-      landingPage: value,
-      landingPageDetails: value ? formData.landingPageDetails : {} 
-    });
-  };
-
-  const handleDashboardChange = (value: boolean) => {
-    updateFormData({ 
-      userDashboard: value,
-      userDashboardDetails: value ? formData.userDashboardDetails : {} 
-    });
-  };
-
-  const handleLandingPageDetailChange = (option: string, checked: boolean) => {
-    const details = { ...formData.landingPageDetails };
-    details[option] = checked;
-    updateFormData({ landingPageDetails: details });
-  };
-
-  const handleDashboardDetailChange = (option: string, checked: boolean) => {
-    const details = { ...formData.userDashboardDetails };
-    details[option] = checked;
-    updateFormData({ userDashboardDetails: details });
   };
 
   return (
@@ -116,23 +93,20 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
       {/* Color Palette */}
       <Card className="p-6">
         <h4 className="font-medium mb-4">{t('promptGenerator.uxui.colorPalette')}</h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-          {colorOptions.map(({ id, color }) => (
-            <div key={id} className="flex items-center space-x-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+          {colorOptions.map(color => (
+            <div key={color} className="flex items-center space-x-2">
               <Checkbox 
-                id={`color-${id}`} 
-                checked={formData.colorPalette.includes(id)}
-                onCheckedChange={(checked) => 
-                  handleColorChange(id, checked === true)
-                }
+                id={`color-${color}`}
+                checked={formData.colorPalette.includes(color)}
+                onCheckedChange={() => handleColorChange(color)}
               />
-              <div 
-                className="w-6 h-6 rounded border"
-                style={{ backgroundColor: color }}
-              />
-              <Label htmlFor={`color-${id}`} className="cursor-pointer">
-                {t(`promptGenerator.uxui.${id}`)}
-              </Label>
+              <label 
+                htmlFor={`color-${color}`} 
+                className="text-sm cursor-pointer"
+              >
+                {t(`promptGenerator.uxui.${color}`)}
+              </label>
             </div>
           ))}
         </div>
@@ -144,14 +118,17 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
         <RadioGroup
           value={formData.visualStyle}
           onValueChange={(value) => updateFormData({ visualStyle: value })}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
+          className="space-y-2"
         >
-          {visualStyleOptions.map((style) => (
+          {visualStyleOptions.map(style => (
             <div key={style} className="flex items-center space-x-2">
               <RadioGroupItem value={style} id={`style-${style}`} />
-              <Label htmlFor={`style-${style}`} className="cursor-pointer">
+              <label 
+                htmlFor={`style-${style}`}
+                className="text-sm cursor-pointer"
+              >
                 {t(`promptGenerator.uxui.${style}`)}
-              </Label>
+              </label>
             </div>
           ))}
         </RadioGroup>
@@ -163,14 +140,17 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
         <RadioGroup
           value={formData.menuType}
           onValueChange={(value) => updateFormData({ menuType: value })}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
+          className="space-y-2"
         >
-          {menuTypeOptions.map((menu) => (
+          {menuTypeOptions.map(menu => (
             <div key={menu} className="flex items-center space-x-2">
               <RadioGroupItem value={menu} id={`menu-${menu}`} />
-              <Label htmlFor={`menu-${menu}`} className="cursor-pointer">
+              <label
+                htmlFor={`menu-${menu}`}
+                className="text-sm cursor-pointer"
+              >
                 {t(`promptGenerator.uxui.${menu}`)}
-              </Label>
+              </label>
             </div>
           ))}
         </RadioGroup>
@@ -178,36 +158,37 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
 
       {/* Landing Page */}
       <Card className="p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h4 className="font-medium">{t('promptGenerator.uxui.landingPage')}</h4>
+        <h4 className="font-medium mb-4">{t('promptGenerator.uxui.landingPage')}</h4>
+        <RadioGroup
+          value={formData.landingPage ? 'hasLandingPage' : 'noLandingPage'}
+          onValueChange={handleLandingPageToggle}
+          className="space-y-2"
+        >
           <div className="flex items-center space-x-2">
-            <Switch
-              checked={formData.landingPage}
-              onCheckedChange={handleLandingPageChange}
-              id="landing-page-switch"
-            />
-            <Label htmlFor="landing-page-switch">
-              {formData.landingPage ? t('promptGenerator.uxui.yes') : t('promptGenerator.uxui.no')}
-            </Label>
+            <RadioGroupItem value="hasLandingPage" id="landing-yes" />
+            <label 
+              htmlFor="landing-yes"
+              className="text-sm cursor-pointer"
+            >
+              {t('promptGenerator.uxui.hasLandingPage')}
+            </label>
           </div>
-        </div>
-
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="noLandingPage" id="landing-no" />
+            <label 
+              htmlFor="landing-no"
+              className="text-sm cursor-pointer"
+            >
+              {t('promptGenerator.uxui.noLandingPage')}
+            </label>
+          </div>
+        </RadioGroup>
+        
         {formData.landingPage && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-            {landingPageStyleOptions.map((option) => (
-              <div key={option} className="flex items-center space-x-2">
-                <Checkbox 
-                  id={`landing-${option}`} 
-                  checked={formData.landingPageDetails?.[option] || false}
-                  onCheckedChange={(checked) => 
-                    handleLandingPageDetailChange(option, checked === true)
-                  }
-                />
-                <Label htmlFor={`landing-${option}`} className="cursor-pointer">
-                  {t(`promptGenerator.uxui.${option}`)}
-                </Label>
-              </div>
-            ))}
+          <div className="mt-4 pl-6 border-l-2 border-gray-200">
+            <p className="text-sm text-gray-500 mb-2">{t('promptGenerator.uxui.structure')}</p>
+            <p className="text-sm text-gray-500 mb-2">{t('promptGenerator.uxui.elements')}</p>
+            <p className="text-sm text-gray-500">{t('promptGenerator.uxui.style')}</p>
           </div>
         )}
       </Card>
@@ -215,55 +196,51 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
       {/* Authentication */}
       <Card className="p-6">
         <h4 className="font-medium mb-4">{t('promptGenerator.uxui.authentication')}</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {authenticationOptions.map((auth) => (
+        <div className="space-y-2">
+          {authOptions.map(auth => (
             <div key={auth} className="flex items-center space-x-2">
-              <Checkbox 
-                id={`auth-${auth}`} 
+              <Checkbox
+                id={`auth-${auth}`}
                 checked={formData.authentication.includes(auth)}
-                onCheckedChange={(checked) => 
-                  handleAuthOptionChange(auth, checked === true)
-                }
+                onCheckedChange={() => handleAuthOptionChange(auth)}
               />
-              <Label htmlFor={`auth-${auth}`} className="cursor-pointer">
+              <label
+                htmlFor={`auth-${auth}`}
+                className="text-sm cursor-pointer"
+              >
                 {t(`promptGenerator.uxui.${auth}`)}
-              </Label>
+              </label>
             </div>
           ))}
         </div>
       </Card>
 
-      {/* Dashboard for Logged Users */}
+      {/* Dashboard for Logged-in Users */}
       <Card className="p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h4 className="font-medium">{t('promptGenerator.uxui.userDashboard')}</h4>
+        <h4 className="font-medium mb-4">{t('promptGenerator.uxui.userDashboard')}</h4>
+        <RadioGroup
+          value={formData.userDashboard ? 'true' : 'false'}
+          onValueChange={handleDashboardToggle}
+          className="space-y-2"
+        >
           <div className="flex items-center space-x-2">
-            <Switch
-              checked={formData.userDashboard}
-              onCheckedChange={handleDashboardChange}
-              id="dashboard-switch"
-            />
-            <Label htmlFor="dashboard-switch">
-              {formData.userDashboard ? t('promptGenerator.uxui.yes') : t('promptGenerator.uxui.no')}
-            </Label>
+            <RadioGroupItem value="true" id="dashboard-yes" />
+            <label htmlFor="dashboard-yes" className="text-sm cursor-pointer">{t('promptGenerator.uxui.hasLandingPage')}</label>
           </div>
-        </div>
-
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="false" id="dashboard-no" />
+            <label htmlFor="dashboard-no" className="text-sm cursor-pointer">{t('promptGenerator.uxui.noLandingPage')}</label>
+          </div>
+        </RadioGroup>
+        
         {formData.userDashboard && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-            {dashboardOptions.map((option) => (
-              <div key={option} className="flex items-center space-x-2">
-                <Checkbox 
-                  id={`dashboard-${option}`} 
-                  checked={formData.userDashboardDetails?.[option] || false}
-                  onCheckedChange={(checked) => 
-                    handleDashboardDetailChange(option, checked === true)
-                  }
-                />
-                <Label htmlFor={`dashboard-${option}`} className="cursor-pointer">
-                  {t(`promptGenerator.uxui.${option}`)}
-                </Label>
-              </div>
+          <div className="mt-4 space-y-2">
+            {dashboardOptions.map(option => (
+              <CheckboxItem
+                key={option}
+                id={`dash-${option}`}
+                label={t(`promptGenerator.uxui.${option}`)}
+              />
             ))}
           </div>
         )}
