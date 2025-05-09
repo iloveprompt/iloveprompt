@@ -50,16 +50,15 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     onChange(newSelected);
   };
 
-  const handleSelectAll = () => {
-    onChange(options.map(option => option.value));
-  };
-
-  const handleUnselectAll = () => {
-    onChange([]);
+  const toggleSelectAll = () => {
+    if (selected.length === options.length) {
+      onChange([]);
+    } else {
+      onChange(options.map(option => option.value));
+    }
   };
 
   const selectAllActive = selected.length === options.length;
-  const noneSelected = selected.length === 0;
 
   return (
     <div className={`space-y-2 ${className}`}>
@@ -103,18 +102,9 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={handleSelectAll}
-                disabled={selectAllActive}
+                onClick={toggleSelectAll}
               >
-                {t('common.selectAll')}
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={handleUnselectAll}
-                disabled={noneSelected}
-              >
-                {t('common.unselectAll')}
+                {selectAllActive ? t('promptGenerator.common.unselectAll') : t('promptGenerator.common.selectAll')}
               </Button>
             </div>
             <CommandEmpty>No results found.</CommandEmpty>

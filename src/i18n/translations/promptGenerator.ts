@@ -1,4 +1,3 @@
-
 export const promptGeneratorTranslations = {
   en: {
     promptGenerator: {
@@ -7,8 +6,10 @@ export const promptGeneratorTranslations = {
       common: {
         selectAll: "Select All",
         unselectAll: "Unselect All",
+        toggleSelectAll: "Select All / Unselect All",
         add: "Add",
         other: "Other (Specify)",
+        save: "Save",
         yes: "Yes",
         no: "No",
         optional: "Optional"
@@ -126,7 +127,7 @@ export const promptGeneratorTranslations = {
         customerSegmentation: "Customer segmentation",
         emailIntegration: "Integration with email and WhatsApp",
         performanceDashboard: "Performance dashboard",
-        tasksReminders: "Tasks and reminders system",
+        tasksReminders: "Tasks and reminders system"
       },
       uxui: {
         title: "UX/UI and Design",
@@ -328,8 +329,10 @@ export const promptGeneratorTranslations = {
       common: {
         selectAll: "Selecionar Todos",
         unselectAll: "Desmarcar Todos",
+        toggleSelectAll: "Selecionar Todos / Desmarcar Todos",
         add: "Adicionar",
         other: "Outro (Especificar)",
+        save: "Salvar",
         yes: "Sim",
         no: "Não",
         optional: "Opcional"
@@ -348,7 +351,7 @@ export const promptGeneratorTranslations = {
         urlPlaceholder: "https://url-do-seu-projeto.com",
         urlHelp: "URL opcional para o seu projeto",
         createdDate: "Data de Criação",
-        updatedDate: "Última Atualização",
+        updatedDate: "��ltima Atualização",
         version: "Versão",
         versionHelp: "Versão atual do projeto"
       },
@@ -638,7 +641,7 @@ export const promptGeneratorTranslations = {
         download: "Baixar",
         copy: "Copiar Prompt",
         editManually: "Editar manualmente",
-        suggestImprovements: "Sugerir melhorias usando IA"
+        suggestImprovements: "Sugerir melhorias usando AI"
       }
     }
   }

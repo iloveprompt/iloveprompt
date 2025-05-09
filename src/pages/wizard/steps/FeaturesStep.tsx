@@ -70,13 +70,24 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({ formData, systemType, updat
     updateFormData({ dynamicFeatures: updatedFeatures });
   };
 
-  const selectAllSpecific = () => {
-    updateFormData({ specificFeatures: [...specificFeaturesOptions] });
+  const toggleSelectAllSpecific = () => {
+    if (formData.specificFeatures.length === specificFeaturesOptions.length) {
+      updateFormData({ specificFeatures: [] });
+    } else {
+      updateFormData({ specificFeatures: [...specificFeaturesOptions] });
+    }
   };
 
-  const selectAllDynamic = () => {
-    updateFormData({ dynamicFeatures: [...dynamicFeatureOptions] });
+  const toggleSelectAllDynamic = () => {
+    if (formData.dynamicFeatures.length === dynamicFeatureOptions.length) {
+      updateFormData({ dynamicFeatures: [] });
+    } else {
+      updateFormData({ dynamicFeatures: [...dynamicFeatureOptions] });
+    }
   };
+
+  const specificAllSelected = formData.specificFeatures.length === specificFeaturesOptions.length;
+  const dynamicAllSelected = formData.dynamicFeatures.length === dynamicFeatureOptions.length;
 
   return (
     <div className="space-y-6">
@@ -93,9 +104,9 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({ formData, systemType, updat
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={selectAllSpecific}
+              onClick={toggleSelectAllSpecific}
             >
-              {t('promptGenerator.common.selectAll')}
+              {specificAllSelected ? t('promptGenerator.common.unselectAll') : t('promptGenerator.common.selectAll')}
             </Button>
           </div>
           
@@ -148,9 +159,9 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({ formData, systemType, updat
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={selectAllDynamic}
+                onClick={toggleSelectAllDynamic}
               >
-                {t('promptGenerator.common.selectAll')}
+                {dynamicAllSelected ? t('promptGenerator.common.unselectAll') : t('promptGenerator.common.selectAll')}
               </Button>
             </div>
             
