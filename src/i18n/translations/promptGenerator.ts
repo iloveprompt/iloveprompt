@@ -1,3 +1,4 @@
+
 export const promptGeneratorTranslations = {
   en: {
     promptGenerator: {
@@ -191,8 +192,6 @@ export const promptGeneratorTranslations = {
           other: "Other (Specify)"
         },
         styleOtherPlaceholder: "Describe custom style",
-        otherLandingStyle: "Other (Specify)",
-        otherLandingStylePlaceholder: "Describe your landing page style",
         authentication: "Login and Authentication",
         emailPassword: "Email + Password",
         socialLogin: "Google | Facebook | GitHub | Apple",
@@ -514,8 +513,6 @@ export const promptGeneratorTranslations = {
           other: "Outro (Especificar)"
         },
         styleOtherPlaceholder: "Descreva estilo personalizado",
-        otherLandingStyle: "Outro (Especificar)",
-        otherLandingStylePlaceholder: "Descreva seu estilo de landing page",
         authentication: "Login e Autenticação",
         emailPassword: "Email + Senha",
         socialLogin: "Google | Facebook | GitHub | Apple",

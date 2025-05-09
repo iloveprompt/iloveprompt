@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card } from '@/components/ui/card';
@@ -33,6 +34,13 @@ interface StackStepProps {
 
 const StackStep: React.FC<StackStepProps> = ({ formData, updateFormData }) => {
   const { t } = useLanguage();
+
+  React.useEffect(() => {
+    // Definir o padrão como "Não (Fullstack)" ao carregar o componente
+    if (formData.separateFrontendBackend) {
+      updateFormData({ separateFrontendBackend: false });
+    }
+  }, []);
 
   // Technology options
   const frontendOptions = [

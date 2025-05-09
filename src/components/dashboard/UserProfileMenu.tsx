@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { LogOut, Settings, User } from 'lucide-react';
+import { LogOut, Settings, User, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import {
   DropdownMenu,
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useNavigate } from 'react-router-dom';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface UserProfileMenuProps {
   showPlan?: boolean;
@@ -21,8 +22,11 @@ interface UserProfileMenuProps {
 
 const UserProfileMenu: React.FC<UserProfileMenuProps> = ({ showPlan = true, plan = 'Free' }) => {
   const { user, signOut } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
+
+  // Estado para verificação de perfil incompleto (simulado)
+  const isProfileIncomplete = true;
 
   const handleSignOut = async () => {
     await signOut();
@@ -33,31 +37,44 @@ const UserProfileMenu: React.FC<UserProfileMenuProps> = ({ showPlan = true, plan
     ? user.email.substring(0, 2).toUpperCase()
     : 'US';
 
+  // Traduzir o plano
+  const translatedPlan = plan === 'Free' ? (language === 'pt' ? 'Básico' : 'Free') : plan;
+
   return (
     <div className="flex items-center gap-3">
-      {showPlan && (
-        <div className="hidden md:block">
-          <span className="text-sm font-medium bg-blue-100 text-blue-800 py-1 px-3 rounded-full">
-            {plan}
-          </span>
-        </div>
-      )}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex items-center gap-2 outline-none">
+          <button className="flex items-center relative outline-none">
+            {isProfileIncomplete && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="absolute -top-1 -right-1 bg-red-500 rounded-full w-3 h-3 border border-white z-10"></span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{language === 'pt' ? 'Cadastro incompleto' : 'Incomplete profile'}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
             <Avatar className="h-8 w-8 cursor-pointer">
               <AvatarImage src={user?.user_metadata?.avatar_url} />
               <AvatarFallback className="bg-blue-600 text-white">{userInitials}</AvatarFallback>
             </Avatar>
-            <span className="font-medium text-sm hidden md:block">{user?.email}</span>
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel>
             {user?.email}
-            {showPlan && <div className="text-xs text-gray-500 mt-1">Plan: {plan}</div>}
+            {showPlan && <div className="text-xs text-gray-500 mt-1">{language === 'pt' ? 'Plano: ' : 'Plan: '}{translatedPlan}</div>}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          {isProfileIncomplete && (
+            <DropdownMenuItem onClick={() => navigate('/dashboard/profile')} className="text-red-600">
+              <AlertCircle className="mr-2 h-4 w-4" />
+              {language === 'pt' ? 'Completar cadastro' : 'Complete profile'}
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onClick={() => navigate('/dashboard/profile')}>
             <User className="mr-2 h-4 w-4" />
             {t('dashboard.profile')}

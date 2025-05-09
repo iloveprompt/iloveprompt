@@ -28,7 +28,9 @@ export const translations: Record<string, Translation> = {
       ...commonTranslations.en.common,
       addedItems: "Added items",
       addMoreItems: "Add more items",
-      deleteItem: "Delete"
+      deleteItem: "Delete",
+      incompleteProfile: "Incomplete profile",
+      completeProfile: "Complete profile"
     }
   },
   pt: {
@@ -41,7 +43,9 @@ export const translations: Record<string, Translation> = {
       ...commonTranslations.pt.common,
       addedItems: "Itens adicionados",
       addMoreItems: "Adicionar mais itens",
-      deleteItem: "Excluir"
+      deleteItem: "Excluir",
+      incompleteProfile: "Cadastro incompleto",
+      completeProfile: "Completar cadastro"
     }
   }
 };
