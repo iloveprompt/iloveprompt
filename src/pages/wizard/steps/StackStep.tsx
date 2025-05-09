@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card } from '@/components/ui/card';
@@ -214,33 +213,16 @@ const StackStep: React.FC<StackStepProps> = ({ formData, updateFormData }) => {
         <p className="text-gray-500 mb-4">{t('promptGenerator.stack.description')}</p>
       </div>
 
-      {/* Frontend/Backend Separation Option - styled like in the image */}
+      {/* Frontend/Backend Separation Option - updated to match RequirementsStep style */}
       <div className="flex items-center space-x-2">
-        <div className="flex items-center space-x-3 w-full">
-          <div className="flex items-center flex-grow">
-            <div className="flex-grow">
-              <Label 
-                htmlFor="separateFrontendBackend-switch" 
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-              >
-                {t('promptGenerator.stack.separateFrontendBackend')}
-              </Label>
-            </div>
-            <div className="flex items-center">
-              {formData.separateFrontendBackend ? (
-                <ToggleRight 
-                  className="h-7 w-7 text-primary cursor-pointer" 
-                  onClick={() => updateFormData({ separateFrontendBackend: false })}
-                />
-              ) : (
-                <ToggleLeft 
-                  className="h-7 w-7 text-muted-foreground cursor-pointer" 
-                  onClick={() => updateFormData({ separateFrontendBackend: true })}
-                />
-              )}
-            </div>
-          </div>
-        </div>
+        <Switch
+          checked={formData.separateFrontendBackend}
+          onCheckedChange={(checked) => updateFormData({ separateFrontendBackend: checked })}
+          id="separateFrontendBackend-toggle"
+        />
+        <Label htmlFor="separateFrontendBackend-toggle" className="text-base font-medium">
+          {t('promptGenerator.stack.separateFrontendBackend')}
+        </Label>
       </div>
 
       {/* Separate Frontend/Backend or Fullstack */}
