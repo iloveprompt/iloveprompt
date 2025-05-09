@@ -58,13 +58,13 @@ const UserProfileMenu: React.FC<UserProfileMenuProps> = ({ showPlan = true, plan
             {showPlan && <div className="text-xs text-gray-500 mt-1">Plan: {plan}</div>}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => navigate('/profile')}>
+          <DropdownMenuItem onClick={() => navigate('/dashboard/profile')}>
             <User className="mr-2 h-4 w-4" />
-            {t('common.profile')}
+            {t('dashboard.profile')}
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => navigate('/settings')}>
+          <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
             <Settings className="mr-2 h-4 w-4" />
-            {t('common.settings')}
+            {t('dashboard.settings')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleSignOut} className="text-red-600">

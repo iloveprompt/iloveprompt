@@ -26,14 +26,13 @@ const UserDashboardNavbar = () => {
                 alt="iloveprompt logo" 
                 className="h-10" 
               />
-              <span className="font-semibold text-xl hidden sm:inline ml-2">{t('dashboard.title')}</span>
             </Link>
           </div>
           
           {/* Desktop navigation */}
           <nav className="hidden md:flex items-center space-x-4">
             <Link to="/dashboard" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-              {t('dashboard.overview')}
+              {t('dashboard.home')}
             </Link>
             <Link to="/dashboard/prompt-generator" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
               {t('dashboard.createPrompt')}
@@ -76,7 +75,7 @@ const UserDashboardNavbar = () => {
               className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
               onClick={() => setIsMenuOpen(false)}
             >
-              {t('dashboard.overview')}
+              {t('dashboard.home')}
             </Link>
             <Link 
               to="/dashboard/prompt-generator" 

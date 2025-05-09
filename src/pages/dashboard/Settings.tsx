@@ -44,7 +44,7 @@ const Settings = () => {
         <TabsList>
           <TabsTrigger value="profile">{t('settings.profile')}</TabsTrigger>
           <TabsTrigger value="notifications">{t('settings.notifications')}</TabsTrigger>
-          <TabsTrigger value="api-keys">{t('settings.apiKeys')}</TabsTrigger>
+          <TabsTrigger value="api-keys">{t('settings.apiAccess')}</TabsTrigger>
           <TabsTrigger value="subscription">{t('settings.subscription')}</TabsTrigger>
         </TabsList>
         
