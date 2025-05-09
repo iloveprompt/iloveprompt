@@ -117,17 +117,17 @@ export const getWizardData = async (language: string) => {
         const processedItems = items ? items.map((item) => {
           // Filtrar traduções para o idioma atual
           const itemTranslations = item.wizard_item_translations || [];
-          const itemTranslation = itemTranslations.find(
-            (t: any) => t.language === language
-          ) || itemTranslations[0];
+          const itemTranslation = Array.isArray(itemTranslations) ? 
+            itemTranslations.find((t: any) => t.language === language) || itemTranslations[0]
+            : null;
 
           // Processar opções
           const options = item.wizard_item_options && Array.isArray(item.wizard_item_options) 
             ? item.wizard_item_options.map((option: any) => {
                 const optionTranslations = option.wizard_option_translations || [];
-                const optionTranslation = optionTranslations.find(
-                  (t: any) => t.language === language
-                ) || optionTranslations[0];
+                const optionTranslation = Array.isArray(optionTranslations) ?
+                  optionTranslations.find((t: any) => t.language === language) || optionTranslations[0]
+                  : null;
 
                 return {
                   id: option.id,
