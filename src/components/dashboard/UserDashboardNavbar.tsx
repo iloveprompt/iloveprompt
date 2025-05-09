@@ -26,7 +26,7 @@ const UserDashboardNavbar = () => {
                 alt="iloveprompt logo" 
                 className="h-10" 
               />
-              <span className="font-semibold text-xl hidden sm:inline ml-2">Dashboard</span>
+              <span className="font-semibold text-xl hidden sm:inline ml-2">{t('dashboard.title')}</span>
             </Link>
           </div>
           

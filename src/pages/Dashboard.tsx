@@ -5,9 +5,11 @@ import DashboardLayout from '@/components/layouts/DashboardLayout';
 import UserDashboardNavbar from '@/components/dashboard/UserDashboardNavbar';
 import UserDashboardFooter from '@/components/dashboard/UserDashboardFooter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   return (
     <DashboardLayout
@@ -15,16 +17,16 @@ const Dashboard = () => {
       footerComponent={<UserDashboardFooter />}
     >
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('dashboard.title')}</h1>
         <p className="text-gray-500">
-          Welcome back, {user?.email?.split('@')[0] || 'User'}!
+          {t('dashboard.welcomeBack')}, {user?.email?.split('@')[0] || 'User'}!
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Prompts Created</CardTitle>
-              <CardDescription>Total prompts you've created</CardDescription>
+              <CardTitle>{t('dashboard.promptsCreated')}</CardTitle>
+              <CardDescription>{t('dashboard.totalPrompts')}</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-4xl font-bold">24</p>
@@ -33,8 +35,8 @@ const Dashboard = () => {
           
           <Card>
             <CardHeader>
-              <CardTitle>Usage</CardTitle>
-              <CardDescription>Current month usage</CardDescription>
+              <CardTitle>{t('dashboard.usage')}</CardTitle>
+              <CardDescription>{t('dashboard.currentMonthUsage')}</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-4xl font-bold">65%</p>
@@ -46,8 +48,8 @@ const Dashboard = () => {
           
           <Card>
             <CardHeader>
-              <CardTitle>Saved Templates</CardTitle>
-              <CardDescription>Your template library</CardDescription>
+              <CardTitle>{t('dashboard.savedTemplates')}</CardTitle>
+              <CardDescription>{t('dashboard.templateLibrary')}</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-4xl font-bold">7</p>
@@ -58,8 +60,8 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           <Card>
             <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Your latest prompt generations</CardDescription>
+              <CardTitle>{t('dashboard.recentActivity')}</CardTitle>
+              <CardDescription>{t('dashboard.latestPromptGenerations')}</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-4">
@@ -81,8 +83,8 @@ const Dashboard = () => {
           
           <Card>
             <CardHeader>
-              <CardTitle>Pro Tips</CardTitle>
-              <CardDescription>Get more from iloveprompt</CardDescription>
+              <CardTitle>{t('dashboard.proTips')}</CardTitle>
+              <CardDescription>{t('dashboard.getMore')}</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-4">
