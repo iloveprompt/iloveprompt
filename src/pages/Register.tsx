@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
-import { Google, Github } from 'lucide-react';
+import { Github, Mail } from 'lucide-react';
 import { colors } from '@/styles/colors';
 import PasswordInput from '@/components/auth/PasswordInput';
 
@@ -129,7 +129,7 @@ const RegisterPage = () => {
               onClick={handleGoogleSignUp} 
               className="w-full border border-gray-300 bg-white hover:bg-gray-50"
             >
-              <Google className="mr-2 h-5 w-5 text-red-500" />
+              <Mail className="mr-2 h-5 w-5 text-red-500" />
               Google
             </Button>
             <Button 
