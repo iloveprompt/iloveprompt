@@ -2,7 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { getWizardData } from '@/services/wizardService';
-import { extractWizardData, migrateWizardData } from '@/services/migration/wizardMigrationData';
+import { extractWizardData } from '@/services/migration/wizardMigrationData';
+import { supabase } from '@/lib/supabase';
 
 export const useWizardData = () => {
   const { language } = useLanguage();
@@ -22,11 +23,12 @@ export const useWizardData = () => {
         if (data) {
           setWizardData(data);
         } else {
-          // Se não há dados no banco, extrair e migrar os dados existentes
+          // Se não há dados no banco, extrair os dados existentes
           const extractedData = extractWizardData();
           
           try {
             // Tentar migrar os dados para o banco
+            const { migrateWizardData } = await import('@/services/migration/wizardMigrationData');
             await migrateWizardData(extractedData);
             
             // Buscar dados novamente após a migração
