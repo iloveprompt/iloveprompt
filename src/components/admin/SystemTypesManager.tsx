@@ -3,8 +3,17 @@ import React, { useState } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import ItemManager, { WizardItem } from './ItemManager';
 
+// Extended interface for WizardItem that includes Spanish translations
+interface WizardItemWithSpanish extends Omit<WizardItem, 'translations'> {
+  translations: {
+    en: string;
+    pt: string;
+    es: string;
+  };
+}
+
 // Mock data for system types
-const initialSystemTypes: WizardItem[] = [
+const initialSystemTypes: WizardItemWithSpanish[] = [
   {
     id: 1,
     key: 'webapp',
@@ -67,18 +76,19 @@ const initialSystemTypes: WizardItem[] = [
 
 const SystemTypesManager: React.FC = () => {
   const { t } = useLanguage();
-  const [systemTypes, setSystemTypes] = useState<WizardItem[]>(initialSystemTypes);
+  const [systemTypes, setSystemTypes] = useState<WizardItemWithSpanish[]>(initialSystemTypes);
 
   const handleAddItem = (item: Partial<WizardItem>) => {
     const newId = Math.max(...systemTypes.map(item => item.id), 0) + 1;
-    setSystemTypes(prev => [...prev, { ...item, id: newId } as WizardItem]);
+    // Type assertion to handle conversion from WizardItem to WizardItemWithSpanish
+    setSystemTypes(prev => [...prev, { ...item, id: newId } as unknown as WizardItemWithSpanish]);
   };
 
   const handleUpdateItem = (id: number, item: Partial<WizardItem>) => {
     setSystemTypes(prev => 
       prev.map(prevItem => 
         prevItem.id === id 
-          ? { ...prevItem, ...item } as WizardItem
+          ? { ...prevItem, ...item } as unknown as WizardItemWithSpanish
           : prevItem
       )
     );
@@ -91,7 +101,7 @@ const SystemTypesManager: React.FC = () => {
   return (
     <ItemManager
       title={t('dashboard.systemTypes')}
-      items={systemTypes}
+      items={systemTypes as unknown as WizardItem[]}
       onAddItem={handleAddItem}
       onUpdateItem={handleUpdateItem}
       onDeleteItem={handleDeleteItem}
