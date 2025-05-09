@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import OtherSpecifyItem from '@/components/OtherSpecifyItem';
 import RadioSpecifyItem from '@/components/RadioSpecifyItem';
+import { Button } from '@/components/ui/button';
 
 interface UXUIData {
   colorPalette: string[];
@@ -19,9 +20,29 @@ interface UXUIData {
   otherMenuType: string;
   landingPage: boolean;
   landingPageDetails: {
-    structure: boolean;
-    elements: boolean;
-    style: boolean;
+    structure: {
+      hero: boolean;
+      benefits: boolean;
+      testimonials: boolean;
+      cta: boolean;
+      other: boolean;
+      otherValue: string;
+    };
+    elements: {
+      video: boolean;
+      form: boolean;
+      animations: boolean;
+      other: boolean;
+      otherValue: string;
+    };
+    style: {
+      modern: boolean;
+      minimalist: boolean;
+      corporate: boolean;
+      creative: boolean;
+      other: boolean;
+      otherValue: string;
+    };
   };
   authentication: string[];
   otherAuthMethod: string;
@@ -41,6 +62,35 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
   const { t } = useLanguage();
   const [customColorInput, setCustomColorInput] = useState('');
 
+  // Initialize landingPageDetails if not present
+  if (!formData.landingPageDetails) {
+    formData.landingPageDetails = {
+      structure: {
+        hero: true,
+        benefits: true,
+        testimonials: true,
+        cta: true,
+        other: false,
+        otherValue: ''
+      },
+      elements: {
+        video: true,
+        form: true,
+        animations: true,
+        other: false,
+        otherValue: ''
+      },
+      style: {
+        modern: true,
+        minimalist: true,
+        corporate: true,
+        creative: true,
+        other: false,
+        otherValue: ''
+      }
+    };
+  }
+
   // Available color options with their hex values
   const colorOptions = [
     { name: 'blue', hex: '#0057D9' },
@@ -55,22 +105,22 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
   
   // Visual style options
   const visualStyleOptions = [
-    'minimalist', 'modern', 'flat', 'ios', 'android', 'otherVisualStyle'
+    'minimalist', 'modern', 'flat', 'ios', 'android'
   ];
   
   // Menu type options
   const menuTypeOptions = [
-    'topFixed', 'sideFixed', 'hamburger', 'horizontalTabs', 'customMenu', 'otherMenuType'
+    'topFixed', 'sideFixed', 'hamburger', 'horizontalTabs', 'customMenu'
   ];
   
   // Authentication options
   const authOptions = [
-    'emailPassword', 'socialLogin', 'twoFactorAuth', 'otherAuthMethod'
+    'emailPassword', 'socialLogin', 'twoFactorAuth'
   ];
   
   // Dashboard feature options
   const dashboardOptions = [
-    'customizable', 'statistics', 'activityHistory', 'responsiveThemes', 'otherDashboardFeature'
+    'customizable', 'statistics', 'activityHistory', 'responsiveThemes'
   ];
   
   // Handle color palette changes
@@ -109,26 +159,59 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
   // Handle landing page toggle
   const handleLandingPageToggle = (value: string) => {
     const hasLandingPage = value === 'hasLandingPage';
-    updateFormData({ 
-      landingPage: hasLandingPage,
-      landingPageDetails: hasLandingPage ? {
-        structure: false,
-        elements: false,
-        style: false
-      } : { structure: false, elements: false, style: false }
+    updateFormData({ landingPage: hasLandingPage });
+  };
+
+  // Handle landing page structure detail changes
+  const handleStructureChange = (key: keyof UXUIData['landingPageDetails']['structure'], value: boolean) => {
+    updateFormData({
+      landingPageDetails: {
+        ...formData.landingPageDetails,
+        structure: {
+          ...formData.landingPageDetails.structure,
+          [key]: value
+        }
+      }
     });
   };
 
-  // Handle landing page detail changes
-  const handleLandingPageDetailChange = (detail: 'structure' | 'elements' | 'style', checked: boolean) => {
-    if (formData.landingPageDetails) {
-      updateFormData({
-        landingPageDetails: {
-          ...formData.landingPageDetails,
-          [detail]: checked
+  // Handle landing page elements detail changes
+  const handleElementsChange = (key: keyof UXUIData['landingPageDetails']['elements'], value: boolean) => {
+    updateFormData({
+      landingPageDetails: {
+        ...formData.landingPageDetails,
+        elements: {
+          ...formData.landingPageDetails.elements,
+          [key]: value
         }
-      });
-    }
+      }
+    });
+  };
+
+  // Handle landing page style detail changes
+  const handleStyleChange = (key: keyof UXUIData['landingPageDetails']['style'], value: boolean) => {
+    updateFormData({
+      landingPageDetails: {
+        ...formData.landingPageDetails,
+        style: {
+          ...formData.landingPageDetails.style,
+          [key]: value
+        }
+      }
+    });
+  };
+  
+  // Handle landing page detail text input changes
+  const handleLandingPageTextChange = (section: 'structure' | 'elements' | 'style', value: string) => {
+    updateFormData({
+      landingPageDetails: {
+        ...formData.landingPageDetails,
+        [section]: {
+          ...formData.landingPageDetails[section],
+          otherValue: value
+        }
+      }
+    });
   };
   
   // Handle dashboard toggle
@@ -233,13 +316,13 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
                   placeholder={t('promptGenerator.uxui.customColorPlaceholder')}
                   className="text-sm w-40"
                 />
-                <button 
+                <Button 
                   onClick={handleAddCustomColor}
                   disabled={!customColorInput || !/^#[0-9A-F]{6}$/i.test(customColorInput)}
                   className="px-3 py-1 bg-blue-500 text-white rounded text-xs disabled:bg-gray-300"
                 >
                   {t('promptGenerator.common.add')}
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -281,7 +364,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
           onValueChange={(value) => updateFormData({ visualStyle: value })}
           className="space-y-2"
         >
-          {visualStyleOptions.filter(style => style !== 'otherVisualStyle').map(style => (
+          {visualStyleOptions.map(style => (
             <div key={style} className="flex items-center space-x-2">
               <RadioGroupItem value={style} id={`style-${style}`} />
               <label
@@ -313,7 +396,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
           onValueChange={(value) => updateFormData({ menuType: value })}
           className="space-y-2"
         >
-          {menuTypeOptions.filter(menu => menu !== 'otherMenuType').map(menu => (
+          {menuTypeOptions.map(menu => (
             <div key={menu} className="flex items-center space-x-2">
               <RadioGroupItem value={menu} id={`menu-${menu}`} />
               <label
@@ -366,61 +449,218 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
         </RadioGroup>
         
         {formData.landingPage && (
-          <div className="mt-4 pl-6 border-l-2 border-gray-200 space-y-3">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="landing-structure"
-                checked={formData.landingPageDetails?.structure || false}
-                onCheckedChange={(checked) => 
-                  handleLandingPageDetailChange('structure', checked === true)
-                }
-              />
-              <div>
-                <Label 
-                  htmlFor="landing-structure" 
-                  className="block text-sm font-medium"
-                >
-                  {t('promptGenerator.uxui.structure')}
-                </Label>
-                <p className="text-xs text-gray-500">{t('promptGenerator.uxui.structureOption')}</p>
+          <div className="mt-4 space-y-6">
+            {/* Structure */}
+            <div className="pl-6 border-l-2 border-gray-200">
+              <h5 className="font-medium mb-2">{t('promptGenerator.uxui.structure')}</h5>
+              <p className="text-xs text-gray-500 mb-3">{t('promptGenerator.uxui.structureOption')}</p>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="structure-hero"
+                    checked={formData.landingPageDetails?.structure?.hero || false}
+                    onCheckedChange={(checked) => handleStructureChange('hero', checked === true)}
+                  />
+                  <Label htmlFor="structure-hero">
+                    {t('promptGenerator.uxui.structureItems.hero')}
+                  </Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="structure-benefits"
+                    checked={formData.landingPageDetails?.structure?.benefits || false}
+                    onCheckedChange={(checked) => handleStructureChange('benefits', checked === true)}
+                  />
+                  <Label htmlFor="structure-benefits">
+                    {t('promptGenerator.uxui.structureItems.benefits')}
+                  </Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="structure-testimonials"
+                    checked={formData.landingPageDetails?.structure?.testimonials || false}
+                    onCheckedChange={(checked) => handleStructureChange('testimonials', checked === true)}
+                  />
+                  <Label htmlFor="structure-testimonials">
+                    {t('promptGenerator.uxui.structureItems.testimonials')}
+                  </Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="structure-cta"
+                    checked={formData.landingPageDetails?.structure?.cta || false}
+                    onCheckedChange={(checked) => handleStructureChange('cta', checked === true)}
+                  />
+                  <Label htmlFor="structure-cta">
+                    {t('promptGenerator.uxui.structureItems.cta')}
+                  </Label>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="structure-other"
+                      checked={formData.landingPageDetails?.structure?.other || false}
+                      onCheckedChange={(checked) => handleStructureChange('other', checked === true)}
+                    />
+                    <Label htmlFor="structure-other">
+                      {t('promptGenerator.uxui.structureItems.other')}
+                    </Label>
+                  </div>
+                  
+                  {formData.landingPageDetails?.structure?.other && (
+                    <div className="ml-6">
+                      <Input 
+                        value={formData.landingPageDetails?.structure?.otherValue || ''}
+                        onChange={(e) => handleLandingPageTextChange('structure', e.target.value)}
+                        placeholder={t('promptGenerator.uxui.structureOtherPlaceholder')}
+                        className="mt-1 text-sm"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="landing-elements"
-                checked={formData.landingPageDetails?.elements || false}
-                onCheckedChange={(checked) => 
-                  handleLandingPageDetailChange('elements', checked === true)
-                }
-              />
-              <div>
-                <Label 
-                  htmlFor="landing-elements" 
-                  className="block text-sm font-medium"
-                >
-                  {t('promptGenerator.uxui.elements')}
-                </Label>
-                <p className="text-xs text-gray-500">{t('promptGenerator.uxui.elementsOption')}</p>
+            {/* Elements */}
+            <div className="pl-6 border-l-2 border-gray-200">
+              <h5 className="font-medium mb-2">{t('promptGenerator.uxui.elements')}</h5>
+              <p className="text-xs text-gray-500 mb-3">{t('promptGenerator.uxui.elementsOption')}</p>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="elements-video"
+                    checked={formData.landingPageDetails?.elements?.video || false}
+                    onCheckedChange={(checked) => handleElementsChange('video', checked === true)}
+                  />
+                  <Label htmlFor="elements-video">
+                    {t('promptGenerator.uxui.elementsItems.video')}
+                  </Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="elements-form"
+                    checked={formData.landingPageDetails?.elements?.form || false}
+                    onCheckedChange={(checked) => handleElementsChange('form', checked === true)}
+                  />
+                  <Label htmlFor="elements-form">
+                    {t('promptGenerator.uxui.elementsItems.form')}
+                  </Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="elements-animations"
+                    checked={formData.landingPageDetails?.elements?.animations || false}
+                    onCheckedChange={(checked) => handleElementsChange('animations', checked === true)}
+                  />
+                  <Label htmlFor="elements-animations">
+                    {t('promptGenerator.uxui.elementsItems.animations')}
+                  </Label>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="elements-other"
+                      checked={formData.landingPageDetails?.elements?.other || false}
+                      onCheckedChange={(checked) => handleElementsChange('other', checked === true)}
+                    />
+                    <Label htmlFor="elements-other">
+                      {t('promptGenerator.uxui.elementsItems.other')}
+                    </Label>
+                  </div>
+                  
+                  {formData.landingPageDetails?.elements?.other && (
+                    <div className="ml-6">
+                      <Input 
+                        value={formData.landingPageDetails?.elements?.otherValue || ''}
+                        onChange={(e) => handleLandingPageTextChange('elements', e.target.value)}
+                        placeholder={t('promptGenerator.uxui.elementsOtherPlaceholder')}
+                        className="mt-1 text-sm"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="landing-style"
-                checked={formData.landingPageDetails?.style || false}
-                onCheckedChange={(checked) => 
-                  handleLandingPageDetailChange('style', checked === true)
-                }
-              />
-              <div>
-                <Label 
-                  htmlFor="landing-style" 
-                  className="block text-sm font-medium"
-                >
-                  {t('promptGenerator.uxui.style')}
-                </Label>
-                <p className="text-xs text-gray-500">{t('promptGenerator.uxui.styleOption')}</p>
+            {/* Style */}
+            <div className="pl-6 border-l-2 border-gray-200">
+              <h5 className="font-medium mb-2">{t('promptGenerator.uxui.style')}</h5>
+              <p className="text-xs text-gray-500 mb-3">{t('promptGenerator.uxui.styleOption')}</p>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="style-modern"
+                    checked={formData.landingPageDetails?.style?.modern || false}
+                    onCheckedChange={(checked) => handleStyleChange('modern', checked === true)}
+                  />
+                  <Label htmlFor="style-modern">
+                    {t('promptGenerator.uxui.styleItems.modern')}
+                  </Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="style-minimalist"
+                    checked={formData.landingPageDetails?.style?.minimalist || false}
+                    onCheckedChange={(checked) => handleStyleChange('minimalist', checked === true)}
+                  />
+                  <Label htmlFor="style-minimalist">
+                    {t('promptGenerator.uxui.styleItems.minimalist')}
+                  </Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="style-corporate"
+                    checked={formData.landingPageDetails?.style?.corporate || false}
+                    onCheckedChange={(checked) => handleStyleChange('corporate', checked === true)}
+                  />
+                  <Label htmlFor="style-corporate">
+                    {t('promptGenerator.uxui.styleItems.corporate')}
+                  </Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="style-creative"
+                    checked={formData.landingPageDetails?.style?.creative || false}
+                    onCheckedChange={(checked) => handleStyleChange('creative', checked === true)}
+                  />
+                  <Label htmlFor="style-creative">
+                    {t('promptGenerator.uxui.styleItems.creative')}
+                  </Label>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="style-other"
+                      checked={formData.landingPageDetails?.style?.other || false}
+                      onCheckedChange={(checked) => handleStyleChange('other', checked === true)}
+                    />
+                    <Label htmlFor="style-other">
+                      {t('promptGenerator.uxui.styleItems.other')}
+                    </Label>
+                  </div>
+                  
+                  {formData.landingPageDetails?.style?.other && (
+                    <div className="ml-6">
+                      <Input 
+                        value={formData.landingPageDetails?.style?.otherValue || ''}
+                        onChange={(e) => handleLandingPageTextChange('style', e.target.value)}
+                        placeholder={t('promptGenerator.uxui.styleOtherPlaceholder')}
+                        className="mt-1 text-sm"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -431,7 +671,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
       <Card className="p-6">
         <h4 className="font-medium mb-4">{t('promptGenerator.uxui.authentication')}</h4>
         <div className="space-y-2">
-          {authOptions.filter(auth => auth !== 'otherAuthMethod').map(auth => (
+          {authOptions.map(auth => (
             <div key={auth} className="flex items-center space-x-2">
               <Checkbox
                 id={`auth-${auth}`}
@@ -489,7 +729,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({ formData, updateFormData }) => {
         
         {formData.userDashboard && (
           <div className="mt-4 space-y-2">
-            {dashboardOptions.filter(option => option !== 'otherDashboardFeature').map(option => (
+            {dashboardOptions.map(option => (
               <div key={option} className="flex items-center space-x-2">
                 <Checkbox
                   id={`dash-${option}`}

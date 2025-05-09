@@ -5,9 +5,11 @@ import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import OtherSpecifyItem from '@/components/OtherSpecifyItem';
 
 interface RestrictionsData {
   avoidInCode: string[];
+  otherRestriction: string;
 }
 
 interface RestrictionsStepProps {
@@ -18,8 +20,8 @@ interface RestrictionsStepProps {
 const RestrictionsStep: React.FC<RestrictionsStepProps> = ({ formData, updateFormData }) => {
   const { t } = useLanguage();
 
-  const restrictionsOptions = [
-    'eval', 'globalVars', 'callbackHell', 'unmaintained', 'important', 'paidDeps', 'otherRestriction'
+  const restrictionOptions = [
+    'eval', 'globalVars', 'callbackHell', 'unmaintained', 'important', 'paidDeps'
   ];
 
   const handleRestrictionChange = (restriction: string, checked: boolean) => {
@@ -31,11 +33,7 @@ const RestrictionsStep: React.FC<RestrictionsStepProps> = ({ formData, updateFor
   };
 
   const selectAll = () => {
-    updateFormData({ avoidInCode: [...restrictionsOptions] });
-  };
-
-  const unselectAll = () => {
-    updateFormData({ avoidInCode: [] });
+    updateFormData({ avoidInCode: [...restrictionOptions] });
   };
 
   return (
@@ -45,11 +43,10 @@ const RestrictionsStep: React.FC<RestrictionsStepProps> = ({ formData, updateFor
         <p className="text-gray-500 mb-4">{t('promptGenerator.restrictions.description')}</p>
       </div>
 
-      {/* Restrictions */}
       <Card className="p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h4 className="font-medium">{t('promptGenerator.restrictions.avoidInCode')}</h4>
-          <div className="flex space-x-2">
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h4 className="font-medium">{t('promptGenerator.restrictions.avoidInCode')}</h4>
             <Button 
               variant="outline" 
               size="sm" 
@@ -57,31 +54,45 @@ const RestrictionsStep: React.FC<RestrictionsStepProps> = ({ formData, updateFor
             >
               {t('promptGenerator.common.selectAll')}
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={unselectAll}
-            >
-              {t('promptGenerator.common.unselectAll')}
-            </Button>
           </div>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {restrictionsOptions.map((restriction) => (
-            <div key={restriction} className="flex items-center space-x-2">
-              <Checkbox 
-                id={`restriction-${restriction}`} 
-                checked={formData.avoidInCode.includes(restriction)}
-                onCheckedChange={(checked) => 
-                  handleRestrictionChange(restriction, checked === true)
-                }
-              />
-              <Label htmlFor={`restriction-${restriction}`} className="cursor-pointer">
-                {t(`promptGenerator.restrictions.${restriction}`)}
-              </Label>
-            </div>
-          ))}
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {restrictionOptions.map((option) => (
+              <div key={option} className="flex items-center space-x-2">
+                <Checkbox 
+                  id={`restriction-${option}`}
+                  checked={formData.avoidInCode.includes(option)}
+                  onCheckedChange={(checked) => 
+                    handleRestrictionChange(option, checked === true)
+                  }
+                />
+                <Label htmlFor={`restriction-${option}`} className="cursor-pointer">
+                  {t(`promptGenerator.restrictions.${option}`)}
+                </Label>
+              </div>
+            ))}
+          </div>
+          
+          <OtherSpecifyItem
+            id="restriction-other"
+            label={t('promptGenerator.restrictions.otherRestriction')}
+            checked={formData.avoidInCode.includes('otherRestriction')}
+            value={formData.otherRestriction}
+            placeholder={t('promptGenerator.restrictions.otherRestrictionPlaceholder')}
+            onCheckedChange={(checked) => {
+              if (checked) {
+                updateFormData({
+                  avoidInCode: [...formData.avoidInCode, 'otherRestriction']
+                });
+              } else {
+                updateFormData({
+                  avoidInCode: formData.avoidInCode.filter(r => r !== 'otherRestriction'),
+                  otherRestriction: ''
+                });
+              }
+            }}
+            onValueChange={(value) => updateFormData({ otherRestriction: value })}
+          />
         </div>
       </Card>
     </div>

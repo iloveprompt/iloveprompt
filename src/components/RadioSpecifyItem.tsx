@@ -30,7 +30,15 @@ const RadioSpecifyItem: React.FC<RadioSpecifyItemProps> = ({
   return (
     <div className="space-y-2">
       <div className="flex items-center space-x-2">
-        <RadioGroupItem value={value} id={id} />
+        <RadioGroupItem 
+          value={value} 
+          id={id}
+          onClick={() => {
+            if (groupValue !== value) {
+              onValueChange(value);
+            }
+          }}
+        />
         <Label htmlFor={id} className="text-sm cursor-pointer">{label}</Label>
       </div>
       
@@ -41,6 +49,7 @@ const RadioSpecifyItem: React.FC<RadioSpecifyItemProps> = ({
             onChange={(e) => onSpecifyValueChange(e.target.value)}
             placeholder={placeholder}
             className="text-sm"
+            autoFocus
           />
         </div>
       )}

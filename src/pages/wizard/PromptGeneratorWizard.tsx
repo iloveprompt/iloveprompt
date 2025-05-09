@@ -236,9 +236,29 @@ const PromptGeneratorWizard = () => {
       otherMenuType: '',
       landingPage: false,
       landingPageDetails: {
-        structure: false,
-        elements: false,
-        style: false
+        structure: {
+          hero: true,
+          benefits: true,
+          testimonials: true,
+          cta: true,
+          other: false,
+          otherValue: ''
+        },
+        elements: {
+          video: true,
+          form: true,
+          animations: true,
+          other: false,
+          otherValue: ''
+        },
+        style: {
+          modern: true,
+          minimalist: true,
+          corporate: true,
+          creative: true,
+          other: false,
+          otherValue: ''
+        }
       },
       authentication: [],
       otherAuthMethod: '',

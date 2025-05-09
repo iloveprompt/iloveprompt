@@ -1,13 +1,16 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import OtherSpecifyItem from '@/components/OtherSpecifyItem';
 
 interface FeaturesData {
   specificFeatures: string[];
+  otherFeature: string;
   dynamicFeatures: string[];
 }
 
@@ -23,7 +26,7 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({ formData, systemType, updat
   const specificFeaturesOptions = [
     'uploadFiles', 'notifications', 'advancedFilters', 'interactiveDashboards',
     'scheduling', 'export', 'rolePermissions', 'apiIntegration', 
-    'multiLanguage', 'accessibility', 'darkMode', 'customLandingPage', 'other'
+    'multiLanguage', 'accessibility', 'darkMode', 'customLandingPage'
   ];
 
   // Dynamic features based on system type
@@ -71,16 +74,8 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({ formData, systemType, updat
     updateFormData({ specificFeatures: [...specificFeaturesOptions] });
   };
 
-  const unselectAllSpecific = () => {
-    updateFormData({ specificFeatures: [] });
-  };
-
   const selectAllDynamic = () => {
     updateFormData({ dynamicFeatures: [...dynamicFeatureOptions] });
-  };
-
-  const unselectAllDynamic = () => {
-    updateFormData({ dynamicFeatures: [] });
   };
 
   return (
@@ -95,22 +90,13 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({ formData, systemType, updat
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <h4 className="font-medium">{t('promptGenerator.features.specificFeatures')}</h4>
-            <div className="flex space-x-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={selectAllSpecific}
-              >
-                {t('promptGenerator.common.selectAll')}
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={unselectAllSpecific}
-              >
-                {t('promptGenerator.common.unselectAll')}
-              </Button>
-            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={selectAllSpecific}
+            >
+              {t('promptGenerator.common.selectAll')}
+            </Button>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -128,6 +114,27 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({ formData, systemType, updat
                 </Label>
               </div>
             ))}
+            
+            <OtherSpecifyItem
+              id="specific-other"
+              label={t('promptGenerator.features.other')}
+              checked={formData.specificFeatures.includes('other')}
+              value={formData.otherFeature || ''}
+              placeholder={t('promptGenerator.features.otherFeaturePlaceholder')}
+              onCheckedChange={(checked) => {
+                if (checked) {
+                  updateFormData({
+                    specificFeatures: [...formData.specificFeatures, 'other']
+                  });
+                } else {
+                  updateFormData({
+                    specificFeatures: formData.specificFeatures.filter(f => f !== 'other'),
+                    otherFeature: ''
+                  });
+                }
+              }}
+              onValueChange={(value) => updateFormData({ otherFeature: value })}
+            />
           </div>
         </div>
       </Card>
@@ -137,23 +144,14 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({ formData, systemType, updat
         <Card className="p-6">
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h4 className="font-medium">{t(`promptGenerator.features.${systemType}`)}</h4>
-              <div className="flex space-x-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={selectAllDynamic}
-                >
-                  {t('promptGenerator.common.selectAll')}
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={unselectAllDynamic}
-                >
-                  {t('promptGenerator.common.unselectAll')}
-                </Button>
-              </div>
+              <h4 className="font-medium">{t(`promptGenerator.features.${systemType}Features`)}</h4>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={selectAllDynamic}
+              >
+                {t('promptGenerator.common.selectAll')}
+              </Button>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

@@ -4,7 +4,8 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { Card } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { MultiSelect } from '@/components/MultiSelect';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
 
 interface StackData {
   separateFrontendBackend: boolean;
@@ -101,6 +102,21 @@ const StackStep: React.FC<StackStepProps> = ({ formData, updateFormData }) => {
     });
   };
 
+  // Handle technology selection
+  const handleTechChange = (category: keyof StackData, value: string, checked: boolean) => {
+    const currentValues = formData[category] as string[];
+    const updatedValues = checked
+      ? [...currentValues, value]
+      : currentValues.filter(v => v !== value);
+    
+    updateFormData({ [category]: updatedValues } as Partial<StackData>);
+  };
+
+  // Select all in a category
+  const selectAllInCategory = (category: keyof StackData, options: { value: string }[]) => {
+    updateFormData({ [category]: options.map(opt => opt.value) } as Partial<StackData>);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -130,75 +146,201 @@ const StackStep: React.FC<StackStepProps> = ({ formData, updateFormData }) => {
         <>
           {/* Frontend */}
           <Card className="p-6">
-            <h4 className="font-medium mb-2">{t('promptGenerator.stack.frontendTitle')}</h4>
-            <p className="text-sm text-gray-500 mb-4">{t('promptGenerator.stack.frontendHelp')}</p>
-            <MultiSelect
-              options={frontendOptions}
-              selected={formData.frontend}
-              onChange={(values) => updateFormData({ frontend: values })}
-              placeholder="Select frontend technologies"
-            />
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h4 className="font-medium">{t('promptGenerator.stack.frontendTitle')}</h4>
+                <p className="text-sm text-gray-500">{t('promptGenerator.stack.frontendHelp')}</p>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => selectAllInCategory('frontend', frontendOptions)}
+              >
+                {t('promptGenerator.common.selectAll')}
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+              {frontendOptions.map(option => (
+                <div key={option.value} className="flex items-center space-x-2">
+                  <Checkbox 
+                    id={`frontend-${option.value}`}
+                    checked={formData.frontend.includes(option.value)}
+                    onCheckedChange={(checked) => 
+                      handleTechChange('frontend', option.value, checked === true)
+                    }
+                  />
+                  <label htmlFor={`frontend-${option.value}`} className="cursor-pointer text-sm">
+                    {option.label}
+                  </label>
+                </div>
+              ))}
+            </div>
           </Card>
 
           {/* Backend */}
           <Card className="p-6">
-            <h4 className="font-medium mb-2">{t('promptGenerator.stack.backendTitle')}</h4>
-            <p className="text-sm text-gray-500 mb-4">{t('promptGenerator.stack.backendHelp')}</p>
-            <MultiSelect
-              options={backendOptions}
-              selected={formData.backend}
-              onChange={(values) => updateFormData({ backend: values })}
-              placeholder="Select backend technologies"
-            />
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h4 className="font-medium">{t('promptGenerator.stack.backendTitle')}</h4>
+                <p className="text-sm text-gray-500">{t('promptGenerator.stack.backendHelp')}</p>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => selectAllInCategory('backend', backendOptions)}
+              >
+                {t('promptGenerator.common.selectAll')}
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+              {backendOptions.map(option => (
+                <div key={option.value} className="flex items-center space-x-2">
+                  <Checkbox 
+                    id={`backend-${option.value}`}
+                    checked={formData.backend.includes(option.value)}
+                    onCheckedChange={(checked) => 
+                      handleTechChange('backend', option.value, checked === true)
+                    }
+                  />
+                  <label htmlFor={`backend-${option.value}`} className="cursor-pointer text-sm">
+                    {option.label}
+                  </label>
+                </div>
+              ))}
+            </div>
           </Card>
         </>
       ) : (
         /* Fullstack */
         <Card className="p-6">
-          <h4 className="font-medium mb-2">{t('promptGenerator.stack.fullstack')}</h4>
-          <p className="text-sm text-gray-500 mb-4">{t('promptGenerator.stack.frontendHelp')}</p>
-          <MultiSelect
-            options={fullstackOptions}
-            selected={formData.fullstack}
-            onChange={(values) => updateFormData({ fullstack: values })}
-            placeholder="Select fullstack technologies"
-          />
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h4 className="font-medium">{t('promptGenerator.stack.fullstack')}</h4>
+              <p className="text-sm text-gray-500">{t('promptGenerator.stack.frontendHelp')}</p>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => selectAllInCategory('fullstack', fullstackOptions)}
+            >
+              {t('promptGenerator.common.selectAll')}
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+            {fullstackOptions.map(option => (
+              <div key={option.value} className="flex items-center space-x-2">
+                <Checkbox 
+                  id={`fullstack-${option.value}`}
+                  checked={formData.fullstack.includes(option.value)}
+                  onCheckedChange={(checked) => 
+                    handleTechChange('fullstack', option.value, checked === true)
+                  }
+                />
+                <label htmlFor={`fullstack-${option.value}`} className="cursor-pointer text-sm">
+                  {option.label}
+                </label>
+              </div>
+            ))}
+          </div>
         </Card>
       )}
 
       {/* Database */}
       <Card className="p-6">
-        <h4 className="font-medium mb-2">{t('promptGenerator.stack.databaseTitle')}</h4>
-        <p className="text-sm text-gray-500 mb-4">{t('promptGenerator.stack.databaseHelp')}</p>
-        <MultiSelect
-          options={databaseOptions}
-          selected={formData.database}
-          onChange={(values) => updateFormData({ database: values })}
-          placeholder="Select database technologies"
-        />
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h4 className="font-medium">{t('promptGenerator.stack.databaseTitle')}</h4>
+            <p className="text-sm text-gray-500">{t('promptGenerator.stack.databaseHelp')}</p>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => selectAllInCategory('database', databaseOptions)}
+          >
+            {t('promptGenerator.common.selectAll')}
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+          {databaseOptions.map(option => (
+            <div key={option.value} className="flex items-center space-x-2">
+              <Checkbox 
+                id={`database-${option.value}`}
+                checked={formData.database.includes(option.value)}
+                onCheckedChange={(checked) => 
+                  handleTechChange('database', option.value, checked === true)
+                }
+              />
+              <label htmlFor={`database-${option.value}`} className="cursor-pointer text-sm">
+                {option.label}
+              </label>
+            </div>
+          ))}
+        </div>
       </Card>
 
       {/* ORM/ODM */}
       <Card className="p-6">
-        <h4 className="font-medium mb-2">{t('promptGenerator.stack.orm')}</h4>
-        <MultiSelect
-          options={ormOptions}
-          selected={formData.orm}
-          onChange={(values) => updateFormData({ orm: values })}
-          placeholder="Select ORM/ODM technologies"
-        />
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h4 className="font-medium">{t('promptGenerator.stack.orm')}</h4>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => selectAllInCategory('orm', ormOptions)}
+          >
+            {t('promptGenerator.common.selectAll')}
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+          {ormOptions.map(option => (
+            <div key={option.value} className="flex items-center space-x-2">
+              <Checkbox 
+                id={`orm-${option.value}`}
+                checked={formData.orm.includes(option.value)}
+                onCheckedChange={(checked) => 
+                  handleTechChange('orm', option.value, checked === true)
+                }
+              />
+              <label htmlFor={`orm-${option.value}`} className="cursor-pointer text-sm">
+                {option.label}
+              </label>
+            </div>
+          ))}
+        </div>
       </Card>
 
       {/* Hosting */}
       <Card className="p-6">
-        <h4 className="font-medium mb-2">{t('promptGenerator.stack.hostingTitle')}</h4>
-        <p className="text-sm text-gray-500 mb-4">{t('promptGenerator.stack.hostingHelp')}</p>
-        <MultiSelect
-          options={hostingOptions}
-          selected={formData.hosting}
-          onChange={(values) => updateFormData({ hosting: values })}
-          placeholder="Select hosting options"
-        />
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h4 className="font-medium">{t('promptGenerator.stack.hostingTitle')}</h4>
+            <p className="text-sm text-gray-500">{t('promptGenerator.stack.hostingHelp')}</p>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => selectAllInCategory('hosting', hostingOptions)}
+          >
+            {t('promptGenerator.common.selectAll')}
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+          {hostingOptions.map(option => (
+            <div key={option.value} className="flex items-center space-x-2">
+              <Checkbox 
+                id={`hosting-${option.value}`}
+                checked={formData.hosting.includes(option.value)}
+                onCheckedChange={(checked) => 
+                  handleTechChange('hosting', option.value, checked === true)
+                }
+              />
+              <label htmlFor={`hosting-${option.value}`} className="cursor-pointer text-sm">
+                {option.label}
+              </label>
+            </div>
+          ))}
+        </div>
       </Card>
     </div>
   );

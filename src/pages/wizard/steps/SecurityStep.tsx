@@ -1,106 +1,99 @@
 
 import React from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import OtherSpecifyItem from '@/components/OtherSpecifyItem';
 
-interface SecurityStepProps {
-  formData: {
-    selectedSecurity: string[];
-  };
-  updateFormData: (data: Partial<SecurityStepProps['formData']>) => void;
+interface SecurityData {
+  selectedSecurity: string[];
+  otherSecurityFeature: string;
 }
 
-const securityOptions = [
-  'Autenticação de usuários',
-  'Autorização baseada em funções/permissões',
-  'Validação de entrada de dados',
-  'Proteção contra injeção SQL',
-  'Proteção contra XSS (Cross-Site Scripting)',
-  'Proteção contra CSRF (Cross-Site Request Forgery)',
-  'Criptografia de dados em repouso',
-  'Criptografia de dados em trânsito (HTTPS)',
-  'Autenticação de dois fatores (2FA)',
-  'Limite de tentativas de login',
-  'Monitoramento e logs de segurança',
-  'Proteção contra DDoS',
-  'Certificação de segurança (ex: ISO 27001)',
-  'Conformidade com regulamentos específicos',
-  'Backup e recuperação de dados',
-  'Política de senhas fortes',
-  'Registro de atividades do usuário',
-  'Proteção de API (throttling, autenticação)',
-  'Sanitização de arquivos enviados'
-];
+interface SecurityStepProps {
+  formData: SecurityData;
+  updateFormData: (data: Partial<SecurityData>) => void;
+}
 
 const SecurityStep: React.FC<SecurityStepProps> = ({ formData, updateFormData }) => {
   const { t } = useLanguage();
-  
-  const handleSecurityToggle = (security: string) => {
-    if (formData.selectedSecurity.includes(security)) {
-      updateFormData({
-        selectedSecurity: formData.selectedSecurity.filter(s => s !== security)
-      });
-    } else {
-      updateFormData({
-        selectedSecurity: [...formData.selectedSecurity, security]
-      });
-    }
+
+  const securityOptions = [
+    'protection', 'authenticationSec', 'https', 'auditLogs', 'apiSecurity'
+  ];
+
+  const handleSecurityChange = (option: string, checked: boolean) => {
+    const updatedOptions = checked
+      ? [...formData.selectedSecurity, option]
+      : formData.selectedSecurity.filter(o => o !== option);
+    
+    updateFormData({ selectedSecurity: updatedOptions });
   };
-  
-  const handleSelectAll = () => {
-    if (formData.selectedSecurity.length === securityOptions.length) {
-      // Deselect all
-      updateFormData({ selectedSecurity: [] });
-    } else {
-      // Select all
-      updateFormData({ selectedSecurity: [...securityOptions] });
-    }
+
+  const selectAll = () => {
+    updateFormData({ selectedSecurity: [...securityOptions] });
   };
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('promptGenerator.security.title')}</CardTitle>
-          <CardDescription>
-            {t('promptGenerator.security.description')}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="font-semibold">{t('promptGenerator.security.securityFeatures')}</h3>
+      <div>
+        <h3 className="text-xl font-medium mb-2">{t('promptGenerator.security.title')}</h3>
+        <p className="text-gray-500 mb-4">{t('promptGenerator.security.description')}</p>
+      </div>
+
+      <Card className="p-6">
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h4 className="font-medium">{t('promptGenerator.security.securityFeatures')}</h4>
             <Button 
               variant="outline" 
-              size="sm"
-              onClick={handleSelectAll}
+              size="sm" 
+              onClick={selectAll}
             >
-              {formData.selectedSecurity.length === securityOptions.length ? 
-                t('promptGenerator.common.unselectAll') : 
-                t('promptGenerator.common.selectAll')}
+              {t('promptGenerator.common.selectAll')}
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-2">
             {securityOptions.map((option) => (
               <div key={option} className="flex items-center space-x-2">
                 <Checkbox 
                   id={`security-${option}`}
                   checked={formData.selectedSecurity.includes(option)}
-                  onCheckedChange={() => handleSecurityToggle(option)}
+                  onCheckedChange={(checked) => 
+                    handleSecurityChange(option, checked === true)
+                  }
                 />
-                <Label 
-                  htmlFor={`security-${option}`}
-                  className="cursor-pointer"
-                >
-                  {option}
+                <Label htmlFor={`security-${option}`} className="cursor-pointer">
+                  {t(`promptGenerator.security.${option}`)}
                 </Label>
               </div>
             ))}
+            
+            <OtherSpecifyItem
+              id="security-other"
+              label={t('promptGenerator.security.otherSecurityFeature')}
+              checked={formData.selectedSecurity.includes('otherSecurityFeature')}
+              value={formData.otherSecurityFeature}
+              placeholder={t('promptGenerator.security.otherSecurityFeaturePlaceholder')}
+              onCheckedChange={(checked) => {
+                if (checked) {
+                  updateFormData({
+                    selectedSecurity: [...formData.selectedSecurity, 'otherSecurityFeature']
+                  });
+                } else {
+                  updateFormData({
+                    selectedSecurity: formData.selectedSecurity.filter(s => s !== 'otherSecurityFeature'),
+                    otherSecurityFeature: ''
+                  });
+                }
+              }}
+              onValueChange={(value) => updateFormData({ otherSecurityFeature: value })}
+            />
           </div>
-        </CardContent>
+        </div>
       </Card>
     </div>
   );

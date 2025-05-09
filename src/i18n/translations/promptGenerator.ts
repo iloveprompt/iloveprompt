@@ -106,7 +106,7 @@ export const promptGeneratorTranslations = {
         accessibility: "Accessibility (WCAG)",
         darkMode: "Dark/light theme",
         customLandingPage: "Customizable landing page",
-        otherFeature: "Other (Specify)",
+        other: "Other (Specify)",
         otherFeaturePlaceholder: "Describe your custom feature",
         ecommerceFeatures: "E-commerce Features",
         customCheckout: "Custom checkout",
@@ -163,10 +163,33 @@ export const promptGeneratorTranslations = {
         noLandingPage: "No",
         structure: "Structure",
         structureOption: "Hero | Benefits | Testimonials | CTA",
+        structureItems: {
+          hero: "Hero",
+          benefits: "Benefits",
+          testimonials: "Testimonials",
+          cta: "CTA",
+          other: "Other (Specify)"
+        },
+        structureOtherPlaceholder: "Describe custom structure",
         elements: "Elements",
         elementsOption: "Video, Form, Animations",
+        elementsItems: {
+          video: "Video",
+          form: "Form",
+          animations: "Animations",
+          other: "Other (Specify)"
+        },
+        elementsOtherPlaceholder: "Describe custom elements",
         style: "Style",
         styleOption: "Modern | Minimalist | Corporate | Creative",
+        styleItems: {
+          modern: "Modern",
+          minimalist: "Minimalist",
+          corporate: "Corporate",
+          creative: "Creative",
+          other: "Other (Specify)"
+        },
+        styleOtherPlaceholder: "Describe custom style",
         otherLandingStyle: "Other (Specify)",
         otherLandingStylePlaceholder: "Describe your landing page style",
         authentication: "Login and Authentication",
@@ -248,6 +271,7 @@ export const promptGeneratorTranslations = {
       scalability: {
         title: "Scalability and Performance",
         description: "Define scalability and performance requirements",
+        isScalable: "Is scalability important for this project?",
         scalability: "Scalability",
         redis: "Redis, CDN, Load Balancer",
         caching: "Dynamic caching, Queues (RabbitMQ, Kafka)",
@@ -403,7 +427,7 @@ export const promptGeneratorTranslations = {
         accessibility: "Acessibilidade (WCAG)",
         darkMode: "Tema escuro/claro",
         customLandingPage: "Landing page customizável",
-        otherFeature: "Outro (Especificar)",
+        other: "Outro (Especificar)",
         otherFeaturePlaceholder: "Descreva sua funcionalidade personalizada",
         ecommerceFeatures: "Funcionalidades de E-commerce",
         customCheckout: "Checkout personalizado",
@@ -460,10 +484,33 @@ export const promptGeneratorTranslations = {
         noLandingPage: "Não",
         structure: "Estrutura",
         structureOption: "Hero | Benefícios | Depoimentos | CTA",
+        structureItems: {
+          hero: "Hero",
+          benefits: "Benefícios",
+          testimonials: "Depoimentos",
+          cta: "CTA",
+          other: "Outro (Especificar)"
+        },
+        structureOtherPlaceholder: "Descreva estrutura personalizada",
         elements: "Elementos",
         elementsOption: "Vídeo, Formulário, Animações",
+        elementsItems: {
+          video: "Vídeo",
+          form: "Formulário",
+          animations: "Animações",
+          other: "Outro (Especificar)"
+        },
+        elementsOtherPlaceholder: "Descreva elementos personalizados",
         style: "Estilo",
         styleOption: "Moderno | Minimalista | Corporativo | Criativo",
+        styleItems: {
+          modern: "Moderno",
+          minimalist: "Minimalista",
+          corporate: "Corporativo",
+          creative: "Criativo",
+          other: "Outro (Especificar)"
+        },
+        styleOtherPlaceholder: "Descreva estilo personalizado",
         otherLandingStyle: "Outro (Especificar)",
         otherLandingStylePlaceholder: "Descreva seu estilo de landing page",
         authentication: "Login e Autenticação",
@@ -545,6 +592,7 @@ export const promptGeneratorTranslations = {
       scalability: {
         title: "Escalabilidade e Performance",
         description: "Defina requisitos de escalabilidade e performance",
+        isScalable: "A escalabilidade é importante para este projeto?",
         scalability: "Escalabilidade",
         redis: "Redis, CDN, Load Balancer",
         caching: "Cache dinâmico, Filas (RabbitMQ, Kafka)",
