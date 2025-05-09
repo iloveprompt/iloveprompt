@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase';
-import { Github, Mail } from 'lucide-react';
+import { Mail, Github } from 'lucide-react';
 import { colors } from '@/styles/colors';
 import PasswordInput from '@/components/auth/PasswordInput';
 
@@ -209,7 +209,7 @@ const RegisterPage = () => {
                 style={{ backgroundColor: colors.blue[600] }}
                 disabled={form.formState.isSubmitting}
               >
-                {form.formState.isSubmitting ? t('auth.creating') : t('auth.createAccount')}
+                {form.formState.isSubmitting ? t('auth.registering') : t('auth.register')}
               </Button>
             </form>
           </Form>
@@ -223,7 +223,7 @@ const RegisterPage = () => {
                 style={{ color: colors.blue[600] }}
                 onClick={() => navigate('/login')}
               >
-                {t('auth.signIn')}
+                {t('auth.login')}
               </Button>
             </p>
           </div>

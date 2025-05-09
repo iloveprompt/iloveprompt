@@ -41,6 +41,9 @@ const UserDashboardNavbar = () => {
             <Link to="/dashboard/history" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
               {t('dashboard.promptHistory')}
             </Link>
+            <Link to="/dashboard/profile" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+              {t('dashboard.profile')}
+            </Link>
             <Link to="/dashboard/settings" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
               {t('dashboard.settings')}
             </Link>
@@ -88,6 +91,13 @@ const UserDashboardNavbar = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               {t('dashboard.promptHistory')}
+            </Link>
+            <Link 
+              to="/dashboard/profile" 
+              className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {t('dashboard.profile')}
             </Link>
             <Link 
               to="/dashboard/settings" 

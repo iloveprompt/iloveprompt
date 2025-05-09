@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import Settings from "./pages/dashboard/Settings";
+import Profile from "./pages/dashboard/Profile";
 import History from "./pages/dashboard/History";
 import DashboardLayout from "./components/layouts/DashboardLayout";
 import UserDashboardNavbar from "./components/dashboard/UserDashboardNavbar";
@@ -80,6 +81,20 @@ const App = () => (
                       footerComponent={<UserDashboardFooter />}
                     >
                       <Settings />
+                    </DashboardLayout>
+                  </AuthGuard>
+                } 
+              />
+              
+              <Route 
+                path="/dashboard/profile" 
+                element={
+                  <AuthGuard>
+                    <DashboardLayout
+                      navbarComponent={<UserDashboardNavbar />}
+                      footerComponent={<UserDashboardFooter />}
+                    >
+                      <Profile />
                     </DashboardLayout>
                   </AuthGuard>
                 } 

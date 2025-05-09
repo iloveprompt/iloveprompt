@@ -1,4 +1,3 @@
-
 type Translation = {
   [key: string]: string | Record<string, string | Record<string, string>>;
 };
@@ -438,6 +437,7 @@ export const translations: Record<string, Translation> = {
       createPrompt: "Criar Prompt",
       promptHistory: "Histórico de Prompts",
       settings: "Configurações",
+      profile: "Perfil",
       title: "Painel",
       welcomeBack: "Bem-vindo de volta",
       promptsCreated: "Prompts Criados",
@@ -520,6 +520,43 @@ export const translations: Record<string, Translation> = {
       saving: "Salvando...",
       saved: "Salvo!",
       error: "Erro"
+    },
+    profile: {
+      title: "Meu Perfil",
+      personalInfo: "Informações Pessoais",
+      updateProfile: "Atualize suas informações de perfil",
+      accountInfo: "Informações da Conta",
+      yourAccount: "Informações sobre sua conta",
+      name: "Nome",
+      email: "Email",
+      role: "Função",
+      joinDate: "Data de Cadastro",
+      lastLogin: "Último Acesso",
+      changeAvatar: "Alterar Avatar",
+      uploadNew: "Fazer Upload",
+      removeAvatar: "Remover",
+      bio: "Biografia",
+      bioPlaceholder: "Conte um pouco sobre você...",
+      country: "País",
+      language: "Idioma",
+      timezone: "Fuso Horário",
+      website: "Site",
+      saveChanges: "Salvar Alterações",
+      accountType: "Tipo de Conta",
+      currentPlan: "Plano Atual",
+      memberSince: "Membro Desde",
+      upgradeAccount: "Atualizar Conta",
+      securitySettings: "Configurações de Segurança",
+      changePassword: "Alterar Senha",
+      twoFactorAuth: "Autenticação de Dois Fatores",
+      enable: "Habilitar",
+      disable: "Desabilitar",
+      connectedApps: "Aplicações Conectadas",
+      noConnectedApps: "Nenhuma aplicação conectada",
+      connect: "Conectar",
+      disconnect: "Desconectar",
+      savedChanges: "Alterações salvas!",
+      errorSaving: "Erro ao salvar alterações."
     }
   }
 };
