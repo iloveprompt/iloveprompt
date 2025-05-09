@@ -15,9 +15,9 @@ interface UXUIData {
   colorPalette: string[];
   customColors: { [hex: string]: string };
   visualStyle: string;
-  otherVisualStyle: string;
+  otherVisualStyle: string | string[];
   menuType: string;
-  otherMenuType: string;
+  otherMenuType: string | string[];
   landingPage: boolean;
   landingPageDetails: {
     structure: {
@@ -45,11 +45,11 @@ interface UXUIData {
     };
   };
   authentication: string[];
-  otherAuthMethod: string;
+  otherAuthMethod: string | string[];
   userDashboard: boolean;
   userDashboardDetails: {
     features: string[];
-    otherFeature: string;
+    otherFeature: string | string[];
   };
 }
 

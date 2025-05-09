@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card } from '@/components/ui/card';
@@ -12,9 +11,9 @@ import { Switch } from "@/components/ui/switch";
 interface ScalabilityData {
   isScalable: boolean;
   scalabilityFeatures: string[];
-  otherScalabilityFeature: string;
+  otherScalabilityFeature: string | string[];
   performanceFeatures: string[];
-  otherPerformanceFeature: string;
+  otherPerformanceFeature: string | string[];
 }
 
 interface ScalabilityStepProps {

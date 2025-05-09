@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card } from '@/components/ui/card';
@@ -9,11 +8,11 @@ import OtherSpecifyItem from '@/components/OtherSpecifyItem';
 
 interface CodeStructureData {
   folderOrganization: string[];
-  otherOrganizationStyle: string;
+  otherOrganizationStyle: string | string[];
   architecturalPattern: string[];
-  otherArchPattern: string;
+  otherArchPattern: string | string[];
   bestPractices: string[];
-  otherBestPractice: string;
+  otherBestPractice: string | string[];
 }
 
 interface CodeStructureStepProps {

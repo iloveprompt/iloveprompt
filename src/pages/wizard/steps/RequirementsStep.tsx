@@ -17,7 +17,7 @@ interface RequirementsStepProps {
     userTypes: string[];
     functionalRequirements: string[];
     nonFunctionalRequirements: string[];
-    otherRequirement: string;
+    otherRequirement: string | string[];
   };
   updateFormData: (data: Partial<RequirementsStepProps['formData']>) => void;
 }
