@@ -108,6 +108,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
         console.log('Auth state changed:', event);
+        
+        // Update state with new session info
         setSession(currentSession);
         setUser(currentSession?.user || null);
         
@@ -119,18 +121,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           setIsAdmin(false);
         }
         
+        // Handle SIGNED_IN event
         if (event === 'SIGNED_IN') {
           toast({
             title: t('auth.signedIn'),
             description: t('auth.welcomeMessage'),
           });
           
-          // Redirect to appropriate dashboard
+          // Redirect to appropriate dashboard using setTimeout to avoid React state update conflicts
           if (currentSession?.user && navigateFunction) {
-            redirectAfterLogin(currentSession.user.email);
+            setTimeout(() => {
+              redirectAfterLogin(currentSession.user.email);
+            }, 0);
           }
         }
         
+        // Handle SIGNED_OUT event
         if (event === 'SIGNED_OUT') {
           toast({
             title: t('auth.signedOut'),

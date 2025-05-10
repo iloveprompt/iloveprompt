@@ -20,7 +20,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
       <div className="relative">
         <Input 
           type={showPassword ? 'text' : 'password'} 
-          className={`pr-10 ${className}`}
+          className={`pr-10 ${className || ''}`}
           ref={ref}
           {...props}
         />
@@ -41,7 +41,7 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
   }
 );
 
-// Adicionar displayName para melhorar a experiência de debugging
+// Add displayName for improved debugging experience
 PasswordInput.displayName = 'PasswordInput';
 
 export default PasswordInput;

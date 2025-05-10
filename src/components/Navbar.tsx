@@ -1,27 +1,42 @@
 
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, LogOut, User, LayoutDashboard } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import LanguageSwitcher from './LanguageSwitcher';
 import { colors } from '@/styles/colors';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { t } = useLanguage();
   const { user, signOut, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
   };
 
-  // Check if user is admin (for demo purposes, can be replaced with actual role check)
-  const isAdmin = user?.email?.includes('admin');
+  // Check if we're in dashboard routes
+  const isInDashboard = location.pathname.includes('/dashboard') || location.pathname.includes('/admin');
+  
+  // Only show dashboard-related UI when in dashboard routes
+  const showDashboardUI = isAuthenticated && isInDashboard;
+  
+  // On landing page (homepage) and not in dashboard, show login/register buttons regardless of auth status
+  const isHomePage = location.pathname === '/';
+  const showAuthButtons = isHomePage || (!isAuthenticated && !isInDashboard);
   
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white">
@@ -41,7 +56,7 @@ const Navbar = () => {
             <div className="flex items-center space-x-4">
               <LanguageSwitcher />
               
-              {isAuthenticated ? (
+              {showDashboardUI && (
                 <Link to="/dashboard">
                   <Button 
                     style={{
@@ -53,7 +68,9 @@ const Navbar = () => {
                     Dashboard
                   </Button>
                 </Link>
-              ) : (
+              )}
+              
+              {showAuthButtons && (
                 <>
                   <Link to="/login">
                     <Button variant="outline" className="border-blue-500 text-blue-700 hover:bg-blue-50" style={{
@@ -93,17 +110,17 @@ const Navbar = () => {
             <Link to="/pricing" className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">{t('common.pricing')}</Link>
             <Link to="/features" className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">{t('common.features')}</Link>
             <div className="flex flex-col space-y-2 px-3 pt-4">
-              {isAuthenticated ? (
-                <>
-                  <Link to="/dashboard">
-                    <Button className="w-full text-white" style={{
-                      backgroundColor: colors.blue[600]
-                    }}>
-                      Dashboard
-                    </Button>
-                  </Link>
-                </>
-              ) : (
+              {showDashboardUI && (
+                <Link to="/dashboard">
+                  <Button className="w-full text-white" style={{
+                    backgroundColor: colors.blue[600]
+                  }}>
+                    Dashboard
+                  </Button>
+                </Link>
+              )}
+              
+              {showAuthButtons && (
                 <>
                   <Link to="/login">
                     <Button variant="outline" className="w-full border-blue-500 text-blue-700" style={{

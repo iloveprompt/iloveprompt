@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -43,7 +42,7 @@ const LoginPage = () => {
     try {
       setIsLoggingIn(true);
       
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
       });
@@ -55,7 +54,7 @@ const LoginPage = () => {
         description: t('auth.welcomeBack'),
       });
       
-      // Redirection happens in useAuth hook now
+      // We'll let the AuthProvider handle redirect via onAuthStateChange
     } catch (error: any) {
       toast({
         variant: 'destructive',
