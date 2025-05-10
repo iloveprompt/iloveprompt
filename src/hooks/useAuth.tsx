@@ -30,6 +30,9 @@ interface AuthProviderProps {
   navigateFunction?: (path: string) => void;
 }
 
+// Cache para verificação de admin para evitar verificações repetitivas
+const adminCheckCache: {[key: string]: boolean} = {};
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ 
   children, 
   navigateFunction 
@@ -42,16 +45,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  // Cache para verificação de admin para evitar verificações repetitivas
-  const adminCheckCache = React.useRef<{[key: string]: boolean}>({});
+  // Melhoria: Usar uma referência estável para o cache
+  const adminCheckCacheRef = React.useRef(adminCheckCache);
 
   // Função para verificar se o usuário é administrador com cache
   const checkIfUserIsAdmin = async (userId: string): Promise<boolean> => {
     try {
       // Verificar cache primeiro
-      if (adminCheckCache.current[userId] !== undefined) {
+      if (adminCheckCacheRef.current[userId] !== undefined) {
         console.log('Usando resultado em cache para verificação de admin:', userId);
-        return adminCheckCache.current[userId];
+        return adminCheckCacheRef.current[userId];
       }
 
       // Evitar verificações simultâneas
@@ -93,7 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       }
       
       // Armazenar resultado no cache
-      adminCheckCache.current[userId] = result;
+      adminCheckCacheRef.current[userId] = result;
       setIsCheckingAdmin(false);
       return result;
     } catch (error) {
@@ -142,15 +145,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     }
   };
 
-  // Verifica se o usuário está na página inicial e deve ser redirecionado
-  const checkAndRedirectFromHomepage = () => {
-    // Se estamos na página inicial e o usuário está autenticado, redirecionar
-    if (window.location.pathname === '/' && user && navigateFunction) {
-      console.log('Usuário autenticado na página inicial, redirecionando...');
-      redirectAfterLogin(user.id);
-    }
-  };
-
   useEffect(() => {
     // Get initial session and user
     const getInitialSession = async () => {
@@ -171,11 +165,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           const isUserAdmin = await checkIfUserIsAdmin(data.session.user.id);
           setIsAdmin(isUserAdmin);
           console.log('Initial admin status set to:', isUserAdmin);
-          
-          // Se o usuário estiver na homepage e estiver autenticado, redirecionar
-          if (window.location.pathname === '/' && navigateFunction) {
-            redirectAfterLogin(data.session.user.id);
-          }
         }
       } catch (error) {
         console.error('Error in getInitialSession:', error);
@@ -204,24 +193,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           setIsAdmin(false);
         }
         
-        // Handle SIGNED_IN event - show toast AND redirect from homepage
+        // Handle SIGNED_IN event - show toast
         if (event === 'SIGNED_IN') {
-          console.log('SIGNED_IN event detected, showing toast and checking for redirect');
+          console.log('SIGNED_IN event detected, showing toast');
           toast({
             title: t('auth.signedIn'),
             description: t('auth.welcomeMessage'),
           });
-          
-          // Importante: verificar se precisamos redirecionar da página inicial
-          // Isso ajudará no redirecionamento após login social
-          if (currentSession?.user && window.location.pathname === '/') {
-            console.log('User is on homepage after signin, redirecting...');
-            
-            // Use setTimeout para evitar problemas com o estado de auth
-            setTimeout(() => {
-              redirectAfterLogin(currentSession.user?.id);
-            }, 100);
-          }
         }
         
         // Handle SIGNED_OUT event
@@ -233,7 +211,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           });
           
           // Limpar cache de verificação de admin
-          adminCheckCache.current = {};
+          adminCheckCacheRef.current = {};
         }
       }
     );
@@ -242,7 +220,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       console.log('Cleaning up auth listener');
       authListener?.subscription?.unsubscribe();
     };
-  }, [toast, t, navigateFunction]);
+  }, [toast, t]);
 
   const signOut = async () => {
     try {
@@ -252,7 +230,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       setSession(null);
       setIsAdmin(false);
       // Limpar cache de verificação de admin
-      adminCheckCache.current = {};
+      adminCheckCacheRef.current = {};
     } catch (error) {
       console.error('Error signing out:', error);
     }
