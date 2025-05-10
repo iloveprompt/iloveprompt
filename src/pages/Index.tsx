@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -12,21 +11,21 @@ import { useAuth } from '@/hooks/useAuth';
 
 const Index = () => {
   const { t } = useLanguage();
-  const { isAuthenticated, redirectAfterLogin, user, loading } = useAuth();
+  const { isAuthenticated, redirectAfterLogin, user, session, loading } = useAuth();
   const navigate = useNavigate();
   
   // Efeito para redirecionar usuários autenticados após retorno de autenticação social
   useEffect(() => {
-    // Verificamos se o usuário está autenticado e estamos na página inicial
-    // Apenas redirecionamos se não estiver em processo de carregamento
-    if (isAuthenticated && !loading && user) {
-      console.log('Usuário autenticado na página inicial, redirecionando automaticamente');
+    // Verificamos de forma mais rigorosa se o usuário está realmente autenticado
+    // Precisamos ter tanto user quanto session para confirmar autenticação
+    if (!loading && user && session && isAuthenticated) {
+      console.log('Usuário realmente autenticado na página inicial, redirecionando automaticamente');
       // Usar setTimeout para evitar problemas de estado
       setTimeout(() => {
         redirectAfterLogin(user.id);
       }, 100);
     }
-  }, [isAuthenticated, user, loading, redirectAfterLogin]);
+  }, [isAuthenticated, user, session, loading, redirectAfterLogin]);
   
   return (
     <div className="flex flex-col min-h-screen">

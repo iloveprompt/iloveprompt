@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -20,15 +19,17 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const { redirectAfterLogin, isAuthenticated } = useAuth();
+  const { redirectAfterLogin, user, session } = useAuth();
   
-  // Check if user is already logged in and redirect if necessary
+  // Verifique corretamente se há um usuário autenticado (usando tanto user quanto session)
   useEffect(() => {
-    if (isAuthenticated) {
-      console.log('User is already authenticated on login page, redirecting');
-      redirectAfterLogin(undefined);
+    // Apenas redirecione se tivermos tanto user quanto session 
+    // Isso garante que o usuário está realmente autenticado
+    if (user && session) {
+      console.log('Usuário realmente autenticado na página de login, redirecionando');
+      redirectAfterLogin(user.id);
     }
-  }, [isAuthenticated, redirectAfterLogin]);
+  }, [user, session, redirectAfterLogin]);
 
   // Define the form schema
   const formSchema = z.object({
@@ -68,7 +69,7 @@ const LoginPage = () => {
       });
       
       // Manually handle redirect after login - passing userId directly
-      if (data.user) {
+      if (data.user && data.session) {
         console.log('Manually redirecting after successful login, user ID:', data.user.id);
         // We need to pass the user ID directly to avoid circular dependency
         redirectAfterLogin(data.user.id);

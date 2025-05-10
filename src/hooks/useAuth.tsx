@@ -108,7 +108,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   };
 
   // Function to handle redirect after login - completely separate from auth state changes
-  // Modified to use userId directly instead of relying on the current user state
   const redirectAfterLogin = async (userId: string | undefined) => {
     if (!navigateFunction) {
       console.log('Cannot redirect: missing navigation function', { 
@@ -117,24 +116,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       return;
     }
     
-    // If userId is not provided, try to get it from the current user state
+    // Verificações adicionais para garantir que temos um userId válido e que o usuário está autenticado
+    if (!userId && !user?.id) {
+      console.log('Redirecionamento cancelado: nenhum ID de usuário disponível e nenhum usuário logado');
+      return;
+    }
+    
+    // Se userId não foi fornecido mas temos um user.id, usamos o id do usuário atual
     const effectiveUserId = userId || user?.id;
     
+    // Verificação adicional de segurança
     if (!effectiveUserId) {
-      console.log('Cannot redirect: no user ID available');
+      console.log('Não é possível redirecionar: nenhum ID de usuário efetivo');
       return;
     }
     
     try {
-      console.log('Redirecting after login for user ID:', effectiveUserId);
-      const isUserAdmin = await checkIfUserIsAdmin(effectiveUserId);
-      console.log('User admin check result:', isUserAdmin);
+      console.log('Redirecionando após login para o ID do usuário:', effectiveUserId);
       
-      if (isUserAdmin) {
-        console.log('User is admin, redirecting to /admin');
-        navigateFunction('/admin');
+      // Só verifica admin se tivermos um usuário e sessão válidos
+      if (session && user) {
+        const isUserAdmin = await checkIfUserIsAdmin(effectiveUserId);
+        console.log('User admin check result:', isUserAdmin);
+        
+        if (isUserAdmin) {
+          console.log('User is admin, redirecting to /admin');
+          navigateFunction('/admin');
+        } else {
+          console.log('User is not admin, redirecting to /dashboard');
+          navigateFunction('/dashboard');
+        }
       } else {
-        console.log('User is not admin, redirecting to /dashboard');
+        // Se não temos sessão ou usuário, é uma situação inesperada
+        console.log('Tentativa de redirecionamento sem sessão válida, redirecionando para dashboard como padrão');
         navigateFunction('/dashboard');
       }
     } catch (error) {
@@ -154,20 +168,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         
         if (error) {
           console.error('Error getting session:', error.message);
+          setSession(null);
+          setUser(null);
+          setLoading(false);
+          return;
         }
         
-        setSession(data?.session || null);
-        setUser(data?.session?.user || null);
-        
-        // Check if user is admin
-        if (data?.session?.user) {
-          console.log('User found in initial session, checking admin status');
+        // Verifique explicitamente se temos uma sessão válida
+        if (data?.session && data.session.user) {
+          console.log('Valid session found during initialization');
+          setSession(data.session);
+          setUser(data.session.user);
+          
+          // Check if user is admin
           const isUserAdmin = await checkIfUserIsAdmin(data.session.user.id);
           setIsAdmin(isUserAdmin);
           console.log('Initial admin status set to:', isUserAdmin);
+        } else {
+          // Não temos uma sessão válida
+          console.log('No valid session found during initialization');
+          setSession(null);
+          setUser(null);
+          setIsAdmin(false);
         }
       } catch (error) {
         console.error('Error in getInitialSession:', error);
+        setSession(null);
+        setUser(null);
+        setIsAdmin(false);
       } finally {
         setLoading(false);
       }
@@ -184,7 +212,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         setSession(currentSession);
         setUser(currentSession?.user || null);
         
-        // Check if user is admin
+        // Check if user is admin only if we have a valid user
         if (currentSession?.user) {
           const isUserAdmin = await checkIfUserIsAdmin(currentSession.user.id);
           setIsAdmin(isUserAdmin);
@@ -241,7 +269,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     session,
     loading,
     signOut,
-    isAuthenticated: !!user,
+    isAuthenticated: !!(user && session), // Modifica aqui para verificar tanto usuário quanto sessão
     redirectAfterLogin,
     isAdmin,
   };
