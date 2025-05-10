@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -21,6 +22,7 @@ const LoginPage = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { user } = useAuth();
   const { redirectAfterLogin } = useAuthRedirect();
+  const navigate = useNavigate();
   
   // Define the form schema
   const formSchema = z.object({

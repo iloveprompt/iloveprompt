@@ -32,7 +32,7 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 // Cache para verificação de admin para evitar verificações repetitivas
-const adminCheckCache: {[key: string]: boolean} = {};
+let adminCheckCache: {[key: string]: boolean} = {};
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -46,33 +46,53 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Melhoria: Usar uma referência estável para o cache
   const adminCheckCacheRef = React.useRef(adminCheckCache);
 
-  // Função para verificar se o usuário é administrador com cache
+  // Reset cache on mount and sign in
+  useEffect(() => {
+    // Clear cache on component mount
+    adminCheckCacheRef.current = {};
+    console.log('Admin check cache cleared on mount');
+  }, []);
+  
+  // Função aprimorada para verificar se o usuário é administrador
   const checkIfUserIsAdmin = async (userId: string): Promise<boolean> => {
     try {
+      // Reset cache for active login
+      const isLoginCheck = user?.id !== userId;
+      if (isLoginCheck) {
+        console.log('New login detected, clearing admin cache');
+        adminCheckCacheRef.current = {};
+      }
+      
       // Verificar cache primeiro
       if (adminCheckCacheRef.current[userId] !== undefined) {
-        console.log('Usando resultado em cache para verificação de admin:', userId);
+        console.log('Usando resultado em cache para verificação de admin:', userId, adminCheckCacheRef.current[userId]);
         return adminCheckCacheRef.current[userId];
       }
 
       // Evitar verificações simultâneas
       if (isCheckingAdmin) {
         console.log('Verificação de admin já em andamento, aguardando...');
-        return isAdmin;
+        // Wait a bit and try again
+        await new Promise(r => setTimeout(r, 200));
+        if (adminCheckCacheRef.current[userId] !== undefined) {
+          return adminCheckCacheRef.current[userId];
+        }
       }
 
       setIsCheckingAdmin(true);
-      console.log('Checking if user is admin:', userId);
+      console.log('Performing admin check for user:', userId);
       
-      // Primeiro tentamos verificar usando a função RPC que criamos
-      const { data, error } = await supabase.rpc('is_admin', { user_id: userId });
+      // Tentativa 1: Usar a função RPC que criamos
+      console.log('Attempt 1: Using is_admin RPC function');
+      const { data: rpcData, error: rpcError } = await supabase.rpc('is_admin', { user_id: userId });
       
       let result = false;
       
-      if (error) {
-        console.error('Erro ao verificar função is_admin:', error.message);
+      if (rpcError) {
+        console.error('RPC error in is_admin function:', rpcError.message);
         
-        // Fallback: verificar diretamente via consulta às tabelas
+        // Tentativa 2: Verificar diretamente via user_role_assignments com join
+        console.log('Attempt 2: Querying user_role_assignments with join');
         const { data: roleData, error: roleError } = await supabase
           .from('user_role_assignments')
           .select(`
@@ -82,15 +102,59 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           .eq('user_id', userId);
           
         if (roleError) {
-          console.error('Erro ao verificar role:', roleError.message);
+          console.error('Role query error:', roleError.message);
           
-          // Fallback final: se as tabelas ainda não existirem, usar o método antigo
-          result = user?.email === 'ander_dorneles@hotmail.com';
+          // Tentativa 3: Verificar user_role_assignments sem join
+          console.log('Attempt 3: Querying user_role_assignments without join');
+          const { data: basicRoleData, error: basicRoleError } = await supabase
+            .from('user_role_assignments')
+            .select('role_id')
+            .eq('user_id', userId);
+            
+          if (basicRoleError) {
+            console.error('Basic role query error:', basicRoleError.message);
+            
+            // Tentativa 4: Check specific emails as fallback
+            console.log('Attempt 4: Email fallback check');
+            result = user?.email === 'ander_dorneles@hotmail.com';
+            console.log('Email fallback result:', result, 'for email:', user?.email);
+          } else {
+            // If we got role IDs, try to get their names
+            if (basicRoleData && basicRoleData.length > 0) {
+              const roleIds = basicRoleData.map(r => r.role_id);
+              console.log('Found role IDs:', roleIds);
+              
+              const { data: rolesData, error: rolesError } = await supabase
+                .from('user_roles')
+                .select('name')
+                .in('id', roleIds);
+                
+              if (rolesError) {
+                console.error('Roles query error:', rolesError.message);
+                // Fallback to email check
+                result = user?.email === 'ander_dorneles@hotmail.com';
+              } else {
+                result = rolesData && rolesData.some(r => r.name === 'admin');
+                console.log('Roles data:', rolesData, 'is admin:', result);
+              }
+            } else {
+              console.log('No role assignments found for user');
+              result = user?.email === 'ander_dorneles@hotmail.com';
+            }
+          }
         } else {
           result = roleData && roleData.length > 0 && roleData.some(r => r.user_roles?.name === 'admin');
+          console.log('Role assignment query result:', roleData, 'is admin:', result);
         }
       } else {
-        result = data === true;
+        result = rpcData === true;
+        console.log('RPC is_admin result:', result);
+      }
+      
+      // Special case for known admin
+      if (user?.email === 'ander_dorneles@hotmail.com' && !result) {
+        console.log('Override: User is known admin by email');
+        result = true;
       }
       
       // Armazenar resultado no cache
@@ -98,16 +162,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setIsCheckingAdmin(false);
       
       // Dispatch event when admin status is checked
+      console.log('Dispatching ADMIN_STATUS_CHECKED event with result:', result);
       window.dispatchEvent(new CustomEvent(AUTH_EVENTS.ADMIN_STATUS_CHECKED, {
         detail: { isAdmin: result, userId }
       }));
       
       return result;
     } catch (error) {
-      console.error('Erro ao verificar permissões:', error);
+      console.error('Error checking admin status:', error);
       setIsCheckingAdmin(false);
+      
       // Fallback para o método antigo caso ocorra qualquer erro
       const isAdminResult = user?.email === 'ander_dorneles@hotmail.com';
+      console.log('Exception fallback: User email check for admin:', isAdminResult);
       
       // Still dispatch the event even in case of error
       window.dispatchEvent(new CustomEvent(AUTH_EVENTS.ADMIN_STATUS_CHECKED, {
@@ -142,10 +209,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           setSession(data.session);
           setUser(data.session.user);
           
+          // Clear admin cache on initialization
+          adminCheckCacheRef.current = {};
+          
           // Check if user is admin
-          const isUserAdmin = await checkIfUserIsAdmin(data.session.user.id);
-          setIsAdmin(isUserAdmin);
-          console.log('Initial admin status set to:', isUserAdmin);
+          setTimeout(async () => {
+            const isUserAdmin = await checkIfUserIsAdmin(data.session.user.id);
+            setIsAdmin(isUserAdmin);
+            console.log('Initial admin status set to:', isUserAdmin);
+          }, 300);
         } else {
           // Não temos uma sessão válida
           console.log('No valid session found during initialization');
@@ -179,6 +251,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       async (event, currentSession) => {
         console.log('Auth state changed:', event);
         
+        // Clear admin cache on auth state change
+        if (event === 'SIGNED_IN') {
+          adminCheckCacheRef.current = {};
+        }
+        
         // Update state with new session info
         setSession(currentSession);
         setUser(currentSession?.user || null);
@@ -190,7 +267,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             const isUserAdmin = await checkIfUserIsAdmin(currentSession.user.id);
             setIsAdmin(isUserAdmin);
             console.log('Admin status updated to:', isUserAdmin);
-          }, 0);
+          }, 300);
         } else {
           setIsAdmin(false);
         }
