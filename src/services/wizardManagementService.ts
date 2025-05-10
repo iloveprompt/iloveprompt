@@ -6,7 +6,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 
 // Interface for wizard items with database fields
 export interface DbWizardItem extends Omit<WizardItem, 'translations'> {
-  id: number;
+  id: string;
   key: string;
   active: boolean;
   type?: string;
@@ -14,7 +14,7 @@ export interface DbWizardItem extends Omit<WizardItem, 'translations'> {
   has_other_option?: boolean;
   sort_order?: number;
   translations: Record<string, string>;
-  examples?: Array<{id: number, text: string, active: boolean}>;
+  examples?: Array<{id: string, text: string, active: boolean}>;
 }
 
 // Function to transform database items to the format expected by the components
@@ -121,7 +121,7 @@ export const fetchWizardItemsByType = async (itemType: string): Promise<WizardIt
 export const createWizardItem = async (
   item: Partial<WizardItem>, 
   itemType: string
-): Promise<{ success: boolean; id?: number; error?: string }> => {
+): Promise<{ success: boolean; id?: string; error?: string }> => {
   try {
     // First, insert the main item
     const { data: itemData, error: itemError } = await supabase
@@ -194,7 +194,7 @@ export const createWizardItem = async (
 
 // Update an existing wizard item
 export const updateWizardItem = async (
-  id: number,
+  id: string,
   item: Partial<WizardItem>
 ): Promise<{ success: boolean; error?: string }> => {
   try {
@@ -259,7 +259,7 @@ export const updateWizardItem = async (
 };
 
 // Delete a wizard item
-export const deleteWizardItem = async (id: number): Promise<{ success: boolean; error?: string }> => {
+export const deleteWizardItem = async (id: string): Promise<{ success: boolean; error?: string }> => {
   try {
     // Due to cascading deletes, we only need to delete the main item
     const { error } = await supabase

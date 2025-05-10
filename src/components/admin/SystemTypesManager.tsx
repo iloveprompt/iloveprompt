@@ -66,7 +66,7 @@ const SystemTypesManager: React.FC = () => {
     }
   };
 
-  const handleUpdateItem = async (id: number, item: Partial<WizardItem>) => {
+  const handleUpdateItem = async (id: string, item: Partial<WizardItem>) => {
     setIsProcessing(true);
     try {
       const result = await updateWizardItem(id, item);
@@ -98,7 +98,7 @@ const SystemTypesManager: React.FC = () => {
     }
   };
 
-  const handleDeleteItem = async (id: number) => {
+  const handleDeleteItem = async (id: string) => {
     setIsProcessing(true);
     try {
       const result = await deleteWizardItem(id);
