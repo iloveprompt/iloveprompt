@@ -38,15 +38,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(false);
   const { toast } = useToast();
   const { t } = useLanguage();
 
-  // Função para verificar se o usuário é administrador
+  // Cache para verificação de admin para evitar verificações repetitivas
+  const adminCheckCache = React.useRef<{[key: string]: boolean}>({});
+
+  // Função para verificar se o usuário é administrador com cache
   const checkIfUserIsAdmin = async (userId: string): Promise<boolean> => {
     try {
+      // Verificar cache primeiro
+      if (adminCheckCache.current[userId] !== undefined) {
+        console.log('Usando resultado em cache para verificação de admin:', userId);
+        return adminCheckCache.current[userId];
+      }
+
+      // Evitar verificações simultâneas
+      if (isCheckingAdmin) {
+        console.log('Verificação de admin já em andamento, aguardando...');
+        return isAdmin;
+      }
+
+      setIsCheckingAdmin(true);
       console.log('Checking if user is admin:', userId);
+      
       // Primeiro tentamos verificar usando a função RPC que criamos
       const { data, error } = await supabase.rpc('is_admin', { user_id: userId });
+      
+      let result = false;
       
       if (error) {
         console.error('Erro ao verificar função is_admin:', error.message);
@@ -64,15 +84,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           console.error('Erro ao verificar role:', roleError.message);
           
           // Fallback final: se as tabelas ainda não existirem, usar o método antigo
-          return userId === 'ander_dorneles@hotmail.com';
+          result = userId === 'ander_dorneles@hotmail.com';
+        } else {
+          result = roleData && roleData.length > 0 && roleData.some(r => r.user_roles?.name === 'admin');
         }
-        
-        return roleData && roleData.length > 0 && roleData.some(r => r.user_roles?.name === 'admin');
+      } else {
+        result = data === true;
       }
       
-      return data === true;
+      // Armazenar resultado no cache
+      adminCheckCache.current[userId] = result;
+      setIsCheckingAdmin(false);
+      return result;
     } catch (error) {
       console.error('Erro ao verificar permissões:', error);
+      setIsCheckingAdmin(false);
       // Fallback para o método antigo caso ocorra qualquer erro
       return user?.email === 'ander_dorneles@hotmail.com';
     }
@@ -116,6 +142,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     }
   };
 
+  // Verifica se o usuário está na página inicial e deve ser redirecionado
+  const checkAndRedirectFromHomepage = () => {
+    // Se estamos na página inicial e o usuário está autenticado, redirecionar
+    if (window.location.pathname === '/' && user && navigateFunction) {
+      console.log('Usuário autenticado na página inicial, redirecionando...');
+      redirectAfterLogin(user.id);
+    }
+  };
+
   useEffect(() => {
     // Get initial session and user
     const getInitialSession = async () => {
@@ -136,6 +171,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           const isUserAdmin = await checkIfUserIsAdmin(data.session.user.id);
           setIsAdmin(isUserAdmin);
           console.log('Initial admin status set to:', isUserAdmin);
+          
+          // Se o usuário estiver na homepage e estiver autenticado, redirecionar
+          if (window.location.pathname === '/' && navigateFunction) {
+            redirectAfterLogin(data.session.user.id);
+          }
         }
       } catch (error) {
         console.error('Error in getInitialSession:', error);
@@ -164,14 +204,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           setIsAdmin(false);
         }
         
-        // Handle SIGNED_IN event - show toast but DON'T redirect automatically
-        // The Login.tsx component will handle redirection after successful login
+        // Handle SIGNED_IN event - show toast AND redirect from homepage
         if (event === 'SIGNED_IN') {
-          console.log('SIGNED_IN event detected, showing toast');
+          console.log('SIGNED_IN event detected, showing toast and checking for redirect');
           toast({
             title: t('auth.signedIn'),
             description: t('auth.welcomeMessage'),
           });
+          
+          // Importante: verificar se precisamos redirecionar da página inicial
+          // Isso ajudará no redirecionamento após login social
+          if (currentSession?.user && window.location.pathname === '/') {
+            console.log('User is on homepage after signin, redirecting...');
+            
+            // Use setTimeout para evitar problemas com o estado de auth
+            setTimeout(() => {
+              redirectAfterLogin(currentSession.user?.id);
+            }, 100);
+          }
         }
         
         // Handle SIGNED_OUT event
@@ -181,6 +231,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
             title: t('auth.signedOut'),
             description: t('auth.comeBackSoon'),
           });
+          
+          // Limpar cache de verificação de admin
+          adminCheckCache.current = {};
         }
       }
     );
@@ -198,6 +251,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       setUser(null);
       setSession(null);
       setIsAdmin(false);
+      // Limpar cache de verificação de admin
+      adminCheckCache.current = {};
     } catch (error) {
       console.error('Error signing out:', error);
     }

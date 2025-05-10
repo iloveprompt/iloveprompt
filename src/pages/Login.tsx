@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -24,7 +25,7 @@ const LoginPage = () => {
   // Check if user is already logged in and redirect if necessary
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('User is already authenticated, redirecting');
+      console.log('User is already authenticated on login page, redirecting');
       redirectAfterLogin(undefined);
     }
   }, [isAuthenticated, redirectAfterLogin]);
@@ -100,8 +101,8 @@ const LoginPage = () => {
       
       if (error) throw error;
       
+      // Note: Redirecionamento já será tratado no useAuth.tsx quando o usuário retornar à página inicial
       // Add a safety timeout to reset the loading state if redirect doesn't happen quickly
-      // This prevents the button from being stuck in loading state
       setTimeout(() => {
         setIsLoggingIn(false);
       }, 3000);
@@ -131,6 +132,7 @@ const LoginPage = () => {
       
       if (error) throw error;
       
+      // Note: Redirecionamento já será tratado no useAuth.tsx quando o usuário retornar à página inicial
       // Add a safety timeout to reset the loading state if redirect doesn't happen quickly
       setTimeout(() => {
         setIsLoggingIn(false);
