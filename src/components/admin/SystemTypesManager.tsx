@@ -1,110 +1,153 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { useToast } from '@/hooks/use-toast';
 import ItemManager, { WizardItem } from './ItemManager';
-
-// Extended interface for WizardItem that includes Spanish translations
-interface WizardItemWithSpanish extends Omit<WizardItem, 'translations'> {
-  translations: {
-    en: string;
-    pt: string;
-    es: string;
-  };
-}
-
-// Mock data for system types
-const initialSystemTypes: WizardItemWithSpanish[] = [
-  {
-    id: 1,
-    key: 'webapp',
-    active: true,
-    translations: {
-      en: 'Web Application',
-      pt: 'Aplicação Web',
-      es: 'Aplicación Web'
-    },
-    examples: [
-      { id: 1, text: 'Facebook', active: true },
-      { id: 2, text: 'Twitter', active: true },
-      { id: 3, text: 'LinkedIn', active: true }
-    ]
-  },
-  {
-    id: 2,
-    key: 'mobileapp',
-    active: true,
-    translations: {
-      en: 'Mobile App',
-      pt: 'Aplicativo Móvel',
-      es: 'Aplicación Móvil'
-    },
-    examples: [
-      { id: 4, text: 'Instagram', active: true },
-      { id: 5, text: 'WhatsApp', active: true },
-      { id: 6, text: 'Uber', active: true }
-    ]
-  },
-  {
-    id: 3,
-    key: 'api',
-    active: true,
-    translations: {
-      en: 'API / Backend',
-      pt: 'API / Backend',
-      es: 'API / Backend'
-    },
-    examples: [
-      { id: 7, text: 'REST API', active: true },
-      { id: 8, text: 'GraphQL', active: true }
-    ]
-  },
-  {
-    id: 4,
-    key: 'desktop',
-    active: true,
-    translations: {
-      en: 'Desktop Application',
-      pt: 'Aplicação Desktop',
-      es: 'Aplicación de Escritorio'
-    },
-    examples: [
-      { id: 9, text: 'Slack', active: true },
-      { id: 10, text: 'VS Code', active: true }
-    ]
-  }
-];
+import { fetchSystemTypes, createWizardItem, updateWizardItem, deleteWizardItem } from '@/services/wizardManagementService';
+import { Loader2 } from 'lucide-react';
 
 const SystemTypesManager: React.FC = () => {
   const { t } = useLanguage();
-  const [systemTypes, setSystemTypes] = useState<WizardItemWithSpanish[]>(initialSystemTypes);
+  const { toast } = useToast();
+  const [systemTypes, setSystemTypes] = useState<WizardItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleAddItem = (item: Partial<WizardItem>) => {
-    const newId = Math.max(...systemTypes.map(item => item.id), 0) + 1;
-    // Type assertion to handle conversion from WizardItem to WizardItemWithSpanish
-    setSystemTypes(prev => [...prev, { ...item, id: newId } as unknown as WizardItemWithSpanish]);
+  useEffect(() => {
+    loadSystemTypes();
+  }, []);
+
+  const loadSystemTypes = async () => {
+    setIsLoading(true);
+    try {
+      const items = await fetchSystemTypes();
+      setSystemTypes(items);
+    } catch (error) {
+      console.error('Error loading system types:', error);
+      toast({
+        title: t('dashboard.errorLoading'),
+        description: t('dashboard.errorLoadingItems'),
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleUpdateItem = (id: number, item: Partial<WizardItem>) => {
-    setSystemTypes(prev => 
-      prev.map(prevItem => 
-        prevItem.id === id 
-          ? { ...prevItem, ...item } as unknown as WizardItemWithSpanish
-          : prevItem
-      )
+  const handleAddItem = async (item: Partial<WizardItem>) => {
+    setIsProcessing(true);
+    try {
+      const result = await createWizardItem(item, 'system_type');
+      
+      if (result.success && result.id) {
+        toast({
+          title: t('dashboard.itemSaved'),
+          description: item.translations?.['en'] || item.key
+        });
+        
+        // Reload data to get the updated list
+        await loadSystemTypes();
+      } else {
+        toast({
+          title: t('dashboard.errorSaving'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error adding system type:', error);
+      toast({
+        title: t('dashboard.errorSaving'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleUpdateItem = async (id: number, item: Partial<WizardItem>) => {
+    setIsProcessing(true);
+    try {
+      const result = await updateWizardItem(id, item);
+      
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemUpdated'),
+          description: item.translations?.['en'] || item.key
+        });
+        
+        // Reload data to get the updated list
+        await loadSystemTypes();
+      } else {
+        toast({
+          title: t('dashboard.errorUpdating'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error updating system type:', error);
+      toast({
+        title: t('dashboard.errorUpdating'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleDeleteItem = async (id: number) => {
+    setIsProcessing(true);
+    try {
+      const result = await deleteWizardItem(id);
+      
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemDeleted'),
+          variant: 'default'
+        });
+        
+        // Reload data to get the updated list
+        await loadSystemTypes();
+      } else {
+        toast({
+          title: t('dashboard.errorDeleting'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting system type:', error);
+      toast({
+        title: t('dashboard.errorDeleting'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2">{t('dashboard.loading')}</span>
+      </div>
     );
-  };
-
-  const handleDeleteItem = (id: number) => {
-    setSystemTypes(prev => prev.filter(item => item.id !== id));
-  };
+  }
 
   return (
     <ItemManager
       title={t('dashboard.systemTypes')}
-      items={systemTypes as unknown as WizardItem[]}
+      items={systemTypes}
       onAddItem={handleAddItem}
       onUpdateItem={handleUpdateItem}
       onDeleteItem={handleDeleteItem}
+      isProcessing={isProcessing}
+      emptyStateMessage={t('dashboard.noSystemTypes')}
     />
   );
 };

@@ -1,174 +1,448 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, InfoIcon } from 'lucide-react';
 import SystemTypesManager from './SystemTypesManager';
 import { WizardItem } from './ItemManager';
 import ItemManager from './ItemManager';
-
-// Mock data for objectives
-const initialObjectives: WizardItem[] = [
-  {
-    id: 1,
-    key: 'ecommerce',
-    active: true,
-    translations: {
-      en: 'E-commerce / Online Store',
-      pt: 'E-commerce / Loja Online'
-    }
-  },
-  {
-    id: 2,
-    key: 'crm',
-    active: true,
-    translations: {
-      en: 'CRM System',
-      pt: 'Sistema CRM'
-    }
-  },
-  {
-    id: 3,
-    key: 'social',
-    active: true,
-    translations: {
-      en: 'Social Network',
-      pt: 'Rede Social'
-    }
-  }
-];
-
-// Mock data for features
-const initialFeatures: WizardItem[] = [
-  {
-    id: 1,
-    key: 'authentication',
-    active: true,
-    translations: {
-      en: 'User Authentication',
-      pt: 'Autenticação de Usuário'
-    }
-  },
-  {
-    id: 2,
-    key: 'payments',
-    active: true,
-    translations: {
-      en: 'Payment Processing',
-      pt: 'Processamento de Pagamento'
-    }
-  },
-  {
-    id: 3,
-    key: 'fileUpload',
-    active: true,
-    translations: {
-      en: 'File Upload',
-      pt: 'Upload de Arquivos'
-    }
-  }
-];
-
-// Mock data for UX/UI options
-const initialUXUIOptions: WizardItem[] = [
-  {
-    id: 1,
-    key: 'blue',
-    active: true,
-    translations: {
-      en: 'Blue',
-      pt: 'Azul'
-    },
-    category: 'color'
-  },
-  {
-    id: 2,
-    key: 'green',
-    active: true,
-    translations: {
-      en: 'Green',
-      pt: 'Verde'
-    },
-    category: 'color'
-  },
-  {
-    id: 3,
-    key: 'minimalist',
-    active: true,
-    translations: {
-      en: 'Minimalist',
-      pt: 'Minimalista'
-    },
-    category: 'style'
-  }
-];
+import { 
+  fetchWizardItemsByType, 
+  createWizardItem, 
+  updateWizardItem,
+  deleteWizardItem
+} from '@/services/wizardManagementService';
+import { useToast } from '@/hooks/use-toast';
 
 const WizardItemsManager: React.FC = () => {
   const { t } = useLanguage();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('systemTypes');
-  const [objectives, setObjectives] = useState<WizardItem[]>(initialObjectives);
-  const [features, setFeatures] = useState<WizardItem[]>(initialFeatures);
-  const [uxuiOptions, setUXUIOptions] = useState<WizardItem[]>(initialUXUIOptions);
+  
+  // Item states
+  const [objectives, setObjectives] = useState<WizardItem[]>([]);
+  const [features, setFeatures] = useState<WizardItem[]>([]);
+  const [uxuiOptions, setUXUIOptions] = useState<WizardItem[]>([]);
+  const [stackOptions, setStackOptions] = useState<WizardItem[]>([]);
+  const [securityOptions, setSecurityOptions] = useState<WizardItem[]>([]);
+  
+  // Loading states
+  const [loadingObjectives, setLoadingObjectives] = useState(false);
+  const [loadingFeatures, setLoadingFeatures] = useState(false);
+  const [loadingUXUI, setLoadingUXUI] = useState(false);
+  const [loadingStack, setLoadingStack] = useState(false);
+  const [loadingSecurity, setLoadingSecurity] = useState(false);
+  
+  // Processing states
+  const [processingObjectives, setProcessingObjectives] = useState(false);
+  const [processingFeatures, setProcessingFeatures] = useState(false);
+  const [processingUXUI, setProcessingUXUI] = useState(false);
+  const [processingStack, setProcessingStack] = useState(false);
+  const [processingSecurity, setProcessingSecurity] = useState(false);
+  
+  // Error states
+  const [objectivesError, setObjectivesError] = useState<string | null>(null);
+  const [featuresError, setFeaturesError] = useState<string | null>(null);
+  const [uxuiError, setUXUIError] = useState<string | null>(null);
+  const [stackError, setStackError] = useState<string | null>(null);
+  const [securityError, setSecurityError] = useState<string | null>(null);
 
-  // Handlers for objectives
-  const handleAddObjective = (item: Partial<WizardItem>) => {
-    const newId = Math.max(...objectives.map(item => item.id), 0) + 1;
-    setObjectives(prev => [...prev, { ...item, id: newId } as WizardItem]);
+  // Load data when tab changes
+  useEffect(() => {
+    const loadDataForActiveTab = () => {
+      switch(activeTab) {
+        case 'objectives':
+          if (objectives.length === 0 && !objectivesError) {
+            loadObjectives();
+          }
+          break;
+        case 'features':
+          if (features.length === 0 && !featuresError) {
+            loadFeatures();
+          }
+          break;
+        case 'uxuiOptions':
+          if (uxuiOptions.length === 0 && !uxuiError) {
+            loadUXUI();
+          }
+          break;
+        case 'stackOptions':
+          if (stackOptions.length === 0 && !stackError) {
+            loadStack();
+          }
+          break;
+        case 'securityOptions':
+          if (securityOptions.length === 0 && !securityError) {
+            loadSecurity();
+          }
+          break;
+      }
+    };
+    
+    loadDataForActiveTab();
+  }, [activeTab]);
+
+  // Load data functions
+  const loadObjectives = async () => {
+    setLoadingObjectives(true);
+    setObjectivesError(null);
+    try {
+      const items = await fetchWizardItemsByType('objective');
+      setObjectives(items);
+    } catch (error: any) {
+      console.error('Error loading objectives:', error);
+      setObjectivesError(error.message || 'Error loading data');
+    } finally {
+      setLoadingObjectives(false);
+    }
   };
 
-  const handleUpdateObjective = (id: number, item: Partial<WizardItem>) => {
-    setObjectives(prev => 
-      prev.map(prevItem => 
-        prevItem.id === id 
-          ? { ...prevItem, ...item } as WizardItem
-          : prevItem
-      )
-    );
+  const loadFeatures = async () => {
+    setLoadingFeatures(true);
+    setFeaturesError(null);
+    try {
+      const items = await fetchWizardItemsByType('feature');
+      setFeatures(items);
+    } catch (error: any) {
+      console.error('Error loading features:', error);
+      setFeaturesError(error.message || 'Error loading data');
+    } finally {
+      setLoadingFeatures(false);
+    }
   };
 
-  const handleDeleteObjective = (id: number) => {
-    setObjectives(prev => prev.filter(item => item.id !== id));
+  const loadUXUI = async () => {
+    setLoadingUXUI(true);
+    setUXUIError(null);
+    try {
+      const items = await fetchWizardItemsByType('uxui');
+      setUXUIOptions(items);
+    } catch (error: any) {
+      console.error('Error loading UX/UI options:', error);
+      setUXUIError(error.message || 'Error loading data');
+    } finally {
+      setLoadingUXUI(false);
+    }
   };
 
-  // Handlers for features
-  const handleAddFeature = (item: Partial<WizardItem>) => {
-    const newId = Math.max(...features.map(item => item.id), 0) + 1;
-    setFeatures(prev => [...prev, { ...item, id: newId } as WizardItem]);
+  const loadStack = async () => {
+    setLoadingStack(true);
+    setStackError(null);
+    try {
+      const items = await fetchWizardItemsByType('stack');
+      setStackOptions(items);
+    } catch (error: any) {
+      console.error('Error loading stack options:', error);
+      setStackError(error.message || 'Error loading data');
+    } finally {
+      setLoadingStack(false);
+    }
   };
 
-  const handleUpdateFeature = (id: number, item: Partial<WizardItem>) => {
-    setFeatures(prev => 
-      prev.map(prevItem => 
-        prevItem.id === id 
-          ? { ...prevItem, ...item } as WizardItem
-          : prevItem
-      )
-    );
+  const loadSecurity = async () => {
+    setLoadingSecurity(true);
+    setSecurityError(null);
+    try {
+      const items = await fetchWizardItemsByType('security');
+      setSecurityOptions(items);
+    } catch (error: any) {
+      console.error('Error loading security options:', error);
+      setSecurityError(error.message || 'Error loading data');
+    } finally {
+      setLoadingSecurity(false);
+    }
   };
 
-  const handleDeleteFeature = (id: number) => {
-    setFeatures(prev => prev.filter(item => item.id !== id));
+  // CRUD operations for objectives
+  const handleAddObjective = async (item: Partial<WizardItem>) => {
+    setProcessingObjectives(true);
+    try {
+      const result = await createWizardItem(item, 'objective');
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemSaved'),
+          description: item.translations?.['en'] || item.key
+        });
+        await loadObjectives();
+      } else {
+        toast({
+          title: t('dashboard.errorSaving'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error adding objective:', error);
+      toast({
+        title: t('dashboard.errorSaving'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setProcessingObjectives(false);
+    }
   };
 
-  // Handlers for UX/UI options
-  const handleAddUXUIOption = (item: Partial<WizardItem>) => {
-    const newId = Math.max(...uxuiOptions.map(item => item.id), 0) + 1;
-    setUXUIOptions(prev => [...prev, { ...item, id: newId } as WizardItem]);
+  const handleUpdateObjective = async (id: number, item: Partial<WizardItem>) => {
+    setProcessingObjectives(true);
+    try {
+      const result = await updateWizardItem(id, item);
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemUpdated'),
+          description: item.translations?.['en'] || item.key
+        });
+        await loadObjectives();
+      } else {
+        toast({
+          title: t('dashboard.errorUpdating'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error updating objective:', error);
+      toast({
+        title: t('dashboard.errorUpdating'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setProcessingObjectives(false);
+    }
   };
 
-  const handleUpdateUXUIOption = (id: number, item: Partial<WizardItem>) => {
-    setUXUIOptions(prev => 
-      prev.map(prevItem => 
-        prevItem.id === id 
-          ? { ...prevItem, ...item } as WizardItem
-          : prevItem
-      )
-    );
+  const handleDeleteObjective = async (id: number) => {
+    setProcessingObjectives(true);
+    try {
+      const result = await deleteWizardItem(id);
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemDeleted'),
+          variant: 'default'
+        });
+        await loadObjectives();
+      } else {
+        toast({
+          title: t('dashboard.errorDeleting'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting objective:', error);
+      toast({
+        title: t('dashboard.errorDeleting'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setProcessingObjectives(false);
+    }
   };
 
-  const handleDeleteUXUIOption = (id: number) => {
-    setUXUIOptions(prev => prev.filter(item => item.id !== id));
+  // CRUD operations for features
+  const handleAddFeature = async (item: Partial<WizardItem>) => {
+    setProcessingFeatures(true);
+    try {
+      const result = await createWizardItem(item, 'feature');
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemSaved'),
+          description: item.translations?.['en'] || item.key
+        });
+        await loadFeatures();
+      } else {
+        toast({
+          title: t('dashboard.errorSaving'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error adding feature:', error);
+      toast({
+        title: t('dashboard.errorSaving'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setProcessingFeatures(false);
+    }
   };
+
+  const handleUpdateFeature = async (id: number, item: Partial<WizardItem>) => {
+    setProcessingFeatures(true);
+    try {
+      const result = await updateWizardItem(id, item);
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemUpdated'),
+          description: item.translations?.['en'] || item.key
+        });
+        await loadFeatures();
+      } else {
+        toast({
+          title: t('dashboard.errorUpdating'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error updating feature:', error);
+      toast({
+        title: t('dashboard.errorUpdating'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setProcessingFeatures(false);
+    }
+  };
+
+  const handleDeleteFeature = async (id: number) => {
+    setProcessingFeatures(true);
+    try {
+      const result = await deleteWizardItem(id);
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemDeleted'),
+          variant: 'default'
+        });
+        await loadFeatures();
+      } else {
+        toast({
+          title: t('dashboard.errorDeleting'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting feature:', error);
+      toast({
+        title: t('dashboard.errorDeleting'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setProcessingFeatures(false);
+    }
+  };
+
+  // CRUD operations for UX/UI options
+  const handleAddUXUIOption = async (item: Partial<WizardItem>) => {
+    setProcessingUXUI(true);
+    try {
+      const result = await createWizardItem(item, 'uxui');
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemSaved'),
+          description: item.translations?.['en'] || item.key
+        });
+        await loadUXUI();
+      } else {
+        toast({
+          title: t('dashboard.errorSaving'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error adding UX/UI option:', error);
+      toast({
+        title: t('dashboard.errorSaving'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setProcessingUXUI(false);
+    }
+  };
+
+  const handleUpdateUXUIOption = async (id: number, item: Partial<WizardItem>) => {
+    setProcessingUXUI(true);
+    try {
+      const result = await updateWizardItem(id, item);
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemUpdated'),
+          description: item.translations?.['en'] || item.key
+        });
+        await loadUXUI();
+      } else {
+        toast({
+          title: t('dashboard.errorUpdating'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error updating UX/UI option:', error);
+      toast({
+        title: t('dashboard.errorUpdating'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setProcessingUXUI(false);
+    }
+  };
+
+  const handleDeleteUXUIOption = async (id: number) => {
+    setProcessingUXUI(true);
+    try {
+      const result = await deleteWizardItem(id);
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemDeleted'),
+          variant: 'default'
+        });
+        await loadUXUI();
+      } else {
+        toast({
+          title: t('dashboard.errorDeleting'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting UX/UI option:', error);
+      toast({
+        title: t('dashboard.errorDeleting'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setProcessingUXUI(false);
+    }
+  };
+
+  // Render loading state
+  const renderLoading = () => (
+    <div className="flex justify-center items-center py-12">
+      <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+      <span>{t('dashboard.loading')}</span>
+    </div>
+  );
+
+  // Render error state
+  const renderError = (error: string | null) => (
+    <Alert variant="destructive" className="my-6">
+      <AlertDescription>
+        {error || t('dashboard.errorLoadingItems')}
+      </AlertDescription>
+    </Alert>
+  );
+
+  // Render no items state
+  const renderEmpty = () => (
+    <div className="flex justify-center items-center flex-col py-12 text-gray-500">
+      <InfoIcon className="h-12 w-12 mb-2 text-gray-400" />
+      {t('dashboard.noItemsFound')}
+    </div>
+  );
 
   return (
     <Card>
@@ -196,45 +470,77 @@ const WizardItemsManager: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="objectives">
-            <ItemManager
-              title={t('dashboard.objectives')}
-              items={objectives}
-              onAddItem={handleAddObjective}
-              onUpdateItem={handleUpdateObjective}
-              onDeleteItem={handleDeleteObjective}
-            />
+            {loadingObjectives ? renderLoading() : 
+              objectivesError ? renderError(objectivesError) :
+                objectives.length === 0 ? renderEmpty() :
+                  <ItemManager
+                    title={t('dashboard.objectives')}
+                    items={objectives}
+                    onAddItem={handleAddObjective}
+                    onUpdateItem={handleUpdateObjective}
+                    onDeleteItem={handleDeleteObjective}
+                    isProcessing={processingObjectives}
+                    emptyStateMessage={t('dashboard.noObjectivesFound')}
+                  />
+            }
           </TabsContent>
           
           <TabsContent value="features">
-            <ItemManager
-              title={t('dashboard.featuresItems')}
-              items={features}
-              onAddItem={handleAddFeature}
-              onUpdateItem={handleUpdateFeature}
-              onDeleteItem={handleDeleteFeature}
-            />
+            {loadingFeatures ? renderLoading() : 
+              featuresError ? renderError(featuresError) :
+                features.length === 0 ? renderEmpty() :
+                  <ItemManager
+                    title={t('dashboard.featuresItems')}
+                    items={features}
+                    onAddItem={handleAddFeature}
+                    onUpdateItem={handleUpdateFeature}
+                    onDeleteItem={handleDeleteFeature}
+                    isProcessing={processingFeatures}
+                    emptyStateMessage={t('dashboard.noFeaturesFound')}
+                  />
+            }
           </TabsContent>
           
           <TabsContent value="uxuiOptions">
-            <ItemManager
-              title={t('dashboard.uxuiOptions')}
-              items={uxuiOptions}
-              onAddItem={handleAddUXUIOption}
-              onUpdateItem={handleUpdateUXUIOption}
-              onDeleteItem={handleDeleteUXUIOption}
-            />
+            {loadingUXUI ? renderLoading() : 
+              uxuiError ? renderError(uxuiError) :
+                uxuiOptions.length === 0 ? renderEmpty() :
+                  <ItemManager
+                    title={t('dashboard.uxuiOptions')}
+                    items={uxuiOptions}
+                    onAddItem={handleAddUXUIOption}
+                    onUpdateItem={handleUpdateUXUIOption}
+                    onDeleteItem={handleDeleteUXUIOption}
+                    isProcessing={processingUXUI}
+                    emptyStateMessage={t('dashboard.noUXUIOptionsFound')}
+                  />
+            }
           </TabsContent>
           
           <TabsContent value="stackOptions">
-            <div className="flex justify-center items-center py-12 text-gray-500">
-              {t('dashboard.noItemsFound')}
-            </div>
+            {loadingStack ? renderLoading() : 
+              stackError ? renderError(stackError) :
+                stackOptions.length === 0 ? renderEmpty() :
+                  <ItemManager
+                    title={t('dashboard.stackOptions')}
+                    items={stackOptions}
+                    isProcessing={processingStack}
+                    emptyStateMessage={t('dashboard.noStackOptionsFound')}
+                  />
+            }
           </TabsContent>
           
           <TabsContent value="securityOptions">
-            <div className="flex justify-center items-center py-12 text-gray-500">
-              {t('dashboard.noItemsFound')}
-            </div>
+            {loadingSecurity ? renderLoading() : 
+              securityError ? renderError(securityError) :
+                securityOptions.length === 0 ? renderEmpty() :
+                  <ItemManager
+                    title={t('dashboard.securityOptions')}
+                    items={securityOptions}
+                    isProcessing={processingSecurity}
+                    emptyStateMessage={t('dashboard.noSecurityOptionsFound')}
+                  />
+            }
           </TabsContent>
         </Tabs>
       </CardContent>

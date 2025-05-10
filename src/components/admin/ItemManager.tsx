@@ -11,8 +11,10 @@ import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Edit, Trash2, Plus, Search } from 'lucide-react';
+import { Edit, Trash2, Plus, Search, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { InfoIcon } from 'lucide-react';
 
 export type WizardItem = {
   id: number;
@@ -21,7 +23,15 @@ export type WizardItem = {
   translations: {
     en: string;
     pt: string;
+    [key: string]: string;
   };
+  category?: string;
+  examples?: Array<{
+    id: number;
+    text: string;
+    active: boolean;
+  }>;
+  has_other_option?: boolean;
   [key: string]: any;
 };
 
@@ -32,6 +42,8 @@ interface ItemManagerProps {
   onUpdateItem?: (id: number, item: Partial<WizardItem>) => void;
   onDeleteItem?: (id: number) => void;
   additionalFields?: React.ReactNode;
+  isProcessing?: boolean;
+  emptyStateMessage?: string;
 }
 
 const ItemManager: React.FC<ItemManagerProps> = ({
@@ -40,13 +52,14 @@ const ItemManager: React.FC<ItemManagerProps> = ({
   onAddItem,
   onUpdateItem,
   onDeleteItem,
-  additionalFields
+  additionalFields,
+  isProcessing = false,
+  emptyStateMessage
 }) => {
   const { t, language } = useLanguage();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<Partial<WizardItem> | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
   // Form state
@@ -61,7 +74,7 @@ const ItemManager: React.FC<ItemManagerProps> = ({
 
   // Filter items based on search term
   const filteredItems = items.filter(item => 
-    item.translations[language].toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.translations[language]?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     item.key.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -92,7 +105,7 @@ const ItemManager: React.FC<ItemManagerProps> = ({
     }));
   };
 
-  const handleTranslationChange = (lang: 'en' | 'pt', value: string) => {
+  const handleTranslationChange = (lang: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       translations: {
@@ -105,26 +118,14 @@ const ItemManager: React.FC<ItemManagerProps> = ({
   const handleSave = () => {
     if (isEditing && formData.id !== undefined) {
       onUpdateItem?.(formData.id, formData);
-      toast({
-        title: t('dashboard.itemUpdated'),
-        description: formData.translations[language]
-      });
     } else {
       onAddItem?.(formData);
-      toast({
-        title: t('dashboard.itemSaved'),
-        description: formData.translations[language]
-      });
     }
     setIsDialogOpen(false);
   };
 
   const handleDelete = (id: number) => {
     onDeleteItem?.(id);
-    toast({
-      title: t('dashboard.itemDeleted'),
-      variant: "destructive"
-    });
   };
 
   return (
@@ -142,12 +143,32 @@ const ItemManager: React.FC<ItemManagerProps> = ({
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button onClick={() => handleOpenDialog()}>
-            <Plus className="mr-2 h-4 w-4" /> {t('dashboard.addItem')}
+          <Button 
+            onClick={() => handleOpenDialog()} 
+            disabled={isProcessing}
+          >
+            {isProcessing ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Plus className="mr-2 h-4 w-4" />
+            )}
+            {t('dashboard.addItem')}
           </Button>
         </div>
       </CardHeader>
       <CardContent>
+        {isProcessing && (
+          <Alert className="mb-4">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <AlertTitle>
+              {t('dashboard.processing')}
+            </AlertTitle>
+            <AlertDescription>
+              {t('dashboard.processingDescription')}
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <Table>
           <TableHeader>
             <TableRow>
@@ -162,7 +183,7 @@ const ItemManager: React.FC<ItemManagerProps> = ({
               filteredItems.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="font-mono text-sm">{item.key}</TableCell>
-                  <TableCell>{item.translations[language]}</TableCell>
+                  <TableCell>{item.translations[language] || item.key}</TableCell>
                   <TableCell>
                     {item.active ? (
                       <Badge variant="outline" className="bg-green-100 text-green-800 hover:bg-green-200 border-green-200">
@@ -176,13 +197,22 @@ const ItemManager: React.FC<ItemManagerProps> = ({
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
-                      <Button variant="outline" size="icon" onClick={() => handleOpenDialog(item)}>
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        onClick={() => handleOpenDialog(item)} 
+                        disabled={isProcessing}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
                       
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="outline" size="icon">
+                          <Button 
+                            variant="outline" 
+                            size="icon"
+                            disabled={isProcessing}
+                          >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>
@@ -210,8 +240,18 @@ const ItemManager: React.FC<ItemManagerProps> = ({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="text-center py-4 text-gray-500">
-                  {t('dashboard.noItemsFound')}
+                <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                  {searchTerm ? (
+                    <div className="flex flex-col items-center">
+                      <Search className="h-8 w-8 text-gray-400 mb-2" />
+                      {t('dashboard.noSearchResults')}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center">
+                      <InfoIcon className="h-8 w-8 text-gray-400 mb-2" />
+                      {emptyStateMessage || t('dashboard.noItemsFound')}
+                    </div>
+                  )}
                 </TableCell>
               </TableRow>
             )}
@@ -290,10 +330,17 @@ const ItemManager: React.FC<ItemManagerProps> = ({
             {additionalFields}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsDialogOpen(false)} 
+              disabled={isProcessing}
+            >
               {t('dashboard.cancelEdit')}
             </Button>
-            <Button onClick={handleSave}>
+            <Button onClick={handleSave} disabled={isProcessing}>
+              {isProcessing ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : null}
               {t('dashboard.saveItem')}
             </Button>
           </DialogFooter>
