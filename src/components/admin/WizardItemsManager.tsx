@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, InfoIcon } from 'lucide-react';
@@ -185,7 +184,7 @@ const WizardItemsManager: React.FC = () => {
     }
   };
 
-  const handleUpdateObjective = async (id: number, item: Partial<WizardItem>) => {
+  const handleUpdateObjective = async (id: string, item: Partial<WizardItem>) => {
     setProcessingObjectives(true);
     try {
       const result = await updateWizardItem(id, item);
@@ -214,7 +213,7 @@ const WizardItemsManager: React.FC = () => {
     }
   };
 
-  const handleDeleteObjective = async (id: number) => {
+  const handleDeleteObjective = async (id: string) => {
     setProcessingObjectives(true);
     try {
       const result = await deleteWizardItem(id);
@@ -273,7 +272,7 @@ const WizardItemsManager: React.FC = () => {
     }
   };
 
-  const handleUpdateFeature = async (id: number, item: Partial<WizardItem>) => {
+  const handleUpdateFeature = async (id: string, item: Partial<WizardItem>) => {
     setProcessingFeatures(true);
     try {
       const result = await updateWizardItem(id, item);
@@ -302,7 +301,7 @@ const WizardItemsManager: React.FC = () => {
     }
   };
 
-  const handleDeleteFeature = async (id: number) => {
+  const handleDeleteFeature = async (id: string) => {
     setProcessingFeatures(true);
     try {
       const result = await deleteWizardItem(id);
@@ -361,7 +360,7 @@ const WizardItemsManager: React.FC = () => {
     }
   };
 
-  const handleUpdateUXUIOption = async (id: number, item: Partial<WizardItem>) => {
+  const handleUpdateUXUIOption = async (id: string, item: Partial<WizardItem>) => {
     setProcessingUXUI(true);
     try {
       const result = await updateWizardItem(id, item);
@@ -390,7 +389,7 @@ const WizardItemsManager: React.FC = () => {
     }
   };
 
-  const handleDeleteUXUIOption = async (id: number) => {
+  const handleDeleteUXUIOption = async (id: string) => {
     setProcessingUXUI(true);
     try {
       const result = await deleteWizardItem(id);
@@ -419,7 +418,7 @@ const WizardItemsManager: React.FC = () => {
     }
   };
 
-  // Render loading state
+  // Helper functions for UI rendering
   const renderLoading = () => (
     <div className="flex justify-center items-center py-12">
       <Loader2 className="mr-2 h-6 w-6 animate-spin" />
@@ -427,7 +426,6 @@ const WizardItemsManager: React.FC = () => {
     </div>
   );
 
-  // Render error state
   const renderError = (error: string | null) => (
     <Alert variant="destructive" className="my-6">
       <AlertDescription>
@@ -436,7 +434,6 @@ const WizardItemsManager: React.FC = () => {
     </Alert>
   );
 
-  // Render no items state
   const renderEmpty = () => (
     <div className="flex justify-center items-center flex-col py-12 text-gray-500">
       <InfoIcon className="h-12 w-12 mb-2 text-gray-400" />
@@ -444,107 +441,281 @@ const WizardItemsManager: React.FC = () => {
     </div>
   );
 
+  // Add stack and security item handlers for completeness
+  const handleAddStackOption = async (item: Partial<WizardItem>) => {
+    setProcessingStack(true);
+    try {
+      const result = await createWizardItem(item, 'stack');
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemSaved'),
+          description: item.translations?.['en'] || item.key
+        });
+        await loadStack();
+      } else {
+        toast({
+          title: t('dashboard.errorSaving'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error adding stack option:', error);
+      toast({
+        title: t('dashboard.errorSaving'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setProcessingStack(false);
+    }
+  };
+
+  const handleUpdateStackOption = async (id: string, item: Partial<WizardItem>) => {
+    setProcessingStack(true);
+    try {
+      const result = await updateWizardItem(id, item);
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemUpdated'),
+          description: item.translations?.['en'] || item.key
+        });
+        await loadStack();
+      } else {
+        toast({
+          title: t('dashboard.errorUpdating'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error updating stack option:', error);
+      toast({
+        title: t('dashboard.errorUpdating'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setProcessingStack(false);
+    }
+  };
+
+  const handleDeleteStackOption = async (id: string) => {
+    setProcessingStack(true);
+    try {
+      const result = await deleteWizardItem(id);
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemDeleted'),
+          variant: 'default'
+        });
+        await loadStack();
+      } else {
+        toast({
+          title: t('dashboard.errorDeleting'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting stack option:', error);
+      toast({
+        title: t('dashboard.errorDeleting'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setProcessingStack(false);
+    }
+  };
+
+  const handleAddSecurityOption = async (item: Partial<WizardItem>) => {
+    setProcessingSecurity(true);
+    try {
+      const result = await createWizardItem(item, 'security');
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemSaved'),
+          description: item.translations?.['en'] || item.key
+        });
+        await loadSecurity();
+      } else {
+        toast({
+          title: t('dashboard.errorSaving'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error adding security option:', error);
+      toast({
+        title: t('dashboard.errorSaving'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setProcessingSecurity(false);
+    }
+  };
+
+  const handleUpdateSecurityOption = async (id: string, item: Partial<WizardItem>) => {
+    setProcessingSecurity(true);
+    try {
+      const result = await updateWizardItem(id, item);
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemUpdated'),
+          description: item.translations?.['en'] || item.key
+        });
+        await loadSecurity();
+      } else {
+        toast({
+          title: t('dashboard.errorUpdating'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error updating security option:', error);
+      toast({
+        title: t('dashboard.errorUpdating'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setProcessingSecurity(false);
+    }
+  };
+
+  const handleDeleteSecurityOption = async (id: string) => {
+    setProcessingSecurity(true);
+    try {
+      const result = await deleteWizardItem(id);
+      if (result.success) {
+        toast({
+          title: t('dashboard.itemDeleted'),
+          variant: 'default'
+        });
+        await loadSecurity();
+      } else {
+        toast({
+          title: t('dashboard.errorDeleting'),
+          description: result.error || t('dashboard.unknownError'),
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting security option:', error);
+      toast({
+        title: t('dashboard.errorDeleting'),
+        description: t('dashboard.unknownError'),
+        variant: 'destructive'
+      });
+    } finally {
+      setProcessingSecurity(false);
+    }
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t('dashboard.wizardItems')}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Tabs 
-          defaultValue="systemTypes" 
-          value={activeTab} 
-          onValueChange={setActiveTab}
-          className="space-y-4"
-        >
-          <TabsList className="grid grid-cols-3 lg:grid-cols-6 gap-2">
-            <TabsTrigger value="systemTypes">{t('dashboard.systemTypes')}</TabsTrigger>
-            <TabsTrigger value="objectives">{t('dashboard.objectives')}</TabsTrigger>
-            <TabsTrigger value="features">{t('dashboard.featuresItems')}</TabsTrigger>
-            <TabsTrigger value="uxuiOptions">{t('dashboard.uxuiOptions')}</TabsTrigger>
-            <TabsTrigger value="stackOptions">{t('dashboard.stackOptions')}</TabsTrigger>
-            <TabsTrigger value="securityOptions">{t('dashboard.securityOptions')}</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="systemTypes">
-            <SystemTypesManager />
-          </TabsContent>
-          
-          <TabsContent value="objectives">
-            {loadingObjectives ? renderLoading() : 
-              objectivesError ? renderError(objectivesError) :
-                objectives.length === 0 ? renderEmpty() :
-                  <ItemManager
-                    title={t('dashboard.objectives')}
-                    items={objectives}
-                    onAddItem={handleAddObjective}
-                    onUpdateItem={handleUpdateObjective}
-                    onDeleteItem={handleDeleteObjective}
-                    isProcessing={processingObjectives}
-                    emptyStateMessage={t('dashboard.noObjectivesFound')}
-                  />
-            }
-          </TabsContent>
-          
-          <TabsContent value="features">
-            {loadingFeatures ? renderLoading() : 
-              featuresError ? renderError(featuresError) :
-                features.length === 0 ? renderEmpty() :
-                  <ItemManager
-                    title={t('dashboard.featuresItems')}
-                    items={features}
-                    onAddItem={handleAddFeature}
-                    onUpdateItem={handleUpdateFeature}
-                    onDeleteItem={handleDeleteFeature}
-                    isProcessing={processingFeatures}
-                    emptyStateMessage={t('dashboard.noFeaturesFound')}
-                  />
-            }
-          </TabsContent>
-          
-          <TabsContent value="uxuiOptions">
-            {loadingUXUI ? renderLoading() : 
-              uxuiError ? renderError(uxuiError) :
-                uxuiOptions.length === 0 ? renderEmpty() :
-                  <ItemManager
-                    title={t('dashboard.uxuiOptions')}
-                    items={uxuiOptions}
-                    onAddItem={handleAddUXUIOption}
-                    onUpdateItem={handleUpdateUXUIOption}
-                    onDeleteItem={handleDeleteUXUIOption}
-                    isProcessing={processingUXUI}
-                    emptyStateMessage={t('dashboard.noUXUIOptionsFound')}
-                  />
-            }
-          </TabsContent>
-          
-          <TabsContent value="stackOptions">
-            {loadingStack ? renderLoading() : 
-              stackError ? renderError(stackError) :
-                stackOptions.length === 0 ? renderEmpty() :
-                  <ItemManager
-                    title={t('dashboard.stackOptions')}
-                    items={stackOptions}
-                    isProcessing={processingStack}
-                    emptyStateMessage={t('dashboard.noStackOptionsFound')}
-                  />
-            }
-          </TabsContent>
-          
-          <TabsContent value="securityOptions">
-            {loadingSecurity ? renderLoading() : 
-              securityError ? renderError(securityError) :
-                securityOptions.length === 0 ? renderEmpty() :
-                  <ItemManager
-                    title={t('dashboard.securityOptions')}
-                    items={securityOptions}
-                    isProcessing={processingSecurity}
-                    emptyStateMessage={t('dashboard.noSecurityOptionsFound')}
-                  />
-            }
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+    <Tabs 
+      defaultValue="systemTypes" 
+      value={activeTab} 
+      onValueChange={setActiveTab}
+      className="space-y-4"
+    >
+      <TabsList className="grid grid-cols-3 lg:grid-cols-6 gap-2">
+        <TabsTrigger value="systemTypes">{t('dashboard.systemTypes')}</TabsTrigger>
+        <TabsTrigger value="objectives">{t('dashboard.objectives')}</TabsTrigger>
+        <TabsTrigger value="features">{t('dashboard.featuresItems')}</TabsTrigger>
+        <TabsTrigger value="uxuiOptions">{t('dashboard.uxuiOptions')}</TabsTrigger>
+        <TabsTrigger value="stackOptions">{t('dashboard.stackOptions')}</TabsTrigger>
+        <TabsTrigger value="securityOptions">{t('dashboard.securityOptions')}</TabsTrigger>
+      </TabsList>
+      
+      <TabsContent value="systemTypes">
+        <SystemTypesManager />
+      </TabsContent>
+      
+      <TabsContent value="objectives">
+        {loadingObjectives ? renderLoading() : 
+          objectivesError ? renderError(objectivesError) :
+            objectives.length === 0 ? renderEmpty() :
+              <ItemManager
+                title={t('dashboard.objectives')}
+                items={objectives}
+                onAddItem={handleAddObjective}
+                onUpdateItem={handleUpdateObjective}
+                onDeleteItem={handleDeleteObjective}
+                isProcessing={processingObjectives}
+                emptyStateMessage={t('dashboard.noObjectivesFound')}
+              />
+        }
+      </TabsContent>
+      
+      <TabsContent value="features">
+        {loadingFeatures ? renderLoading() : 
+          featuresError ? renderError(featuresError) :
+            features.length === 0 ? renderEmpty() :
+              <ItemManager
+                title={t('dashboard.featuresItems')}
+                items={features}
+                onAddItem={handleAddFeature}
+                onUpdateItem={handleUpdateFeature}
+                onDeleteItem={handleDeleteFeature}
+                isProcessing={processingFeatures}
+                emptyStateMessage={t('dashboard.noFeaturesFound')}
+              />
+        }
+      </TabsContent>
+      
+      <TabsContent value="uxuiOptions">
+        {loadingUXUI ? renderLoading() : 
+          uxuiError ? renderError(uxuiError) :
+            uxuiOptions.length === 0 ? renderEmpty() :
+              <ItemManager
+                title={t('dashboard.uxuiOptions')}
+                items={uxuiOptions}
+                onAddItem={handleAddUXUIOption}
+                onUpdateItem={handleUpdateUXUIOption}
+                onDeleteItem={handleDeleteUXUIOption}
+                isProcessing={processingUXUI}
+                emptyStateMessage={t('dashboard.noUXUIOptionsFound')}
+              />
+        }
+      </TabsContent>
+      
+      <TabsContent value="stackOptions">
+        {loadingStack ? renderLoading() : 
+          stackError ? renderError(stackError) :
+            stackOptions.length === 0 ? renderEmpty() :
+              <ItemManager
+                title={t('dashboard.stackOptions')}
+                items={stackOptions}
+                onAddItem={handleAddStackOption}
+                onUpdateItem={handleUpdateStackOption}
+                onDeleteItem={handleDeleteStackOption}
+                isProcessing={processingStack}
+                emptyStateMessage={t('dashboard.noStackOptionsFound')}
+              />
+        }
+      </TabsContent>
+      
+      <TabsContent value="securityOptions">
+        {loadingSecurity ? renderLoading() : 
+          securityError ? renderError(securityError) :
+            securityOptions.length === 0 ? renderEmpty() :
+              <ItemManager
+                title={t('dashboard.securityOptions')}
+                items={securityOptions}
+                onAddItem={handleAddSecurityOption}
+                onUpdateItem={handleUpdateSecurityOption}
+                onDeleteItem={handleDeleteSecurityOption}
+                isProcessing={processingSecurity}
+                emptyStateMessage={t('dashboard.noSecurityOptionsFound')}
+              />
+        }
+      </TabsContent>
+    </Tabs>
   );
 };
 

@@ -6,15 +6,15 @@ import { useLanguage } from '@/i18n/LanguageContext';
 
 // Interface for wizard items with database fields
 export interface DbWizardItem extends Omit<WizardItem, 'translations'> {
-  id: string;
+  id: string; // Changed from number to string to match UUID
   key: string;
   active: boolean;
   type?: string;
-  category_id?: string;
+  category_id?: string; // Changed from category_id?: string
   has_other_option?: boolean;
   sort_order?: number;
   translations: Record<string, string>;
-  examples?: Array<{id: string, text: string, active: boolean}>;
+  examples?: Array<{id: string, text: string, active: boolean}>; // Changed from id: number
 }
 
 // Function to transform database items to the format expected by the components
@@ -41,7 +41,7 @@ export const transformWizardItems = (
       ? item.wizard_item_examples
           .filter((ex: any) => ex.active)
           .map((ex: any) => ({ 
-            id: ex.id, 
+            id: ex.id, // This is a string UUID now
             text: ex.text, 
             active: ex.active 
           }))
@@ -194,7 +194,7 @@ export const createWizardItem = async (
 
 // Update an existing wizard item
 export const updateWizardItem = async (
-  id: string,
+  id: string, // Changed from number to string
   item: Partial<WizardItem>
 ): Promise<{ success: boolean; error?: string }> => {
   try {

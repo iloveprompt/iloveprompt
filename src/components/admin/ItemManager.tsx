@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,7 +16,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { InfoIcon } from 'lucide-react';
 
 export type WizardItem = {
-  id: number;
+  id: string; // Changed from number to string to match UUID from database
   key: string;
   active: boolean;
   translations: {
@@ -27,7 +26,7 @@ export type WizardItem = {
   };
   category?: string;
   examples?: Array<{
-    id: number;
+    id: string; // Changed from number to string
     text: string;
     active: boolean;
   }>;
@@ -39,8 +38,8 @@ interface ItemManagerProps {
   title: string;
   items: WizardItem[];
   onAddItem?: (item: Partial<WizardItem>) => void;
-  onUpdateItem?: (id: number, item: Partial<WizardItem>) => void;
-  onDeleteItem?: (id: number) => void;
+  onUpdateItem?: (id: string, item: Partial<WizardItem>) => void; // Changed from number to string
+  onDeleteItem?: (id: string) => void; // Changed from number to string
   additionalFields?: React.ReactNode;
   isProcessing?: boolean;
   emptyStateMessage?: string;
@@ -124,7 +123,7 @@ const ItemManager: React.FC<ItemManagerProps> = ({
     setIsDialogOpen(false);
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => { // Changed from number to string
     onDeleteItem?.(id);
   };
 
