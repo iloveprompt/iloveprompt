@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
 import { User, Session } from '@supabase/supabase-js';
@@ -87,7 +86,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           console.error('Erro ao verificar role:', roleError.message);
           
           // Fallback final: se as tabelas ainda não existirem, usar o método antigo
-          result = userId === 'ander_dorneles@hotmail.com';
+          result = user?.email === 'ander_dorneles@hotmail.com';
         } else {
           result = roleData && roleData.length > 0 && roleData.some(r => r.user_roles?.name === 'admin');
         }
@@ -107,18 +106,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     }
   };
 
-  // Function to handle redirect after login - completely separate from auth state changes
+  // Function to handle redirect after login - completamente reformulada
   const redirectAfterLogin = async (userId: string | undefined) => {
+    // Verificações de segurança para garantir que temos um ID de usuário válido e navegação
     if (!navigateFunction) {
-      console.log('Cannot redirect: missing navigation function', { 
-        hasNavigate: !!navigateFunction
-      });
+      console.log('Cannot redirect: missing navigation function');
       return;
     }
     
-    // Verificações adicionais para garantir que temos um userId válido e que o usuário está autenticado
     if (!userId && !user?.id) {
-      console.log('Redirecionamento cancelado: nenhum ID de usuário disponível e nenhum usuário logado');
+      console.log('Redirecionamento cancelado: nenhum ID de usuário disponível');
       return;
     }
     
@@ -131,24 +128,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       return;
     }
     
+    // IMPORTANTE: Verificar se realmente temos uma sessão válida antes de redirecionar
+    if (!session) {
+      console.log('Não é possível redirecionar: nenhuma sessão válida');
+      return;
+    }
+    
     try {
       console.log('Redirecionando após login para o ID do usuário:', effectiveUserId);
       
-      // Só verifica admin se tivermos um usuário e sessão válidos
-      if (session && user) {
-        const isUserAdmin = await checkIfUserIsAdmin(effectiveUserId);
-        console.log('User admin check result:', isUserAdmin);
-        
-        if (isUserAdmin) {
-          console.log('User is admin, redirecting to /admin');
-          navigateFunction('/admin');
-        } else {
-          console.log('User is not admin, redirecting to /dashboard');
-          navigateFunction('/dashboard');
-        }
+      // Verificar se o usuário é admin apenas após confirmar que temos sessão válida
+      const isUserAdmin = await checkIfUserIsAdmin(effectiveUserId);
+      console.log('User admin check result:', isUserAdmin);
+      
+      if (isUserAdmin) {
+        console.log('User is admin, redirecting to /admin');
+        navigateFunction('/admin');
       } else {
-        // Se não temos sessão ou usuário, é uma situação inesperada
-        console.log('Tentativa de redirecionamento sem sessão válida, redirecionando para dashboard como padrão');
+        console.log('User is not admin, redirecting to /dashboard');
         navigateFunction('/dashboard');
       }
     } catch (error) {
@@ -269,7 +266,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     session,
     loading,
     signOut,
-    isAuthenticated: !!(user && session), // Modifica aqui para verificar tanto usuário quanto sessão
+    isAuthenticated: !!(user && session), // Garante que verificamos tanto usuário quanto sessão
     redirectAfterLogin,
     isAdmin,
   };

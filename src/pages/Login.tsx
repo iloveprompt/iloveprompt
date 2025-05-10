@@ -21,16 +21,6 @@ const LoginPage = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { redirectAfterLogin, user, session } = useAuth();
   
-  // Verifique corretamente se há um usuário autenticado (usando tanto user quanto session)
-  useEffect(() => {
-    // Apenas redirecione se tivermos tanto user quanto session 
-    // Isso garante que o usuário está realmente autenticado
-    if (user && session) {
-      console.log('Usuário realmente autenticado na página de login, redirecionando');
-      redirectAfterLogin(user.id);
-    }
-  }, [user, session, redirectAfterLogin]);
-
   // Define the form schema
   const formSchema = z.object({
     email: z.string().email({
@@ -62,18 +52,21 @@ const LoginPage = () => {
 
       if (error) throw error;
       
-      console.log('Login successful, redirecting');
+      console.log('Login successful');
       toast({
         title: t('auth.loginSuccess'),
         description: t('auth.welcomeBack'),
       });
       
-      // Manually handle redirect after login - passing userId directly
-      if (data.user && data.session) {
-        console.log('Manually redirecting after successful login, user ID:', data.user.id);
-        // We need to pass the user ID directly to avoid circular dependency
-        redirectAfterLogin(data.user.id);
-      }
+      // Ao invés de redirecionar imediatamente, aguardamos um curto período
+      // para garantir que o estado de autenticação foi atualizado
+      setTimeout(() => {
+        if (data.user && data.session) {
+          console.log('Redirecionando após autenticação bem-sucedida');
+          redirectAfterLogin(data.user.id);
+        }
+      }, 300);
+      
     } catch (error: any) {
       console.error('Login error:', error);
       toast({

@@ -15,15 +15,28 @@ const Index = () => {
   const navigate = useNavigate();
   
   // Efeito para redirecionar usuários autenticados após retorno de autenticação social
+  // Modificado para ser mais rigoroso na verificação
   useEffect(() => {
-    // Verificamos de forma mais rigorosa se o usuário está realmente autenticado
-    // Precisamos ter tanto user quanto session para confirmar autenticação
+    // Apenas redirecionar se:
+    // 1. O carregamento inicial terminou
+    // 2. Temos um usuário válido
+    // 3. Temos uma sessão válida
+    // 4. isAuthenticated é verdadeiro (o que já verifica 2 e 3, mas adicionamos como segurança extra)
     if (!loading && user && session && isAuthenticated) {
-      console.log('Usuário realmente autenticado na página inicial, redirecionando automaticamente');
-      // Usar setTimeout para evitar problemas de estado
-      setTimeout(() => {
-        redirectAfterLogin(user.id);
-      }, 100);
+      console.log('Usuário autenticado na página inicial, verificando sessão antes de redirecionar');
+      
+      // Verificação adicional para garantir que a sessão não expirou
+      const isSessionValid = new Date(session.expires_at * 1000) > new Date();
+      
+      if (isSessionValid) {
+        console.log('Sessão válida, redirecionando após pequeno intervalo');
+        // Usar pequeno timeout para garantir que outros processos de inicialização estejam completos
+        setTimeout(() => {
+          redirectAfterLogin(user.id);
+        }, 200);
+      } else {
+        console.log('Sessão expirada, não redirecionando');
+      }
     }
   }, [isAuthenticated, user, session, loading, redirectAfterLogin]);
   
