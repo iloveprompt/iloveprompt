@@ -11,7 +11,7 @@ interface AuthContextType {
   loading: boolean;
   signOut: () => Promise<void>;
   isAuthenticated: boolean;
-  redirectAfterLogin: (userEmail: string | undefined) => void;
+  redirectAfterLogin: (userId: string | undefined) => void;
   isAdmin: boolean;
 }
 
@@ -79,18 +79,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   };
 
   // Function to handle redirect after login - completely separate from auth state changes
-  const redirectAfterLogin = async (userEmail: string | undefined) => {
-    if (!navigateFunction || !user) {
-      console.log('Cannot redirect: missing navigation function or user', { 
-        hasNavigate: !!navigateFunction, 
-        hasUser: !!user 
+  // Modified to use userId directly instead of relying on the current user state
+  const redirectAfterLogin = async (userId: string | undefined) => {
+    if (!navigateFunction) {
+      console.log('Cannot redirect: missing navigation function', { 
+        hasNavigate: !!navigateFunction
       });
       return;
     }
     
+    // If userId is not provided, try to get it from the current user state
+    const effectiveUserId = userId || user?.id;
+    
+    if (!effectiveUserId) {
+      console.log('Cannot redirect: no user ID available');
+      return;
+    }
+    
     try {
-      console.log('Redirecting after login for user:', userEmail);
-      const isUserAdmin = await checkIfUserIsAdmin(user.id);
+      console.log('Redirecting after login for user ID:', effectiveUserId);
+      const isUserAdmin = await checkIfUserIsAdmin(effectiveUserId);
       console.log('User admin check result:', isUserAdmin);
       
       if (isUserAdmin) {
@@ -102,6 +110,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       }
     } catch (error) {
       console.error('Error in redirectAfterLogin:', error);
+      // Default fallback - redirect to dashboard
+      console.log('Fallback: redirecting to /dashboard due to error');
       navigateFunction('/dashboard');
     }
   };

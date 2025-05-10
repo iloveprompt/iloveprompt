@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -67,10 +66,11 @@ const LoginPage = () => {
         description: t('auth.welcomeBack'),
       });
       
-      // Manually handle redirect after login
+      // Manually handle redirect after login - passing userId directly
       if (data.user) {
-        console.log('Manually redirecting after successful login');
-        redirectAfterLogin(data.user.email);
+        console.log('Manually redirecting after successful login, user ID:', data.user.id);
+        // We need to pass the user ID directly to avoid circular dependency
+        redirectAfterLogin(data.user.id);
       }
     } catch (error: any) {
       console.error('Login error:', error);
@@ -85,18 +85,27 @@ const LoginPage = () => {
     }
   };
 
-  // Social login handlers
+  // Social login handlers with timeout safety
   const handleGoogleLogin = async () => {
     try {
       setIsLoggingIn(true);
       console.log('Attempting Google login');
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}`,
         },
       });
+      
       if (error) throw error;
+      
+      // Add a safety timeout to reset the loading state if redirect doesn't happen quickly
+      // This prevents the button from being stuck in loading state
+      setTimeout(() => {
+        setIsLoggingIn(false);
+      }, 3000);
+      
     } catch (error: any) {
       console.error('Google login error:', error);
       toast({
@@ -112,13 +121,21 @@ const LoginPage = () => {
     try {
       setIsLoggingIn(true);
       console.log('Attempting GitHub login');
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
           redirectTo: `${window.location.origin}`,
         },
       });
+      
       if (error) throw error;
+      
+      // Add a safety timeout to reset the loading state if redirect doesn't happen quickly
+      setTimeout(() => {
+        setIsLoggingIn(false);
+      }, 3000);
+      
     } catch (error: any) {
       console.error('GitHub login error:', error);
       toast({
