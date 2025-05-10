@@ -1,4 +1,3 @@
-
 {
   "common": {
     "home": "Início",
@@ -21,7 +20,8 @@
     "deleteItem": "Excluir",
     "incompleteProfile": "Cadastro incompleto",
     "completeProfile": "Completar cadastro",
-    "pick": "Escolher"
+    "pick": "Escolher",
+    "optional": "Opcional"
   },
   "auth": {
     "loginTitle": "Entre na sua conta",
@@ -440,23 +440,49 @@
     "title": "Gerador de Prompts",
     "description": "Crie prompts de IA para suas necessidades específicas",
     "generate": "Gerar Prompt",
+    "common": {
+      "optional": "opcional"
+    },
     "project": {
       "title": "Informações do Projeto",
       "description": "Informações básicas sobre seu projeto",
       "projectTitle": "Título do Projeto",
       "projectTitlePlaceholder": "Ex: Plataforma de E-commerce",
+      "projectTitleHelp": "O nome do seu projeto ou aplicação",
       "author": "Autor",
       "authorPlaceholder": "Seu nome",
+      "authorHelp": "Seu nome ou nome da equipe",
       "email": "Email",
       "emailPlaceholder": "Seu endereço de email",
+      "url": "Website",
+      "urlPlaceholder": "URL do seu site",
+      "urlHelp": "A URL onde seu projeto pode ser acessado",
+      "appUrl": "URL da Aplicação",
+      "appUrlPlaceholder": "Onde sua aplicação está hospedada (opcional)",
       "website": "Site",
       "websitePlaceholder": "Seu site (opcional)",
-      "appUrl": "URL da Aplicação",
-      "appUrlPlaceholder": "Onde sua aplicação está hospedada (opcional)"
+      "createdDate": "Data de Criação",
+      "updatedDate": "Última Atualização",
+      "version": "Versão",
+      "versionHelp": "Versão atual do seu projeto"
     },
     "systemType": {
       "title": "Tipo de Sistema",
       "description": "Que tipo de sistema você está construindo?",
+      "systemTypeHelp": "Selecione o tipo de sistema que você está desenvolvendo",
+      "microsaas": "Micro SaaS",
+      "saas": "Plataforma SaaS",
+      "erp": "Sistema ERP",
+      "crm": "Sistema CRM",
+      "ecommerce": "Plataforma de E-commerce",
+      "cms": "Sistema de Gestão de Conteúdo",
+      "apiBackend": "Serviço API/Backend",
+      "mobileApp": "Aplicativo Móvel",
+      "schedulingSystem": "Sistema de Agendamento",
+      "helpdesk": "Sistema de Suporte/Helpdesk",
+      "educationalPlatform": "Plataforma Educacional",
+      "streamingPlatform": "Plataforma de Streaming",
+      "staticPage": "Site Estático",
       "webapp": "Aplicação Web",
       "mobileapp": "Aplicativo Móvel",
       "api": "API / Backend",
@@ -464,8 +490,18 @@
       "plugin": "Plugin / Extensão",
       "other": "Outro Tipo de Sistema",
       "otherPlaceholder": "Especifique o tipo de sistema",
+      "otherTypePlaceholder": "Descreva seu tipo de sistema",
       "examples": "Exemplos",
-      "examplePlaceholder": "Ex: Facebook, Twitter, Instagram"
+      "examplePlaceholder": "Ex: Facebook, Twitter, Instagram",
+      "suggestedExamples": "Funcionalidades Sugeridas Baseadas no Tipo de Sistema",
+      "socialLogin": "Integração de Login Social",
+      "platformWithLanding": "Plataforma com Página Inicial",
+      "interactiveDashboards": "Painéis Interativos",
+      "jwtAuth": "Autenticação JWT",
+      "webhooks": "Sistema de Webhooks",
+      "pushNotifications": "Notificações Push",
+      "schedulingReminders": "Lembretes de Agendamento",
+      "subscriptionPlatform": "Plataforma de Assinatura"
     },
     "objective": {
       "title": "Objetivo",

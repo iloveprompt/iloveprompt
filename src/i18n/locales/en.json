@@ -1,4 +1,3 @@
-
 {
   "common": {
     "home": "Home",
@@ -21,7 +20,8 @@
     "deleteItem": "Delete",
     "incompleteProfile": "Incomplete profile",
     "completeProfile": "Complete profile",
-    "pick": "Pick"
+    "pick": "Pick",
+    "optional": "Optional"
   },
   "auth": {
     "loginTitle": "Sign in to your account",
@@ -440,23 +440,49 @@
     "title": "Prompt Generator",
     "description": "Create AI prompts for your specific needs",
     "generate": "Generate Prompt",
+    "common": {
+      "optional": "optional"
+    },
     "project": {
       "title": "Project Information",
       "description": "Basic information about your project",
       "projectTitle": "Project Title",
       "projectTitlePlaceholder": "E.g. E-commerce Platform",
+      "projectTitleHelp": "The name of your project or application",
       "author": "Author",
       "authorPlaceholder": "Your name",
+      "authorHelp": "Your name or the team's name",
       "email": "Email",
       "emailPlaceholder": "Your email address",
+      "url": "Website",
+      "urlPlaceholder": "Your website URL",
+      "urlHelp": "The URL where your project can be accessed",
+      "appUrl": "Application URL",
+      "appUrlPlaceholder": "Where your app is hosted (optional)",
       "website": "Website",
       "websitePlaceholder": "Your website (optional)",
-      "appUrl": "Application URL",
-      "appUrlPlaceholder": "Where your app is hosted (optional)"
+      "createdDate": "Creation Date",
+      "updatedDate": "Last Updated",
+      "version": "Version",
+      "versionHelp": "Current version of your project"
     },
     "systemType": {
       "title": "System Type",
       "description": "What kind of system are you building?",
+      "systemTypeHelp": "Select the type of system you're developing",
+      "microsaas": "Micro SaaS",
+      "saas": "SaaS Platform",
+      "erp": "ERP System",
+      "crm": "CRM System",
+      "ecommerce": "E-commerce Platform",
+      "cms": "Content Management System",
+      "apiBackend": "API/Backend Service",
+      "mobileApp": "Mobile Application",
+      "schedulingSystem": "Scheduling System",
+      "helpdesk": "Helpdesk/Support System",
+      "educationalPlatform": "Educational Platform",
+      "streamingPlatform": "Streaming Platform",
+      "staticPage": "Static Website",
       "webapp": "Web Application",
       "mobileapp": "Mobile App",
       "api": "API / Backend",
@@ -464,8 +490,18 @@
       "plugin": "Plugin / Extension",
       "other": "Other System Type",
       "otherPlaceholder": "Specify the system type",
+      "otherTypePlaceholder": "Describe your system type",
       "examples": "Examples",
-      "examplePlaceholder": "E.g. Facebook, Twitter, Instagram"
+      "examplePlaceholder": "E.g. Facebook, Twitter, Instagram",
+      "suggestedExamples": "Suggested Features Based on System Type",
+      "socialLogin": "Social Login Integration",
+      "platformWithLanding": "Platform with Landing Page",
+      "interactiveDashboards": "Interactive Dashboards",
+      "jwtAuth": "JWT Authentication",
+      "webhooks": "Webhooks System",
+      "pushNotifications": "Push Notifications",
+      "schedulingReminders": "Scheduling Reminders",
+      "subscriptionPlatform": "Subscription Platform"
     },
     "objective": {
       "title": "Objective",

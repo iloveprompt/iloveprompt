@@ -89,7 +89,7 @@ const ProjectStep: React.FC<ProjectStepProps> = ({ formData, updateFormData }) =
 
           <div className="space-y-2">
             <Label htmlFor="project-url" className="text-base font-medium">
-              {t('promptGenerator.project.url')} <span className="text-sm text-gray-500">({t('promptGenerator.common.optional')})</span>
+              {t('promptGenerator.project.url')} <span className="text-sm text-gray-500">({t('common.optional')})</span>
             </Label>
             <Input 
               id="project-url"
