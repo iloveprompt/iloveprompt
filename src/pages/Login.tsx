@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -13,13 +13,14 @@ import { Github, Mail } from 'lucide-react';
 import { colors } from '@/styles/colors';
 import PasswordInput from '@/components/auth/PasswordInput';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 
 const LoginPage = () => {
   const { t } = useLanguage();
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const { redirectAfterLogin, user, session } = useAuth();
+  const { user } = useAuth();
+  const { redirectAfterLogin } = useAuthRedirect();
   
   // Define the form schema
   const formSchema = z.object({
@@ -58,14 +59,13 @@ const LoginPage = () => {
         description: t('auth.welcomeBack'),
       });
       
-      // Ao invés de redirecionar imediatamente, aguardamos um curto período
-      // para garantir que o estado de autenticação foi atualizado
-      setTimeout(() => {
-        if (data.user && data.session) {
-          console.log('Redirecionando após autenticação bem-sucedida');
+      // Explicitly redirect after successful login
+      if (data.user && data.session) {
+        console.log('Login successful, triggering redirect for user ID:', data.user.id);
+        setTimeout(() => {
           redirectAfterLogin(data.user.id);
-        }
-      }, 300);
+        }, 300);
+      }
       
     } catch (error: any) {
       console.error('Login error:', error);
@@ -95,8 +95,7 @@ const LoginPage = () => {
       
       if (error) throw error;
       
-      // Note: Redirecionamento já será tratado no useAuth.tsx quando o usuário retornar à página inicial
-      // Add a safety timeout to reset the loading state if redirect doesn't happen quickly
+      // Safety timeout to reset the loading state if redirect doesn't happen quickly
       setTimeout(() => {
         setIsLoggingIn(false);
       }, 3000);
@@ -126,8 +125,7 @@ const LoginPage = () => {
       
       if (error) throw error;
       
-      // Note: Redirecionamento já será tratado no useAuth.tsx quando o usuário retornar à página inicial
-      // Add a safety timeout to reset the loading state if redirect doesn't happen quickly
+      // Safety timeout to reset the loading state if redirect doesn't happen quickly
       setTimeout(() => {
         setIsLoggingIn(false);
       }, 3000);

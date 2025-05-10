@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -11,34 +11,9 @@ import { useAuth } from '@/hooks/useAuth';
 
 const Index = () => {
   const { t } = useLanguage();
-  const { isAuthenticated, redirectAfterLogin, user, session, loading } = useAuth();
-  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   
-  // Efeito para redirecionar usuários autenticados após retorno de autenticação social
-  // Modificado para ser mais rigoroso na verificação
-  useEffect(() => {
-    // Apenas redirecionar se:
-    // 1. O carregamento inicial terminou
-    // 2. Temos um usuário válido
-    // 3. Temos uma sessão válida
-    // 4. isAuthenticated é verdadeiro (o que já verifica 2 e 3, mas adicionamos como segurança extra)
-    if (!loading && user && session && isAuthenticated) {
-      console.log('Usuário autenticado na página inicial, verificando sessão antes de redirecionar');
-      
-      // Verificação adicional para garantir que a sessão não expirou
-      const isSessionValid = new Date(session.expires_at * 1000) > new Date();
-      
-      if (isSessionValid) {
-        console.log('Sessão válida, redirecionando após pequeno intervalo');
-        // Usar pequeno timeout para garantir que outros processos de inicialização estejam completos
-        setTimeout(() => {
-          redirectAfterLogin(user.id);
-        }, 200);
-      } else {
-        console.log('Sessão expirada, não redirecionando');
-      }
-    }
-  }, [isAuthenticated, user, session, loading, redirectAfterLogin]);
+  console.log('Index page rendered, authentication status:', isAuthenticated);
   
   return (
     <div className="flex flex-col min-h-screen">

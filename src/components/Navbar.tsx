@@ -1,10 +1,10 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, LogOut, User, LayoutDashboard } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import LanguageSwitcher from './LanguageSwitcher';
 import { colors } from '@/styles/colors';
 import { 
@@ -19,13 +19,22 @@ import {
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { t } = useLanguage();
-  const { user, signOut, isAuthenticated } = useAuth();
+  const { user, signOut, isAuthenticated, isAdmin } = useAuth();
+  const { redirectAfterLogin } = useAuthRedirect();
   const navigate = useNavigate();
   const location = useLocation();
   
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
+  };
+  
+  const handleDashboardClick = () => {
+    if (isAdmin) {
+      navigate('/admin');
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   // Check if we're in dashboard routes
@@ -37,10 +46,10 @@ const Navbar = () => {
   
   // Important: We want to show auth buttons on the homepage regardless of auth status
   // This ensures users always see the landing page buttons
-  const showAuthButtons = isHomePage || (!isInDashboard);
+  const showAuthButtons = isHomePage || (!isInDashboard && !isAuthenticated);
   
   // We only show dashboard button for authenticated users who are not already in the dashboard
-  const showDashboardButton = isAuthenticated && !isInDashboard && !isHomePage;
+  const showDashboardButton = isAuthenticated && !isInDashboard;
   
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white">
@@ -61,17 +70,26 @@ const Navbar = () => {
               <LanguageSwitcher />
               
               {showDashboardButton && (
-                <Link to="/dashboard">
-                  <Button 
-                    style={{
-                      backgroundColor: colors.blue[600]
-                    }} 
-                    className="text-white hover:bg-opacity-90 flex items-center gap-2"
-                  >
-                    <LayoutDashboard className="h-4 w-4" />
-                    Dashboard
-                  </Button>
-                </Link>
+                <Button 
+                  style={{
+                    backgroundColor: colors.blue[600]
+                  }} 
+                  className="text-white hover:bg-opacity-90 flex items-center gap-2"
+                  onClick={handleDashboardClick}
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  Dashboard
+                </Button>
+              )}
+              
+              {isAuthenticated && (
+                <Button 
+                  variant="outline" 
+                  className="border-red-500 text-red-700 hover:bg-red-50"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="h-4 w-4 mr-2" /> {t('common.logout')}
+                </Button>
               )}
               
               {showAuthButtons && (

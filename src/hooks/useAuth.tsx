@@ -1,8 +1,15 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
 import { User, Session } from '@supabase/supabase-js';
 import { useToast } from './use-toast';
 import { useLanguage } from '@/i18n/LanguageContext';
+
+// Create a custom event for authentication state changes
+export const AUTH_EVENTS = {
+  ADMIN_STATUS_CHECKED: 'admin-status-checked',
+  AUTH_READY: 'auth-ready'
+};
 
 interface AuthContextType {
   user: User | null;
@@ -10,8 +17,8 @@ interface AuthContextType {
   loading: boolean;
   signOut: () => Promise<void>;
   isAuthenticated: boolean;
-  redirectAfterLogin: (userId: string | undefined) => void;
   isAdmin: boolean;
+  checkIfUserIsAdmin: (userId: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -20,22 +27,14 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   signOut: async () => {},
   isAuthenticated: false,
-  redirectAfterLogin: () => {},
   isAdmin: false,
+  checkIfUserIsAdmin: async () => false,
 });
-
-interface AuthProviderProps {
-  children: ReactNode;
-  navigateFunction?: (path: string) => void;
-}
 
 // Cache para verificação de admin para evitar verificações repetitivas
 const adminCheckCache: {[key: string]: boolean} = {};
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ 
-  children, 
-  navigateFunction 
-}) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -97,62 +96,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       // Armazenar resultado no cache
       adminCheckCacheRef.current[userId] = result;
       setIsCheckingAdmin(false);
+      
+      // Dispatch event when admin status is checked
+      window.dispatchEvent(new CustomEvent(AUTH_EVENTS.ADMIN_STATUS_CHECKED, {
+        detail: { isAdmin: result, userId }
+      }));
+      
       return result;
     } catch (error) {
       console.error('Erro ao verificar permissões:', error);
       setIsCheckingAdmin(false);
       // Fallback para o método antigo caso ocorra qualquer erro
-      return user?.email === 'ander_dorneles@hotmail.com';
-    }
-  };
-
-  // Function to handle redirect after login - completamente reformulada
-  const redirectAfterLogin = async (userId: string | undefined) => {
-    // Verificações de segurança para garantir que temos um ID de usuário válido e navegação
-    if (!navigateFunction) {
-      console.log('Cannot redirect: missing navigation function');
-      return;
-    }
-    
-    if (!userId && !user?.id) {
-      console.log('Redirecionamento cancelado: nenhum ID de usuário disponível');
-      return;
-    }
-    
-    // Se userId não foi fornecido mas temos um user.id, usamos o id do usuário atual
-    const effectiveUserId = userId || user?.id;
-    
-    // Verificação adicional de segurança
-    if (!effectiveUserId) {
-      console.log('Não é possível redirecionar: nenhum ID de usuário efetivo');
-      return;
-    }
-    
-    // IMPORTANTE: Verificar se realmente temos uma sessão válida antes de redirecionar
-    if (!session) {
-      console.log('Não é possível redirecionar: nenhuma sessão válida');
-      return;
-    }
-    
-    try {
-      console.log('Redirecionando após login para o ID do usuário:', effectiveUserId);
+      const isAdminResult = user?.email === 'ander_dorneles@hotmail.com';
       
-      // Verificar se o usuário é admin apenas após confirmar que temos sessão válida
-      const isUserAdmin = await checkIfUserIsAdmin(effectiveUserId);
-      console.log('User admin check result:', isUserAdmin);
+      // Still dispatch the event even in case of error
+      window.dispatchEvent(new CustomEvent(AUTH_EVENTS.ADMIN_STATUS_CHECKED, {
+        detail: { isAdmin: isAdminResult, userId: user?.id }
+      }));
       
-      if (isUserAdmin) {
-        console.log('User is admin, redirecting to /admin');
-        navigateFunction('/admin');
-      } else {
-        console.log('User is not admin, redirecting to /dashboard');
-        navigateFunction('/dashboard');
-      }
-    } catch (error) {
-      console.error('Error in redirectAfterLogin:', error);
-      // Default fallback - redirect to dashboard
-      console.log('Fallback: redirecting to /dashboard due to error');
-      navigateFunction('/dashboard');
+      return isAdminResult;
     }
   };
 
@@ -168,6 +130,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           setSession(null);
           setUser(null);
           setLoading(false);
+          window.dispatchEvent(new CustomEvent(AUTH_EVENTS.AUTH_READY, {
+            detail: { authenticated: false }
+          }));
           return;
         }
         
@@ -188,19 +153,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           setUser(null);
           setIsAdmin(false);
         }
+        
+        // Signal authentication is ready
+        window.dispatchEvent(new CustomEvent(AUTH_EVENTS.AUTH_READY, {
+          detail: { 
+            authenticated: !!(data?.session && data.session.user),
+            user: data?.session?.user || null
+          }
+        }));
       } catch (error) {
         console.error('Error in getInitialSession:', error);
         setSession(null);
         setUser(null);
         setIsAdmin(false);
+        window.dispatchEvent(new CustomEvent(AUTH_EVENTS.AUTH_READY, {
+          detail: { authenticated: false }
+        }));
       } finally {
         setLoading(false);
       }
     };
 
-    getInitialSession();
-
-    // Listen for auth changes
+    // Set up the auth state listener first
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
         console.log('Auth state changed:', event);
@@ -210,10 +184,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         setUser(currentSession?.user || null);
         
         // Check if user is admin only if we have a valid user
+        // Use setTimeout to avoid Supabase auth deadlocks
         if (currentSession?.user) {
-          const isUserAdmin = await checkIfUserIsAdmin(currentSession.user.id);
-          setIsAdmin(isUserAdmin);
-          console.log('Admin status updated to:', isUserAdmin);
+          setTimeout(async () => {
+            const isUserAdmin = await checkIfUserIsAdmin(currentSession.user.id);
+            setIsAdmin(isUserAdmin);
+            console.log('Admin status updated to:', isUserAdmin);
+          }, 0);
         } else {
           setIsAdmin(false);
         }
@@ -241,6 +218,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       }
     );
 
+    // Then check for existing session
+    getInitialSession();
+
     return () => {
       console.log('Cleaning up auth listener');
       authListener?.subscription?.unsubscribe();
@@ -267,8 +247,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     loading,
     signOut,
     isAuthenticated: !!(user && session), // Garante que verificamos tanto usuário quanto sessão
-    redirectAfterLogin,
     isAdmin,
+    checkIfUserIsAdmin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
