@@ -31,12 +31,16 @@ const Navbar = () => {
   // Check if we're in dashboard routes
   const isInDashboard = location.pathname.includes('/dashboard') || location.pathname.includes('/admin');
   
-  // Only show dashboard-related UI when in dashboard routes
-  const showDashboardUI = isAuthenticated && isInDashboard;
-  
-  // On landing page (homepage) and not in dashboard, show login/register buttons regardless of auth status
+  // On landing page (homepage), we always show login/register buttons
+  // For other non-dashboard pages, we check authentication status
   const isHomePage = location.pathname === '/';
-  const showAuthButtons = isHomePage || (!isAuthenticated && !isInDashboard);
+  
+  // Important: We want to show auth buttons on the homepage regardless of auth status
+  // This ensures users always see the landing page buttons
+  const showAuthButtons = isHomePage || (!isInDashboard);
+  
+  // We only show dashboard button for authenticated users who are not already in the dashboard
+  const showDashboardButton = isAuthenticated && !isInDashboard && !isHomePage;
   
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white">
@@ -56,7 +60,7 @@ const Navbar = () => {
             <div className="flex items-center space-x-4">
               <LanguageSwitcher />
               
-              {showDashboardUI && (
+              {showDashboardButton && (
                 <Link to="/dashboard">
                   <Button 
                     style={{
@@ -110,7 +114,7 @@ const Navbar = () => {
             <Link to="/pricing" className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">{t('common.pricing')}</Link>
             <Link to="/features" className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">{t('common.features')}</Link>
             <div className="flex flex-col space-y-2 px-3 pt-4">
-              {showDashboardUI && (
+              {showDashboardButton && (
                 <Link to="/dashboard">
                   <Button className="w-full text-white" style={{
                     backgroundColor: colors.blue[600]

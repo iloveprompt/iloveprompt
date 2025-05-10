@@ -44,6 +44,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   // Função para verificar se o usuário é administrador
   const checkIfUserIsAdmin = async (userId: string): Promise<boolean> => {
     try {
+      console.log('Checking if user is admin:', userId);
       // Primeiro tentamos verificar usando a função RPC que criamos
       const { data, error } = await supabase.rpc('is_admin', { user_id: userId });
       
@@ -77,10 +78,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     }
   };
 
+  // Function to handle redirect after login - completely separate from auth state changes
+  const redirectAfterLogin = async (userEmail: string | undefined) => {
+    if (!navigateFunction || !user) {
+      console.log('Cannot redirect: missing navigation function or user', { 
+        hasNavigate: !!navigateFunction, 
+        hasUser: !!user 
+      });
+      return;
+    }
+    
+    try {
+      console.log('Redirecting after login for user:', userEmail);
+      const isUserAdmin = await checkIfUserIsAdmin(user.id);
+      console.log('User admin check result:', isUserAdmin);
+      
+      if (isUserAdmin) {
+        console.log('User is admin, redirecting to /admin');
+        navigateFunction('/admin');
+      } else {
+        console.log('User is not admin, redirecting to /dashboard');
+        navigateFunction('/dashboard');
+      }
+    } catch (error) {
+      console.error('Error in redirectAfterLogin:', error);
+      navigateFunction('/dashboard');
+    }
+  };
+
   useEffect(() => {
     // Get initial session and user
     const getInitialSession = async () => {
       try {
+        console.log('Getting initial session');
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -92,8 +122,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         
         // Check if user is admin
         if (data?.session?.user) {
+          console.log('User found in initial session, checking admin status');
           const isUserAdmin = await checkIfUserIsAdmin(data.session.user.id);
           setIsAdmin(isUserAdmin);
+          console.log('Initial admin status set to:', isUserAdmin);
         }
       } catch (error) {
         console.error('Error in getInitialSession:', error);
@@ -117,27 +149,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         if (currentSession?.user) {
           const isUserAdmin = await checkIfUserIsAdmin(currentSession.user.id);
           setIsAdmin(isUserAdmin);
+          console.log('Admin status updated to:', isUserAdmin);
         } else {
           setIsAdmin(false);
         }
         
-        // Handle SIGNED_IN event
+        // Handle SIGNED_IN event - show toast but DON'T redirect automatically
+        // The Login.tsx component will handle redirection after successful login
         if (event === 'SIGNED_IN') {
+          console.log('SIGNED_IN event detected, showing toast');
           toast({
             title: t('auth.signedIn'),
             description: t('auth.welcomeMessage'),
           });
-          
-          // Redirect to appropriate dashboard using setTimeout to avoid React state update conflicts
-          if (currentSession?.user && navigateFunction) {
-            setTimeout(() => {
-              redirectAfterLogin(currentSession.user.email);
-            }, 0);
-          }
         }
         
         // Handle SIGNED_OUT event
         if (event === 'SIGNED_OUT') {
+          console.log('SIGNED_OUT event detected, showing toast');
           toast({
             title: t('auth.signedOut'),
             description: t('auth.comeBackSoon'),
@@ -147,33 +176,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     );
 
     return () => {
+      console.log('Cleaning up auth listener');
       authListener?.subscription?.unsubscribe();
     };
   }, [toast, t, navigateFunction]);
 
-  // Function to handle redirect after login
-  const redirectAfterLogin = async (userEmail: string | undefined) => {
-    if (!navigateFunction || !user) return;
-    
-    try {
-      console.log('Redirecting after login for user:', userEmail);
-      const isUserAdmin = await checkIfUserIsAdmin(user.id);
-      
-      if (isUserAdmin) {
-        console.log('User is admin, redirecting to /admin');
-        navigateFunction('/admin');
-      } else {
-        console.log('User is not admin, redirecting to /dashboard');
-        navigateFunction('/dashboard');
-      }
-    } catch (error) {
-      console.error('Error in redirectAfterLogin:', error);
-      navigateFunction('/dashboard');
-    }
-  };
-
   const signOut = async () => {
     try {
+      console.log('Signing out user');
       await supabase.auth.signOut();
       setUser(null);
       setSession(null);

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,12 +13,22 @@ import { supabase } from '@/lib/supabase';
 import { Github, Mail } from 'lucide-react';
 import { colors } from '@/styles/colors';
 import PasswordInput from '@/components/auth/PasswordInput';
+import { useAuth } from '@/hooks/useAuth';
 
 const LoginPage = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const { redirectAfterLogin, isAuthenticated } = useAuth();
+  
+  // Check if user is already logged in and redirect if necessary
+  useEffect(() => {
+    if (isAuthenticated) {
+      console.log('User is already authenticated, redirecting');
+      redirectAfterLogin(undefined);
+    }
+  }, [isAuthenticated, redirectAfterLogin]);
 
   // Define the form schema
   const formSchema = z.object({
@@ -41,6 +52,7 @@ const LoginPage = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoggingIn(true);
+      console.log('Logging in with email/password');
       
       const { data, error } = await supabase.auth.signInWithPassword({
         email: values.email,
@@ -49,19 +61,26 @@ const LoginPage = () => {
 
       if (error) throw error;
       
+      console.log('Login successful, redirecting');
       toast({
         title: t('auth.loginSuccess'),
         description: t('auth.welcomeBack'),
       });
       
-      // We'll let the AuthProvider handle redirect via onAuthStateChange
+      // Manually handle redirect after login
+      if (data.user) {
+        console.log('Manually redirecting after successful login');
+        redirectAfterLogin(data.user.email);
+      }
     } catch (error: any) {
+      console.error('Login error:', error);
       toast({
         variant: 'destructive',
         title: t('auth.loginFailed'),
         description: error.message || t('auth.tryAgain'),
       });
     } finally {
+      // Important: Always reset loading state 
       setIsLoggingIn(false);
     }
   };
@@ -70,6 +89,7 @@ const LoginPage = () => {
   const handleGoogleLogin = async () => {
     try {
       setIsLoggingIn(true);
+      console.log('Attempting Google login');
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -78,6 +98,7 @@ const LoginPage = () => {
       });
       if (error) throw error;
     } catch (error: any) {
+      console.error('Google login error:', error);
       toast({
         variant: 'destructive',
         title: t('auth.loginFailed'),
@@ -90,6 +111,7 @@ const LoginPage = () => {
   const handleGithubLogin = async () => {
     try {
       setIsLoggingIn(true);
+      console.log('Attempting GitHub login');
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
@@ -98,6 +120,7 @@ const LoginPage = () => {
       });
       if (error) throw error;
     } catch (error: any) {
+      console.error('GitHub login error:', error);
       toast({
         variant: 'destructive',
         title: t('auth.loginFailed'),
