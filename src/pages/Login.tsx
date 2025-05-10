@@ -18,6 +18,7 @@ const LoginPage = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   // Define the form schema
   const formSchema = z.object({
@@ -40,6 +41,8 @@ const LoginPage = () => {
   // Handle login form submission
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      setIsLoggingIn(true);
+      
       const { error } = await supabase.auth.signInWithPassword({
         email: values.email,
         password: values.password,
@@ -59,12 +62,15 @@ const LoginPage = () => {
         title: t('auth.loginFailed'),
         description: error.message || t('auth.tryAgain'),
       });
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
   // Social login handlers
   const handleGoogleLogin = async () => {
     try {
+      setIsLoggingIn(true);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -78,11 +84,13 @@ const LoginPage = () => {
         title: t('auth.loginFailed'),
         description: error.message || t('auth.tryAgain'),
       });
+      setIsLoggingIn(false);
     }
   };
 
   const handleGithubLogin = async () => {
     try {
+      setIsLoggingIn(true);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
@@ -96,6 +104,7 @@ const LoginPage = () => {
         title: t('auth.loginFailed'),
         description: error.message || t('auth.tryAgain'),
       });
+      setIsLoggingIn(false);
     }
   };
 
@@ -121,6 +130,7 @@ const LoginPage = () => {
               variant="outline" 
               onClick={handleGoogleLogin} 
               className="w-full border border-gray-300 bg-white hover:bg-gray-50"
+              disabled={isLoggingIn}
             >
               <Mail className="mr-2 h-5 w-5 text-red-500" />
               Google
@@ -129,6 +139,7 @@ const LoginPage = () => {
               variant="outline" 
               onClick={handleGithubLogin} 
               className="w-full border border-gray-300 bg-white hover:bg-gray-50"
+              disabled={isLoggingIn}
             >
               <Github className="mr-2 h-5 w-5" />
               GitHub
@@ -184,9 +195,9 @@ const LoginPage = () => {
                 type="submit" 
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 style={{ backgroundColor: colors.blue[600] }}
-                disabled={form.formState.isSubmitting}
+                disabled={isLoggingIn}
               >
-                {form.formState.isSubmitting ? t('auth.loggingIn') : t('auth.login')}
+                {isLoggingIn ? t('auth.loggingIn') : t('auth.login')}
               </Button>
             </form>
           </Form>

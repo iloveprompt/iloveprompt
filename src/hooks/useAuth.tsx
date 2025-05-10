@@ -107,6 +107,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
+        console.log('Auth state changed:', event);
         setSession(currentSession);
         setUser(currentSession?.user || null);
         
@@ -125,7 +126,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           });
           
           // Redirect to appropriate dashboard
-          if (currentSession?.user) {
+          if (currentSession?.user && navigateFunction) {
             redirectAfterLogin(currentSession.user.email);
           }
         }
@@ -142,18 +143,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     return () => {
       authListener?.subscription?.unsubscribe();
     };
-  }, [toast, t]);
+  }, [toast, t, navigateFunction]);
 
   // Function to handle redirect after login
   const redirectAfterLogin = async (userEmail: string | undefined) => {
     if (!navigateFunction || !user) return;
     
     try {
+      console.log('Redirecting after login for user:', userEmail);
       const isUserAdmin = await checkIfUserIsAdmin(user.id);
       
       if (isUserAdmin) {
+        console.log('User is admin, redirecting to /admin');
         navigateFunction('/admin');
       } else {
+        console.log('User is not admin, redirecting to /dashboard');
         navigateFunction('/dashboard');
       }
     } catch (error) {
