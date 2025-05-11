@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -11,17 +10,32 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Copy, Check, AlertCircle, ArrowLeft, ArrowRight, Clipboard } from "lucide-react";
+import { Copy, Check, AlertCircle, ArrowLeft, ArrowRight, Clipboard, CheckCircle } from "lucide-react"; // Added CheckCircle
 import ScrollToTopOnMount from "@/components/ScrollToTopOnMount";
 import { useAuth } from "@/hooks/useAuth";
 
+const wizardSteps = [
+  { value: "system-type", label: "Tipo" },
+  { value: "objective-features", label: "Objetivo" },
+  { value: "design", label: "Design" },
+  { value: "tech-stack", label: "Stack" },
+  { value: "security", label: "Segurança" },
+  { value: "code-structure", label: "Código" },
+  { value: "scalability", label: "Escala" },
+  { value: "restrictions", label: "Restrições" },
+  { value: "generate", label: "Gerar" },
+];
+
 const PromptGenerator = () => {
   const { toast } = useToast();
-  const [currentTab, setCurrentTab] = useState("system-type");
+  const [currentTab, setCurrentTab] = useState(wizardSteps[0].value);
   const [copied, setCopied] = useState(false);
   const [generatedPrompt, setGeneratedPrompt] = useState("");
   const { user } = useAuth();
   const [promptHistory, setPromptHistory] = useState<Array<{id: string, date: Date, prompt: string, systemType: string}>>([]);
+  const [filledSteps, setFilledSteps] = useState<Record<string, boolean>>(
+    wizardSteps.reduce((acc, step) => ({ ...acc, [step.value]: false }), {})
+  );
   
   // Form state
   const [formData, setFormData] = useState({
@@ -189,38 +203,16 @@ const PromptGenerator = () => {
   };
 
   const handleNextTab = () => {
-    const tabs = [
-      "system-type",
-      "objective-features",
-      "design",
-      "tech-stack",
-      "security",
-      "code-structure",
-      "scalability",
-      "restrictions",
-      "generate",
-    ];
-    const currentIndex = tabs.indexOf(currentTab);
-    if (currentIndex < tabs.length - 1) {
-      handleTabChange(tabs[currentIndex + 1]);
+    const currentIndex = wizardSteps.findIndex(step => step.value === currentTab);
+    if (currentIndex < wizardSteps.length - 1) {
+      handleTabChange(wizardSteps[currentIndex + 1].value);
     }
   };
 
   const handlePrevTab = () => {
-    const tabs = [
-      "system-type",
-      "objective-features",
-      "design",
-      "tech-stack",
-      "security", 
-      "code-structure",
-      "scalability",
-      "restrictions",
-      "generate",
-    ];
-    const currentIndex = tabs.indexOf(currentTab);
+    const currentIndex = wizardSteps.findIndex(step => step.value === currentTab);
     if (currentIndex > 0) {
-      handleTabChange(tabs[currentIndex - 1]);
+      handleTabChange(wizardSteps[currentIndex - 1].value);
     }
   };
 
@@ -549,6 +541,72 @@ const PromptGenerator = () => {
     }
   }, [user]);
 
+  // Update filledSteps state based on formData changes
+  useEffect(() => {
+    const newFilledSteps = { ...filledSteps };
+
+    // Step 1: Tipo de Sistema
+    newFilledSteps["system-type"] = formData.systemType !== "" && (formData.systemType !== "outro" || formData.systemTypeCustom !== "");
+    
+    // Step 2: Objetivo e Funcionalidades
+    newFilledSteps["objective-features"] = formData.objective !== "";
+
+    // Step 3: Design e UX/UI
+    newFilledSteps["design"] = 
+      formData.colorPalette.length > 0 ||
+      formData.customColor !== "" ||
+      (formData.visualStyle !== "" && (formData.visualStyle !== "outro" || formData.visualStyleCustom !== "")) ||
+      (formData.menuType !== "" && (formData.menuType !== "outro" || formData.menuTypeCustom !== "")) ||
+      (formData.hasLandingPage && (
+        formData.landingPageStructure.length > 0 || 
+        formData.landingPageElements.length > 0 ||
+        (formData.landingPageStyle !== "" && (formData.landingPageStyle !== "outro" || formData.landingPageStyleCustom !== ""))
+      )) ||
+      formData.authTypes.length > 0 ||
+      formData.authTypesCustom !== "" ||
+      (formData.hasDashboard && (formData.dashboardFeatures.length > 0 || formData.dashboardFeaturesCustom !== ""));
+
+    // Step 4: Stack Tecnológica
+    const isFrontendFilled = formData.frontend.length > 0 || formData.frontendCustom !== "";
+    const isBackendFilled = formData.backend.length > 0 || formData.backendCustom !== "";
+    const isFullstackFilled = formData.fullstack !== "" && (formData.fullstack !== "outro" || formData.fullstackCustom !== "");
+    const isDatabaseFilled = formData.database !== "" && (formData.database !== "outro" || formData.databaseCustom !== "");
+    
+    newFilledSteps["tech-stack"] = 
+      (formData.separateFrontendBackend ? (isFrontendFilled || isBackendFilled) : isFullstackFilled) &&
+      isDatabaseFilled;
+
+    // Step 5: Segurança
+    newFilledSteps["security"] = formData.securityRequirements.length > 0 || formData.securityRequirementsCustom !== "";
+
+    // Step 6: Estrutura de Código
+    newFilledSteps["code-structure"] = 
+      formData.folderStructure.length > 0 || formData.folderStructureCustom !== "" ||
+      formData.architecturePattern.length > 0 || formData.architecturePatternCustom !== "" ||
+      formData.bestPractices.length > 0 || formData.bestPracticesCustom !== "";
+
+    // Step 7: Escalabilidade e Performance
+    if (formData.needsScalability) {
+      newFilledSteps["scalability"] = 
+        formData.scalabilityFeatures.length > 0 || formData.scalabilityFeaturesCustom !== "" ||
+        formData.performanceOptimizations.length > 0 || formData.performanceOptimizationsCustom !== "";
+    } else {
+      newFilledSteps["scalability"] = true; // Considered filled if not needed
+    }
+
+    // Step 8: Restrições Técnicas
+    newFilledSteps["restrictions"] = formData.codeRestrictions.length > 0 || formData.codeRestrictionsCustom !== "";
+    
+    // Step 9: Gerar - always considered "filled" if reached, but visual cue is more about previous steps
+    newFilledSteps["generate"] = true; 
+
+
+    // Only update if there's an actual change to avoid infinite loops if objects are always new
+    if (JSON.stringify(newFilledSteps) !== JSON.stringify(filledSteps)) {
+      setFilledSteps(newFilledSteps);
+    }
+  }, [formData, filledSteps]); // Added filledSteps to dependency array carefully
+
   return (
     <div className="container mx-auto py-10 px-4">
       <ScrollToTopOnMount />
@@ -559,18 +617,81 @@ const PromptGenerator = () => {
         </p>
       </div>
 
-      <Tabs defaultValue="system-type" value={currentTab} onValueChange={handleTabChange} className="mx-auto max-w-4xl">
+      <Tabs defaultValue={wizardSteps[0].value} value={currentTab} onValueChange={handleTabChange} className="mx-auto max-w-4xl">
         <div className="border rounded-lg p-4 mb-6 overflow-x-auto">
-          <TabsList className="grid grid-cols-3 md:grid-cols-9 gap-2">
-            <TabsTrigger value="system-type">Tipo</TabsTrigger>
-            <TabsTrigger value="objective-features">Objetivo</TabsTrigger>
-            <TabsTrigger value="design">Design</TabsTrigger>
-            <TabsTrigger value="tech-stack">Stack</TabsTrigger>
-            <TabsTrigger value="security">Segurança</TabsTrigger>
-            <TabsTrigger value="code-structure">Código</TabsTrigger>
-            <TabsTrigger value="scalability">Escala</TabsTrigger>
-            <TabsTrigger value="restrictions">Restrições</TabsTrigger>
-            <TabsTrigger value="generate">Gerar</TabsTrigger>
+          <TabsList className="relative flex items-stretch justify-between w-full">
+            {wizardSteps.map((step, index) => {
+              const stepIndex = wizardSteps.findIndex(s => s.value === step.value);
+              const currentIndex = wizardSteps.findIndex(s => s.value === currentTab);
+              const isNavigatedPast = stepIndex < currentIndex; // User has navigated beyond this step
+              const isActive = step.value === currentTab;
+              const isFilled = filledSteps[step.value];
+
+              let iconBorderColor = 'border-border';
+              let iconBgColor = 'bg-transparent';
+              let iconTextColor = 'text-muted-foreground';
+              let stepTextColor = 'text-muted-foreground';
+              let showCheckIcon = false;
+
+              if (isActive) {
+                iconBorderColor = 'border-primary';
+                iconBgColor = 'bg-primary';
+                iconTextColor = 'text-primary-foreground';
+                stepTextColor = 'text-primary font-bold';
+              } else if (isFilled) {
+                iconBorderColor = 'border-green-500'; // Filled color
+                iconBgColor = 'bg-green-500';    // Filled color
+                iconTextColor = 'text-white';       // Filled color
+                stepTextColor = 'text-green-500';   // Filled color for text
+                showCheckIcon = true;
+              } else if (isNavigatedPast) { // Navigated past but not necessarily "filled" by criteria
+                iconBorderColor = 'border-green-600'; // Original completed color
+                iconBgColor = 'bg-green-600';    // Original completed color
+                iconTextColor = 'text-white';       // Original completed color
+                stepTextColor = 'text-green-600';
+                showCheckIcon = true; // Still show check if navigated past
+              }
+              
+              // If a step is filled, the line connecting to it should also be green
+              const lineConnectorColor = (isFilled && isNavigatedPast) || (isActive && filledSteps[wizardSteps[Math.max(0,index-1)]?.value]) ? 'hsl(var(--primary))' : 'hsl(var(--border))';
+              // More precise line coloring: if current step is filled, or if current step is active and previous step was filled.
+              const prevStepValue = index > 0 ? wizardSteps[index-1].value : null;
+              const isPrevStepFilled = prevStepValue ? filledSteps[prevStepValue] : true; // Assume true for first step's "previous"
+
+              const currentLineColor = (isActive && isPrevStepFilled) || (isFilled && isNavigatedPast) ? 'hsl(var(--primary))' : 'hsl(var(--border))';
+              // The line after a step should be primary if that step is filled AND completed (navigated past)
+              // OR if that step is active AND filled
+              const nextLineShouldBeActive = (isFilled && isNavigatedPast) || (isActive && isFilled);
+
+
+              return (
+                <React.Fragment key={step.value}>
+                  <div className="flex flex-col items-center flex-1 group">
+                    <TabsTrigger
+                      value={step.value}
+                      className={`flex flex-col items-center justify-center p-1 md:p-2 text-center text-xs md:text-sm h-full 
+                                  data-[state=active]:font-bold 
+                                  ${stepTextColor}
+                                  hover:bg-muted/50 rounded-md w-full`}
+                    >
+                      <div className={`mb-1 w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center border-2 
+                                    ${iconBorderColor} ${iconBgColor} ${iconTextColor}`}>
+                        {showCheckIcon ? <CheckCircle className="w-3 h-3 md:w-4 md:h-4" /> : index + 1}
+                      </div>
+                      <span className="hidden md:inline-block whitespace-nowrap">{step.label}</span>
+                      <span className="md:hidden whitespace-nowrap">{step.label.substring(0,3)}</span>
+                    </TabsTrigger>
+                  </div>
+                  {index < wizardSteps.length - 1 && (
+                     <div className="flex-none self-center h-0.5 min-w-[12px] md:min-w-[24px] flex-grow" style={{
+                        backgroundColor: nextLineShouldBeActive ? 'hsl(var(--primary))' : 'hsl(var(--border))',
+                        marginRight: '0.25rem', 
+                        marginLeft: '0.25rem'
+                      }} />
+                  )}
+                </React.Fragment>
+              );
+            })}
           </TabsList>
         </div>
 

@@ -17,83 +17,71 @@ const LanguageSwitcher: React.FC = () => {
       value={language}
       onValueChange={(value: 'pt' | 'en' | 'es') => setLanguage(value)}
     >
-      <SelectTrigger className="w-[130px] h-9 bg-white border-gray-200 text-gray-800">
+      <SelectTrigger className="w-[60px] h-9 bg-white text-gray-800 border-0 focus:ring-0 focus:ring-offset-0">
         <SelectValue>
-          <div className="flex items-center">
+          <div className="flex items-center justify-center">
             {language === 'pt' && (
               <>
                 <img 
                   src="https://flagcdn.com/w20/br.png" 
-                  width="20" 
-                  height="15" 
+                  width="24" 
+                  height="18" 
                   alt="Brazil" 
-                  className="mr-2"
                 />
-                <span className="text-gray-800">Português</span>
               </>
             )}
             {language === 'en' && (
               <>
                 <img 
                   src="https://flagcdn.com/w20/us.png" 
-                  width="20" 
-                  height="15" 
+                  width="24" 
+                  height="18" 
                   alt="United States" 
-                  className="mr-2"
                 />
-                <span className="text-gray-800">English</span>
               </>
             )}
             {language === 'es' && (
               <>
                 <img 
                   src="https://flagcdn.com/w20/es.png" 
-                  width="20" 
-                  height="15" 
+                  width="24" 
+                  height="18" 
                   alt="Spain" 
-                  className="mr-2"
                 />
-                <span className="text-gray-800">Español</span>
               </>
             )}
           </div>
         </SelectValue>
       </SelectTrigger>
-      <SelectContent className="bg-white border-gray-200 text-gray-800">
-        <SelectItem value="pt" className="focus:bg-gray-100 focus:text-gray-900 hover:bg-gray-100">
+      <SelectContent className="bg-white border-gray-200 text-gray-800 min-w-[60px]">
+        <SelectItem value="pt" className="focus:bg-gray-100 focus:text-gray-900 hover:bg-gray-100 flex justify-center">
           <div className="flex items-center">
             <img 
               src="https://flagcdn.com/w20/br.png" 
-              width="20" 
-              height="15" 
+              width="24" 
+              height="18" 
               alt="Brazil" 
-              className="mr-2"
             />
-            <span className="text-gray-800">Português</span>
           </div>
         </SelectItem>
-        <SelectItem value="en" className="focus:bg-gray-100 focus:text-gray-900 hover:bg-gray-100">
+        <SelectItem value="en" className="focus:bg-gray-100 focus:text-gray-900 hover:bg-gray-100 flex justify-center">
           <div className="flex items-center">
             <img 
               src="https://flagcdn.com/w20/us.png" 
-              width="20" 
-              height="15" 
+              width="24" 
+              height="18" 
               alt="United States" 
-              className="mr-2"
             />
-            <span className="text-gray-800">English</span>
           </div>
         </SelectItem>
-        <SelectItem value="es" className="focus:bg-gray-100 focus:text-gray-900 hover:bg-gray-100">
+        <SelectItem value="es" className="focus:bg-gray-100 focus:text-gray-900 hover:bg-gray-100 flex justify-center">
           <div className="flex items-center">
             <img 
               src="https://flagcdn.com/w20/es.png" 
-              width="20" 
-              height="15" 
+              width="24" 
+              height="18" 
               alt="Spain" 
-              className="mr-2"
             />
-            <span className="text-gray-800">Español</span>
           </div>
         </SelectItem>
       </SelectContent>

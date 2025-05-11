@@ -1,26 +1,38 @@
-
 import React from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { RotateCcw, Save, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { pt, enUS } from 'date-fns/locale';
 
-interface ProjectStepProps {
-  formData: {
-    title: string;
-    author: string;
-    email: string;
-    url: string;
-    createdAt: Date;
-    updatedAt: Date;
-    version: string;
-  };
-  updateFormData: (data: Partial<ProjectStepProps['formData']>) => void;
+interface ProjectFormData {
+  title: string;
+  author: string;
+  email: string;
+  url: string;
+  createdAt: Date;
+  updatedAt: Date;
+  version: string;
 }
 
-const ProjectStep: React.FC<ProjectStepProps> = ({ formData, updateFormData }) => {
+interface ProjectStepProps {
+  formData: ProjectFormData;
+  updateFormData: (data: Partial<ProjectFormData>) => void;
+  markAsFinalized: () => void;
+  resetStep: () => void;
+  isFinalized: boolean;
+}
+
+const ProjectStep: React.FC<ProjectStepProps> = ({ 
+  formData, 
+  updateFormData,
+  markAsFinalized,
+  resetStep,
+  isFinalized
+}) => {
   const { t, language } = useLanguage();
   
   const dateLocale = language === 'pt' ? pt : enUS;
@@ -31,119 +43,140 @@ const ProjectStep: React.FC<ProjectStepProps> = ({ formData, updateFormData }) =
     });
   };
 
+  const handleReset = () => {
+    resetStep();
+  };
+
+  const handleSaveAndFinalize = () => {
+    // Basic validation: check if title is filled
+    if (formData.title.trim() === '') {
+      // Optionally, show a toast or message to the user
+      // For simplicity, using alert. In a real app, use a toast notification.
+      alert(t('promptGenerator.project.titleRequiredError') || "O título do projeto é obrigatório.");
+      return;
+    }
+    markAsFinalized();
+  };
+
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('promptGenerator.project.title')}</CardTitle>
-          <CardDescription>
-            {t('promptGenerator.project.description')}
-          </CardDescription>
+      <Card className="p-4 sm:p-6 relative">
+        <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0">
+          <div className="flex justify-between items-start"> {/* Changed items-center to items-start */}
+            <div>
+              <CardTitle>{t('promptGenerator.project.title') || "Informações do Projeto"}</CardTitle>
+              <CardDescription className="text-sm text-muted-foreground">
+                {t('promptGenerator.project.description') || "Informações básicas sobre seu projeto"}
+              </CardDescription>
+            </div>
+            <div className="flex items-center space-x-2"> {/* Group for version, buttons, and checkmark */}
+              <div className="text-right mr-2"> {/* Version display */}
+                <span className="block text-xs text-muted-foreground">
+                  {t('promptGenerator.project.version') || "Versão"}
+                </span>
+                <span className="block text-sm font-semibold text-foreground">
+                  {formData.version}
+                </span>
+              </div>
+              {/* Action Buttons Moved Here */}
+              <Button variant="outline" onClick={handleReset} size="icon" className="h-8 w-8">
+                <RotateCcw className="h-4 w-4" />
+                <span className="sr-only">{t('common.reset') || "Resetar"}</span>
+              </Button>
+              <Button 
+                onClick={handleSaveAndFinalize} 
+                size="icon" 
+                className="h-8 w-8"
+                disabled={isFinalized || !formData.title.trim()}
+              >
+                <Save className="h-4 w-4" />
+                <span className="sr-only">{isFinalized ? (t('common.finalized') || "Finalizado") : (t('common.saveAndFinalize') || "Salvar e Finalizar")}</span>
+              </Button>
+              {isFinalized && <CheckCircle className="h-6 w-6 text-green-500 ml-2" />}
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="project-title" className="text-base font-medium">
-              {t('promptGenerator.project.projectTitle')} <span className="text-red-500">*</span>
+        <CardContent className="px-0 pb-0 sm:px-0 sm:pb-0 space-y-0 pt-4"> {/* Added pt-4 for spacing after header */}
+          <div className="space-y-0 py-0 my-0">
+            <Label htmlFor="project-title" className="text-sm font-medium text-foreground">
+              {t('promptGenerator.project.projectTitle') || "Título do Projeto"} <span className="text-red-500">*</span>
             </Label>
             <Input 
               id="project-title"
               value={formData.title}
               onChange={(e) => updateFormData({ title: e.target.value })}
-              placeholder={t('promptGenerator.project.projectTitlePlaceholder')}
-              className="text-base"
+              placeholder={t('promptGenerator.project.projectTitlePlaceholder') || "Ex: Plataforma de E-commerce"}
               required
             />
-            <p className="text-sm text-gray-500">
-              {t('promptGenerator.project.projectTitleHelp')}
-            </p>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="project-author" className="text-base font-medium">
-              {t('promptGenerator.project.author')}
+          <div className="space-y-0 py-0 my-0 mt-4">
+            <Label htmlFor="project-author" className="text-sm font-medium text-foreground">
+              {t('promptGenerator.project.author') || "Autor"}
             </Label>
             <Input 
               id="project-author"
               value={formData.author}
               onChange={(e) => updateFormData({ author: e.target.value })}
-              placeholder={t('promptGenerator.project.authorPlaceholder')}
-              className="text-base"
-            />
-            <p className="text-sm text-gray-500">
-              {t('promptGenerator.project.authorHelp')}
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="project-email" className="text-base font-medium">
-              {t('promptGenerator.project.email')}
-            </Label>
-            <Input 
-              id="project-email"
-              value={formData.email}
-              onChange={(e) => updateFormData({ email: e.target.value })}
-              disabled
-              className="text-base bg-gray-50"
+              placeholder={t('promptGenerator.project.authorPlaceholder') || "Seu nome"}
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="project-url" className="text-base font-medium">
-              {t('promptGenerator.project.url')} <span className="text-sm text-gray-500">({t('common.optional')})</span>
-            </Label>
-            <Input 
-              id="project-url"
-              value={formData.url || ''}
-              onChange={(e) => updateFormData({ url: e.target.value })}
-              placeholder={t('promptGenerator.project.urlPlaceholder')}
-              className="text-base"
-            />
-            <p className="text-sm text-gray-500">
-              {t('promptGenerator.project.urlHelp')}
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-0 my-0 mt-4">
+            <div className="space-y-0">
+              <Label htmlFor="project-email" className="text-sm font-medium text-foreground">
+                {t('promptGenerator.project.email') || "Email"}
+              </Label>
+              <Input 
+                id="project-email"
+                value={formData.email}
+                onChange={(e) => updateFormData({ email: e.target.value })}
+                disabled
+                className="bg-muted/50"
+              />
+            </div>
+
+            <div className="space-y-0">
+              <Label htmlFor="project-url" className="text-sm font-medium text-foreground">
+                {t('promptGenerator.project.url') || "Website"} <span className="text-xs text-muted-foreground">({t('common.optional') || "Opcional"})</span>
+              </Label>
+              <Input 
+                id="project-url"
+                value={formData.url || ''}
+                onChange={(e) => updateFormData({ url: e.target.value })}
+                placeholder={t('promptGenerator.project.urlPlaceholder') || "URL do seu site"}
+              />
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="created-date" className="text-base font-medium">
-                {t('promptGenerator.project.createdDate')}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-0 my-0 mt-4">
+            <div className="space-y-0">
+              <Label htmlFor="created-date" className="text-sm font-medium text-foreground">
+                {t('promptGenerator.project.createdDate') || "Data de Criação"}
               </Label>
               <Input 
                 id="created-date"
                 value={formatDate(formData.createdAt)}
                 disabled
-                className="text-base bg-gray-50"
+                className="bg-muted/50"
               />
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="updated-date" className="text-base font-medium">
-                {t('promptGenerator.project.updatedDate')}
+            <div className="space-y-0">
+              <Label htmlFor="updated-date" className="text-sm font-medium text-foreground">
+                {t('promptGenerator.project.updatedDate') || "Última Atualização"}
               </Label>
               <Input 
                 id="updated-date"
                 value={formatDate(formData.updatedAt)}
                 disabled
-                className="text-base bg-gray-50"
+                className="bg-muted/50"
               />
             </div>
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="project-version" className="text-base font-medium">
-              {t('promptGenerator.project.version')}
-            </Label>
-            <Input 
-              id="project-version"
-              value={formData.version}
-              disabled
-              className="text-base bg-gray-50 w-32"
-            />
-            <p className="text-sm text-gray-500">
-              {t('promptGenerator.project.versionHelp')}
-            </p>
-          </div>
+
         </CardContent>
+        {/* Action Buttons DIV removed from here */}
       </Card>
     </div>
   );

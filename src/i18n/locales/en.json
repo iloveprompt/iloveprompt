@@ -21,7 +21,18 @@
     "incompleteProfile": "Incomplete profile",
     "completeProfile": "Complete profile",
     "pick": "Pick",
-    "optional": "Optional"
+    "optional": "Optional",
+    "other": "Other",
+    "save": "Save",
+    "page": "Page",
+    "of": "of",
+    "close": "Close",
+    "reset": "Reset",
+    "saveAndFinalize": "Save & Finalize",
+    "finalized": "Finalized",
+    "yes": "Yes",
+    "cancel": "Cancel",
+    "saveOtherItems": "Save Others"
   },
   "auth": {
     "loginTitle": "Sign in to your account",
@@ -342,7 +353,9 @@
       "item3": "3. Uses TypeScript interfaces for type safety",
       "item4": "4. Follows SOLID principles..."
     },
-    "promptDescription": "Our system creates detailed, optimized prompts tailored for your specific development needs."
+    "promptDescription": "Our system creates detailed, optimized prompts tailored for your specific development needs.",
+    "emailPlaceholder": "Enter your email to get started",
+    "emailDisclaimer": "We respect your privacy. No spam."
   },
   "howItWorks": {
     "title": "How iloveprompt Works",
@@ -376,6 +389,13 @@
       "description": "Execute your prompts with various AI models directly in our platform."
     }
   },
+  "socialProof": {
+    "title": "What Our Developers Say",
+    "description": "Discover how our platform is transforming the way developers create AI prompts.",
+    "testimonial1": "This tool has revolutionized my workflow! I can generate complex and effective prompts in a fraction of the time. A must-have for any dev using AI.",
+    "testimonial2": "Finally, a solution that understands the nuances of software development. The generated prompts are incredibly accurate and help me get much better AI results.",
+    "testimonial3": "The guided interface is fantastic. Even for intricate project requirements, I can detail everything and get a prompt that truly works. Massive time saver!"
+  },
   "pricing": {
     "title": "Simple, Transparent Pricing",
     "description": "Choose the plan that fits your development needs.",
@@ -408,12 +428,23 @@
       "unlimitedPrompts": "Unlimited prompts",
       "promptLibrarySharing": "Prompt library & sharing",
       "prioritySupport": "Priority support"
+    },
+    "mostPopular": "Most Popular",
+    "annualDiscount": "Save 20% with annual billing!",
+    "roiCalculator": {
+      "title": "ROI Calculator",
+      "timeLabel": "Time saved per week:",
+      "hours": "hours",
+      "savings": "Potential annual savings:"
     }
   },
   "cta": {
     "title": "Ready to create better prompts?",
     "description": "Start generating optimized prompts for your development needs today.",
-    "button": "Get Started for Free"
+    "button": "Get Started for Free",
+    "guarantee": "30-Day Money-Back Guarantee",
+    "getStartedNow": "Create Your Prompts Now!",
+    "limitedOffer": "Limited Time Offer: Get 50% Off Pro!"
   },
   "footer": {
     "description": "Craft perfect AI prompts for software development with our guided questionnaire system.",
@@ -440,8 +471,10 @@
     "title": "Prompt Generator",
     "description": "Create AI prompts for your specific needs",
     "generate": "Generate Prompt",
+    "confirmAndNext": "Confirm and Next",
     "common": {
-      "optional": "optional"
+      "optional": "optional",
+      "add": "Add"
     },
     "project": {
       "title": "Project Information",
@@ -521,7 +554,29 @@
       "finance": "Financial Service",
       "healthcare": "Healthcare Service",
       "other": "Other Objective",
-      "otherPlaceholder": "Specify your objective"
+      "otherPlaceholder": "Specify your objective",
+      "primaryObjectiveHelp": "Be clear and concise about the fundamental purpose of your project.",
+      "businessObjectives": "Additional Business Objectives",
+      "businessObjectivesHelp": "Select relevant business objectives your project aims to achieve.",
+      "notInList": "Not in the list?",
+      "otherObjectivePrompt": "Add another objective:",
+      "otherObjectivePlaceholder": "Your objective...",
+      "addedObjectivesCount": "Added ({{count}}/10):",
+      "limitReached": "Limit of 10 objectives reached.",
+      "specifiedOtherObjectivesTitle": "Other Specified Objectives:",
+      "increaseRevenue": "Increase Revenue",
+      "reduceCosts": "Reduce Costs",
+      "improveCustomerExperience": "Improve Customer Experience",
+      "enhanceBrandAwareness": "Enhance Brand Awareness",
+      "expandMarketReach": "Expand Market Reach",
+      "streamlineOperations": "Streamline Operations",
+      "driveInnovation": "Drive Innovation",
+      "boostUserEngagement": "Boost User Engagement",
+      "improveDataInsights": "Improve Data Insights",
+      "complianceWithRegulations": "Compliance with Regulations",
+      "enhanceSecurity": "Enhance Security",
+      "otherObjective": "Other Business Objective",
+      "enhanceWithAI": "Enhance with AI"
     },
     "requirements": {
       "title": "Requirements",
@@ -545,7 +600,13 @@
       "dynamicFeatures": "Dynamic Features",
       "dynamicFeaturePlaceholder": "Feature name",
       "dynamicFeatureDescPlaceholder": "Feature description",
-      "addFeature": "Add Feature"
+      "addFeature": "Add Feature",
+      "default": {
+        "auth": "User Authentication",
+        "dashboard": "Dashboard",
+        "contentManagement": "Basic Content Management",
+        "profileSettings": "Profile Settings"
+      }
     },
     "uxui": {
       "title": "UX/UI Design",
@@ -620,25 +681,172 @@
       "activityHistory": "Activity History",
       "responsiveThemes": "Light/Dark Theme and Responsive",
       "otherDashboardFeature": "Other Dashboard Feature",
-      "otherDashboardFeaturePlaceholder": "Describe your dashboard feature"
+      "otherDashboardFeaturePlaceholder": "Describe your dashboard feature",
+      "palettes": {
+        "vibrantModern": {
+          "title": "Paletas Vibrantes e Modernas",
+          "techInnovation": {
+            "name": "Tecnologia/Inovação"
+          },
+          "creativityDesign": {
+            "name": "Criatividade/Design"
+          },
+          "healthWellness": {
+            "name": "Saúde/Bem-estar"
+          },
+          "foodGastronomy": {
+            "name": "Alimentos/Gastronomia"
+          },
+          "educationLearning": {
+            "name": "Educação/Aprendizado"
+          }
+        },
+        "calmProfessional": {
+          "title": "Paletas Mais Calmas e Profissionais",
+          "corporateFinance": {
+            "name": "Corporativo/Finanças"
+          },
+          "legalConsulting": {
+            "name": "Jurídico/Consultoria"
+          },
+          "newsInformation": {
+            "name": "Notícias/Informação"
+          },
+          "portfolioPersonal": {
+            "name": "Portfólio/Pessoal"
+          },
+          "realEstate": {
+            "name": "Imobiliário"
+          }
+        },
+        "subtleElegant": {
+          "title": "Paletas Sutis e Elegantes",
+          "fashionLuxury": {
+            "name": "Moda/Luxo"
+          },
+          "artCulture": {
+            "name": "Arte/Cultura"
+          },
+          "minimalism": {
+            "name": "Minimalismo"
+          },
+          "natureSustainability": {
+            "name": "Natureza/Sustentabilidade"
+          },
+          "travelAdventure": {
+            "name": "Viagem/Aventura"
+          }
+        },
+        "themed": {
+          "title": "Paletas Temáticas",
+          "kidsToys": {
+            "name": "Infantil/Brinquedos"
+          },
+          "musicEntertainment": {
+            "name": "Música/Entretenimento"
+          },
+          "sportsFitness": {
+            "name": "Esportes/Fitness"
+          },
+          "weddingEvents": {
+            "name": "Casamento/Eventos"
+          },
+          "communityNGO": {
+            "name": "Comunidade/ONG"
+          }
+        }
+      },
+      "customPaletteTitle": "Paleta Personalizada",
+      "customPalette": {
+        "name": "Create Your Palette",
+        "description": "Choose 4 colors for your palette.",
+        "colorLabelBase": "Color ",
+        "colorLabel": "Color {{index}}"
+      },
+      "noUserDashboard": "No",
+      "addedItemsCount": "Added ({{count}}/{{total}}):",
+      "addOtherStructurePlaceholder": "Add other structure section:",
+      "otherStructureItemPlaceholder": "Section name...",
+      "addedOtherStructure": "Added Other Structure Sections:"
     },
     "stack": {
       "title": "Technology Stack",
       "description": "Choose the technologies for your project",
       "separateFrontendBackend": "Separate Frontend and Backend?",
-      "frontend": "Frontend",
-      "backend": "Backend",
-      "database": "Database",
-      "hosting": "Hosting/Deployment",
-      "fullstack": "Fullstack Framework",
-      "infrastructure": "Infrastructure",
-      "orm": "ORM/Database Tools",
+      "frontendTitle": "Frontend",
+      "frontendHelp": "Technologies for the user interface.",
+      "react": "React",
+      "nextjsFE": "Next.js (Frontend)",
+      "vue": "Vue.js",
+      "angular": "Angular",
+      "svelte": "Svelte",
+      "tailwind": "Tailwind CSS",
+      "mui": "Material UI",
+      "bootstrap": "Bootstrap",
+      "typescriptFE": "TypeScript (Frontend)",
+      "backendTitle": "Backend",
+      "backendHelp": "Technologies for server-side logic.",
+      "nodejs": "Node.js",
+      "express": "Express",
+      "nestjs": "NestJS",
+      "django": "Django (Python)",
+      "flask": "Flask (Python)",
+      "laravel": "Laravel (PHP)",
+      "dotnet": ".NET Core (C#)",
+      "spring": "Spring Boot (Java)",
+      "golang": "Go",
+      "rubyOnRails": "Ruby on Rails",
+      "fullstackTitle": "Fullstack Framework",
+      "fullstackHelp": "Frameworks covering both frontend and backend.",
+      "nextjsFS": "Next.js (Fullstack)",
+      "remix": "Remix",
+      "nuxt": "Nuxt.js (Fullstack)",
+      "blitzjs": "Blitz.js",
+      "redwood": "RedwoodJS",
+      "meteor": "Meteor.js",
+      "databaseTitle": "Database",
+      "databaseHelp": "Systems for data storage.",
+      "mongodb": "MongoDB (NoSQL)",
+      "postgres": "PostgreSQL (SQL)",
+      "mysql": "MySQL (SQL)",
+      "sqlite": "SQLite (SQL)",
+      "supabaseDB": "Supabase (Postgres)",
+      "firebaseDB": "Firebase (NoSQL)",
+      "redis": "Redis (Cache/NoSQL)",
+      "ormTitle": "ORM / DB Tools",
+      "ormHelp": "Object-Relational Mapping and tools.",
+      "prisma": "Prisma",
+      "sequelize": "Sequelize",
+      "mongoose": "Mongoose (MongoDB)",
+      "typeorm": "TypeORM",
+      "sqlalchemy": "SQLAlchemy (Python)",
+      "eloquent": "Eloquent (Laravel)",
+      "hibernate": "Hibernate (Java)",
+      "hostingTitle": "Hosting / Deployment",
+      "hostingHelp": "Platforms to deploy your application.",
+      "vercel": "Vercel",
+      "netlify": "Netlify",
+      "heroku": "Heroku",
+      "aws": "AWS (EC2, S3, etc.)",
+      "gcp": "Google Cloud Platform",
+      "azure": "Microsoft Azure",
+      "digitalocean": "DigitalOcean",
+      "dockerK8s": "Docker / Kubernetes",
       "other": "Other",
-      "otherPlaceholder": "Specify other technology"
+      "otherPlaceholder": "Specify other technology",
+      "specifyOther": "Specify other..."
     },
     "security": {
       "title": "Security",
       "description": "Security features for your project",
+      "securityFeatures": "Security Features",
+      "protection": "General Protection (SQL Injection, XSS, CSRF)",
+      "authenticationSec": "Secure Authentication (JWT, OAuth2, 2FA)",
+      "httpsUsage": "HTTPS Usage (SSL/TLS), CSP, HSTS",
+      "auditLogsMonitoring": "Audit Logs and Security Monitoring",
+      "apiEndpointSecurity": "API Endpoint Security (Rate Limiting, Keys)",
+      "otherSecurityFeature": "Other Security Feature",
+      "otherSecurityFeaturePlaceholder": "Specify your security feature",
       "authentication": "Authentication System",
       "authorization": "Authorization/Permissions",
       "dataEncryption": "Data Encryption",
@@ -648,69 +856,92 @@
       "backups": "Automated Backups",
       "logging": "Security Logging",
       "compliance": "Compliance (GDPR, etc.)",
-      "otherSecurity": "Other Security Feature",
-      "otherSecurityPlaceholder": "Specify your security feature"
+      "otherSecurity": "Other Security Feature"
     },
     "codeStructure": {
       "title": "Code Structure",
       "description": "Preferences for code organization",
       "folderOrganization": "Folder Organization",
+      "byFunction": "By Function (e.g., controllers, services, models)",
+      "byDomain": "By Domain/Module (e.g., users, products, orders)",
+      "frontBackSeparation": "Clear Frontend/Backend Separation",
+      "modularDI": "Modular Design with Dependency Injection",
+      "otherOrganizationStyle": "Other Organization Style",
+      "otherOrganizationStylePlaceholder": "Describe your preferred style",
+      "architecturalPattern": "Architectural Pattern",
+      "mvc": "MVC (Model-View-Controller)",
+      "mvvm": "MVVM (Model-View-ViewModel)",
+      "cleanArch": "Clean Architecture",
+      "ddd": "DDD (Domain-Driven Design)",
+      "hexagonal": "Hexagonal Architecture (Ports & Adapters)",
+      "otherArchPattern": "Other Architectural Pattern",
+      "otherArchPatternPlaceholder": "Describe your preferred pattern",
+      "bestPractices": "Best Practices",
+      "stateless": "Stateless Components/Services",
+      "lowCoupling": "Low Coupling, High Cohesion",
+      "testing": "Comprehensive Unit/Integration Testing",
+      "reusableComponents": "Reusable and Well-Documented Components",
+      "otherBestPractice": "Other Best Practice",
+      "otherBestPracticePlaceholder": "Describe the practice",
       "featureBased": "Feature-based",
       "typeBased": "Type-based",
       "domainDriven": "Domain-driven",
       "atomic": "Atomic design",
       "otherOrganization": "Other organization",
-      "otherOrganizationPlaceholder": "Specify your organization preference",
-      "architecturalPattern": "Architectural Pattern",
-      "mvc": "MVC",
-      "mvvm": "MVVM",
-      "cleanArch": "Clean Architecture",
       "microservices": "Microservices",
       "serverless": "Serverless",
-      "otherArchPattern": "Other pattern",
-      "otherArchPatternPlaceholder": "Specify your architectural pattern",
-      "bestPractices": "Best Practices",
       "solid": "SOLID Principles",
-      "testing": "Unit/Integration Testing",
       "ci": "CI/CD Pipeline",
       "documentation": "Auto-generated Documentation",
-      "codestyle": "Strict Code Style",
-      "otherBestPractice": "Other practice",
-      "otherBestPracticePlaceholder": "Specify your best practice"
+      "codestyle": "Strict Code Style"
     },
     "scalability": {
       "title": "Scalability",
       "description": "How should your project scale?",
       "isScalable": "Project needs to be highly scalable",
       "scalabilityFeatures": "Scalability Features",
+      "scalability": "Scalability",
+      "redis": "Redis (for cache/queues)",
+      "caching": "Caching Strategies (CDN, in-memory)",
+      "autoScaling": "Auto-Scaling (Horizontal/Vertical)",
+      "otherScalabilityFeature": "Other Scalability Feature",
+      "otherScalabilityFeaturePlaceholder": "Describe the feature",
+      "performance": "Performance",
+      "lazyLoading": "Lazy Loading of Components/Images",
+      "minification": "Code Minification (JS, CSS, HTML)",
+      "serverRendering": "Server-Side Rendering (SSR) or Static Site Generation (SSG)",
+      "optimization": "Database Query Optimization",
+      "otherPerformanceFeature": "Other Performance Feature",
+      "otherPerformanceFeaturePlaceholder": "Describe the feature",
       "horizontalScaling": "Horizontal Scaling",
       "verticalScaling": "Vertical Scaling",
       "loadBalancing": "Load Balancing",
-      "caching": "Caching System",
       "cdn": "Content Delivery Network",
       "microservices": "Microservices Architecture",
       "otherScalability": "Other Scalability Feature",
-      "otherScalabilityPlaceholder": "Specify your scalability feature",
       "performanceFeatures": "Performance Features",
-      "lazyLoading": "Lazy Loading",
       "codeOptimization": "Code Optimization",
       "imageOptimization": "Image/Asset Optimization",
-      "minification": "Code Minification",
       "databaseOptimization": "Database Query Optimization",
-      "otherPerformance": "Other Performance Feature",
-      "otherPerformancePlaceholder": "Specify your performance feature"
+      "otherPerformance": "Other Performance Feature"
     },
     "restrictions": {
       "title": "Restrictions",
       "description": "Any restrictions or preferences?",
       "avoidInCode": "Things to Avoid",
+      "eval": "Use of eval()",
+      "globalVars": "Excessive Global Variables",
+      "callbackHell": "Callback Hell / Deep Nesting",
+      "unmaintained": "Outdated/Unmaintained Libraries",
+      "important": "Use of !important in CSS",
+      "paidDeps": "Paid Dependencies (if open-source project)",
+      "otherRestriction": "Other Restriction",
+      "otherRestrictionPlaceholder": "Specify your restriction",
       "classComponents": "Class Components",
       "redux": "Redux",
       "jquery": "jQuery",
       "php": "PHP",
-      "specificLibraries": "Specific Libraries (specify)",
-      "otherRestriction": "Other Restriction",
-      "otherRestrictionPlaceholder": "Specify your restriction"
+      "specificLibraries": "Specific Libraries (specify)"
     },
     "generate": {
       "title": "Generate Prompt",
@@ -726,7 +957,8 @@
       "edit": "Edit Sections",
       "maxTokens": "Approximate tokens",
       "savePrompt": "Save this prompt",
-      "reviewPrompt": "Review the generated prompt"
+      "reviewPrompt": "Review the generated prompt",
+      "emptyPreview": "Fill in the fields to see the preview..."
     }
   }
 }

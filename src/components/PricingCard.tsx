@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Feature {
   text: string;
@@ -27,34 +28,34 @@ const PricingCard: React.FC<PricingCardProps> = ({
   popular = false,
   apiOption = false,
 }) => {
+  const { t } = useTranslation();
   return (
-    <div 
-      className={`rounded-2xl p-6 shadow-lg transition-all duration-300 hover:translate-y-[-4px] hover:shadow-xl
-        ${popular ? 'border-2 border-brand-500 bg-white' : 'border border-gray-200 bg-white'}`}
-    >
+    <div className={`group relative bg-darkBg/80 backdrop-blur-md rounded-2xl p-8 shadow-xl transition-all duration-300 ${
+      popular ? 'border-2 border-neonPink hover:border-aquaGreen shadow-neonPink/20 hover:shadow-aquaGreen/30' : 'border border-electricBlue/30 hover:border-neonPurple hover:shadow-neonPurple/20'
+    }`}> {/* Fundo atualizado */}
       {popular && (
-        <div className="inline-block rounded-full bg-brand-100 px-3 py-1 text-xs font-medium text-brand-800 mb-4">
-          Most Popular
+        <div className="inline-block rounded-full bg-neonPink/20 px-4 py-1.5 text-xs font-bold text-pureWhite mb-4 backdrop-blur-sm border border-neonPink/30">
+          {t('pricing.mostPopular')}
         </div>
       )}
       
-      <h3 className="text-xl font-bold text-gray-900">{title}</h3>
+      <h3 className="text-2xl font-bold text-pureWhite">{title}</h3>
       <div className="mt-4 flex items-baseline">
-        <span className="text-4xl font-bold tracking-tight text-gray-900">{price}</span>
-        <span className="ml-1 text-sm font-semibold text-gray-500">/month</span>
+        <span className="text-4xl font-bold tracking-tight text-electricBlue">{price}</span>
+        <span className="ml-1 text-sm font-semibold text-pureWhite/70">/month</span> {/* Alterado */}
       </div>
       
-      <p className="mt-2 text-sm text-gray-500">{description}</p>
+      <p className="mt-2 text-sm text-pureWhite/90">{description}</p> {/* Alterado */}
       
       <ul className="mt-6 space-y-3">
         {features.map((feature, index) => (
           <li key={index} className="flex items-start">
             <Check 
               className={`mr-2 h-5 w-5 flex-shrink-0 ${
-                feature.included ? 'text-brand-500' : 'text-gray-300'
+                feature.included ? 'text-neonPink' : 'text-electricBlue/50'
               }`}
             />
-            <span className={feature.included ? 'text-gray-600' : 'text-gray-400'}>
+            <span className={feature.included ? 'text-pureWhite' : 'text-gray-400'}> {/* Alterado */}
               {feature.text}
             </span>
           </li>
@@ -62,18 +63,18 @@ const PricingCard: React.FC<PricingCardProps> = ({
       </ul>
       
       {apiOption && (
-        <div className="mt-6 bg-gray-50 rounded-lg p-3 text-sm text-gray-600">
-          <p className="font-medium mb-1">Save 20% on this plan</p>
+        <div className="mt-6 bg-darkBg/50 rounded-lg p-3 text-sm text-pureWhite/90 border border-electricBlue/20 backdrop-blur-sm"> {/* Texto principal alterado */}
+          <p className="font-medium mb-1 text-neonPurple">Save 20% on this plan</p>
           <p>Use your own API keys and get 20% off the subscription price</p>
         </div>
       )}
       
       <div className="mt-8">
         <Button 
-          className={`w-full ${
+          className={`w-full font-semibold transition-all duration-300 rounded-lg py-3 ${
             popular 
-              ? 'bg-brand-600 hover:bg-brand-700 text-white' 
-              : 'bg-gray-100 hover:bg-gray-200 text-gray-800'
+              ? 'bg-neonPink hover:bg-opacity-80 text-pureWhite shadow-lg hover:shadow-neonPink/40' 
+              : 'bg-electricBlue/10 hover:bg-electricBlue/20 text-aquaGreen border border-electricBlue/30 hover:border-neonPurple'
           }`}
         >
           {ctaText}

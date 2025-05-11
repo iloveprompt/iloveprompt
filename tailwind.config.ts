@@ -64,10 +64,20 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-                brand: colors.darkBlue,
-                accent1: colors.blue,
-                accent2: colors.yellow,
+        // Nova paleta de cores
+        darkBg: '#0A192F', // Fundo escuro principal
+        electricBlue: '#3A86FF', // Azul Elétrico
+        neonPurple: '#9B5DE5',   // Roxo Neón
+        aquaGreen: '#00F5D4',    // Verde Aqua Vibrante
+        neonPink: '#FF2E63',     // Rosa Neon
+        pureWhite: '#FFFFFF',    // Branco Puro
+
+        // Cores para sombras personalizadas
+        'electric-blue-shadow': 'rgba(58, 134, 255, 0.15)', // electricBlue com 15% alpha
 			},
+			boxShadow: { // Adicionar tema para sombras com cores
+        'lg-electric-blue': '0 10px 15px -3px rgba(58, 134, 255, 0.15), 0 4px 6px -4px rgba(58, 134, 255, 0.12)', // Opacidade aumentada
+      },
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',

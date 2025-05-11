@@ -21,7 +21,18 @@
     "incompleteProfile": "Cadastro incompleto",
     "completeProfile": "Completar cadastro",
     "pick": "Escolher",
-    "optional": "Opcional"
+    "optional": "Opcional",
+    "other": "Outro",
+    "save": "Salvar",
+    "page": "Página",
+    "of": "de",
+    "close": "Fechar",
+    "reset": "Resetar",
+    "saveAndFinalize": "Salvar e Finalizar",
+    "finalized": "Finalizado",
+    "yes": "Sim",
+    "cancel": "Cancelar",
+    "saveOtherItems": "Salvar Outros"
   },
   "auth": {
     "loginTitle": "Entre na sua conta",
@@ -376,6 +387,13 @@
       "description": "Execute seus prompts com vários modelos de IA diretamente em nossa plataforma."
     }
   },
+  "socialProof": {
+    "title": "O Que Nossos Desenvolvedores Dizem",
+    "description": "Descubra como nossa plataforma está transformando a maneira como desenvolvedores criam prompts de IA.",
+    "testimonial1": "Esta ferramenta revolucionou meu fluxo de trabalho! Consigo gerar prompts complexos e eficazes em uma fração do tempo. Indispensável para qualquer dev que usa IA.",
+    "testimonial2": "Finalmente uma solução que entende as nuances do desenvolvimento de software. Os prompts gerados são incrivelmente precisos e me ajudam a obter resultados de IA muito melhores.",
+    "testimonial3": "A interface guiada é fantástica. Mesmo para requisitos de projeto intrincados, consigo detalhar tudo e obter um prompt que realmente funciona. Economia de tempo absurda!"
+  },
   "pricing": {
     "title": "Preços Simples e Transparentes",
     "description": "Escolha o plano que se adapta às suas necessidades de desenvolvimento.",
@@ -408,12 +426,16 @@
       "unlimitedPrompts": "Prompts ilimitados",
       "promptLibrarySharing": "Biblioteca e compartilhamento de prompts",
       "prioritySupport": "Suporte prioritário"
-    }
+    },
+    "mostPopular": "Mais Popular"
   },
   "cta": {
     "title": "Pronto para criar melhores prompts?",
     "description": "Comece a gerar prompts otimizados para suas necessidades de desenvolvimento hoje.",
-    "button": "Comece Gratuitamente"
+    "button": "Comece Gratuitamente",
+    "guarantee": "Teste Sem Riscos por 30 Dias",
+    "getStartedNow": "Crie Seus Prompts Agora!",
+    "limitedOffer": "Oferta Especial por Tempo Limitado!"
   },
   "footer": {
     "description": "Crie prompts perfeitos de IA para desenvolvimento de software com nosso sistema de questionário guiado.",
@@ -440,8 +462,10 @@
     "title": "Gerador de Prompts",
     "description": "Crie prompts de IA para suas necessidades específicas",
     "generate": "Gerar Prompt",
+    "confirmAndNext": "Confirmar e Avançar",
     "common": {
-      "optional": "opcional"
+      "optional": "opcional",
+      "add": "Adicionar"
     },
     "project": {
       "title": "Informações do Projeto",
@@ -521,7 +545,29 @@
       "finance": "Serviço Financeiro",
       "healthcare": "Serviço de Saúde",
       "other": "Outro Objetivo",
-      "otherPlaceholder": "Especifique seu objetivo"
+      "otherPlaceholder": "Especifique seu objetivo",
+      "primaryObjectiveHelp": "Seja claro e conciso sobre o propósito fundamental do seu projeto.",
+      "businessObjectives": "Objetivos de Negócio Adicionais",
+      "businessObjectivesHelp": "Selecione objetivos de negócio relevantes que seu projeto visa alcançar.",
+      "notInList": "Não está na lista?",
+      "otherObjectivePrompt": "Adicionar outro objetivo:",
+      "otherObjectivePlaceholder": "Seu objetivo...",
+      "addedObjectivesCount": "Adicionados ({{count}}/10):",
+      "limitReached": "Limite de 10 objetivos atingido.",
+      "specifiedOtherObjectivesTitle": "Outros Objetivos Especificados:",
+      "increaseRevenue": "Aumentar Receita",
+      "reduceCosts": "Reduzir Custos",
+      "improveCustomerExperience": "Melhorar Experiência do Cliente",
+      "enhanceBrandAwareness": "Aumentar Reconhecimento da Marca",
+      "expandMarketReach": "Expandir Alcance de Mercado",
+      "streamlineOperations": "Otimizar Operações",
+      "driveInnovation": "Impulsionar Inovação",
+      "boostUserEngagement": "Aumentar Engajamento do Usuário",
+      "improveDataInsights": "Melhorar Insights de Dados",
+      "complianceWithRegulations": "Conformidade com Regulamentações",
+      "enhanceSecurity": "Aumentar Segurança",
+      "otherObjective": "Outro Objetivo de Negócio",
+      "enhanceWithAI": "Melhorar com IA"
     },
     "requirements": {
       "title": "Requisitos",
@@ -534,7 +580,31 @@
       "nonFunctionalRequirements": "Requisitos Não-Funcionais",
       "nonFunctionalPlaceholder": "Expectativas de desempenho, segurança, usabilidade",
       "other": "Outro Requisito",
-      "otherPlaceholder": "Requisitos adicionais"
+      "otherPlaceholder": "Requisitos adicionais",
+      "performance": "Performance (velocidade de carregamento)",
+      "dataSecurity": "Segurança de dados",
+      "scalability": "Escalabilidade (capacidade de crescimento)",
+      "usability": "Usabilidade (facilidade de uso)",
+      "accessibilityReq": "Acessibilidade (WCAG)",
+      "mobileCompatibility": "Compatibilidade com dispositivos móveis",
+      "multiLanguageSupport": "Suporte a múltiplos idiomas",
+      "compliance": "Conformidade com normas (LGPD, GDPR, etc.)",
+      "monitoringLogging": "Monitoramento e logs",
+      "backupRecovery": "Backup e recuperação de dados",
+      "highAvailability": "Alta disponibilidade (uptime)",
+      "browserCompatibility": "Compatibilidade com navegadores",
+      "otherRequirement": "Outro Requisito Não-Funcional",
+      "userTypesHelp": "Quem usará o sistema? Defina os diferentes papéis.",
+      "functionalRequirementsHelp": "O que o sistema deve ser capaz de fazer? Liste as funcionalidades principais.",
+      "noUserTypes": "Nenhum tipo de usuário adicionado.",
+      "noFunctionalRequirements": "Nenhum requisito funcional adicionado.",
+      "notInList": "Não está na lista?",
+      "otherRequirementPrompt": "Adicionar outro requisito não-funcional:",
+      "otherRequirementPlaceholder": "Seu requisito...",
+      "addedNfrsCount": "Adicionados ({{count}}/10):",
+      "nfrLimitReached": "Limite de 10 requisitos não-funcionais atingido.",
+      "saveNfrsButton": "Salvar Requisito(s)",
+      "specifiedOtherRequirementsTitle": "Outros Requisitos Não-Funcionais Especificados:"
     },
     "features": {
       "title": "Funcionalidades",
@@ -543,9 +613,78 @@
       "specificFeaturesPlaceholder": "Ex: autenticação de usuário, processamento de pagamento",
       "otherFeaturePlaceholder": "Especifique sua funcionalidade",
       "dynamicFeatures": "Funcionalidades Dinâmicas",
+      "dynamicFeaturesTitle": "Funcionalidades Sugeridas",
       "dynamicFeaturePlaceholder": "Nome da funcionalidade",
       "dynamicFeatureDescPlaceholder": "Descrição da funcionalidade",
-      "addFeature": "Adicionar Funcionalidade"
+      "addFeature": "Adicionar Funcionalidade",
+      "uploadFiles": "Upload de Arquivos e Imagens",
+      "notifications": "Notificações (Push, Email, SMS)",
+      "advancedFilters": "Filtros Avançados e Busca Completa",
+      "interactiveDashboards": "Dashboards Interativos com Gráficos",
+      "scheduling": "Agendamentos e Lembretes Automáticos",
+      "export": "Exportação de Dados (CSV, PDF, Excel)",
+      "rolePermissions": "Controle de Acesso Baseado em Papéis (RBAC)",
+      "apiIntegration": "Integração com APIs Externas",
+      "multiLanguage": "Suporte a Múltiplos Idiomas",
+      "accessibility": "Padrões de Acessibilidade (WCAG)",
+      "darkMode": "Tema Escuro e Claro",
+      "customLandingPage": "Página de Destino Personalizável",
+      "other": "Outra Funcionalidade Específica",
+      "customCheckout": "Checkout Personalizado",
+      "paymentGateways": "Integração com Gateways de Pagamento",
+      "inventoryManagement": "Gerenciamento de Estoque",
+      "shippingCalculation": "Cálculo de Frete",
+      "abandonedCart": "Recuperação de Carrinho Abandonado",
+      "promotions": "Cupons e Promoções",
+      "customerReviews": "Avaliações de Clientes",
+      "wishlists": "Listas de Desejos",
+      "authentication": "Autenticação de Usuários",
+      "multiTenancy": "Suporte a Multi-Tenancy",
+      "apiDocs": "Documentação da API (Swagger/OpenAPI)",
+      "apiVersioning": "Versionamento de API",
+      "webhooks": "Sistema de Webhooks",
+      "rateLimiting": "Controle de Limite de Requisições",
+      "loggingMonitoring": "Logging e Monitoramento",
+      "salesPipeline": "Pipeline de Vendas Visual",
+      "customerSegmentation": "Segmentação de Clientes",
+      "emailIntegration": "Integração com Email",
+      "performanceDashboard": "Painel de Performance",
+      "tasksReminders": "Gerenciador de Tarefas e Lembretes",
+      "reportingAnalytics": "Relatórios e Análises",
+      "contactManagement": "Gerenciamento de Contatos",
+      "userAuthentication": "Autenticação de Usuários",
+      "subscriptionManagement": "Gerenciamento de Assinaturas",
+      "userDashboard": "Painel do Usuário",
+      "roleBasedAccess": "Controle de Acesso Baseado em Papéis",
+      "thirdPartyIntegrations": "Integrações com Terceiros",
+      "billingHistory": "Histórico de Faturamento",
+      "customerSupportModule": "Módulo de Suporte ao Cliente",
+      "pushNotifications": "Notificações Push",
+      "offlineAccess": "Acesso Offline",
+      "cameraIntegration": "Integração com Câmera",
+      "geolocation": "Geolocalização",
+      "inAppPurchases": "Compras no Aplicativo",
+      "wysiwygEditor": "Editor WYSIWYG",
+      "mediaManagement": "Gerenciamento de Mídia",
+      "versionControl": "Controle de Versão (Conteúdo)",
+      "contentScheduling": "Agendamento de Conteúdo",
+      "seoTools": "Ferramentas de SEO",
+      "userProfiles": "Perfis de Usuário",
+      "searchFunctionality": "Funcionalidade de Busca Avançada",
+      "adminPanel": "Painel Administrativo",
+      "ecommerceFeatures": "Funcionalidades Sugeridas para E-commerce",
+      "apiBackendFeatures": "Funcionalidades Sugeridas para API/Backend",
+      "crmFeatures": "Funcionalidades Sugeridas para CRM",
+      "saasFeatures": "Funcionalidades Sugeridas para SaaS",
+      "microsaasFeatures": "Funcionalidades Sugeridas para MicroSaaS",
+      "mobileAppFeatures": "Funcionalidades Sugeridas para App Mobile",
+      "cmsFeatures": "Funcionalidades Sugeridas para CMS",
+      "default": {
+        "auth": "Autenticação de Usuários",
+        "dashboard": "Painel de Controle (Dashboard)",
+        "contentManagement": "Gerenciamento de Conteúdo Básico",
+        "profileSettings": "Configurações de Perfil"
+      }
     },
     "uxui": {
       "title": "Design UX/UI",
@@ -620,25 +759,172 @@
       "activityHistory": "Histórico de Atividade",
       "responsiveThemes": "Tema Claro/Escuro e Responsivo",
       "otherDashboardFeature": "Outra Funcionalidade do Painel",
-      "otherDashboardFeaturePlaceholder": "Descreva a funcionalidade do seu painel"
+      "otherDashboardFeaturePlaceholder": "Descreva a funcionalidade do seu painel",
+      "palettes": {
+        "vibrantModern": {
+          "title": "Paletas Vibrantes e Modernas",
+          "techInnovation": {
+            "name": "Tecnologia/Inovação"
+          },
+          "creativityDesign": {
+            "name": "Criatividade/Design"
+          },
+          "healthWellness": {
+            "name": "Saúde/Bem-estar"
+          },
+          "foodGastronomy": {
+            "name": "Alimentos/Gastronomia"
+          },
+          "educationLearning": {
+            "name": "Educação/Aprendizado"
+          }
+        },
+        "calmProfessional": {
+          "title": "Paletas Mais Calmas e Profissionais",
+          "corporateFinance": {
+            "name": "Corporativo/Finanças"
+          },
+          "legalConsulting": {
+            "name": "Jurídico/Consultoria"
+          },
+          "newsInformation": {
+            "name": "Notícias/Informação"
+          },
+          "portfolioPersonal": {
+            "name": "Portfólio/Pessoal"
+          },
+          "realEstate": {
+            "name": "Imobiliário"
+          }
+        },
+        "subtleElegant": {
+          "title": "Paletas Sutis e Elegantes",
+          "fashionLuxury": {
+            "name": "Moda/Luxo"
+          },
+          "artCulture": {
+            "name": "Arte/Cultura"
+          },
+          "minimalism": {
+            "name": "Minimalismo"
+          },
+          "natureSustainability": {
+            "name": "Natureza/Sustentabilidade"
+          },
+          "travelAdventure": {
+            "name": "Viagem/Aventura"
+          }
+        },
+        "themed": {
+          "title": "Paletas Temáticas",
+          "kidsToys": {
+            "name": "Infantil/Brinquedos"
+          },
+          "musicEntertainment": {
+            "name": "Música/Entretenimento"
+          },
+          "sportsFitness": {
+            "name": "Esportes/Fitness"
+          },
+          "weddingEvents": {
+            "name": "Casamento/Eventos"
+          },
+          "communityNGO": {
+            "name": "Comunidade/ONG"
+          }
+        }
+      },
+      "customPaletteTitle": "Paleta Personalizada",
+      "customPalette": {
+        "name": "Crie sua Paleta",
+        "description": "Escolha 4 cores para sua paleta.",
+        "colorLabelBase": "Cor ",
+        "colorLabel": "Cor {{index}}"
+      },
+      "noUserDashboard": "Não",
+      "addedItemsCount": "Adicionados ({{count}}/{{total}}):",
+      "addOtherStructurePlaceholder": "Adicionar outra seção de estrutura:",
+      "otherStructureItemPlaceholder": "Nome da seção...",
+      "addedOtherStructure": "Outras Seções de Estrutura Adicionadas:"
     },
     "stack": {
       "title": "Stack Tecnológica",
       "description": "Escolha as tecnologias para seu projeto",
       "separateFrontendBackend": "Separar Frontend e Backend?",
-      "frontend": "Frontend",
-      "backend": "Backend",
-      "database": "Banco de Dados",
-      "hosting": "Hospedagem/Deploy",
-      "fullstack": "Framework Fullstack",
-      "infrastructure": "Infraestrutura",
-      "orm": "ORM/Ferramentas de Banco de Dados",
+      "frontendTitle": "Frontend",
+      "frontendHelp": "Tecnologias para a interface do usuário.",
+      "react": "React",
+      "nextjsFE": "Next.js (Frontend)",
+      "vue": "Vue.js",
+      "angular": "Angular",
+      "svelte": "Svelte",
+      "tailwind": "Tailwind CSS",
+      "mui": "Material UI",
+      "bootstrap": "Bootstrap",
+      "typescriptFE": "TypeScript (Frontend)",
+      "backendTitle": "Backend",
+      "backendHelp": "Tecnologias para a lógica do servidor.",
+      "nodejs": "Node.js",
+      "express": "Express",
+      "nestjs": "NestJS",
+      "django": "Django (Python)",
+      "flask": "Flask (Python)",
+      "laravel": "Laravel (PHP)",
+      "dotnet": ".NET Core (C#)",
+      "spring": "Spring Boot (Java)",
+      "golang": "Go",
+      "rubyOnRails": "Ruby on Rails",
+      "fullstackTitle": "Framework Fullstack",
+      "fullstackHelp": "Frameworks que cobrem frontend e backend.",
+      "nextjsFS": "Next.js (Fullstack)",
+      "remix": "Remix",
+      "nuxt": "Nuxt.js (Fullstack)",
+      "blitzjs": "Blitz.js",
+      "redwood": "RedwoodJS",
+      "meteor": "Meteor.js",
+      "databaseTitle": "Banco de Dados",
+      "databaseHelp": "Sistemas para armazenamento de dados.",
+      "mongodb": "MongoDB (NoSQL)",
+      "postgres": "PostgreSQL (SQL)",
+      "mysql": "MySQL (SQL)",
+      "sqlite": "SQLite (SQL)",
+      "supabaseDB": "Supabase (Postgres)",
+      "firebaseDB": "Firebase (NoSQL)",
+      "redis": "Redis (Cache/NoSQL)",
+      "ormTitle": "ORM / Ferramentas de BD",
+      "ormHelp": "Mapeamento Objeto-Relacional e ferramentas.",
+      "prisma": "Prisma",
+      "sequelize": "Sequelize",
+      "mongoose": "Mongoose (MongoDB)",
+      "typeorm": "TypeORM",
+      "sqlalchemy": "SQLAlchemy (Python)",
+      "eloquent": "Eloquent (Laravel)",
+      "hibernate": "Hibernate (Java)",
+      "hostingTitle": "Hospedagem / Deploy",
+      "hostingHelp": "Plataformas para implantar sua aplicação.",
+      "vercel": "Vercel",
+      "netlify": "Netlify",
+      "heroku": "Heroku",
+      "aws": "AWS (EC2, S3, etc.)",
+      "gcp": "Google Cloud Platform",
+      "azure": "Microsoft Azure",
+      "digitalocean": "DigitalOcean",
+      "dockerK8s": "Docker / Kubernetes",
       "other": "Outros",
-      "otherPlaceholder": "Especifique outra tecnologia"
+      "otherPlaceholder": "Especifique outra tecnologia",
+      "specifyOther": "Especifique outro..."
     },
     "security": {
       "title": "Segurança",
       "description": "Recursos de segurança para seu projeto",
+      "securityFeatures": "Recursos de Segurança",
+      "protection": "Proteção Geral (Injeção SQL, XSS, CSRF)",
+      "authenticationSec": "Autenticação Segura (JWT, OAuth2, 2FA)",
+      "httpsUsage": "Uso de HTTPS (SSL/TLS), CSP, HSTS",
+      "auditLogsMonitoring": "Logs de Auditoria e Monitoramento de Segurança",
+      "apiEndpointSecurity": "Segurança de Endpoints de API (Rate Limiting, Chaves)",
+      "otherSecurityFeature": "Outro Recurso de Segurança",
+      "otherSecurityFeaturePlaceholder": "Especifique seu recurso de segurança",
       "authentication": "Sistema de Autenticação",
       "authorization": "Autorização/Permissões",
       "dataEncryption": "Criptografia de Dados",
@@ -648,69 +934,92 @@
       "backups": "Backups Automatizados",
       "logging": "Registro de Segurança",
       "compliance": "Conformidade (LGPD, etc.)",
-      "otherSecurity": "Outro Recurso de Segurança",
-      "otherSecurityPlaceholder": "Especifique seu recurso de segurança"
+      "otherSecurity": "Outro Recurso de Segurança"
     },
     "codeStructure": {
       "title": "Estrutura de Código",
       "description": "Preferências para organização de código",
       "folderOrganization": "Organização de Pastas",
+      "byFunction": "Por Função (ex: controllers, services, models)",
+      "byDomain": "Por Domínio/Módulo (ex: users, products, orders)",
+      "frontBackSeparation": "Separação Clara Frontend/Backend",
+      "modularDI": "Design Modular com Injeção de Dependências",
+      "otherOrganizationStyle": "Outro Estilo de Organização",
+      "otherOrganizationStylePlaceholder": "Descreva seu estilo preferido",
+      "architecturalPattern": "Padrão Arquitetural",
+      "mvc": "MVC (Modelo-Visão-Controlador)",
+      "mvvm": "MVVM (Modelo-Visão-VisãoModelo)",
+      "cleanArch": "Arquitetura Limpa",
+      "ddd": "DDD (Design Orientado ao Domínio)",
+      "hexagonal": "Arquitetura Hexagonal (Portas e Adaptadores)",
+      "otherArchPattern": "Outro Padrão Arquitetural",
+      "otherArchPatternPlaceholder": "Descreva seu padrão preferido",
+      "bestPractices": "Melhores Práticas",
+      "stateless": "Componentes/Serviços Sem Estado (Stateless)",
+      "lowCoupling": "Baixo Acoplamento, Alta Coesão",
+      "testing": "Testes Unitários e de Integração Abrangentes",
+      "reusableComponents": "Componentes Reutilizáveis e Bem Documentados",
+      "otherBestPractice": "Outra Melhor Prática",
+      "otherBestPracticePlaceholder": "Descreva a prática",
       "featureBased": "Baseado em Funcionalidades",
       "typeBased": "Baseado em Tipos",
       "domainDriven": "Domain-driven",
       "atomic": "Design Atômico",
       "otherOrganization": "Outra organização",
-      "otherOrganizationPlaceholder": "Especifique sua preferência de organização",
-      "architecturalPattern": "Padrão Arquitetural",
-      "mvc": "MVC",
-      "mvvm": "MVVM",
-      "cleanArch": "Arquitetura Limpa",
       "microservices": "Microsserviços",
       "serverless": "Serverless",
-      "otherArchPattern": "Outro padrão",
-      "otherArchPatternPlaceholder": "Especifique seu padrão arquitetural",
-      "bestPractices": "Melhores Práticas",
       "solid": "Princípios SOLID",
-      "testing": "Teste Unitário/Integração",
       "ci": "Pipeline CI/CD",
       "documentation": "Documentação Autogenada",
-      "codestyle": "Estilo de Código Rigoroso",
-      "otherBestPractice": "Outra prática",
-      "otherBestPracticePlaceholder": "Especifique sua melhor prática"
+      "codestyle": "Estilo de Código Rigoroso"
     },
     "scalability": {
       "title": "Escalabilidade",
       "description": "Como seu projeto deve escalar?",
       "isScalable": "Projeto precisa ser altamente escalável",
       "scalabilityFeatures": "Recursos de Escalabilidade",
+      "scalability": "Escalabilidade",
+      "redis": "Redis (para cache/filas)",
+      "caching": "Estratégias de Cache (CDN, em memória)",
+      "autoScaling": "Auto-Escalamento (Horizontal/Vertical)",
+      "otherScalabilityFeature": "Outra Característica de Escalabilidade",
+      "otherScalabilityFeaturePlaceholder": "Descreva a característica",
+      "performance": "Performance",
+      "lazyLoading": "Carregamento Lento (Lazy Loading) de Componentes/Imagens",
+      "minification": "Minificação de Código (JS, CSS, HTML)",
+      "serverRendering": "Renderização no Servidor (SSR) ou Geração de Site Estático (SSG)",
+      "optimization": "Otimização de Consultas ao Banco de Dados",
+      "otherPerformanceFeature": "Outra Característica de Performance",
+      "otherPerformanceFeaturePlaceholder": "Descreva a característica",
       "horizontalScaling": "Escalabilidade Horizontal",
       "verticalScaling": "Escalabilidade Vertical",
       "loadBalancing": "Balanceamento de Carga",
-      "caching": "Sistema de Cache",
       "cdn": "Rede de Entrega de Conteúdo",
       "microservices": "Arquitetura de Microsserviços",
       "otherScalability": "Outro Recurso de Escalabilidade",
-      "otherScalabilityPlaceholder": "Especifique seu recurso de escalabilidade",
       "performanceFeatures": "Recursos de Desempenho",
-      "lazyLoading": "Carregamento Lento",
       "codeOptimization": "Otimização de Código",
       "imageOptimization": "Otimização de Imagens/Assets",
-      "minification": "Minificação de Código",
       "databaseOptimization": "Otimização de Consultas de Banco de Dados",
-      "otherPerformance": "Outro Recurso de Desempenho",
-      "otherPerformancePlaceholder": "Especifique seu recurso de desempenho"
+      "otherPerformance": "Outro Recurso de Desempenho"
     },
     "restrictions": {
       "title": "Restrições",
       "description": "Alguma restrição ou preferência?",
       "avoidInCode": "Coisas a Evitar",
+      "eval": "Uso de eval()",
+      "globalVars": "Variáveis Globais Excessivas",
+      "callbackHell": "Callback Hell / Aninhamento Profundo",
+      "unmaintained": "Bibliotecas Desatualizadas/Sem Manutenção",
+      "important": "Uso de !important em CSS",
+      "paidDeps": "Dependências Pagas (se projeto open-source)",
+      "otherRestriction": "Outra Restrição",
+      "otherRestrictionPlaceholder": "Especifique sua restrição",
       "classComponents": "Componentes de Classe",
       "redux": "Redux",
       "jquery": "jQuery",
       "php": "PHP",
-      "specificLibraries": "Bibliotecas Específicas (especifique)",
-      "otherRestriction": "Outra Restrição",
-      "otherRestrictionPlaceholder": "Especifique sua restrição"
+      "specificLibraries": "Bibliotecas Específicas (especifique)"
     },
     "generate": {
       "title": "Gerar Prompt",
@@ -726,7 +1035,8 @@
       "edit": "Editar Seções",
       "maxTokens": "Tokens aproximados",
       "savePrompt": "Salvar este prompt",
-      "reviewPrompt": "Revisar o prompt gerado"
+      "reviewPrompt": "Revisar o prompt gerado",
+      "emptyPreview": "Preencha os campos para ver o preview..."
     }
   }
 }

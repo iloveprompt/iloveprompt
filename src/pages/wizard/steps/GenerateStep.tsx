@@ -7,13 +7,21 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { savePromptToDatabase } from '@/services/promptService';
-import { supabase } from '@/lib/supabase';
+// import { supabase } from '@/lib/supabase'; // supabase client not directly used here
+import { Save, CheckCircle as CheckCircleIcon } from 'lucide-react'; // Added icons
 
 interface GenerateStepProps {
-  formData: any;
+  formData: any; // Keeping 'any' for now as it's a collection of all previous steps
+  markAsFinalized: () => void;
+  isFinalized: boolean;
+  // resetStep is not passed as it's not applicable here
 }
 
-const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
+const GenerateStep: React.FC<GenerateStepProps> = ({ 
+  formData,
+  markAsFinalized,
+  isFinalized
+}) => {
   const { t } = useLanguage();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -205,16 +213,34 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>{t('promptGenerator.generate.title')}</CardTitle>
-          <CardDescription>
-            {t('promptGenerator.generate.description')}
-          </CardDescription>
+          <div className="flex justify-between items-start"> {/* Changed items-center to items-start */}
+            <div>
+              <CardTitle>{t('promptGenerator.generate.title')}</CardTitle>
+              <CardDescription>
+                {t('promptGenerator.generate.description')}
+              </CardDescription>
+            </div>
+            <div className="flex items-center space-x-2"> {/* Group for buttons and checkmark */}
+              {/* No Reset button for GenerateStep */}
+              <Button 
+                onClick={markAsFinalized} 
+                size="icon" 
+                className="h-8 w-8"
+                disabled={isFinalized || !generatedPrompt} // Disable if not generated or already finalized
+                title={isFinalized ? (t('common.finalized') || "Finalizado") : (t('promptGenerator.generate.markAsReviewed') || "Marcar como Revisado")}
+              >
+                <Save className="h-4 w-4" />
+                <span className="sr-only">{isFinalized ? (t('common.finalized') || "Finalizado") : (t('promptGenerator.generate.markAsReviewed') || "Marcar como Revisado")}</span>
+              </Button>
+              {isFinalized && <CheckCircleIcon className="h-6 w-6 text-green-500 ml-2" />}
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 pt-4"> {/* Added pt-4 for spacing */}
           <div className="flex justify-center mb-4">
             <Button 
               onClick={handleGenerate} 
-              className="w-64"
+              className="w-64" 
               disabled={isGenerating || isSaving}
             >
               {isGenerating 
@@ -227,7 +253,7 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
           
           {generatedPrompt && (
             <div className="space-y-4">
-              <div className="border rounded-md p-4 bg-gray-50">
+              <div className="border rounded-md p-4 bg-muted/50">
                 <h3 className="font-semibold mb-2">{t('promptGenerator.generate.result')}</h3>
                 <Textarea 
                   value={generatedPrompt}
@@ -237,8 +263,8 @@ const GenerateStep: React.FC<GenerateStepProps> = ({ formData }) => {
                 />
               </div>
               
-              <div className="flex justify-end">
-                <Button onClick={handleCopyToClipboard} variant="outline">
+              <div className="flex justify-end items-center mt-6 pt-4 border-t"> {/* Kept Copy button here */}
+                <Button onClick={handleCopyToClipboard} variant="outline" size="sm">
                   {t('promptGenerator.generate.copyToClipboard')}
                 </Button>
               </div>

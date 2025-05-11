@@ -1,290 +1,365 @@
-
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from "@/components/ui/switch";
-import OtherSpecifyItem from '@/components/OtherSpecifyItem';
-import { ToggleLeft, ToggleRight } from 'lucide-react';
+import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
-interface StackData {
+interface StackFormData {
   separateFrontendBackend: boolean;
   frontend: string[];
+  otherFrontend: string[]; // Changed to array
   backend: string[];
+  otherBackend: string[]; // Changed to array
   database: string[];
+  otherDatabase: string[]; // Changed to array
   hosting: string[];
+  otherHosting: string[]; // Changed to array
   fullstack: string[];
+  otherFullstack: string[]; // Changed to array
   orm: string[];
-  otherFrontend: string;
-  otherBackend: string;
-  otherDatabase: string;
-  otherHosting: string;
-  otherFullstack: string;
-  otherOrm: string;
+  otherOrm: string[]; // Changed to array
 }
 
 interface StackStepProps {
-  formData: StackData;
-  updateFormData: (data: Partial<StackData>) => void;
+  formData: StackFormData;
+  updateFormData: (data: Partial<StackFormData>) => void;
+  markAsFinalized: () => void;
+  resetStep: () => void;
+  isFinalized: boolean;
 }
 
-const StackStep: React.FC<StackStepProps> = ({ formData, updateFormData }) => {
+const itemsPerPage = 6;
+
+const StackStep: React.FC<StackStepProps> = ({ 
+  formData, 
+  updateFormData,
+  markAsFinalized,
+  resetStep,
+  isFinalized 
+}) => {
   const { t } = useLanguage();
 
-  React.useEffect(() => {
-    // Definir o padrão como "Não (Fullstack)" ao carregar o componente
-    if (formData.separateFrontendBackend) {
-      updateFormData({ separateFrontendBackend: false });
+  // State for Popovers and Pagination
+  const [popoverStates, setPopoverStates] = useState({
+    frontend: false, backend: false, fullstack: false, database: false, orm: false, hosting: false
+  });
+  const [currentInputs, setCurrentInputs] = useState({
+    frontend: '', backend: '', fullstack: '', database: '', orm: '', hosting: ''
+  });
+  const [tempLists, setTempLists] = useState<Record<string, string[]>>({
+    frontend: [], backend: [], fullstack: [], database: [], orm: [], hosting: []
+  });
+  const [currentPages, setCurrentPages] = useState({
+    frontend: 0, backend: 0, fullstack: 0, database: 0, orm: 0, hosting: 0
+  });
+
+  const createTechOption = (value: string, defaultLabel: string) => ({ value, i18nKey: `promptGenerator.stack.${value}`, defaultText: defaultLabel });
+
+  const techOptionsConfig = {
+    frontend: [
+      createTechOption('react', 'React'), createTechOption('nextjsFE', 'Next.js (Frontend)'),
+      createTechOption('vue', 'Vue.js'), createTechOption('angular', 'Angular'), 
+      createTechOption('svelte', 'Svelte'), createTechOption('tailwind', 'Tailwind CSS'),
+      createTechOption('mui', 'Material UI'), createTechOption('bootstrap', 'Bootstrap'),
+      createTechOption('typescriptFE', 'TypeScript (Frontend)')
+    ],
+    backend: [
+      createTechOption('nodejs', 'Node.js'), createTechOption('express', 'Express'),
+      createTechOption('nestjs', 'NestJS'), createTechOption('django', 'Django (Python)'),
+      createTechOption('flask', 'Flask (Python)'), createTechOption('laravel', 'Laravel (PHP)'),
+      createTechOption('dotnet', '.NET Core (C#)'), createTechOption('spring', 'Spring Boot (Java)'),
+      createTechOption('golang', 'Go'), createTechOption('rubyOnRails', 'Ruby on Rails')
+    ],
+    fullstack: [
+      createTechOption('nextjsFS', 'Next.js (Fullstack)'), createTechOption('remix', 'Remix'), 
+      createTechOption('nuxt', 'Nuxt.js (Fullstack)'), createTechOption('blitzjs', 'Blitz.js'), 
+      createTechOption('redwood', 'RedwoodJS'), createTechOption('meteor', 'Meteor.js')
+    ],
+    database: [
+      createTechOption('mongodb', 'MongoDB (NoSQL)'), createTechOption('postgres', 'PostgreSQL (SQL)'),
+      createTechOption('mysql', 'MySQL (SQL)'), createTechOption('sqlite', 'SQLite (SQL)'),
+      createTechOption('supabaseDB', 'Supabase (Postgres)'), createTechOption('firebaseDB', 'Firebase (NoSQL)'),
+      createTechOption('redis', 'Redis (Cache/NoSQL)')
+    ],
+    orm: [
+      createTechOption('prisma', 'Prisma'), createTechOption('sequelize', 'Sequelize'),
+      createTechOption('mongoose', 'Mongoose (MongoDB)'), createTechOption('typeorm', 'TypeORM'),
+      createTechOption('sqlalchemy', 'SQLAlchemy (Python)'), createTechOption('eloquent', 'Eloquent (Laravel)'),
+      createTechOption('hibernate', 'Hibernate (Java)')
+    ],
+    hosting: [
+      createTechOption('vercel', 'Vercel'), createTechOption('netlify', 'Netlify'),
+      createTechOption('heroku', 'Heroku'), createTechOption('aws', 'AWS (EC2, S3, etc.)'),
+      createTechOption('gcp', 'Google Cloud Platform'), createTechOption('azure', 'Microsoft Azure'),
+      createTechOption('digitalocean', 'DigitalOcean'), createTechOption('dockerK8s', 'Docker / Kubernetes')
+    ]
+  };
+
+  type TechCategory = keyof typeof techOptionsConfig;
+
+  const handleTechSelection = (category: TechCategory, value: string, checked: boolean) => {
+    const currentSelection = formData[category] as string[];
+    const updatedSelection = checked
+      ? [...currentSelection, value]
+      : currentSelection.filter(item => item !== value);
+    updateFormData({ [category]: updatedSelection } as Partial<StackFormData>);
+  };
+
+  const toggleSelectAll = (category: TechCategory) => {
+    const options = techOptionsConfig[category].map(opt => opt.value);
+    const currentSelection = formData[category] as string[];
+    const allSelected = options.length > 0 && options.every(v => currentSelection.includes(v));
+    
+    if (allSelected) {
+      updateFormData({ [category]: currentSelection.filter(item => !options.includes(item) || (formData[`other${capitalize(category)}` as keyof StackFormData] as string[]).length > 0 && item === 'other') } as Partial<StackFormData>);
+    } else {
+      updateFormData({ [category]: Array.from(new Set([...currentSelection, ...options])) } as Partial<StackFormData>);
     }
-  }, []);
+  };
+  
+  const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-  // Technology options
-  const frontendOptions = [
-    { value: 'react', label: 'React' },
-    { value: 'nextjs', label: 'Next.js' },
-    { value: 'vue', label: 'Vue.js' },
-    { value: 'angular', label: 'Angular' },
-    { value: 'svelte', label: 'Svelte' },
-    { value: 'tailwind', label: 'Tailwind CSS' },
-    { value: 'mui', label: 'Material UI' },
-    { value: 'bootstrap', label: 'Bootstrap' },
-    { value: 'typescript', label: 'TypeScript' }
-  ];
+  useEffect(() => {
+    Object.keys(popoverStates).forEach(catStr => {
+      const category = catStr as TechCategory;
+      if (popoverStates[category]) {
+        const otherFieldName = `other${capitalize(category)}` as keyof StackFormData;
+        setTempLists(prev => ({ ...prev, [category]: Array.isArray(formData[otherFieldName]) ? formData[otherFieldName] as string[] : [] }));
+        setCurrentInputs(prev => ({ ...prev, [category]: '' }));
+      }
+    });
+  }, [popoverStates, formData]);
 
-  const backendOptions = [
-    { value: 'nodejs', label: 'Node.js' },
-    { value: 'express', label: 'Express' },
-    { value: 'nestjs', label: 'NestJS' },
-    { value: 'django', label: 'Django' },
-    { value: 'flask', label: 'Flask' },
-    { value: 'laravel', label: 'Laravel' },
-    { value: 'dotnet', label: '.NET Core' },
-    { value: 'spring', label: 'Spring Boot' },
-    { value: 'go', label: 'Go' }
-  ];
-
-  const databaseOptions = [
-    { value: 'mongodb', label: 'MongoDB' },
-    { value: 'postgres', label: 'PostgreSQL' },
-    { value: 'mysql', label: 'MySQL' },
-    { value: 'sqlite', label: 'SQLite' },
-    { value: 'supabase', label: 'Supabase' },
-    { value: 'firebase', label: 'Firebase' },
-    { value: 'redis', label: 'Redis' }
-  ];
-
-  const hostingOptions = [
-    { value: 'vercel', label: 'Vercel' },
-    { value: 'netlify', label: 'Netlify' },
-    { value: 'heroku', label: 'Heroku' },
-    { value: 'aws', label: 'AWS' },
-    { value: 'gcp', label: 'Google Cloud' },
-    { value: 'azure', label: 'Azure' },
-    { value: 'digitalocean', label: 'DigitalOcean' }
-  ];
-
-  const fullstackOptions = [
-    { value: 'nextjs', label: 'Next.js' },
-    { value: 'remix', label: 'Remix' },
-    { value: 'nuxt', label: 'Nuxt.js' },
-    { value: 'blitzjs', label: 'Blitz.js' },
-    { value: 'redwood', label: 'RedwoodJS' },
-    { value: 'meteor', label: 'Meteor' }
-  ];
-
-  const ormOptions = [
-    { value: 'prisma', label: 'Prisma' },
-    { value: 'sequelize', label: 'Sequelize' },
-    { value: 'mongoose', label: 'Mongoose' },
-    { value: 'typeorm', label: 'TypeORM' },
-    { value: 'hibernate', label: 'Hibernate' }
-  ];
-
-  // Handle checkbox changes for various categories
-  const handleTechSelection = (category: keyof StackData, value: string, checked: boolean) => {
-    if (category === 'frontend' || category === 'backend' || category === 'database' || 
-        category === 'hosting' || category === 'fullstack' || category === 'orm') {
-      const updatedSelection = checked
-        ? [...formData[category], value]
-        : formData[category].filter(item => item !== value);
-
-      updateFormData({ [category]: updatedSelection });
+  const handleAddOtherItem = (category: TechCategory) => {
+    if (currentInputs[category].trim() && tempLists[category].length < 10) {
+      setTempLists(prev => ({ ...prev, [category]: [...prev[category], currentInputs[category].trim()] }));
+      setCurrentInputs(prev => ({ ...prev, [category]: '' }));
     }
   };
 
-  // Toggle select all for each category
-  const toggleSelectAll = (category: keyof StackData, options: Array<{ value: string; label: string }>) => {
-    if (category === 'frontend' || category === 'backend' || category === 'database' || 
-        category === 'hosting' || category === 'fullstack' || category === 'orm') {
-      
-      const values = options.map(option => option.value);
-      const allSelected = formData[category].length === values.length;
-      
-      if (allSelected) {
-        updateFormData({ [category]: [] });
-      } else {
-        updateFormData({ [category]: values });
+  const handleRemoveOtherItem = (category: TechCategory, index: number) => {
+    setTempLists(prev => ({ ...prev, [category]: prev[category].filter((_, i) => i !== index) }));
+  };
+
+  const handleSaveOtherList = (category: TechCategory) => {
+    const otherFieldName = `other${capitalize(category)}` as keyof StackFormData;
+    const mainListFieldName = category; // e.g., 'frontend', 'backend'
+
+    const currentMainList = Array.isArray(formData[mainListFieldName]) ? formData[mainListFieldName] as string[] : [];
+    // Combine existing main list items with the new temporary "other" items, ensuring uniqueness
+    // These are treated as direct strings. If they were keys for translation, further logic would be needed.
+    const newMainListItems = Array.from(new Set([...currentMainList, ...tempLists[category]]));
+    
+    updateFormData({ 
+      [otherFieldName]: [...tempLists[category]], // Keep for separate display in this step's UI
+      [mainListFieldName]: newMainListItems      // Add to main list for prompt generation
+    } as Partial<StackFormData>);
+    
+    setPopoverStates(prev => ({ ...prev, [category]: false }));
+  };
+  
+  const handleReset = () => {
+    resetStep();
+    setPopoverStates({ frontend: false, backend: false, fullstack: false, database: false, orm: false, hosting: false });
+    setCurrentInputs({ frontend: '', backend: '', fullstack: '', database: '', orm: '', hosting: '' });
+    setTempLists({ frontend: [], backend: [], fullstack: [], database: [], orm: [], hosting: [] });
+    setCurrentPages({ frontend: 0, backend: 0, fullstack: 0, database: 0, orm: 0, hosting: 0 });
+  };
+
+  const handleSaveAndFinalize = () => {
+    let hasSelection = false;
+    if (formData.separateFrontendBackend) {
+      if (formData.frontend.length > 0 || (Array.isArray(formData.otherFrontend) && formData.otherFrontend.length > 0) || 
+          formData.backend.length > 0 || (Array.isArray(formData.otherBackend) && formData.otherBackend.length > 0)) {
+        hasSelection = true;
+      }
+    } else {
+      if (formData.fullstack.length > 0 || (Array.isArray(formData.otherFullstack) && formData.otherFullstack.length > 0)) {
+        hasSelection = true;
       }
     }
-  };
-
-  // Check if all options are selected
-  const isAllSelected = (category: keyof StackData, options: Array<{ value: string; label: string }>) => {
-    if (category === 'frontend' || category === 'backend' || category === 'database' || 
-        category === 'hosting' || category === 'fullstack' || category === 'orm') {
-      
-      return formData[category].length === options.length;
+    if (!hasSelection && (formData.database.length === 0 && (!Array.isArray(formData.otherDatabase) || formData.otherDatabase.length === 0))) {
+        alert(t('promptGenerator.stack.atLeastOneTechError') || "Selecione ao menos uma tecnologia para frontend/backend ou fullstack, e/ou banco de dados.");
+        return;
     }
-    return false;
+    markAsFinalized();
   };
 
-  // Render technology checkboxes
-  const renderTechOptions = (
-    category: 'frontend' | 'backend' | 'database' | 'hosting' | 'fullstack' | 'orm', 
-    options: Array<{ value: string; label: string }>,
-    title: string,
-    otherProperty: 'otherFrontend' | 'otherBackend' | 'otherDatabase' | 'otherHosting' | 'otherFullstack' | 'otherOrm',
-    help?: string
+  const renderTechSection = (
+    category: TechCategory,
+    titleKey: string,
+    defaultTitle: string,
+    helpKey?: string,
+    defaultHelp?: string
   ) => {
-    const allSelected = isAllSelected(category, options);
-    
+    const options = techOptionsConfig[category];
+    const otherFieldName = `other${capitalize(category)}` as keyof StackFormData;
+    const otherItems = (Array.isArray(formData[otherFieldName]) ? formData[otherFieldName] : []) as string[];
+
+    const totalPages = Math.ceil(options.length / itemsPerPage);
+    const currentItemsToDisplay = options.slice(currentPages[category] * itemsPerPage, (currentPages[category] + 1) * itemsPerPage);
+    const allSelected = options.length > 0 && options.every(opt => (formData[category] as string[]).includes(opt.value));
+
     return (
-      <Card className="p-6 mb-4">
-        <div className="space-y-4">
-          <div className="flex flex-wrap justify-between items-center gap-2">
-            <div>
-              <h4 className="font-medium">{title}</h4>
-              {help && <p className="text-sm text-gray-500">{help}</p>}
+      <AccordionItem value={`${category}-accordion`} className="border-0">
+        <AccordionTrigger className="text-base font-medium text-foreground py-2 hover:no-underline">
+          {t(titleKey) || defaultTitle}
+        </AccordionTrigger>
+        <AccordionContent className="pt-1 pb-0">
+          <div className="space-y-2">
+            {helpKey && <p className="text-xs text-muted-foreground mb-1.5">{t(helpKey) || defaultHelp}</p>}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5"> {/* Removed minHeight style */}
+              {currentItemsToDisplay.map((option) => (
+                <div key={option.value} className="flex items-start space-x-1.5"> {/* Removed h-7 */}
+                  <Checkbox
+                    id={`${category}-${option.value}`}
+                    checked={(formData[category] as string[]).includes(option.value)}
+                    onCheckedChange={(checked) => handleTechSelection(category, option.value, checked === true)}
+                    className="mt-0.5"
+                  />
+                  <Label htmlFor={`${category}-${option.value}`} className="cursor-pointer text-xs font-normal whitespace-normal leading-tight">
+                    {t(option.i18nKey) || option.defaultText}
+                  </Label>
+                </div>
+              ))}
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => toggleSelectAll(category, options)}
-            >
-              {allSelected 
-                ? t('promptGenerator.common.unselectAll') 
-                : t('promptGenerator.common.selectAll')}
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {options.map((option) => (
-              <div key={option.value} className="flex items-center space-x-2">
-                <Checkbox 
-                  id={`${category}-${option.value}`}
-                  checked={formData[category].includes(option.value)}
-                  onCheckedChange={(checked) => 
-                    handleTechSelection(category, option.value, checked === true)
-                  }
-                />
-                <Label htmlFor={`${category}-${option.value}`} className="cursor-pointer">
-                  {option.label}
-                </Label>
+            <div className="flex items-center justify-between space-x-2 mt-2 pt-2">
+              {options.length > 0 && (
+                <Button variant="outline" size="sm" className="text-xs" onClick={() => toggleSelectAll(category)}>
+                  {allSelected ? (t('common.unselectAll') || "Desmarcar Todos") : (t('common.selectAll') || "Marcar Todos")}
+                </Button>
+              )}
+              <div className="flex items-center space-x-2">
+                <Popover open={popoverStates[category]} onOpenChange={(isOpen) => setPopoverStates(prev => ({ ...prev, [category]: isOpen }))}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="text-xs">
+                      <ListPlus className="h-3 w-3 mr-1.5" />
+                      {t('promptGenerator.objective.notInList') || "Não está na lista?"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-4" side="top" align="end">
+                    <div className="space-y-3">
+                      <Label htmlFor={`other-${category}-input`} className="text-sm font-medium">
+                        {t('promptGenerator.stack.specifyOther') || `Adicionar outra tecnologia ${defaultTitle.toLowerCase()}:`}
+                      </Label>
+                      <div className="flex items-center space-x-2">
+                        <Input id={`other-${category}-input`} value={currentInputs[category]} onChange={(e) => setCurrentInputs(prev => ({ ...prev, [category]: e.target.value }))} placeholder={t('promptGenerator.stack.otherPlaceholder') || 'Sua tecnologia...'} className="text-xs h-8" onKeyDown={(e) => { if (e.key === 'Enter' && currentInputs[category].trim()) handleAddOtherItem(category); }} />
+                        <Button size="icon" onClick={() => handleAddOtherItem(category)} disabled={!currentInputs[category].trim() || tempLists[category].length >= 10} className="h-8 w-8 flex-shrink-0"><PlusCircle className="h-4 w-4" /></Button>
+                      </div>
+                      {tempLists[category].length > 0 && (
+                        <div className="mt-2 space-y-1 max-h-28 overflow-y-auto border p-2 rounded-md">
+                          <p className="text-xs text-muted-foreground mb-1">{`Adicionadas (${tempLists[category].length}/10):`}</p>
+                          {tempLists[category].map((item, idx) => (
+                            <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
+                              <span className="truncate flex-1 mr-2">{item}</span>
+                              <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherItem(category, idx)} className="h-5 w-5"><XCircle className="h-3.5 w-3.5 text-destructive" /></Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {tempLists[category].length >= 10 && <p className="text-xs text-destructive mt-1">{t('promptGenerator.objective.limitReached') || "Limite de 10 atingido."}</p>}
+                      <div className="flex justify-end space-x-2 mt-3">
+                        <Button size="sm" variant="ghost" onClick={() => setPopoverStates(prev => ({ ...prev, [category]: false }))} className="text-xs h-8">{'Cancelar'}</Button>
+                        <Button size="sm" onClick={() => handleSaveOtherList(category)} disabled={tempLists[category].length === 0 && otherItems.length === 0 && !currentInputs[category].trim()} className="text-xs h-8">{'Salvar Outras'}</Button>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center space-x-1">
+                    <Button variant="ghost" size="icon" onClick={() => setCurrentPages(prev => ({...prev, [category]: Math.max(0, prev[category] - 1)}))} disabled={currentPages[category] === 0} className="h-7 w-7"><ChevronLeft className="h-4 w-4" /></Button>
+                    <span className="text-xs text-muted-foreground">{`${t('common.page') || 'Página'} ${currentPages[category] + 1} ${t('common.of') || 'de'} ${totalPages}`}</span>
+                    <Button variant="ghost" size="icon" onClick={() => setCurrentPages(prev => ({...prev, [category]: Math.min(totalPages - 1, prev[category] + 1)}))} disabled={currentPages[category] === totalPages - 1} className="h-7 w-7"><ChevronRight className="h-4 w-4" /></Button>
+                  </div>
+                )}
               </div>
-            ))}
-            
-            <OtherSpecifyItem
-              id={`${category}-other`}
-              label={t('promptGenerator.common.other')}
-              checked={formData[category].includes(`other${category.charAt(0).toUpperCase() + category.slice(1)}`)}
-              value={formData[otherProperty]}
-              placeholder={`${t('promptGenerator.stack.specifyOther')}`}
-              onCheckedChange={(checked) => {
-                const otherValue = `other${category.charAt(0).toUpperCase() + category.slice(1)}`;
-                if (checked) {
-                  updateFormData({
-                    [category]: [...formData[category], otherValue]
-                  });
-                } else {
-                  updateFormData({
-                    [category]: formData[category].filter(f => f !== otherValue),
-                    [otherProperty]: ''
-                  });
-                }
-              }}
-              onValueChange={(value) => updateFormData({ [otherProperty]: value })}
-            />
+            </div>
+            {otherItems.length > 0 && (
+              <div className="mt-2 space-y-1 border p-2 rounded-md bg-muted/30">
+                <p className="text-xs font-medium text-muted-foreground mb-1">{`Outras tecnologias ${defaultTitle.toLowerCase()} adicionadas:`}</p>
+                {otherItems.map((item, index) => (
+                  <div key={`saved-other-${category}-${index}`} className="text-xs text-foreground p-1 bg-muted/50 rounded">{item}</div>
+                ))}
+              </div>
+            )}
           </div>
-        </div>
-      </Card>
+        </AccordionContent>
+      </AccordionItem>
     );
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-xl font-medium mb-2">{t('promptGenerator.stack.title')}</h3>
-        <p className="text-gray-500 mb-4">{t('promptGenerator.stack.description')}</p>
-      </div>
+      <Card className="p-4 sm:p-6">
+        <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle>{t('promptGenerator.stack.title') || "Stack Tecnológica"}</CardTitle>
+              <CardDescription className="text-sm text-muted-foreground">{t('promptGenerator.stack.description') || "Escolha as tecnologias para seu projeto"}</CardDescription>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" onClick={handleReset} size="icon" className="h-8 w-8">
+                <RotateCcw className="h-4 w-4" />
+                <span className="sr-only">{t('common.reset')}</span>
+              </Button>
+              <Button 
+                onClick={handleSaveAndFinalize} 
+                size="icon" 
+                className="h-8 w-8"
+                disabled={isFinalized || 
+                  (!(formData.separateFrontendBackend ? 
+                    (formData.frontend.length === 0 && (!Array.isArray(formData.otherFrontend) || formData.otherFrontend.length === 0) && formData.backend.length === 0 && (!Array.isArray(formData.otherBackend) || formData.otherBackend.length === 0) ) : 
+                    (formData.fullstack.length === 0 && (!Array.isArray(formData.otherFullstack) || formData.otherFullstack.length === 0))) && 
+                   (formData.database.length === 0 && (!Array.isArray(formData.otherDatabase) || formData.otherDatabase.length === 0)))
+                }
+              >
+                <Save className="h-4 w-4" />
+                <span className="sr-only">{isFinalized ? t('common.finalized') : t('common.saveAndFinalize')}</span>
+              </Button>
+              {isFinalized && <CheckCircleIcon className="h-6 w-6 text-green-500 ml-2" />}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="px-0 pb-0 sm:px-0 sm:pb-0 space-y-3 pt-4">
+          <div className="flex items-center space-x-2 p-2.5 border rounded-md bg-background">
+            <Switch
+              checked={formData.separateFrontendBackend}
+              onCheckedChange={(checked) => updateFormData({ separateFrontendBackend: checked })}
+              id="separateFrontendBackend-toggle"
+            />
+            <Label htmlFor="separateFrontendBackend-toggle" className="text-sm font-medium text-foreground">
+              {t('promptGenerator.stack.separateFrontendBackend') || "Separar Frontend e Backend?"}
+            </Label>
+          </div>
 
-      {/* Frontend/Backend Separation Option - updated to match RequirementsStep style */}
-      <div className="flex items-center space-x-2">
-        <Switch
-          checked={formData.separateFrontendBackend}
-          onCheckedChange={(checked) => updateFormData({ separateFrontendBackend: checked })}
-          id="separateFrontendBackend-toggle"
-        />
-        <Label htmlFor="separateFrontendBackend-toggle" className="text-base font-medium">
-          {t('promptGenerator.stack.separateFrontendBackend')}
-        </Label>
-      </div>
-
-      {/* Separate Frontend/Backend or Fullstack */}
-      {formData.separateFrontendBackend ? (
-        <>
-          {renderTechOptions(
-            'frontend',
-            frontendOptions,
-            t('promptGenerator.stack.frontendTitle'),
-            'otherFrontend',
-            t('promptGenerator.stack.frontendHelp')
-          )}
-          {renderTechOptions(
-            'backend',
-            backendOptions,
-            t('promptGenerator.stack.backendTitle'),
-            'otherBackend',
-            t('promptGenerator.stack.backendHelp')
-          )}
-        </>
-      ) : (
-        renderTechOptions(
-          'fullstack',
-          fullstackOptions,
-          t('promptGenerator.stack.fullstack'),
-          'otherFullstack'
-        )
-      )}
-
-      {/* Database and Hosting options */}
-      <Separator className="my-6" />
-      
-      {renderTechOptions(
-        'database',
-        databaseOptions,
-        t('promptGenerator.stack.databaseTitle'),
-        'otherDatabase',
-        t('promptGenerator.stack.databaseHelp')
-      )}
-      
-      {renderTechOptions(
-        'orm',
-        ormOptions,
-        t('promptGenerator.stack.orm'),
-        'otherOrm'
-      )}
-      
-      {renderTechOptions(
-        'hosting',
-        hostingOptions,
-        t('promptGenerator.stack.hostingTitle'),
-        'otherHosting',
-        t('promptGenerator.stack.hostingHelp')
-      )}
+          <Accordion type="single" collapsible className="w-full" defaultValue={formData.separateFrontendBackend ? "frontend-accordion" : "fullstack-accordion"}>
+            {formData.separateFrontendBackend ? (
+              <>
+                {renderTechSection('frontend', 'promptGenerator.stack.frontendTitle', 'Frontend', 'promptGenerator.stack.frontendHelp', 'Tecnologias para a interface do usuário.')}
+                {renderTechSection('backend', 'promptGenerator.stack.backendTitle', 'Backend', 'promptGenerator.stack.backendHelp', 'Tecnologias para a lógica do servidor.')}
+              </>
+            ) : (
+              renderTechSection('fullstack', 'promptGenerator.stack.fullstackTitle', 'Framework Fullstack', 'promptGenerator.stack.fullstackHelp', 'Frameworks que cobrem frontend e backend.')
+            )}
+            <Separator className="my-3" /> 
+            {renderTechSection('database', 'promptGenerator.stack.databaseTitle', 'Banco de Dados', 'promptGenerator.stack.databaseHelp', 'Sistemas para armazenamento de dados.')}
+            {renderTechSection('orm', 'promptGenerator.stack.ormTitle', 'ORM / Ferramentas de BD', 'promptGenerator.stack.ormHelp', 'Mapeamento Objeto-Relacional e ferramentas.')}
+            {renderTechSection('hosting', 'promptGenerator.stack.hostingTitle', 'Hospedagem / Deploy', 'promptGenerator.stack.hostingHelp', 'Plataformas para implantar sua aplicação.')}
+          </Accordion>
+        </CardContent>
+      </Card>
     </div>
   );
 };

@@ -114,13 +114,17 @@
 @keyframes slideIn {
   0% {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(50px); /* Aumentado o deslocamento */
   }
   100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
+
+/* Aumentar a duração da animação slide-in se necessário, ou aplicar diretamente na classe .slide-in */
+/* Exemplo: .slide-in { animation: slideIn 0.8s ease-in-out forwards; } */
+/* Por enquanto, manteremos a duração de 0.5s definida em tailwind.config.js, mas o translateY maior deve ajudar */
 
 .delay-100 {
   animation-delay: 0.1s;

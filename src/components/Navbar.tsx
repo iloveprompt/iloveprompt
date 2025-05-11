@@ -64,8 +64,8 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link to="/" className="text-gray-700 hover:text-brand-600 transition-colors">{t('common.home')}</Link>
-            <Link to="/pricing" className="text-gray-700 hover:text-brand-600 transition-colors">{t('common.pricing')}</Link>
-            <Link to="/features" className="text-gray-700 hover:text-brand-600 transition-colors">{t('common.features')}</Link>
+            <a href="/#pricing-section" className="text-gray-700 hover:text-brand-600 transition-colors">{t('common.pricing')}</a>
+            <a href="/#features-section" className="text-gray-700 hover:text-brand-600 transition-colors">{t('common.features')}</a>
             <div className="flex items-center space-x-4">
               <LanguageSwitcher />
               
@@ -128,9 +128,35 @@ const Navbar = () => {
       {isMenuOpen && (
         <div className="md:hidden bg-white shadow-lg">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <Link to="/" className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">{t('common.home')}</Link>
-            <Link to="/pricing" className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">{t('common.pricing')}</Link>
-            <Link to="/features" className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">{t('common.features')}</Link>
+            <Link to="/" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">{t('common.home')}</Link>
+            <a 
+              href="/#pricing-section" 
+              className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md"
+              onClick={(e) => {
+                setIsMenuOpen(false);
+                if (location.pathname === '/') {
+                  e.preventDefault();
+                  document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' });
+                }
+                // Se não estiver na home, permite a navegação normal para /#pricing-section
+              }}
+            >
+              {t('common.pricing')}
+            </a>
+            <a 
+              href="/#features-section" 
+              className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md"
+              onClick={(e) => {
+                setIsMenuOpen(false);
+                if (location.pathname === '/') {
+                  e.preventDefault();
+                  document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' });
+                }
+                // Se não estiver na home, permite a navegação normal para /#features-section
+              }}
+            >
+              {t('common.features')}
+            </a>
             <div className="flex flex-col space-y-2 px-3 pt-4">
               {showDashboardButton && (
                 <Link to="/dashboard">

@@ -1,259 +1,290 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import OtherSpecifyItem from '@/components/OtherSpecifyItem';
+import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
-interface CodeStructureData {
+interface CodeStructureFormData {
   folderOrganization: string[];
-  otherOrganizationStyle: string | string[];
+  otherOrganizationStyle: string[]; // Changed
   architecturalPattern: string[];
-  otherArchPattern: string | string[];
+  otherArchPattern: string[]; // Changed
   bestPractices: string[];
-  otherBestPractice: string | string[];
+  otherBestPractice: string[]; // Changed
 }
 
 interface CodeStructureStepProps {
-  formData: CodeStructureData;
-  updateFormData: (data: Partial<CodeStructureData>) => void;
+  formData: CodeStructureFormData;
+  updateFormData: (data: Partial<CodeStructureFormData>) => void;
+  markAsFinalized: () => void;
+  resetStep: () => void;
+  isFinalized: boolean;
 }
 
-const CodeStructureStep: React.FC<CodeStructureStepProps> = ({ formData, updateFormData }) => {
+const itemsPerPage = 6;
+
+const CodeStructureStep: React.FC<CodeStructureStepProps> = ({ 
+  formData, 
+  updateFormData,
+  markAsFinalized,
+  resetStep,
+  isFinalized 
+}) => {
   const { t } = useLanguage();
 
-  const folderOptions = [
-    'byFunction', 'byDomain', 'frontBackSeparation', 'modularDI'
-  ];
+  const [currentPageFolder, setCurrentPageFolder] = useState(0);
+  const [isOtherFolderPopoverOpen, setIsOtherFolderPopoverOpen] = useState(false);
+  const [currentOtherFolderInput, setCurrentOtherFolderInput] = useState('');
+  const [tempOtherFolderList, setTempOtherFolderList] = useState<string[]>([]);
 
-  const architectureOptions = [
-    'mvc', 'mvvm', 'cleanArch', 'ddd', 'hexagonal'
-  ];
+  const [currentPageArch, setCurrentPageArch] = useState(0);
+  const [isOtherArchPopoverOpen, setIsOtherArchPopoverOpen] = useState(false);
+  const [currentOtherArchInput, setCurrentOtherArchInput] = useState('');
+  const [tempOtherArchList, setTempOtherArchList] = useState<string[]>([]);
 
-  const bestPracticeOptions = [
-    'stateless', 'lowCoupling', 'testing', 'reusableComponents'
-  ];
+  const [currentPageBest, setCurrentPageBest] = useState(0);
+  const [isOtherBestPopoverOpen, setIsOtherBestPopoverOpen] = useState(false);
+  const [currentOtherBestInput, setCurrentOtherBestInput] = useState('');
+  const [tempOtherBestList, setTempOtherBestList] = useState<string[]>([]);
 
-  const handleFolderChange = (option: string, checked: boolean) => {
+  const folderOptions = ['byFunction', 'byDomain', 'frontBackSeparation', 'modularDI'];
+  const architectureOptions = ['mvc', 'mvvm', 'cleanArch', 'ddd', 'hexagonal'];
+  const bestPracticeOptions = ['stateless', 'lowCoupling', 'testing', 'reusableComponents'];
+
+  const formatKeyAsFallback = (key: string, prefix: string = "") => {
+    const effectiveKey = key.startsWith(prefix) ? key.substring(prefix.length) : key;
+    return effectiveKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+  };
+
+  const handleCheckboxChange = (category: keyof CodeStructureFormData, option: string, checked: boolean) => {
+    const currentSelection = formData[category] as string[];
     const updatedOptions = checked
-      ? [...formData.folderOrganization, option]
-      : formData.folderOrganization.filter(o => o !== option);
-    
-    updateFormData({ folderOrganization: updatedOptions });
+      ? [...currentSelection, option]
+      : currentSelection.filter(o => o !== option);
+    updateFormData({ [category]: updatedOptions } as Partial<CodeStructureFormData>);
   };
 
-  const handleArchitectureChange = (option: string, checked: boolean) => {
-    const updatedOptions = checked
-      ? [...formData.architecturalPattern, option]
-      : formData.architecturalPattern.filter(o => o !== option);
-    
-    updateFormData({ architecturalPattern: updatedOptions });
+  const createPopoverHandlers = (
+    popoverOpenState: boolean,
+    setPopoverOpenState: React.Dispatch<React.SetStateAction<boolean>>,
+    currentInputState: string,
+    setCurrentInputState: React.Dispatch<React.SetStateAction<string>>,
+    tempListState: string[],
+    setTempListState: React.Dispatch<React.SetStateAction<string[]>>,
+    formFieldKey: 'otherOrganizationStyle' | 'otherArchPattern' | 'otherBestPractice'
+  ) => {
+    useEffect(() => {
+      if (popoverOpenState) {
+        setTempListState(Array.isArray(formData[formFieldKey]) ? formData[formFieldKey] : []);
+        setCurrentInputState('');
+      }
+    }, [popoverOpenState, formData[formFieldKey]]);
+
+    const handleAddItem = () => {
+      if (currentInputState.trim() && tempListState.length < 10) {
+        setTempListState([...tempListState, currentInputState.trim()]);
+        setCurrentInputState('');
+      }
+    };
+    const handleRemoveItem = (index: number) => setTempListState(tempListState.filter((_, i) => i !== index));
+    const handleSaveList = () => {
+      // Determine the main list key, e.g., 'folderOrganization' from 'otherOrganizationStyle'
+      const mainListKey = formFieldKey.replace('other', '').replace('Style', '').replace('Pattern', '').replace('Practice', '') as keyof CodeStructureFormData;
+      // Ensure the first letter of mainListKey is lowercase if it's not already, e.g. folderOrganization
+      const correctedMainListKey = mainListKey.charAt(0).toLowerCase() + mainListKey.slice(1) as 'folderOrganization' | 'architecturalPattern' | 'bestPractices';
+
+      const currentMainList = Array.isArray(formData[correctedMainListKey]) ? formData[correctedMainListKey] as string[] : [];
+      const newMainListItems = Array.from(new Set([...currentMainList, ...tempListState]));
+      
+      updateFormData({ 
+        [formFieldKey]: [...tempListState], // e.g. otherOrganizationStyle
+        [correctedMainListKey]: newMainListItems // e.g. folderOrganization
+      } as Partial<CodeStructureFormData>);
+      setPopoverOpenState(false);
+    };
+    return { handleAddItem, handleRemoveItem, handleSaveList };
   };
 
-  const handleBestPracticeChange = (option: string, checked: boolean) => {
-    const updatedOptions = checked
-      ? [...formData.bestPractices, option]
-      : formData.bestPractices.filter(o => o !== option);
-    
-    updateFormData({ bestPractices: updatedOptions });
+  const folderPopover = createPopoverHandlers(isOtherFolderPopoverOpen, setIsOtherFolderPopoverOpen, currentOtherFolderInput, setCurrentOtherFolderInput, tempOtherFolderList, setTempOtherFolderList, 'otherOrganizationStyle');
+  const archPopover = createPopoverHandlers(isOtherArchPopoverOpen, setIsOtherArchPopoverOpen, currentOtherArchInput, setCurrentOtherArchInput, tempOtherArchList, setTempOtherArchList, 'otherArchPattern');
+  const bestPopover = createPopoverHandlers(isOtherBestPopoverOpen, setIsOtherBestPopoverOpen, currentOtherBestInput, setCurrentOtherBestInput, tempOtherBestList, setTempOtherBestList, 'otherBestPractice');
+
+  const handleReset = () => {
+    resetStep();
+    setCurrentPageFolder(0); setIsOtherFolderPopoverOpen(false); setCurrentOtherFolderInput(''); setTempOtherFolderList([]);
+    setCurrentPageArch(0); setIsOtherArchPopoverOpen(false); setCurrentOtherArchInput(''); setTempOtherArchList([]);
+    setCurrentPageBest(0); setIsOtherBestPopoverOpen(false); setCurrentOtherBestInput(''); setTempOtherBestList([]);
   };
 
-  const toggleFolderSelectAll = () => {
-    if (formData.folderOrganization.length === folderOptions.length) {
-      updateFormData({ folderOrganization: [] });
-    } else {
-      updateFormData({ folderOrganization: [...folderOptions] });
+  const handleSaveAndFinalize = () => {
+    if (formData.folderOrganization.length === 0 && (!Array.isArray(formData.otherOrganizationStyle) || formData.otherOrganizationStyle.length === 0) &&
+        formData.architecturalPattern.length === 0 && (!Array.isArray(formData.otherArchPattern) || formData.otherArchPattern.length === 0) &&
+        formData.bestPractices.length === 0 && (!Array.isArray(formData.otherBestPractice) || formData.otherBestPractice.length === 0)) {
+      alert(t('promptGenerator.codeStructure.atLeastOneOptionError') || "Selecione ou especifique ao menos uma preferência de estrutura de código.");
+      return;
     }
+    markAsFinalized();
   };
+  
+  const renderSection = (
+    titleKey: string,
+    defaultTitle: string,
+    options: string[],
+    formDataKey: 'folderOrganization' | 'architecturalPattern' | 'bestPractices',
+    otherFormFieldKey: 'otherOrganizationStyle' | 'otherArchPattern' | 'otherBestPractice',
+    currentPage: number,
+    setCurrentPage: React.Dispatch<React.SetStateAction<number>>,
+    isPopoverOpen: boolean,
+    setIsPopoverOpen: React.Dispatch<React.SetStateAction<boolean>>,
+    currentInput: string,
+    setCurrentInput: React.Dispatch<React.SetStateAction<string>>,
+    tempList: string[],
+    popoverHandlers: { handleAddItem: () => void; handleRemoveItem: (index: number) => void; handleSaveList: () => void; }
+  ) => {
+    const totalPages = Math.ceil(options.length / itemsPerPage);
+    const currentItemsToDisplay = options.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
+    const allSelected = options.length > 0 && options.every(opt => (formData[formDataKey] as string[]).includes(opt));
+    const otherItems = (Array.isArray(formData[otherFormFieldKey]) ? formData[otherFormFieldKey] : []) as string[];
 
-  const toggleArchitectureSelectAll = () => {
-    if (formData.architecturalPattern.length === architectureOptions.length) {
-      updateFormData({ architecturalPattern: [] });
-    } else {
-      updateFormData({ architecturalPattern: [...architectureOptions] });
-    }
+    const toggleSelectAllForSection = () => {
+      if (allSelected) {
+        updateFormData({ [formDataKey]: [] } as Partial<CodeStructureFormData>);
+      } else {
+        updateFormData({ [formDataKey]: [...options] } as Partial<CodeStructureFormData>);
+      }
+    };
+
+    return (
+      <AccordionItem value={`${formDataKey}-accordion`} className="border-0">
+        <AccordionTrigger className="text-base font-medium text-foreground py-2 hover:no-underline">
+          {t(titleKey) || defaultTitle}
+        </AccordionTrigger>
+        <AccordionContent className="pt-1 pb-0">
+          <div className="space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5"> {/* Removed minHeight style */}
+              {currentItemsToDisplay.map((option) => (
+                <div key={option} className="flex items-start space-x-1.5"> {/* Removed h-7 */}
+                  <Checkbox 
+                    id={`${formDataKey}-${option}`}
+                    checked={(formData[formDataKey] as string[]).includes(option)}
+                    onCheckedChange={(checked) => handleCheckboxChange(formDataKey, option, checked === true)}
+                    className="mt-0.5"
+                  />
+                  <Label htmlFor={`${formDataKey}-${option}`} className="cursor-pointer text-xs font-normal whitespace-normal leading-tight">
+                    {t(`promptGenerator.codeStructure.${option}`) || formatKeyAsFallback(option)}
+                  </Label>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center justify-between space-x-2 mt-2 pt-2">
+              {options.length > 0 && (
+                <Button variant="outline" size="sm" className="text-xs" onClick={toggleSelectAllForSection}>
+                  {allSelected ? (t('common.unselectAll') || 'Desmarcar Todos') : (t('common.selectAll') || 'Selecionar Todos')}
+                </Button>
+              )}
+              <div className="flex items-center space-x-2">
+                <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="text-xs">
+                      <ListPlus className="h-3 w-3 mr-1.5" />
+                      {t('promptGenerator.objective.notInList') || "Não está na lista?"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-4" side="top" align="end">
+                    <div className="space-y-3">
+                      <Label htmlFor={`other-${formDataKey}-input`} className="text-sm font-medium">
+                        {t(`promptGenerator.codeStructure.${otherFormFieldKey}Placeholder`) || `Adicionar outro ${defaultTitle.toLowerCase()}:`}
+                      </Label>
+                      <div className="flex items-center space-x-2">
+                        <Input id={`other-${formDataKey}-input`} value={currentInput} onChange={(e) => setCurrentInput(e.target.value)} placeholder={t(`promptGenerator.codeStructure.${otherFormFieldKey}Placeholder`) || 'Sua preferência...'} className="text-xs h-8" onKeyDown={(e) => { if (e.key === 'Enter' && currentInput.trim()) popoverHandlers.handleAddItem(); }} />
+                        <Button size="icon" onClick={popoverHandlers.handleAddItem} disabled={!currentInput.trim() || tempList.length >= 10} className="h-8 w-8 flex-shrink-0"><PlusCircle className="h-4 w-4" /></Button>
+                      </div>
+                      {tempList.length > 0 && (
+                        <div className="mt-2 space-y-1 max-h-28 overflow-y-auto border p-2 rounded-md">
+                          <p className="text-xs text-muted-foreground mb-1">{`Adicionados (${tempList.length}/10):`}</p>
+                          {tempList.map((item, idx) => (
+                            <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
+                              <span className="truncate flex-1 mr-2">{item}</span>
+                              <Button variant="ghost" size="icon" onClick={() => popoverHandlers.handleRemoveItem(idx)} className="h-5 w-5"><XCircle className="h-3.5 w-3.5 text-destructive" /></Button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {tempList.length >= 10 && <p className="text-xs text-destructive mt-1">{t('promptGenerator.objective.limitReached') || "Limite de 10 atingido."}</p>}
+                      <div className="flex justify-end space-x-2 mt-3">
+                        <Button size="sm" variant="ghost" onClick={() => setIsPopoverOpen(false)} className="text-xs h-8">{'Cancelar'}</Button>
+                        <Button size="sm" onClick={popoverHandlers.handleSaveList} disabled={tempList.length === 0 && otherItems.length === 0 && !currentInput.trim()} className="text-xs h-8">{'Salvar Outros'}</Button>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center space-x-1">
+                    <Button variant="ghost" size="icon" onClick={() => setCurrentPage(p => Math.max(0, p - 1))} disabled={currentPage === 0} className="h-7 w-7"><ChevronLeft className="h-4 w-4" /></Button>
+                    <span className="text-xs text-muted-foreground">{`${t('common.page') || 'Página'} ${currentPage + 1} ${t('common.of') || 'de'} ${totalPages}`}</span>
+                    <Button variant="ghost" size="icon" onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))} disabled={currentPage === totalPages - 1} className="h-7 w-7"><ChevronRight className="h-4 w-4" /></Button>
+                  </div>
+                )}
+              </div>
+            </div>
+            {otherItems.length > 0 && (
+              <div className="mt-2 space-y-1 border p-2 rounded-md bg-muted/30">
+                <p className="text-xs font-medium text-muted-foreground mb-1">{`Outros ${defaultTitle.toLowerCase()} adicionados:`}</p>
+                {otherItems.map((item, index) => (
+                  <div key={`saved-other-${formDataKey}-${index}`} className="text-xs text-foreground p-1 bg-muted/50 rounded">{item}</div>
+                ))}
+              </div>
+            )}
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    );
   };
-
-  const toggleBestPracticesSelectAll = () => {
-    if (formData.bestPractices.length === bestPracticeOptions.length) {
-      updateFormData({ bestPractices: [] });
-    } else {
-      updateFormData({ bestPractices: [...bestPracticeOptions] });
-    }
-  };
-
-  const allFoldersSelected = formData.folderOrganization.length === folderOptions.length;
-  const allArchitecturesSelected = formData.architecturalPattern.length === architectureOptions.length;
-  const allBestPracticesSelected = formData.bestPractices.length === bestPracticeOptions.length;
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-xl font-medium mb-2">{t('promptGenerator.codeStructure.title')}</h3>
-        <p className="text-gray-500 mb-4">{t('promptGenerator.codeStructure.description')}</p>
-      </div>
-
-      {/* Folder Organization */}
-      <Card className="p-6">
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h4 className="font-medium">{t('promptGenerator.codeStructure.folderOrganization')}</h4>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={toggleFolderSelectAll}
-            >
-              {allFoldersSelected ? t('promptGenerator.common.unselectAll') : t('promptGenerator.common.selectAll')}
-            </Button>
+      <Card className="p-4 sm:p-6">
+        <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle>{t('promptGenerator.codeStructure.title') || "Estrutura de Código"}</CardTitle>
+              <CardDescription className="text-sm text-muted-foreground">{t('promptGenerator.codeStructure.description') || "Preferências para organização de código"}</CardDescription>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" onClick={handleReset} size="icon" className="h-8 w-8">
+                <RotateCcw className="h-4 w-4" />
+                <span className="sr-only">{t('common.reset')}</span>
+              </Button>
+              <Button 
+                onClick={handleSaveAndFinalize} 
+                size="icon" 
+                className="h-8 w-8"
+                disabled={isFinalized || (formData.folderOrganization.length === 0 && (!Array.isArray(formData.otherOrganizationStyle) || formData.otherOrganizationStyle.length === 0) && formData.architecturalPattern.length === 0 && (!Array.isArray(formData.otherArchPattern) || formData.otherArchPattern.length === 0) && formData.bestPractices.length === 0 && (!Array.isArray(formData.otherBestPractice) || formData.otherBestPractice.length === 0))}
+              >
+                <Save className="h-4 w-4" />
+                <span className="sr-only">{isFinalized ? t('common.finalized') : t('common.saveAndFinalize')}</span>
+              </Button>
+              {isFinalized && <CheckCircleIcon className="h-6 w-6 text-green-500 ml-2" />}
+            </div>
           </div>
-          
-          <div className="space-y-2">
-            {folderOptions.map((option) => (
-              <div key={option} className="flex items-center space-x-2">
-                <Checkbox 
-                  id={`folder-${option}`}
-                  checked={formData.folderOrganization.includes(option)}
-                  onCheckedChange={(checked) => 
-                    handleFolderChange(option, checked === true)
-                  }
-                />
-                <Label htmlFor={`folder-${option}`} className="cursor-pointer">
-                  {t(`promptGenerator.codeStructure.${option}`)}
-                </Label>
-              </div>
-            ))}
-            
-            <OtherSpecifyItem
-              id="folder-other"
-              label={t('promptGenerator.codeStructure.otherOrganizationStyle')}
-              checked={formData.folderOrganization.includes('otherOrganizationStyle')}
-              value={formData.otherOrganizationStyle}
-              placeholder={t('promptGenerator.codeStructure.otherOrganizationStylePlaceholder')}
-              onCheckedChange={(checked) => {
-                if (checked) {
-                  updateFormData({
-                    folderOrganization: [...formData.folderOrganization, 'otherOrganizationStyle']
-                  });
-                } else {
-                  updateFormData({
-                    folderOrganization: formData.folderOrganization.filter(f => f !== 'otherOrganizationStyle'),
-                    otherOrganizationStyle: ''
-                  });
-                }
-              }}
-              onValueChange={(value) => updateFormData({ otherOrganizationStyle: value })}
-            />
-          </div>
-        </div>
-      </Card>
-
-      {/* Architectural Pattern */}
-      <Card className="p-6">
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h4 className="font-medium">{t('promptGenerator.codeStructure.architecturalPattern')}</h4>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={toggleArchitectureSelectAll}
-            >
-              {allArchitecturesSelected ? t('promptGenerator.common.unselectAll') : t('promptGenerator.common.selectAll')}
-            </Button>
-          </div>
-          
-          <div className="space-y-2">
-            {architectureOptions.map((option) => (
-              <div key={option} className="flex items-center space-x-2">
-                <Checkbox 
-                  id={`arch-${option}`}
-                  checked={formData.architecturalPattern.includes(option)}
-                  onCheckedChange={(checked) => 
-                    handleArchitectureChange(option, checked === true)
-                  }
-                />
-                <Label htmlFor={`arch-${option}`} className="cursor-pointer">
-                  {t(`promptGenerator.codeStructure.${option}`)}
-                </Label>
-              </div>
-            ))}
-            
-            <OtherSpecifyItem
-              id="arch-other"
-              label={t('promptGenerator.codeStructure.otherArchPattern')}
-              checked={formData.architecturalPattern.includes('otherArchPattern')}
-              value={formData.otherArchPattern}
-              placeholder={t('promptGenerator.codeStructure.otherArchPatternPlaceholder')}
-              onCheckedChange={(checked) => {
-                if (checked) {
-                  updateFormData({
-                    architecturalPattern: [...formData.architecturalPattern, 'otherArchPattern']
-                  });
-                } else {
-                  updateFormData({
-                    architecturalPattern: formData.architecturalPattern.filter(a => a !== 'otherArchPattern'),
-                    otherArchPattern: ''
-                  });
-                }
-              }}
-              onValueChange={(value) => updateFormData({ otherArchPattern: value })}
-            />
-          </div>
-        </div>
-      </Card>
-
-      {/* Best Practices */}
-      <Card className="p-6">
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h4 className="font-medium">{t('promptGenerator.codeStructure.bestPractices')}</h4>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={toggleBestPracticesSelectAll}
-            >
-              {allBestPracticesSelected ? t('promptGenerator.common.unselectAll') : t('promptGenerator.common.selectAll')}
-            </Button>
-          </div>
-          
-          <div className="space-y-2">
-            {bestPracticeOptions.map((option) => (
-              <div key={option} className="flex items-center space-x-2">
-                <Checkbox 
-                  id={`bp-${option}`}
-                  checked={formData.bestPractices.includes(option)}
-                  onCheckedChange={(checked) => 
-                    handleBestPracticeChange(option, checked === true)
-                  }
-                />
-                <Label htmlFor={`bp-${option}`} className="cursor-pointer">
-                  {t(`promptGenerator.codeStructure.${option}`)}
-                </Label>
-              </div>
-            ))}
-            
-            <OtherSpecifyItem
-              id="bp-other"
-              label={t('promptGenerator.codeStructure.otherBestPractice')}
-              checked={formData.bestPractices.includes('otherBestPractice')}
-              value={formData.otherBestPractice}
-              placeholder={t('promptGenerator.codeStructure.otherBestPracticePlaceholder')}
-              onCheckedChange={(checked) => {
-                if (checked) {
-                  updateFormData({
-                    bestPractices: [...formData.bestPractices, 'otherBestPractice']
-                  });
-                } else {
-                  updateFormData({
-                    bestPractices: formData.bestPractices.filter(b => b !== 'otherBestPractice'),
-                    otherBestPractice: ''
-                  });
-                }
-              }}
-              onValueChange={(value) => updateFormData({ otherBestPractice: value })}
-            />
-          </div>
-        </div>
+        </CardHeader>
+        <CardContent className="px-0 pb-0 sm:px-0 sm:pb-0 space-y-3 pt-4">
+          <Accordion type="single" collapsible className="w-full" defaultValue="folderOrganization-accordion">
+            {renderSection('promptGenerator.codeStructure.folderOrganization', "Organização de Pastas", folderOptions, 'folderOrganization', 'otherOrganizationStyle', currentPageFolder, setCurrentPageFolder, isOtherFolderPopoverOpen, setIsOtherFolderPopoverOpen, currentOtherFolderInput, setCurrentOtherFolderInput, tempOtherFolderList, folderPopover)}
+            {renderSection('promptGenerator.codeStructure.architecturalPattern', "Padrão Arquitetural", architectureOptions, 'architecturalPattern', 'otherArchPattern', currentPageArch, setCurrentPageArch, isOtherArchPopoverOpen, setIsOtherArchPopoverOpen, currentOtherArchInput, setCurrentOtherArchInput, tempOtherArchList, archPopover)}
+            {renderSection('promptGenerator.codeStructure.bestPractices', "Melhores Práticas", bestPracticeOptions, 'bestPractices', 'otherBestPractice', currentPageBest, setCurrentPageBest, isOtherBestPopoverOpen, setIsOtherBestPopoverOpen, currentOtherBestInput, setCurrentOtherBestInput, tempOtherBestList, bestPopover)}
+          </Accordion>
+        </CardContent>
       </Card>
     </div>
   );
