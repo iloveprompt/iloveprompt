@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -177,15 +176,15 @@ const Navbar = () => {
       {/* Mobile Navigation */}
       {isMenuOpen && (
         <div 
-          className="md:hidden fixed inset-0 top-16 bg-darkBg z-30 overflow-y-auto w-full h-[calc(100vh-4rem)]"
+          className="md:hidden fixed top-16 right-0 bg-darkBg z-30 rounded-bl-lg shadow-lg w-auto"
         >
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 max-w-full">
-            <Link to="/" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-pureWhite hover:bg-electricBlue/30 rounded-md transition-colors font-medium">
+          <div className="px-2 py-3 flex flex-col">
+            <Link to="/" onClick={() => setIsMenuOpen(false)} className="px-6 py-2 text-pureWhite hover:bg-electricBlue/30 rounded-md transition-colors font-medium whitespace-nowrap">
               {t('common.home')}
             </Link>
             <a 
               href="/#pricing-section" 
-              className="block px-3 py-2 text-pureWhite hover:bg-electricBlue/30 rounded-md transition-colors font-medium" 
+              className="px-6 py-2 text-pureWhite hover:bg-electricBlue/30 rounded-md transition-colors font-medium whitespace-nowrap" 
               onClick={e => {
                 setIsMenuOpen(false);
                 if (location.pathname === '/') {
@@ -198,7 +197,7 @@ const Navbar = () => {
             </a>
             <a 
               href="/#features-section" 
-              className="block px-3 py-2 text-pureWhite hover:bg-electricBlue/30 rounded-md transition-colors font-medium" 
+              className="px-6 py-2 text-pureWhite hover:bg-electricBlue/30 rounded-md transition-colors font-medium whitespace-nowrap" 
               onClick={e => {
                 setIsMenuOpen(false);
                 if (location.pathname === '/') {
