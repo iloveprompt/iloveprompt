@@ -18,7 +18,7 @@ const UserDashboardNavbar = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Link to="/dashboard" className="flex items-center">
-              <img src="/lovable-uploads/38e9462c-ec41-45c6-b98e-95e9a854929c.png" alt="iloveprompt logo" className="h-14" />
+              <img src="/lovable-uploads/38e9462c-ec41-45c6-b98e-95e9a854929c.png" alt="iloveprompt logo" className="h-10" />
             </Link>
           </div>
           
