@@ -147,7 +147,7 @@ const PromptGeneratorWizard = () => {
       userTypes: [],
       functionalRequirements: [],
       nonFunctionalRequirements: [],
-      otherRequirement: [] // Changed from '' to []
+      otherRequirement: []
     },
     systemType: {
       selected: '',
@@ -157,7 +157,8 @@ const PromptGeneratorWizard = () => {
     features: {
       specificFeatures: [],
       otherFeature: '',
-      dynamicFeatures: []
+      dynamicFeatures: [],
+      otherSpecificFeatures: [] // Added this missing property
     },
     uxui: {
       colorPalette: [],
@@ -174,6 +175,9 @@ const PromptGeneratorWizard = () => {
       },
       authentication: [],
       otherAuthMethod: '',
+      otherVisualStyles: [], // Added these missing properties
+      otherMenuTypes: [],
+      otherAuthMethods: [],
       userDashboard: false,
       userDashboardDetails: { features: [], otherFeature: '' }
     },
@@ -185,35 +189,35 @@ const PromptGeneratorWizard = () => {
       hosting: [],
       fullstack: [],
       orm: [],
-      otherFrontend: '',
-      otherBackend: '',
-      otherDatabase: '',
-      otherHosting: '',
-      otherFullstack: '',
-      otherOrm: ''
+      otherFrontend: [], // Changed these from strings to string arrays
+      otherBackend: [],
+      otherDatabase: [],
+      otherHosting: [],
+      otherFullstack: [],
+      otherOrm: []
     },
     security: {
       selectedSecurity: [],
-      otherSecurityFeature: ''
+      otherSecurityFeature: [] // Changed from string to string[]
     },
     codeStructure: {
       folderOrganization: [],
-      otherOrganizationStyle: '',
+      otherOrganizationStyle: [], // Changed from string to string[]
       architecturalPattern: [],
-      otherArchPattern: '',
+      otherArchPattern: [], // Changed from string to string[]
       bestPractices: [],
-      otherBestPractice: ''
+      otherBestPractice: [] // Changed from string to string[]
     },
     scalability: {
       isScalable: false,
       scalabilityFeatures: [],
-      otherScalabilityFeature: '',
+      otherScalabilityFeature: [], // Changed from string to string[]
       performanceFeatures: [],
-      otherPerformanceFeature: ''
+      otherPerformanceFeature: [] // Changed from string to string[]
     },
     restrictions: {
       avoidInCode: [],
-      otherRestriction: ''
+      otherRestriction: [] // Changed from string to string[]
     }
   };
 
