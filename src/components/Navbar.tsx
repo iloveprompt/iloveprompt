@@ -72,6 +72,10 @@ const Navbar = () => {
     }
   };
 
+  const toggleMobileMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   // Check if we're in dashboard routes
   const isInDashboard = location.pathname.includes('/dashboard') || location.pathname.includes('/admin');
 
@@ -159,8 +163,9 @@ const Navbar = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={() => setIsMenuOpen(!isMenuOpen)} 
+              onClick={toggleMobileMenu} 
               className="text-pureWhite focus:outline-none"
+              aria-label="Toggle mobile menu"
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
