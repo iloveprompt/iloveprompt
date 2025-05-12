@@ -131,10 +131,10 @@ const Index = () => {
                     <code className="text-aquaGreen">10. Utilize ESLint e Prettier com configurações de projeto ...</code>
                     <br />
                     <br />
-                    <pre className="text-[10px] font-mono whitespace-pre-wrap">
+                    <div className="flex flex-wrap justify-center gap-4 items-center">
+                    <pre className="text-[12px] font-mono whitespace-pre-wrap">
                     <code className="text-aquaGreen">Utilize nossa ferramente em sua ferramente de vibe coding preferida : </code>
                     </pre>
-                    <div className="flex flex-wrap justify-center gap-4 items-center">
                       <br />
                       <a href="https://lovable.dev/" target="_blank" rel="noopener noreferrer">
                       <img src="/lovable-uploads/1afc2e55-681b-40b7-9384-7675460432fe.png" alt="Lovable" className="h-5 w-auto" />
