@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -61,11 +60,11 @@ const Index = () => {
   }, []);
   
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-darkBg">
       <Navbar />
       
-      {/* Hero Section */}
-      <section id="hero" ref={sectionsRef.current.hero as React.RefObject<HTMLDivElement>} className={`relative pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-to-br from-darkBg to-electricBlue/30 overflow-hidden bg-cover bg-center bg-no-repeat section-transition ${visibleSections.includes('hero') ? 'slide-in' : 'opacity-0'}`} style={{
+      {/* Hero Section - Aumentado o tamanho vertical */}
+      <section id="hero" ref={sectionsRef.current.hero as React.RefObject<HTMLDivElement>} className={`relative hero-fullheight bg-gradient-to-br from-darkBg to-electricBlue/30 overflow-hidden bg-cover bg-center bg-no-repeat section-transition section-overlay ${visibleSections.includes('hero') ? 'slide-in' : 'opacity-0'}`} style={{
       backgroundImage: "url('/img-fundo-landingpage/hero-component/fundo_4.jpg')"
     }}>
         {/* Efeito de partículas */}
@@ -73,8 +72,8 @@ const Index = () => {
           <div className="absolute w-[500px] h-[500px] bg-neonPurple/10 rounded-full blur-3xl -top-20 -left-20 animate-pulse" />
           <div className="absolute w-[400px] h-[400px] bg-aquaGreen/10 rounded-full blur-3xl -bottom-20 -right-20 animate-pulse delay-1000" />
         </div>
-        <div className="container px-4 mx-auto">
-          <div className="flex flex-col md:flex-row md:items-center">
+        <div className="container px-4 mx-auto flex items-center h-full">
+          <div className="flex flex-col md:flex-row md:items-center w-full">
             <div className="md:w-1/2 mb-10 md:mb-0">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-pureWhite mb-6 leading-tight drop-shadow-[0_5px_15px_rgba(58,134,255,0.5)]">
                 {t('hero.title')}
@@ -127,9 +126,9 @@ const Index = () => {
         </div>
       </section>
       
-      {/* How It Works - Adicionado sombreamento para separar visualmente */}
+      {/* How It Works - Corrigido para eliminar gaps */}
       <section id="how-it-works-section" ref={sectionsRef.current.howItWorks as React.RefObject<HTMLDivElement>} 
-        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 shadow-inner section-transition section-transition-top ${visibleSections.includes('how-it-works-section') ? 'slide-in' : ''}`}>
+        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top connect-sections ${visibleSections.includes('how-it-works-section') ? 'slide-in' : ''}`}>
         {/* Divisor visual superior */}
         <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-neonPurple/20 to-transparent"></div>
         {/* Sombra inferior */}
@@ -174,9 +173,9 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Features - Adicionado sombreamento para separar visualmente */}
+      {/* Features - Corrigido para eliminar gaps */}
       <section id="features-section" ref={sectionsRef.current.features as React.RefObject<HTMLDivElement>} 
-        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top ${visibleSections.includes('features-section') ? 'slide-in' : ''}`}>
+        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top connect-sections ${visibleSections.includes('features-section') ? 'slide-in' : ''}`}>
         {/* Divisor visual superior */}
         <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-aquaGreen/20 to-transparent"></div>
         {/* Sombra inferior */}
@@ -229,9 +228,9 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Social Proof - Adicionado sombreamento para separar visualmente */}
+      {/* Social Proof - Corrigido para eliminar gaps */}
       <section id="social-proof-section" ref={sectionsRef.current.socialProof as React.RefObject<HTMLDivElement>} 
-        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top ${visibleSections.includes('social-proof-section') ? 'slide-in' : ''}`}>
+        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top connect-sections ${visibleSections.includes('social-proof-section') ? 'slide-in' : ''}`}>
         {/* Divisor visual superior */}
         <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-electricBlue/20 to-transparent"></div>
         {/* Sombra inferior */}
@@ -296,10 +295,10 @@ const Index = () => {
           </div>
         </div>
       </section>
-
-      {/* Pricing Section Preview - Adicionado sombreamento para separar visualmente */}
+      
+      {/* Pricing Section Preview - Corrigido para eliminar gaps */}
       <section id="pricing-section" ref={sectionsRef.current.pricing as React.RefObject<HTMLDivElement>} 
-        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top ${visibleSections.includes('pricing-section') ? 'slide-in' : ''}`}>
+        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top connect-sections ${visibleSections.includes('pricing-section') ? 'slide-in' : ''}`}>
         {/* Divisor visual superior */}
         <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-neonPurple/20 to-transparent"></div>
         {/* Sombra inferior */}
@@ -377,9 +376,9 @@ const Index = () => {
         </div>
       </section>
       
-      {/* CTA - Adicionado sombreamento para separar visualmente */}
+      {/* CTA - Corrigido para eliminar gaps */}
       <section id="cta-section" ref={sectionsRef.current.cta as React.RefObject<HTMLDivElement>} 
-        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top ${visibleSections.includes('cta-section') ? 'slide-in' : ''}`}>
+        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top connect-sections ${visibleSections.includes('cta-section') ? 'slide-in' : ''}`}>
         {/* Divisor visual superior */}
         <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-neonPink/20 to-transparent"></div>
         
