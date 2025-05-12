@@ -111,8 +111,18 @@ const Index = () => {
                     <code className="text-aquaGreen">4. Siga os princípios SOLID...</code>
                   </pre>
                 </div>
-                <div className="flex flex-wrap gap-3 mt-4">
-                  <img src="/public/lovable-uploads/fb74db08-a413-4a92-b62c-3b67772ceab7.png" alt="Logos das plataformas" className="h-8" />
+                <div className="flex flex-col gap-4 mt-4">
+                  <div className="flex flex-wrap justify-center gap-4 items-center">
+                    <img src="/lovable-uploads/1afc2e55-681b-40b7-9384-7675460432fe.png" alt="Lovable" className="h-8" />
+                    <img src="/lovable-uploads/72419187-c10f-411e-ba5a-301f61f4df3b.png" alt="Tempo Labs" className="h-8" />
+                    <img src="/lovable-uploads/2f740ebf-bd1a-4c0b-b388-831f90482726.png" alt="Bolt" className="h-8" />
+                    <img src="/lovable-uploads/84e62910-ce56-4fdb-89dd-67a95a1e2c9c.png" alt="MGX" className="h-8" />
+                    <img src="/lovable-uploads/e7e6d8b7-b83c-4b6f-9ea2-e78b57be4d5f.png" alt="Replit" className="h-8" />
+                    <img src="/lovable-uploads/23ab6142-d115-41c6-b4c1-f85407e0007f.png" alt="V0" className="h-8" />
+                  </div>
+                  <p className="text-electricBlue text-sm text-center">
+                    Nosso sistema gera prompts inteligentes e personalizados, ajustados ao seu fluxo de desenvolvimento e ao estilo único das ferramentas de vibe coding.
+                  </p>
                 </div>
               </div>
             </div>
