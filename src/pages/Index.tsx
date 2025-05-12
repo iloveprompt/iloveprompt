@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -98,23 +97,22 @@ const Index = () => {
             <div className="md:w-1/2 md:pl-10">
               <div className="p-6 shadow-xl bg-darkBg/50 backdrop-blur-md border border-electricBlue/30 hover-glow rounded-2xl px-[12px] py-[13px]">
                 <div className="bg-darkBg/70 rounded-lg p-4 border border-electricBlue/20 mb-4 py-[45px] px-[22px] mx-0 my-0 overflow-x-auto">
-                  <pre className="text-sm text-aquaGreen/90 font-mono whitespace-pre-wrap">
-                    <code>{t('hero.codeExample')}</code>
+                  <pre className="text-sm font-mono whitespace-pre-wrap">
+                    <code className="text-aquaGreen">// Exemplo de Prompt de IA Gerado</code>
                     <br />
-                    <code className="text-neonPink">{t('hero.promptComponents.intro')}</code>
+                    <code className="text-neonPink">Crie um componente React que:</code>
                     <br />
-                    <code>{t('hero.promptComponents.item1')}</code>
+                    <code className="text-aquaGreen">1. Busque dados de uma API</code>
                     <br />
-                    <code>{t('hero.promptComponents.item2')}</code>
+                    <code className="text-aquaGreen">2. Implemente tratamento adequado de erros</code>
                     <br />
-                    <code>{t('hero.promptComponents.item3')}</code>
+                    <code className="text-aquaGreen">3. Use interfaces TypeScript para segurança de tipos</code>
                     <br />
-                    <code>{t('hero.promptComponents.item4')}</code>
+                    <code className="text-aquaGreen">4. Siga os princípios SOLID...</code>
                   </pre>
                 </div>
                 <div className="flex flex-wrap gap-3 mt-4">
-                  <img src="/lovable-uploads/bcb55e34-7524-4bf8-8889-79132c644f1f.png" alt="Lovable" className="h-8 rounded-md bg-darkBg/70 p-1" />
-                  <img src="/lovable-uploads/2a62ac56-63de-411d-89da-c42694035acb.png" alt="Tempo Labs" className="h-8 rounded-md bg-darkBg/70 p-1" />
+                  <img src="/public/lovable-uploads/fb74db08-a413-4a92-b62c-3b67772ceab7.png" alt="Logos das plataformas" className="h-8" />
                 </div>
               </div>
             </div>
