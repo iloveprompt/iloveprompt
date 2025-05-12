@@ -121,9 +121,15 @@ const Index = () => {
                     <img src="/lovable-uploads/e7e6d8b7-b83c-4b6f-9ea2-e78b57be4d5f.png" alt="Replit" className="h-6" />
                     <img src="/lovable-uploads/23ab6142-d115-41c6-b4c1-f85407e0007f.png" alt="V0" className="h-6" />
                   </div>
-                  <code className="text-aquaGreen text-sm text-center text-justify px-[25px] my-0 mx-0 rounded-none py-px bg-transparent">
-                    Nosso sistema gera prompts inteligentes e personalizados, ajustados ao seu fluxo de desenvolvimento e ao estilo único das ferramentas de vibe coding.
-                  </code>
+                  <pre className="text-sm font-mono whitespace-pre-wrap">
+                    <br /> 
+                  <code className="text-aquaGreen"># Nosso sistema gera prompts inteligentes e personalizados</code>
+                    <br /> 
+                  <code className="text-aquaGreen">## Ajustados ao seu fluxo de desenvolvimento </code>
+                     <br />
+                  <code className="text-aquaGreen">## E ao estilo único das ferramentas de vibe coding.</code>
+                    <br />
+                  </pre>
                 </div>
               </div>
             </div>
