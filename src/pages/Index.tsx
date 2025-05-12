@@ -97,7 +97,7 @@ const Index = () => {
               </div>
             </div>
             <div className="md:w-1/2 md:pl-10">
-              <div className="p-6 shadow-xl bg-darkBg/50 backdrop-blur-md border border-electricBlue/30 hover-glow rounded-2xl py-[17px] px-[7px]">
+              <div className="p-6 shadow-xl bg-darkBg/50 backdrop-blur-md border border-electricBlue/30 hover-glow rounded-2xl px-[12px] py-[13px]">
                 <div className="bg-darkBg/70 rounded-lg p-4 border border-electricBlue/20 mb-4 py-[45px] px-[22px] mx-0 my-0">
                   <pre className="text-sm text-aquaGreen/90 font-mono">
                     <code>{t('hero.codeExample')}</code>
