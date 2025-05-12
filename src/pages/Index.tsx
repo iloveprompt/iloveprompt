@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -10,13 +11,10 @@ import { Code, Shield, Zap, Terminal, Sparkles, GitBranch, ArrowRight } from 'lu
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
+
 const Index = () => {
-  const {
-    t
-  } = useLanguage();
-  const {
-    isAuthenticated
-  } = useAuth();
+  const { t } = useLanguage();
+  const { isAuthenticated } = useAuth();
   const isMobile = useIsMobile();
   const [visibleSections, setVisibleSections] = useState<string[]>([]);
 
@@ -61,8 +59,9 @@ const Index = () => {
       observer.disconnect();
     };
   }, []);
-  console.log('Index page rendered, authentication status:', isAuthenticated);
-  return <div className="flex flex-col min-h-screen">
+  
+  return (
+    <div className="flex flex-col min-h-screen">
       <Navbar />
       
       {/* Hero Section */}
@@ -84,11 +83,11 @@ const Index = () => {
                 A ferramenta ideal para desenvolvedores que utilizam plataformas de vibe coding como Bolt, Lovable, MGX, Replit, V0 e Tempo Labs. Potencialize seu fluxo de trabalho com nossa solução integrada.
               </p>
               <div className="flex flex-wrap gap-4">
-                  <Link to="/register">
-                    <Button className="bg-electricBlue hover:bg-neonPurple text-pureWhite text-lg h-auto px-[50px] py-3 font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neonPurple/40">
-                      {t('hero.ctaStart')}
-                    </Button>
-                  </Link>
+                <Link to="/register">
+                  <Button className="bg-neonPink hover:bg-neonPink hover:brightness-90 text-pureWhite text-lg h-auto px-[50px] py-3 font-semibold rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-neonPink/40">
+                    {t('hero.ctaStart')}
+                  </Button>
+                </Link>
                 <a href="#features-section">
                   <Button variant="outline" className="border-electricBlue text-electricBlue hover:bg-electricBlue/10 hover:text-pureWhite h-auto px-[50px] py-3 font-semibold text-lg rounded-xl transition-all duration-300 hover:scale-105 shadow-md hover:shadow-electricBlue/30">
                     {t('common.learnMore')}
@@ -98,8 +97,8 @@ const Index = () => {
             </div>
             <div className="md:w-1/2 md:pl-10">
               <div className="p-6 shadow-xl bg-darkBg/50 backdrop-blur-md border border-electricBlue/30 hover-glow rounded-2xl px-[12px] py-[13px]">
-                <div className="bg-darkBg/70 rounded-lg p-4 border border-electricBlue/20 mb-4 py-[45px] px-[22px] mx-0 my-0">
-                  <pre className="text-sm text-aquaGreen/90 font-mono">
+                <div className="bg-darkBg/70 rounded-lg p-4 border border-electricBlue/20 mb-4 py-[45px] px-[22px] mx-0 my-0 overflow-x-auto">
+                  <pre className="text-sm text-aquaGreen/90 font-mono whitespace-pre-wrap">
                     <code>{t('hero.codeExample')}</code>
                     <br />
                     <code className="text-neonPink">{t('hero.promptComponents.intro')}</code>
@@ -128,8 +127,14 @@ const Index = () => {
         </div>
       </section>
       
-      {/* How It Works */}
-      <section id="how-it-works-section" ref={sectionsRef.current.howItWorks as React.RefObject<HTMLDivElement>} className={`py-16 md:py-24 bg-darkBg backdrop-blur-lg opacity-0 scroll-mt-24 shadow-lg-electric-blue section-transition section-transition-top ${visibleSections.includes('how-it-works-section') ? 'slide-in' : ''}`}>
+      {/* How It Works - Adicionado sombreamento para separar visualmente */}
+      <section id="how-it-works-section" ref={sectionsRef.current.howItWorks as React.RefObject<HTMLDivElement>} 
+        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 shadow-inner section-transition section-transition-top ${visibleSections.includes('how-it-works-section') ? 'slide-in' : ''}`}>
+        {/* Divisor visual superior */}
+        <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-neonPurple/20 to-transparent"></div>
+        {/* Sombra inferior */}
+        <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-aquaGreen/20 to-transparent"></div>
+        
         <div className="container px-4 mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-pureWhite">{t('howItWorks.title')}</h2>
@@ -140,7 +145,7 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Card 1 - How it Works */}
-            <div className="text-center p-6 group relative bg-darkBg/80 backdrop-blur-md rounded-xl border border-electricBlue/20 hover:border-neonPurple transition-all duration-300 shadow-lg hover:shadow-neonPurple/20 hover-glow">
+            <div className="text-center p-6 group relative bg-darkBg/80 backdrop-blur-md rounded-xl border border-electricBlue/20 hover:border-neonPurple transition-all duration-300 shadow-xl hover:shadow-neonPurple/40 hover-glow">
               <div className="mx-auto w-16 h-16 bg-electricBlue/10 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm border border-electricBlue/20">
                 <Terminal className="h-8 w-8 text-electricBlue" />
               </div>
@@ -149,7 +154,7 @@ const Index = () => {
             </div>
             
             {/* Card 2 - How it Works */}
-            <div className="text-center p-6 group relative bg-darkBg/80 backdrop-blur-md rounded-xl border border-neonPurple/20 hover:border-aquaGreen transition-all duration-300 shadow-lg hover:shadow-aquaGreen/20 hover-glow">
+            <div className="text-center p-6 group relative bg-darkBg/80 backdrop-blur-md rounded-xl border border-neonPurple/20 hover:border-aquaGreen transition-all duration-300 shadow-xl hover:shadow-aquaGreen/40 hover-glow">
               <div className="mx-auto w-16 h-16 bg-neonPurple/10 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm border border-neonPurple/20">
                 <Sparkles className="h-8 w-8 text-neonPurple" />
               </div>
@@ -158,7 +163,7 @@ const Index = () => {
             </div>
             
             {/* Card 3 - How it Works */}
-            <div className="text-center p-6 group relative bg-darkBg/80 backdrop-blur-md rounded-xl border border-aquaGreen/20 hover:border-neonPink transition-all duration-300 shadow-lg hover:shadow-neonPink/20 hover-glow">
+            <div className="text-center p-6 group relative bg-darkBg/80 backdrop-blur-md rounded-xl border border-aquaGreen/20 hover:border-neonPink transition-all duration-300 shadow-xl hover:shadow-neonPink/40 hover-glow">
               <div className="mx-auto w-16 h-16 bg-aquaGreen/10 rounded-full flex items-center justify-center mb-4 backdrop-blur-sm border border-aquaGreen/20">
                 <GitBranch className="h-8 w-8 text-aquaGreen" />
               </div>
@@ -169,8 +174,14 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Features */}
-      <section id="features-section" ref={sectionsRef.current.features as React.RefObject<HTMLDivElement>} className={`py-16 md:py-24 bg-darkBg backdrop-blur-lg opacity-0 scroll-mt-24 shadow-lg-electric-blue section-transition section-transition-top ${visibleSections.includes('features-section') ? 'slide-in' : ''}`}>
+      {/* Features - Adicionado sombreamento para separar visualmente */}
+      <section id="features-section" ref={sectionsRef.current.features as React.RefObject<HTMLDivElement>} 
+        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top ${visibleSections.includes('features-section') ? 'slide-in' : ''}`}>
+        {/* Divisor visual superior */}
+        <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-aquaGreen/20 to-transparent"></div>
+        {/* Sombra inferior */}
+        <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-electricBlue/20 to-transparent"></div>
+        
         <div className="container px-4 mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-pureWhite">{t('features.title')}</h2>
@@ -186,7 +197,7 @@ const Index = () => {
           </div>
           
           {/* Links para plataformas de vibe coding */}
-          <div className="mt-16 bg-darkBg/50 p-6 rounded-xl border border-electricBlue/20 backdrop-blur-md">
+          <div className="mt-16 bg-darkBg/50 p-6 rounded-xl border border-electricBlue/20 backdrop-blur-md shadow-xl">
             <h3 className="text-xl font-bold mb-4 text-pureWhite text-center">Compatível com as melhores plataformas de vibe coding</h3>
             <div className="flex flex-wrap justify-center gap-6 items-center">
               <div className="flex flex-col items-center">
@@ -218,8 +229,14 @@ const Index = () => {
         </div>
       </section>
       
-      {/* Social Proof */}
-      <section id="social-proof-section" ref={sectionsRef.current.socialProof as React.RefObject<HTMLDivElement>} className={`py-16 md:py-24 bg-darkBg backdrop-blur-lg opacity-0 scroll-mt-24 shadow-lg-electric-blue section-transition section-transition-top ${visibleSections.includes('social-proof-section') ? 'slide-in' : ''}`}>
+      {/* Social Proof - Adicionado sombreamento para separar visualmente */}
+      <section id="social-proof-section" ref={sectionsRef.current.socialProof as React.RefObject<HTMLDivElement>} 
+        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top ${visibleSections.includes('social-proof-section') ? 'slide-in' : ''}`}>
+        {/* Divisor visual superior */}
+        <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-electricBlue/20 to-transparent"></div>
+        {/* Sombra inferior */}
+        <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-neonPurple/20 to-transparent"></div>
+        
         <div className="container px-4 mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-pureWhite">{t('socialProof.title')}</h2>
@@ -230,7 +247,7 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Testimonial Card 1 */}
-            <div className="bg-gradient-to-b from-darkBg/70 to-electricBlue/10 p-6 rounded-xl border border-electricBlue/20 hover:border-neonPurple transition-all duration-300 group shadow-lg hover:shadow-neonPurple/20 hover-glow">
+            <div className="bg-gradient-to-b from-darkBg/70 to-electricBlue/10 p-6 rounded-xl border border-electricBlue/20 hover:border-neonPurple transition-all duration-300 group shadow-xl hover:shadow-neonPurple/40 hover-glow">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 rounded-full bg-electricBlue/10 flex items-center justify-center mr-4 border border-electricBlue/20 backdrop-blur-sm">
                   <img src="/public/lovable-uploads/4c0e25c9-7a84-42ff-92f3-643522f86121.png" className="w-full h-full rounded-full object-cover" alt="User avatar" />
@@ -241,12 +258,12 @@ const Index = () => {
                 </div>
               </div>
               <p className="text-aquaGreen/90 italic">
-                  {t('socialProof.testimonial1')}
-                </p>
+                {t('socialProof.testimonial1')}
+              </p>
             </div>
             
             {/* Testimonial Card 2 */}
-            <div className="bg-gradient-to-b from-darkBg/70 to-neonPurple/10 p-6 rounded-xl border border-neonPurple/20 hover:border-aquaGreen transition-all duration-300 group shadow-lg hover:shadow-aquaGreen/20 hover-glow">
+            <div className="bg-gradient-to-b from-darkBg/70 to-neonPurple/10 p-6 rounded-xl border border-neonPurple/20 hover:border-aquaGreen transition-all duration-300 group shadow-xl hover:shadow-aquaGreen/40 hover-glow">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 rounded-full bg-neonPurple/10 flex items-center justify-center mr-4 border border-neonPurple/20 backdrop-blur-sm">
                   <img src="/public/lovable-uploads/38e9462c-ec41-45c6-b98e-95e9a854929c.png" className="w-full h-full rounded-full object-cover" alt="User avatar" />
@@ -257,12 +274,12 @@ const Index = () => {
                 </div>
               </div>
               <p className="text-aquaGreen/90 italic">
-                  {t('socialProof.testimonial2')}
-                </p>
+                {t('socialProof.testimonial2')}
+              </p>
             </div>
             
             {/* Testimonial Card 3 */}
-            <div className="bg-gradient-to-b from-darkBg/70 to-aquaGreen/10 p-6 rounded-xl border border-aquaGreen/20 hover:border-neonPink transition-all duration-300 group shadow-lg hover:shadow-neonPink/20 hover-glow">
+            <div className="bg-gradient-to-b from-darkBg/70 to-aquaGreen/10 p-6 rounded-xl border border-aquaGreen/20 hover:border-neonPink transition-all duration-300 group shadow-xl hover:shadow-neonPink/40 hover-glow">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 rounded-full bg-aquaGreen/10 flex items-center justify-center mr-4 border border-aquaGreen/20 backdrop-blur-sm">
                   <img src="/public/lovable-uploads/eecd25b5-caab-48fd-88bb-c6a40aa68e93.png" className="w-full h-full rounded-full object-cover" alt="User avatar" />
@@ -273,15 +290,21 @@ const Index = () => {
                 </div>
               </div>
               <p className="text-neonPurple/90 italic">
-                  {t('socialProof.testimonial3')}
-                </p>
+                {t('socialProof.testimonial3')}
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Pricing Section Preview */}
-      <section id="pricing-section" ref={sectionsRef.current.pricing as React.RefObject<HTMLDivElement>} className={`py-16 md:py-24 bg-darkBg backdrop-blur-lg opacity-0 scroll-mt-24 shadow-lg-electric-blue section-transition section-transition-top ${visibleSections.includes('pricing-section') ? 'slide-in' : ''}`}>
+      {/* Pricing Section Preview - Adicionado sombreamento para separar visualmente */}
+      <section id="pricing-section" ref={sectionsRef.current.pricing as React.RefObject<HTMLDivElement>} 
+        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top ${visibleSections.includes('pricing-section') ? 'slide-in' : ''}`}>
+        {/* Divisor visual superior */}
+        <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-neonPurple/20 to-transparent"></div>
+        {/* Sombra inferior */}
+        <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-neonPink/20 to-transparent"></div>
+        
         <div className="container px-4 mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-pureWhite">{t('pricing.title')}</h2>
@@ -292,72 +315,76 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <PricingCard title={t('pricing.free.title')} price={t('pricing.free.price')} description={t('pricing.free.description')} features={[{
-            text: `5 ${t('pricing.features.promptsPerMonth')}`,
-            included: true
-          }, {
-            text: t('pricing.features.basicQuestionnaire'),
-            included: true
-          }, {
-            text: t('pricing.features.gpt35Integration'),
-            included: true
-          }, {
-            text: t('pricing.features.promptHistory'),
-            included: true
-          }, {
-            text: t('pricing.features.useOwnApiKeys'),
-            included: false
-          }, {
-            text: t('pricing.features.advancedSecuritySection'),
-            included: false
-          }]} ctaText={t('common.startFree')} />
+              text: `5 ${t('pricing.features.promptsPerMonth')}`,
+              included: true
+            }, {
+              text: t('pricing.features.basicQuestionnaire'),
+              included: true
+            }, {
+              text: t('pricing.features.gpt35Integration'),
+              included: true
+            }, {
+              text: t('pricing.features.promptHistory'),
+              included: true
+            }, {
+              text: t('pricing.features.useOwnApiKeys'),
+              included: false
+            }, {
+              text: t('pricing.features.advancedSecuritySection'),
+              included: false
+            }]} ctaText={t('common.startFree')} />
             
             <PricingCard title={t('pricing.pro.title')} price={t('pricing.pro.price')} description={t('pricing.pro.description')} features={[{
-            text: `50 ${t('pricing.features.promptsPerMonth')}`,
-            included: true
-          }, {
-            text: t('pricing.features.fullQuestionnaire'),
-            included: true
-          }, {
-            text: t('pricing.features.aiModelIntegrations'),
-            included: true
-          }, {
-            text: t('pricing.features.promptHistoryTemplates'),
-            included: true
-          }, {
-            text: t('pricing.features.useOwnApiKeys'),
-            included: true
-          }, {
-            text: t('pricing.features.advancedSecuritySections'),
-            included: true
-          }]} ctaText="Upgrade to Pro" popular={true} apiOption={true} />
+              text: `50 ${t('pricing.features.promptsPerMonth')}`,
+              included: true
+            }, {
+              text: t('pricing.features.fullQuestionnaire'),
+              included: true
+            }, {
+              text: t('pricing.features.aiModelIntegrations'),
+              included: true
+            }, {
+              text: t('pricing.features.promptHistoryTemplates'),
+              included: true
+            }, {
+              text: t('pricing.features.useOwnApiKeys'),
+              included: true
+            }, {
+              text: t('pricing.features.advancedSecuritySections'),
+              included: true
+            }]} ctaText="Upgrade to Pro" popular={true} apiOption={true} />
             
             <PricingCard title={t('pricing.team.title')} price={t('pricing.team.price')} description={t('pricing.team.description')} features={[{
-            text: t('pricing.features.unlimitedPrompts'),
-            included: true
-          }, {
-            text: t('pricing.features.fullQuestionnaire'),
-            included: true
-          }, {
-            text: t('pricing.features.aiModelIntegrations'),
-            included: true
-          }, {
-            text: t('pricing.features.promptLibrarySharing'),
-            included: true
-          }, {
-            text: t('pricing.features.useOwnApiKeys'),
-            included: true
-          }, {
-            text: t('pricing.features.prioritySupport'),
-            included: true
-          }]} ctaText="Choose Team" apiOption={true} />
+              text: t('pricing.features.unlimitedPrompts'),
+              included: true
+            }, {
+              text: t('pricing.features.fullQuestionnaire'),
+              included: true
+            }, {
+              text: t('pricing.features.aiModelIntegrations'),
+              included: true
+            }, {
+              text: t('pricing.features.promptLibrarySharing'),
+              included: true
+            }, {
+              text: t('pricing.features.useOwnApiKeys'),
+              included: true
+            }, {
+              text: t('pricing.features.prioritySupport'),
+              included: true
+            }]} ctaText="Choose Team" apiOption={true} />
           </div>
         </div>
       </section>
       
-      {/* CTA */}
-      <section id="cta-section" ref={sectionsRef.current.cta as React.RefObject<HTMLDivElement>} className={`py-16 md:py-24 bg-darkBg backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top ${visibleSections.includes('cta-section') ? 'slide-in' : ''}`}>
+      {/* CTA - Adicionado sombreamento para separar visualmente */}
+      <section id="cta-section" ref={sectionsRef.current.cta as React.RefObject<HTMLDivElement>} 
+        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top ${visibleSections.includes('cta-section') ? 'slide-in' : ''}`}>
+        {/* Divisor visual superior */}
+        <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-neonPink/20 to-transparent"></div>
+        
         <div className="container px-4 mx-auto text-center">
-          <div className="relative pt-12 bg-gradient-to-br from-darkBg/90 to-neonPurple/10 p-8 rounded-3xl border border-neonPurple/20 shadow-lg hover:shadow-neonPurple/30 transition-all duration-300">
+          <div className="relative pt-12 bg-gradient-to-br from-darkBg/90 to-neonPurple/10 p-8 rounded-3xl border border-neonPurple/20 shadow-xl hover:shadow-neonPurple/40 transition-all duration-300">
             <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-darkBg/50 shadow-lg rounded-full px-4 py-2 flex items-center border border-aquaGreen/30 backdrop-blur-sm">
               <Shield className="h-5 w-5 text-aquaGreen mr-2" />
               <span className="text-sm font-medium text-pureWhite">{t('cta.guarantee')}</span>
@@ -369,7 +396,7 @@ const Index = () => {
             <div className="flex flex-col items-center gap-4 mt-6">
               <p className="text-neonPink font-semibold text-center text-sm tracking-wider">{t('cta.limitedOffer')}</p>
               <Link to="/prompt-generator">
-                <SimpleButton className="bg-neonPink hover:bg-opacity-80 text-pureWhite text-lg px-8 py-4 h-auto rounded-lg shadow-lg hover:shadow-neonPink/50 hover:scale-105 transition-all duration-300 flex items-center gap-2 group">
+                <SimpleButton className="bg-neonPink hover:bg-neonPink hover:brightness-90 text-pureWhite text-lg px-8 py-4 h-auto rounded-lg shadow-xl hover:shadow-neonPink/50 hover:scale-105 transition-all duration-300 flex items-center gap-2 group">
                   {t('cta.button')} - {t('cta.getStartedNow')}
                   <ArrowRight className="h-5 w-5 transform transition-transform duration-300 group-hover:translate-x-1" />
                 </SimpleButton>
@@ -395,7 +422,7 @@ const Index = () => {
       
       {/* Script para animações de scroll */}
       <script dangerouslySetInnerHTML={{
-      __html: `
+        __html: `
           document.addEventListener('DOMContentLoaded', function() {
             // Função para revelar elementos ao rolar
             function checkScrollReveal() {
@@ -418,7 +445,9 @@ const Index = () => {
             window.addEventListener('scroll', checkScrollReveal);
           });
         `
-    }} />
-    </div>;
+      }} />
+    </div>
+  );
 };
+
 export default Index;
