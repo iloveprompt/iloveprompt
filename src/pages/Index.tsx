@@ -131,7 +131,10 @@ const Index = () => {
                     <code className="text-aquaGreen">10. Utilize ESLint e Prettier com configurações de projeto ...</code>
                     <br />
                     <br />
+                    <pre className="text-[10px] font-mono whitespace-pre-wrap">
                     <code className="text-aquaGreen">Utilize nossa ferramente em sua ferramente de vibe coding preferida : </code>
+                    </pre>
+                    <div className="flex flex-wrap justify-center gap-4 items-center">
                       <br />
                       <a href="https://lovable.dev/" target="_blank" rel="noopener noreferrer">
                       <img src="/lovable-uploads/1afc2e55-681b-40b7-9384-7675460432fe.png" alt="Lovable" className="h-5 w-auto" />
@@ -151,6 +154,7 @@ const Index = () => {
                       <a href="https://v0.dev/" target="_blank" rel="noopener noreferrer">
                       <img src="/lovable-uploads/23ab6142-d115-41c6-b4c1-f85407e0007f.png" alt="V0" className="h-5 w-auto" />
                       </a>
+                      </div>
                   </pre>
                 </div>
                 {/*<div className="flex flex-col gap-4 mt-4">
