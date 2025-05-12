@@ -162,7 +162,7 @@ const PromptGeneratorWizard = () => {
     },
     uxui: {
       colorPalette: [],
-      customColors: {},
+      customColors: [], // Changed from {} (empty object) to [] (empty array) to match the expected type
       visualStyle: '',
       otherVisualStyle: '',
       menuType: '',
