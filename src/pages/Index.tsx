@@ -99,6 +99,12 @@ const Index = () => {
               <div className="p-6 shadow-xl bg-darkBg/50 backdrop-blur-md border border-electricBlue/30 hover-glow rounded-2xl px-[12px] py-[13px]">
                 <div className="bg-darkBg/70 rounded-lg p-4 border border-electricBlue/20 mb-4 py-[45px] px-[22px] mx-0 my-0 overflow-x-auto">
                   <pre className="text-sm font-mono whitespace-pre-wrap">
+                  <code className="text-aquaGreen">// Nosso sistema gera prompts inteligentes e personalizados</code>
+                    <br /> 
+                  <code className="text-aquaGreen">// Ajustados ao seu fluxo de desenvolvimento </code>
+                     <br />
+                  <code className="text-aquaGreen">// E ao estilo único das ferramentas de vibe coding.</code>
+                    <br />
                     <code className="text-aquaGreen">// Exemplo de Prompt de IA Gerado</code>
                     <br />
                     <code className="text-neonPink">Crie um componente React que:</code>
@@ -114,6 +120,7 @@ const Index = () => {
                 </div>
                 <div className="flex flex-col gap-4 mt-4">
                   <div className="flex flex-wrap justify-center gap-4 items-center">
+                    <code className="text-aquaGreen">// Compatível com : </code>
                     <img src="/lovable-uploads/1afc2e55-681b-40b7-9384-7675460432fe.png" alt="Lovable" className="h-6" />
                     <img src="/lovable-uploads/72419187-c10f-411e-ba5a-301f61f4df3b.png" alt="Tempo Labs" className="h-6" />
                     <img src="/lovable-uploads/2f740ebf-bd1a-4c0b-b388-831f90482726.png" alt="Bolt" className="h-6" />
@@ -121,14 +128,6 @@ const Index = () => {
                     <img src="/lovable-uploads/e7e6d8b7-b83c-4b6f-9ea2-e78b57be4d5f.png" alt="Replit" className="h-6" />
                     <img src="/lovable-uploads/23ab6142-d115-41c6-b4c1-f85407e0007f.png" alt="V0" className="h-6" />
                   </div>
-                  <pre className="text-sm font-mono whitespace-pre-wrap">
-                  <code className="text-aquaGreen">// Nosso sistema gera prompts inteligentes e personalizados</code>
-                    <br /> 
-                  <code className="text-aquaGreen">// Ajustados ao seu fluxo de desenvolvimento </code>
-                     <br />
-                  <code className="text-aquaGreen">// E ao estilo único das ferramentas de vibe coding.</code>
-                    <br />
-                  </pre>
                 </div>
               </div>
             </div>
