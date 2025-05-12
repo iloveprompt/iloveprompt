@@ -333,7 +333,7 @@ const Index = () => {
             <div className="bg-gradient-to-b from-darkBg/70 to-aquaGreen/10 p-6 rounded-xl border border-aquaGreen/20 hover:border-neonPink transition-all duration-300 group shadow-xl hover:shadow-neonPink/40 hover-glow">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 rounded-full bg-aquaGreen/10 flex items-center justify-center mr-4 border border-aquaGreen/20 backdrop-blur-sm">
-                  <img src="/public/lovable-uploads/eecd25b5-caab-48fd-88bb-c6a40aa68e93.png" className="w-full h-full rounded-full object-cover" alt="User avatar" />
+                  <img alt="User avatar" src="/lovable-uploads/37fc9c35-03ad-474c-be10-708f44540309.png" className="w-full h-full rounded-full object-cover" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-pureWhite">Mike Kim</h4>
