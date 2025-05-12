@@ -137,12 +137,24 @@ const Index = () => {
                     <pre className="text-[10px] font-mono whitespace-pre-wrap">
                     <code className="text-aquaGreen">Compatível com : </code>
                     </pre>
-                    <img src="/lovable-uploads/1afc2e55-681b-40b7-9384-7675460432fe.png" alt="Lovable" className="h-6" />
-                    <img src="/lovable-uploads/72419187-c10f-411e-ba5a-301f61f4df3b.png" alt="Tempo Labs" className="h-6" />
-                    <img src="/lovable-uploads/2f740ebf-bd1a-4c0b-b388-831f90482726.png" alt="Bolt" className="h-6" />
-                    <img src="/lovable-uploads/84e62910-ce56-4fdb-89dd-67a95a1e2c9c.png" alt="MGX" className="h-6" />
-                    <img src="/lovable-uploads/e7e6d8b7-b83c-4b6f-9ea2-e78b57be4d5f.png" alt="Replit" className="h-6" />
-                    <img src="/lovable-uploads/23ab6142-d115-41c6-b4c1-f85407e0007f.png" alt="V0" className="h-6" />
+                      <a href="https://lovable.dev/" target="_blank" rel="noopener noreferrer">
+                      <img src="/lovable-uploads/1afc2e55-681b-40b7-9384-7675460432fe.png" alt="Lovable" className="h-5 w-auto" />
+                      </a>
+                      <a href="https://app.tempolabs.ai/" target="_blank" rel="noopener noreferrer">
+                      <img src="/lovable-uploads/72419187-c10f-411e-ba5a-301f61f4df3b.png" alt="Tempo Labs" className="h-5 w-auto" />
+                      </a>
+                      <a href="https://bolt.new/" target="_blank" rel="noopener noreferrer">
+                      <img src="/lovable-uploads/2f740ebf-bd1a-4c0b-b388-831f90482726.png" alt="Bolt" className="h-5 w-auto" />
+                      </a>
+                      <a href="https://bolt.new/" target="_blank" rel="noopener noreferrer">
+                      <img src="/lovable-uploads/84e62910-ce56-4fdb-89dd-67a95a1e2c9c.png" alt="MGX" className="h-5 w-auto" />
+                      </a>
+                      <a href="https://replit.com/" target="_blank" rel="noopener noreferrer">
+                      <img src="/lovable-uploads/e7e6d8b7-b83c-4b6f-9ea2-e78b57be4d5f.png" alt="Replit" className="h-5 w-auto" />
+                      </a>
+                      <a href="https://v0.dev/" target="_blank" rel="noopener noreferrer">
+                      <img src="/lovable-uploads/23ab6142-d115-41c6-b4c1-f85407e0007f.png" alt="V0" className="h-5 w-auto" />
+                      </a>
                   </div>
                 </div>
               </div>
