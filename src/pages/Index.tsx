@@ -317,7 +317,7 @@ const Index = () => {
             <div className="bg-gradient-to-b from-darkBg/70 to-neonPurple/10 p-6 rounded-xl border border-neonPurple/20 hover:border-aquaGreen transition-all duration-300 group shadow-xl hover:shadow-aquaGreen/40 hover-glow">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 rounded-full bg-neonPurple/10 flex items-center justify-center mr-4 border border-neonPurple/20 backdrop-blur-sm">
-                  <img src="/public/lovable-uploads/38e9462c-ec41-45c6-b98e-95e9a854929c.png" className="w-full h-full rounded-full object-cover" alt="User avatar" />
+                  <img className="w-full h-full rounded-full object-cover" alt="User avatar" src="/lovable-uploads/3ad3c8f3-8cd6-4c69-a2c5-bda3dacb16aa.png" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-pureWhite">Ana Silva</h4>
