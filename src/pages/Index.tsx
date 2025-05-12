@@ -112,14 +112,9 @@ const Index = () => {
                   </pre>
                 </div>
                 <div className="flex flex-wrap gap-3 mt-4">
-                  <img src="/lovable-uploads/20092c86-225f-455b-92ca-d97ee10aaf4c.png" alt="Bolt" className="h-8 rounded-md bg-darkBg/70 p-1" />
-                  <img src="/lovable-uploads/ac34c931-55fa-4fba-bc3e-c8dab9291e88.png" alt="Lovable" className="h-8 rounded-md bg-darkBg/70 p-1" />
-                  <img src="/lovable-uploads/68c0e542-e1a6-499a-a296-9481c70beb2b.png" alt="MGX" className="h-8 rounded-md bg-darkBg/70 p-1" />
-                  <img src="/lovable-uploads/e10dd602-80ca-499f-bebe-ad7e1153fd32.png" alt="Replit" className="h-8 rounded-md bg-darkBg/70 p-1" />
-                  <img src="/lovable-uploads/47ae4d33-e1f8-46b1-8440-dd47cbbe6066.png" alt="V0" className="h-8 rounded-md bg-darkBg/70 p-1" />
-                  <img src="/lovable-uploads/6cf898a6-b403-4db6-98bd-46a072bb6217.png" alt="Tempo Labs" className="h-8 rounded-md bg-darkBg/70 p-1" />
+                  <img src="/lovable-uploads/bcb55e34-7524-4bf8-8889-79132c644f1f.png" alt="Lovable" className="h-8 rounded-md bg-darkBg/70 p-1" />
+                  <img src="/lovable-uploads/2a62ac56-63de-411d-89da-c42694035acb.png" alt="Tempo Labs" className="h-8 rounded-md bg-darkBg/70 p-1" />
                 </div>
-                <p className="text-aquaGreen/80 text-sm italic mt-4">{t('hero.promptDescription')}</p>
               </div>
             </div>
           </div>
@@ -195,32 +190,16 @@ const Index = () => {
             <FeatureCard title={t('features.feature3.title')} description={t('features.feature3.description')} icon={<Zap className="h-6 w-6" />} delay="delay-300" />
           </div>
           
-          {/* Links para plataformas de vibe coding */}
+          {/* Links para plataformas de vibe coding - Updated with new logos */}
           <div className="mt-16 bg-darkBg/50 p-6 rounded-xl border border-electricBlue/20 backdrop-blur-md shadow-xl">
             <h3 className="text-xl font-bold mb-4 text-pureWhite text-center">Compatível com as melhores plataformas de vibe coding</h3>
             <div className="flex flex-wrap justify-center gap-6 items-center">
               <div className="flex flex-col items-center">
-                <img src="/lovable-uploads/20092c86-225f-455b-92ca-d97ee10aaf4c.png" alt="Bolt" className="h-10 mb-2" />
-                <span className="text-aquaGreen text-sm">Bolt</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <img src="/lovable-uploads/ac34c931-55fa-4fba-bc3e-c8dab9291e88.png" alt="Lovable" className="h-10 mb-2" />
+                <img src="/lovable-uploads/bcb55e34-7524-4bf8-8889-79132c644f1f.png" alt="Lovable" className="h-10 mb-2" />
                 <span className="text-aquaGreen text-sm">Lovable</span>
               </div>
               <div className="flex flex-col items-center">
-                <img src="/lovable-uploads/68c0e542-e1a6-499a-a296-9481c70beb2b.png" alt="MGX" className="h-10 mb-2" />
-                <span className="text-aquaGreen text-sm">MGX</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <img src="/lovable-uploads/e10dd602-80ca-499f-bebe-ad7e1153fd32.png" alt="Replit" className="h-10 mb-2" />
-                <span className="text-aquaGreen text-sm">Replit</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <img src="/lovable-uploads/47ae4d33-e1f8-46b1-8440-dd47cbbe6066.png" alt="V0" className="h-10 mb-2" />
-                <span className="text-aquaGreen text-sm">V0</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <img src="/lovable-uploads/6cf898a6-b403-4db6-98bd-46a072bb6217.png" alt="Tempo Labs" className="h-10 mb-2" />
+                <img src="/lovable-uploads/2a62ac56-63de-411d-89da-c42694035acb.png" alt="Tempo Labs" className="h-10 mb-2" />
                 <span className="text-aquaGreen text-sm">Tempo Labs</span>
               </div>
             </div>
@@ -401,15 +380,12 @@ const Index = () => {
                 </SimpleButton>
               </Link>
               
-              {/* Logos das plataformas como rodapé do CTA */}
+              {/* Logos das plataformas como rodapé do CTA - Updated with new logos */}
               <div className="flex flex-wrap justify-center gap-4 mt-8 pt-8 border-t border-neonPurple/20">
                 <div className="flex items-center gap-2">
                   <span className="text-aquaGreen/80 text-sm">Compatível com:</span>
-                  <img src="/lovable-uploads/20092c86-225f-455b-92ca-d97ee10aaf4c.png" alt="Bolt" className="h-6" />
-                  <img src="/lovable-uploads/ac34c931-55fa-4fba-bc3e-c8dab9291e88.png" alt="Lovable" className="h-6" />
-                  <img src="/lovable-uploads/68c0e542-e1a6-499a-a296-9481c70beb2b.png" alt="MGX" className="h-6" />
-                  <img src="/lovable-uploads/e10dd602-80ca-499f-bebe-ad7e1153fd32.png" alt="Replit" className="h-6" />
-                  <img src="/lovable-uploads/47ae4d33-e1f8-46b1-8440-dd47cbbe6066.png" alt="V0" className="h-6" />
+                  <img src="/lovable-uploads/bcb55e34-7524-4bf8-8889-79132c644f1f.png" alt="Lovable" className="h-6" />
+                  <img src="/lovable-uploads/2a62ac56-63de-411d-89da-c42694035acb.png" alt="Tempo Labs" className="h-6" />
                 </div>
               </div>
             </div>
