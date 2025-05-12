@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -11,31 +10,35 @@ import { Code, Shield, Zap, Terminal, Sparkles, GitBranch, ArrowRight } from 'lu
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
-
 const Index = () => {
-  const { t } = useLanguage();
-  const { isAuthenticated } = useAuth();
+  const {
+    t
+  } = useLanguage();
+  const {
+    isAuthenticated
+  } = useAuth();
   const isMobile = useIsMobile();
   const [visibleSections, setVisibleSections] = useState<string[]>([]);
-  
+
   // Refs para cada seção
-  const sectionsRef = useRef<{[key: string]: React.RefObject<HTMLElement>}>({
+  const sectionsRef = useRef<{
+    [key: string]: React.RefObject<HTMLElement>;
+  }>({
     hero: useRef<HTMLElement>(null),
     howItWorks: useRef<HTMLElement>(null),
     features: useRef<HTMLElement>(null),
     socialProof: useRef<HTMLElement>(null),
     pricing: useRef<HTMLElement>(null),
-    cta: useRef<HTMLElement>(null),
+    cta: useRef<HTMLElement>(null)
   });
-  
+
   // Efeito para detectar seções visíveis durante a rolagem
   useEffect(() => {
     const observerOptions = {
       root: null,
       rootMargin: '0px',
-      threshold: 0.25,
+      threshold: 0.25
     };
-    
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -48,35 +51,24 @@ const Index = () => {
         }
       });
     };
-    
     const observer = new IntersectionObserver(observerCallback, observerOptions);
-    
     Object.values(sectionsRef.current).forEach(ref => {
       if (ref.current) {
         observer.observe(ref.current);
       }
     });
-    
     return () => {
       observer.disconnect();
     };
   }, []);
-  
   console.log('Index page rendered, authentication status:', isAuthenticated);
-  
-  return (
-    <div className="flex flex-col min-h-screen">
+  return <div className="flex flex-col min-h-screen">
       <Navbar />
       
       {/* Hero Section */}
-      <section 
-        id="hero"
-        ref={sectionsRef.current.hero as React.RefObject<HTMLDivElement>}
-        className={`relative pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-to-br from-darkBg to-electricBlue/30 overflow-hidden bg-cover bg-center bg-no-repeat section-transition ${
-          visibleSections.includes('hero') ? 'slide-in' : 'opacity-0'
-        }`}
-        style={{ backgroundImage: "url('/img-fundo-landingpage/hero-component/fundo_4.jpg')" }}
-      >
+      <section id="hero" ref={sectionsRef.current.hero as React.RefObject<HTMLDivElement>} className={`relative pt-24 pb-16 md:pt-32 md:pb-24 bg-gradient-to-br from-darkBg to-electricBlue/30 overflow-hidden bg-cover bg-center bg-no-repeat section-transition ${visibleSections.includes('hero') ? 'slide-in' : 'opacity-0'}`} style={{
+      backgroundImage: "url('/img-fundo-landingpage/hero-component/fundo_4.jpg')"
+    }}>
         {/* Efeito de partículas */}
         <div className="absolute inset-0 z-0 pointer-events-none"> 
           <div className="absolute w-[500px] h-[500px] bg-neonPurple/10 rounded-full blur-3xl -top-20 -left-20 animate-pulse" />
@@ -98,17 +90,14 @@ const Index = () => {
                     </Button>
                   </Link>
                 <a href="#features-section">
-                  <Button 
-                    variant="outline"
-                    className="border-electricBlue text-electricBlue hover:bg-electricBlue/10 hover:text-pureWhite h-auto px-[50px] py-3 font-semibold text-lg rounded-xl transition-all duration-300 hover:scale-105 shadow-md hover:shadow-electricBlue/30"
-                  >
+                  <Button variant="outline" className="border-electricBlue text-electricBlue hover:bg-electricBlue/10 hover:text-pureWhite h-auto px-[50px] py-3 font-semibold text-lg rounded-xl transition-all duration-300 hover:scale-105 shadow-md hover:shadow-electricBlue/30">
                     {t('common.learnMore')}
                   </Button>
                 </a>
               </div>
             </div>
             <div className="md:w-1/2 md:pl-10">
-              <div className="rounded-2xl p-6 shadow-xl bg-darkBg/50 backdrop-blur-md border border-electricBlue/30 hover-glow">
+              <div className="p-6 shadow-xl bg-darkBg/50 backdrop-blur-md border border-electricBlue/30 hover-glow py-[60px] rounded-2xl px-[9px]">
                 <div className="bg-darkBg/70 rounded-lg p-4 border border-electricBlue/20 mb-4">
                   <pre className="text-sm text-aquaGreen/90 font-mono">
                     <code>{t('hero.codeExample')}</code>
@@ -140,13 +129,7 @@ const Index = () => {
       </section>
       
       {/* How It Works */}
-      <section 
-        id="how-it-works-section"
-        ref={sectionsRef.current.howItWorks as React.RefObject<HTMLDivElement>}
-        className={`py-16 md:py-24 bg-darkBg backdrop-blur-lg opacity-0 scroll-mt-24 shadow-lg-electric-blue section-transition section-transition-top ${
-          visibleSections.includes('how-it-works-section') ? 'slide-in' : ''
-        }`}
-      >
+      <section id="how-it-works-section" ref={sectionsRef.current.howItWorks as React.RefObject<HTMLDivElement>} className={`py-16 md:py-24 bg-darkBg backdrop-blur-lg opacity-0 scroll-mt-24 shadow-lg-electric-blue section-transition section-transition-top ${visibleSections.includes('how-it-works-section') ? 'slide-in' : ''}`}>
         <div className="container px-4 mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-pureWhite">{t('howItWorks.title')}</h2>
@@ -187,13 +170,7 @@ const Index = () => {
       </section>
       
       {/* Features */}
-      <section 
-        id="features-section"
-        ref={sectionsRef.current.features as React.RefObject<HTMLDivElement>}
-        className={`py-16 md:py-24 bg-darkBg backdrop-blur-lg opacity-0 scroll-mt-24 shadow-lg-electric-blue section-transition section-transition-top ${
-          visibleSections.includes('features-section') ? 'slide-in' : ''
-        }`}
-      >
+      <section id="features-section" ref={sectionsRef.current.features as React.RefObject<HTMLDivElement>} className={`py-16 md:py-24 bg-darkBg backdrop-blur-lg opacity-0 scroll-mt-24 shadow-lg-electric-blue section-transition section-transition-top ${visibleSections.includes('features-section') ? 'slide-in' : ''}`}>
         <div className="container px-4 mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-pureWhite">{t('features.title')}</h2>
@@ -242,13 +219,7 @@ const Index = () => {
       </section>
       
       {/* Social Proof */}
-      <section 
-        id="social-proof-section"
-        ref={sectionsRef.current.socialProof as React.RefObject<HTMLDivElement>}
-        className={`py-16 md:py-24 bg-darkBg backdrop-blur-lg opacity-0 scroll-mt-24 shadow-lg-electric-blue section-transition section-transition-top ${
-          visibleSections.includes('social-proof-section') ? 'slide-in' : ''
-        }`}
-      >
+      <section id="social-proof-section" ref={sectionsRef.current.socialProof as React.RefObject<HTMLDivElement>} className={`py-16 md:py-24 bg-darkBg backdrop-blur-lg opacity-0 scroll-mt-24 shadow-lg-electric-blue section-transition section-transition-top ${visibleSections.includes('social-proof-section') ? 'slide-in' : ''}`}>
         <div className="container px-4 mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-pureWhite">{t('socialProof.title')}</h2>
@@ -262,9 +233,7 @@ const Index = () => {
             <div className="bg-gradient-to-b from-darkBg/70 to-electricBlue/10 p-6 rounded-xl border border-electricBlue/20 hover:border-neonPurple transition-all duration-300 group shadow-lg hover:shadow-neonPurple/20 hover-glow">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 rounded-full bg-electricBlue/10 flex items-center justify-center mr-4 border border-electricBlue/20 backdrop-blur-sm">
-                  <img src="/public/lovable-uploads/4c0e25c9-7a84-42ff-92f3-643522f86121.png" 
-                       className="w-full h-full rounded-full object-cover"
-                       alt="User avatar" />
+                  <img src="/public/lovable-uploads/4c0e25c9-7a84-42ff-92f3-643522f86121.png" className="w-full h-full rounded-full object-cover" alt="User avatar" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-pureWhite">John Doe</h4>
@@ -280,9 +249,7 @@ const Index = () => {
             <div className="bg-gradient-to-b from-darkBg/70 to-neonPurple/10 p-6 rounded-xl border border-neonPurple/20 hover:border-aquaGreen transition-all duration-300 group shadow-lg hover:shadow-aquaGreen/20 hover-glow">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 rounded-full bg-neonPurple/10 flex items-center justify-center mr-4 border border-neonPurple/20 backdrop-blur-sm">
-                  <img src="/public/lovable-uploads/38e9462c-ec41-45c6-b98e-95e9a854929c.png" 
-                       className="w-full h-full rounded-full object-cover"
-                       alt="User avatar" />
+                  <img src="/public/lovable-uploads/38e9462c-ec41-45c6-b98e-95e9a854929c.png" className="w-full h-full rounded-full object-cover" alt="User avatar" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-pureWhite">Ana Silva</h4>
@@ -298,9 +265,7 @@ const Index = () => {
             <div className="bg-gradient-to-b from-darkBg/70 to-aquaGreen/10 p-6 rounded-xl border border-aquaGreen/20 hover:border-neonPink transition-all duration-300 group shadow-lg hover:shadow-neonPink/20 hover-glow">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 rounded-full bg-aquaGreen/10 flex items-center justify-center mr-4 border border-aquaGreen/20 backdrop-blur-sm">
-                  <img src="/public/lovable-uploads/eecd25b5-caab-48fd-88bb-c6a40aa68e93.png" 
-                       className="w-full h-full rounded-full object-cover"
-                       alt="User avatar" />
+                  <img src="/public/lovable-uploads/eecd25b5-caab-48fd-88bb-c6a40aa68e93.png" className="w-full h-full rounded-full object-cover" alt="User avatar" />
                 </div>
                 <div>
                   <h4 className="font-semibold text-pureWhite">Mike Kim</h4>
@@ -316,13 +281,7 @@ const Index = () => {
       </section>
 
       {/* Pricing Section Preview */}
-      <section 
-        id="pricing-section"
-        ref={sectionsRef.current.pricing as React.RefObject<HTMLDivElement>}
-        className={`py-16 md:py-24 bg-darkBg backdrop-blur-lg opacity-0 scroll-mt-24 shadow-lg-electric-blue section-transition section-transition-top ${
-          visibleSections.includes('pricing-section') ? 'slide-in' : ''
-        }`}
-      >
+      <section id="pricing-section" ref={sectionsRef.current.pricing as React.RefObject<HTMLDivElement>} className={`py-16 md:py-24 bg-darkBg backdrop-blur-lg opacity-0 scroll-mt-24 shadow-lg-electric-blue section-transition section-transition-top ${visibleSections.includes('pricing-section') ? 'slide-in' : ''}`}>
         <div className="container px-4 mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-pureWhite">{t('pricing.title')}</h2>
@@ -332,119 +291,71 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            <PricingCard 
-              title={t('pricing.free.title')} 
-              price={t('pricing.free.price')} 
-              description={t('pricing.free.description')} 
-              features={[
-                {
-                  text: `5 ${t('pricing.features.promptsPerMonth')}`,
-                  included: true
-                },
-                {
-                  text: t('pricing.features.basicQuestionnaire'),
-                  included: true
-                },
-                {
-                  text: t('pricing.features.gpt35Integration'),
-                  included: true
-                },
-                {
-                  text: t('pricing.features.promptHistory'),
-                  included: true
-                },
-                {
-                  text: t('pricing.features.useOwnApiKeys'),
-                  included: false
-                },
-                {
-                  text: t('pricing.features.advancedSecuritySection'),
-                  included: false
-                }
-              ]} 
-              ctaText={t('common.startFree')} 
-            />
+            <PricingCard title={t('pricing.free.title')} price={t('pricing.free.price')} description={t('pricing.free.description')} features={[{
+            text: `5 ${t('pricing.features.promptsPerMonth')}`,
+            included: true
+          }, {
+            text: t('pricing.features.basicQuestionnaire'),
+            included: true
+          }, {
+            text: t('pricing.features.gpt35Integration'),
+            included: true
+          }, {
+            text: t('pricing.features.promptHistory'),
+            included: true
+          }, {
+            text: t('pricing.features.useOwnApiKeys'),
+            included: false
+          }, {
+            text: t('pricing.features.advancedSecuritySection'),
+            included: false
+          }]} ctaText={t('common.startFree')} />
             
-            <PricingCard 
-              title={t('pricing.pro.title')} 
-              price={t('pricing.pro.price')} 
-              description={t('pricing.pro.description')} 
-              features={[
-                {
-                  text: `50 ${t('pricing.features.promptsPerMonth')}`,
-                  included: true
-                },
-                {
-                  text: t('pricing.features.fullQuestionnaire'),
-                  included: true
-                },
-                {
-                  text: t('pricing.features.aiModelIntegrations'),
-                  included: true
-                },
-                {
-                  text: t('pricing.features.promptHistoryTemplates'),
-                  included: true
-                },
-                {
-                  text: t('pricing.features.useOwnApiKeys'),
-                  included: true
-                },
-                {
-                  text: t('pricing.features.advancedSecuritySections'),
-                  included: true
-                }
-              ]} 
-              ctaText="Upgrade to Pro" 
-              popular={true} 
-              apiOption={true} 
-            />
+            <PricingCard title={t('pricing.pro.title')} price={t('pricing.pro.price')} description={t('pricing.pro.description')} features={[{
+            text: `50 ${t('pricing.features.promptsPerMonth')}`,
+            included: true
+          }, {
+            text: t('pricing.features.fullQuestionnaire'),
+            included: true
+          }, {
+            text: t('pricing.features.aiModelIntegrations'),
+            included: true
+          }, {
+            text: t('pricing.features.promptHistoryTemplates'),
+            included: true
+          }, {
+            text: t('pricing.features.useOwnApiKeys'),
+            included: true
+          }, {
+            text: t('pricing.features.advancedSecuritySections'),
+            included: true
+          }]} ctaText="Upgrade to Pro" popular={true} apiOption={true} />
             
-            <PricingCard 
-              title={t('pricing.team.title')} 
-              price={t('pricing.team.price')} 
-              description={t('pricing.team.description')} 
-              features={[
-                {
-                  text: t('pricing.features.unlimitedPrompts'),
-                  included: true
-                },
-                {
-                  text: t('pricing.features.fullQuestionnaire'),
-                  included: true
-                },
-                {
-                  text: t('pricing.features.aiModelIntegrations'),
-                  included: true
-                },
-                {
-                  text: t('pricing.features.promptLibrarySharing'),
-                  included: true
-                },
-                {
-                  text: t('pricing.features.useOwnApiKeys'),
-                  included: true
-                },
-                {
-                  text: t('pricing.features.prioritySupport'),
-                  included: true
-                }
-              ]} 
-              ctaText="Choose Team" 
-              apiOption={true} 
-            />
+            <PricingCard title={t('pricing.team.title')} price={t('pricing.team.price')} description={t('pricing.team.description')} features={[{
+            text: t('pricing.features.unlimitedPrompts'),
+            included: true
+          }, {
+            text: t('pricing.features.fullQuestionnaire'),
+            included: true
+          }, {
+            text: t('pricing.features.aiModelIntegrations'),
+            included: true
+          }, {
+            text: t('pricing.features.promptLibrarySharing'),
+            included: true
+          }, {
+            text: t('pricing.features.useOwnApiKeys'),
+            included: true
+          }, {
+            text: t('pricing.features.prioritySupport'),
+            included: true
+          }]} ctaText="Choose Team" apiOption={true} />
           </div>
         </div>
       </section>
       
       {/* CTA */}
-      <section 
-        id="cta-section"
-        ref={sectionsRef.current.cta as React.RefObject<HTMLDivElement>}
-        className={`py-16 md:py-24 bg-darkBg backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top ${
-          visibleSections.includes('cta-section') ? 'slide-in' : ''
-        }`}
-      >
+      <section id="cta-section" ref={sectionsRef.current.cta as React.RefObject<HTMLDivElement>} className={`py-16 md:py-24 bg-darkBg backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top ${visibleSections.includes('cta-section') ? 'slide-in' : ''}`}>
         <div className="container px-4 mx-auto text-center">
           <div className="relative pt-12 bg-gradient-to-br from-darkBg/90 to-neonPurple/10 p-8 rounded-3xl border border-neonPurple/20 shadow-lg hover:shadow-neonPurple/30 transition-all duration-300">
             <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-darkBg/50 shadow-lg rounded-full px-4 py-2 flex items-center border border-aquaGreen/30 backdrop-blur-sm">
@@ -484,7 +395,7 @@ const Index = () => {
       
       {/* Script para animações de scroll */}
       <script dangerouslySetInnerHTML={{
-        __html: `
+      __html: `
           document.addEventListener('DOMContentLoaded', function() {
             // Função para revelar elementos ao rolar
             function checkScrollReveal() {
@@ -507,9 +418,7 @@ const Index = () => {
             window.addEventListener('scroll', checkScrollReveal);
           });
         `
-      }} />
-    </div>
-  );
+    }} />
+    </div>;
 };
-
 export default Index;
