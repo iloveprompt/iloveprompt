@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
+import { useLocation } from 'react-router-dom';
 import {
   Select,
   SelectContent,
@@ -10,7 +11,18 @@ import {
 } from '@/components/ui/select';
 
 const LanguageSwitcher: React.FC = () => {
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage } = useLanguage();
+  const location = useLocation();
+  
+  // Check if we're on the landing page or dashboard
+  const isLandingPage = !location.pathname.includes('/dashboard') && !location.pathname.includes('/admin');
+  
+  // Set background colors based on current page
+  const contentBgColor = isLandingPage ? 'bg-darkBg' : 'bg-white';
+  const contentTextColor = isLandingPage ? 'text-pureWhite' : 'text-black';
+  const itemHoverBgColor = isLandingPage ? 'hover:bg-electricBlue/30' : 'hover:bg-gray-100';
+  const itemFocusBgColor = isLandingPage ? 'focus:bg-electricBlue/30 focus:text-pureWhite' : 'focus:bg-gray-100 focus:text-gray-900';
+  const borderColor = isLandingPage ? 'border-electricBlue/20' : 'border-gray-200';
   
   return (
     <Select
@@ -59,13 +71,16 @@ const LanguageSwitcher: React.FC = () => {
         </SelectValue>
       </SelectTrigger>
       <SelectContent 
-        className="min-w-[60px] border-gray-200 z-50" 
+        className={`min-w-[60px] ${borderColor} z-50`} 
         style={{ 
-          backgroundColor: 'white',
-          color: 'black'
+          backgroundColor: isLandingPage ? 'rgb(30, 30, 36)' : 'white',
+          color: isLandingPage ? 'white' : 'black'
         }}
       >
-        <SelectItem value="pt" className="focus:bg-gray-100 focus:text-gray-900 hover:bg-gray-100 flex justify-center">
+        <SelectItem 
+          value="pt" 
+          className={`${itemFocusBgColor} ${itemHoverBgColor} flex justify-center`}
+        >
           <div className="flex items-center">
             <img 
               src="https://flagcdn.com/w20/br.png" 
@@ -75,7 +90,10 @@ const LanguageSwitcher: React.FC = () => {
             />
           </div>
         </SelectItem>
-        <SelectItem value="en" className="focus:bg-gray-100 focus:text-gray-900 hover:bg-gray-100 flex justify-center">
+        <SelectItem 
+          value="en" 
+          className={`${itemFocusBgColor} ${itemHoverBgColor} flex justify-center`}
+        >
           <div className="flex items-center">
             <img 
               src="https://flagcdn.com/w20/us.png" 
@@ -85,7 +103,10 @@ const LanguageSwitcher: React.FC = () => {
             />
           </div>
         </SelectItem>
-        <SelectItem value="es" className="focus:bg-gray-100 focus:text-gray-900 hover:bg-gray-100 flex justify-center">
+        <SelectItem 
+          value="es" 
+          className={`${itemFocusBgColor} ${itemHoverBgColor} flex justify-center`}
+        >
           <div className="flex items-center">
             <img 
               src="https://flagcdn.com/w20/es.png" 
