@@ -199,7 +199,10 @@ const PromptGeneratorWizard = () => {
       otherMenuTypes: [],
       otherAuthMethods: [],
       userDashboard: false,
-      userDashboardDetails: { features: [], otherFeature: '' }
+      userDashboardDetails: { 
+        features: [], 
+        otherDashboardFeatures: [] // Changed from 'otherFeature: string' to 'otherDashboardFeatures: []' to match the expected type
+      }
     },
     stack: {
       separateFrontendBackend: false,
