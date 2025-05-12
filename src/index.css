@@ -92,6 +92,8 @@
   body {
     @apply bg-background text-foreground;
     background-color: #0A192F;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    width: 100%;
   }
 
   .glass-card {
@@ -219,6 +221,7 @@
   backdrop-filter: blur(8px);
   transition: all 0.3s ease;
   background-color: rgba(10, 25, 47, 0.85); /* Fundo escuro semi-transparente para melhorar contraste */
+  width: 100%;
 }
 
 .sticky-menu.scrolled {
@@ -244,6 +247,7 @@
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.5s ease;
+    width: 100vw;
   }
   
   .mobile-menu-container.open {

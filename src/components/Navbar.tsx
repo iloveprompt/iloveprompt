@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -8,6 +9,8 @@ import { useAuthRedirect } from '@/hooks/useAuthRedirect';
 import LanguageSwitcher from './LanguageSwitcher';
 import { colors } from '@/styles/colors';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useIsMobile } from '@/hooks/use-mobile';
+
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -25,6 +28,7 @@ const Navbar = () => {
   } = useAuthRedirect();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   // Detectar rolagem para aplicar efeitos no menu
   useEffect(() => {
@@ -40,6 +44,22 @@ const Navbar = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+  
+  // Add effect to prevent body scrolling when mobile menu is open
+  useEffect(() => {
+    if (isMobile) {
+      if (isMenuOpen) {
+        document.body.style.overflow = 'hidden';
+      } else {
+        document.body.style.overflow = '';
+      }
+    }
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMenuOpen, isMobile]);
+  
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
@@ -150,10 +170,9 @@ const Navbar = () => {
       
       {/* Mobile Navigation */}
       <div 
-        className={`md:hidden bg-darkBg shadow-lg mobile-menu-container ${isMenuOpen ? 'open' : ''}`} 
-        aria-expanded={isMenuOpen}
+        className={`md:hidden fixed inset-0 top-16 bg-darkBg z-30 overflow-y-auto overflow-x-hidden transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
-        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 max-w-full">
           <Link to="/" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-pureWhite hover:bg-electricBlue/30 rounded-md transition-colors font-medium">
             {t('common.home')}
           </Link>
