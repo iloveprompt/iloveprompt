@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, LogOut, User, LayoutDashboard } from 'lucide-react';
+import { Menu, LogOut, User, LayoutDashboard, X } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useAuthRedirect } from '@/hooks/useAuthRedirect';
@@ -18,11 +19,28 @@ import {
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { t } = useLanguage();
   const { user, signOut, isAuthenticated, isAdmin } = useAuth();
   const { redirectAfterLogin } = useAuthRedirect();
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Detectar rolagem para aplicar efeitos no menu
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
   
   const handleSignOut = async () => {
     await signOut();
@@ -52,7 +70,7 @@ const Navbar = () => {
   const showDashboardButton = isAuthenticated && !isInDashboard;
   
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white">
+    <header className={`sticky-menu ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
@@ -117,80 +135,103 @@ const Navbar = () => {
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-2">
             <LanguageSwitcher />
-            <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-700">
-              <Menu className="h-6 w-6" />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setIsMenuOpen(!isMenuOpen)} 
+              className="text-gray-700 focus:outline-none"
+            >
+              {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
         </div>
       </div>
       
-      {/* Mobile Navigation */}
-      {isMenuOpen && (
-        <div className="md:hidden bg-white shadow-lg">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <Link to="/" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md">{t('common.home')}</Link>
-            <a 
-              href="/#pricing-section" 
-              className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md"
-              onClick={(e) => {
-                setIsMenuOpen(false);
-                if (location.pathname === '/') {
-                  e.preventDefault();
-                  document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' });
-                }
-                // Se não estiver na home, permite a navegação normal para /#pricing-section
-              }}
-            >
-              {t('common.pricing')}
-            </a>
-            <a 
-              href="/#features-section" 
-              className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md"
-              onClick={(e) => {
-                setIsMenuOpen(false);
-                if (location.pathname === '/') {
-                  e.preventDefault();
-                  document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' });
-                }
-                // Se não estiver na home, permite a navegação normal para /#features-section
-              }}
-            >
-              {t('common.features')}
-            </a>
-            <div className="flex flex-col space-y-2 px-3 pt-4">
-              {showDashboardButton && (
-                <Link to="/dashboard">
+      {/* Mobile Navigation - melhorado com animação e melhor UX */}
+      <div 
+        className={`md:hidden bg-white shadow-lg mobile-menu-container ${isMenuOpen ? 'open' : ''}`}
+        aria-expanded={isMenuOpen}
+      >
+        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <Link 
+            to="/" 
+            onClick={() => setIsMenuOpen(false)} 
+            className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+          >
+            {t('common.home')}
+          </Link>
+          <a 
+            href="/#pricing-section" 
+            className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+            onClick={(e) => {
+              setIsMenuOpen(false);
+              if (location.pathname === '/') {
+                e.preventDefault();
+                document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
+            {t('common.pricing')}
+          </a>
+          <a 
+            href="/#features-section" 
+            className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+            onClick={(e) => {
+              setIsMenuOpen(false);
+              if (location.pathname === '/') {
+                e.preventDefault();
+                document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
+            {t('common.features')}
+          </a>
+          <div className="flex flex-col space-y-2 px-3 pt-4">
+            {showDashboardButton && (
+              <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                <Button className="w-full text-white" style={{
+                  backgroundColor: colors.blue[600]
+                }}>
+                  <LayoutDashboard className="h-4 w-4 mr-2" /> Dashboard
+                </Button>
+              </Link>
+            )}
+            
+            {showAuthButtons && (
+              <>
+                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                  <Button variant="outline" className="w-full border-blue-500 text-blue-700" style={{
+                    borderColor: colors.blue[500],
+                    color: colors.blue[700]
+                  }}>
+                    {t('common.login')}
+                  </Button>
+                </Link>
+                <Link to="/register" onClick={() => setIsMenuOpen(false)}>
                   <Button className="w-full text-white" style={{
                     backgroundColor: colors.blue[600]
                   }}>
-                    Dashboard
+                    {t('common.startFree')}
                   </Button>
                 </Link>
-              )}
-              
-              {showAuthButtons && (
-                <>
-                  <Link to="/login">
-                    <Button variant="outline" className="w-full border-blue-500 text-blue-700" style={{
-                      borderColor: colors.blue[500],
-                      color: colors.blue[700]
-                    }}>
-                      {t('common.login')}
-                    </Button>
-                  </Link>
-                  <Link to="/register">
-                    <Button className="w-full text-white" style={{
-                      backgroundColor: colors.blue[600]
-                    }}>
-                      {t('common.startFree')}
-                    </Button>
-                  </Link>
-                </>
-              )}
-            </div>
+              </>
+            )}
+            
+            {isAuthenticated && (
+              <Button 
+                variant="outline" 
+                className="w-full border-red-500 text-red-700"
+                onClick={() => {
+                  handleSignOut();
+                  setIsMenuOpen(false);
+                }}
+              >
+                <LogOut className="h-4 w-4 mr-2" /> {t('common.logout')}
+              </Button>
+            )}
           </div>
         </div>
-      )}
+      </div>
     </header>
   );
 };
