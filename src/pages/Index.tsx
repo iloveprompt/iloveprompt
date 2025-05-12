@@ -133,17 +133,17 @@ const Index = () => {
                     <br />
                     <div className="flex flex-wrap justify-center gap-4 items-center">
                     <pre className="text-[12px] font-mono whitespace-pre-wrap">
-                    <code className="text-aquaGreen">Utilize nossa ferramente em sua ferramente de vibe coding preferida : </code>
+                    <code className="text-aquaGreen">Utilize nossa ferramenta em sua ferramente de vibe coding preferida : </code>
                     </pre>
                       <br />
                       <a href="https://lovable.dev/" target="_blank" rel="noopener noreferrer">
                       <img src="/lovable-uploads/1afc2e55-681b-40b7-9384-7675460432fe.png" alt="Lovable" className="h-5 w-auto" />
                       </a>
                       <a href="https://app.tempolabs.ai/" target="_blank" rel="noopener noreferrer">
-                      <img src="/lovable-uploads/72419187-c10f-411e-ba5a-301f61f4df3b.png" alt="Tempo Labs" className="h-5 w-auto" />
+                      <img src="/lovable-uploads/72419187-c10f-411e-ba5a-301f61f4df3b.png" alt="Tempo Labs" className="h-6 w-auto" />
                       </a>
                       <a href="https://bolt.new/" target="_blank" rel="noopener noreferrer">
-                      <img src="/lovable-uploads/2f740ebf-bd1a-4c0b-b388-831f90482726.png" alt="Bolt" className="h-5 w-auto" />
+                      <img src="/lovable-uploads/2f740ebf-bd1a-4c0b-b388-831f90482726.png" alt="Bolt" className="h-6 w-auto" />
                       </a>
                       <a href="https://bolt.new/" target="_blank" rel="noopener noreferrer">
                       <img src="/lovable-uploads/84e62910-ce56-4fdb-89dd-67a95a1e2c9c.png" alt="MGX" className="h-5 w-auto" />
@@ -166,10 +166,10 @@ const Index = () => {
                       <img src="/lovable-uploads/1afc2e55-681b-40b7-9384-7675460432fe.png" alt="Lovable" className="h-5 w-auto" />
                       </a>
                       <a href="https://app.tempolabs.ai/" target="_blank" rel="noopener noreferrer">
-                      <img src="/lovable-uploads/72419187-c10f-411e-ba5a-301f61f4df3b.png" alt="Tempo Labs" className="h-5 w-auto" />
+                      <img src="/lovable-uploads/72419187-c10f-411e-ba5a-301f61f4df3b.png" alt="Tempo Labs" className="h-6 w-auto" />
                       </a>
                       <a href="https://bolt.new/" target="_blank" rel="noopener noreferrer">
-                      <img src="/lovable-uploads/2f740ebf-bd1a-4c0b-b388-831f90482726.png" alt="Bolt" className="h-5 w-auto" />
+                      <img src="/lovable-uploads/2f740ebf-bd1a-4c0b-b388-831f90482726.png" alt="Bolt" className="h-6 w-auto" />
                       </a>
                       <a href="https://bolt.new/" target="_blank" rel="noopener noreferrer">
                       <img src="/lovable-uploads/84e62910-ce56-4fdb-89dd-67a95a1e2c9c.png" alt="MGX" className="h-5 w-auto" />
