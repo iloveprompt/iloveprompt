@@ -452,13 +452,7 @@ const Index = () => {
               </Link>
               
               {/* Logos das plataformas como rodapé do CTA - Using original logos */}
-              <div className="flex flex-wrap justify-center gap-4 mt-8 pt-8 border-t border-neonPurple/20">
-                <div className="flex items-center gap-2">
-                  <span className="text-aquaGreen/80 text-sm">Compatível com:</span>
-                  <img src="/lovable-uploads/bcb55e34-7524-4bf8-8889-79132c644f1f.png" alt="Lovable" className="h-6" />
-                  <img src="/lovable-uploads/2a62ac56-63de-411d-89da-c42694035acb.png" alt="Tempo Labs" className="h-6" />
-                </div>
-              </div>
+              
             </div>
           </div>
         </div>
