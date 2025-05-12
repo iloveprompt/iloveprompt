@@ -133,7 +133,7 @@ const Index = () => {
                     <br />
                     <div className="flex flex-wrap justify-center gap-4 items-center">
                     <pre className="text-[12px] font-mono whitespace-pre-wrap">
-                    <code className="text-aquaGreen">Utilize nossa ferramenta em sua ferramente de vibe coding preferida : </code>
+                    <code className="text-aquaGreen">Use em sua ferramenta de vibe coding preferida. </code>
                     </pre>
                       <br />
                       <a href="https://lovable.dev/" target="_blank" rel="noopener noreferrer">
