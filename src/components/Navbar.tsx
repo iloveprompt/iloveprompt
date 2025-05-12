@@ -79,11 +79,11 @@ const Navbar = () => {
             </Link>
           </div>
           
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation - Melhorado o contraste dos links */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-brand-600 transition-colors">{t('common.home')}</Link>
-            <a href="/#pricing-section" className="text-gray-700 hover:text-brand-600 transition-colors">{t('common.pricing')}</a>
-            <a href="/#features-section" className="text-gray-700 hover:text-brand-600 transition-colors">{t('common.features')}</a>
+            <Link to="/" className="text-pureWhite hover:text-aquaGreen font-medium transition-colors">{t('common.home')}</Link>
+            <a href="/#pricing-section" className="text-pureWhite hover:text-aquaGreen font-medium transition-colors">{t('common.pricing')}</a>
+            <a href="/#features-section" className="text-pureWhite hover:text-aquaGreen font-medium transition-colors">{t('common.features')}</a>
             <div className="flex items-center space-x-4">
               <LanguageSwitcher />
               
@@ -139,7 +139,7 @@ const Navbar = () => {
               variant="ghost" 
               size="icon" 
               onClick={() => setIsMenuOpen(!isMenuOpen)} 
-              className="text-gray-700 focus:outline-none"
+              className="text-pureWhite focus:outline-none"
             >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
@@ -147,22 +147,22 @@ const Navbar = () => {
         </div>
       </div>
       
-      {/* Mobile Navigation - melhorado com animação e melhor UX */}
+      {/* Mobile Navigation - melhorado com animação e melhor UX e contraste */}
       <div 
-        className={`md:hidden bg-white shadow-lg mobile-menu-container ${isMenuOpen ? 'open' : ''}`}
+        className={`md:hidden bg-darkBg shadow-lg mobile-menu-container ${isMenuOpen ? 'open' : ''}`}
         aria-expanded={isMenuOpen}
       >
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
           <Link 
             to="/" 
             onClick={() => setIsMenuOpen(false)} 
-            className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+            className="block px-3 py-2 text-pureWhite hover:bg-electricBlue/30 rounded-md transition-colors font-medium"
           >
             {t('common.home')}
           </Link>
           <a 
             href="/#pricing-section" 
-            className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+            className="block px-3 py-2 text-pureWhite hover:bg-electricBlue/30 rounded-md transition-colors font-medium"
             onClick={(e) => {
               setIsMenuOpen(false);
               if (location.pathname === '/') {
@@ -175,7 +175,7 @@ const Navbar = () => {
           </a>
           <a 
             href="/#features-section" 
-            className="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-md transition-colors"
+            className="block px-3 py-2 text-pureWhite hover:bg-electricBlue/30 rounded-md transition-colors font-medium"
             onClick={(e) => {
               setIsMenuOpen(false);
               if (location.pathname === '/') {
