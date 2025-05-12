@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -169,7 +168,14 @@ const PromptGeneratorWizard = () => {
       otherMenuType: '',
       landingPage: false,
       landingPageDetails: {
-        structure: { hero: true, benefits: true, testimonials: true, cta: true, other: false, otherValue: '' },
+        structure: { 
+          hero: true, 
+          benefits: true, 
+          testimonials: true, 
+          cta: true, 
+          other: false, 
+          otherValues: [] // Changed from otherValue: '' to otherValues: [] to match the expected type
+        },
         elements: { video: true, form: true, animations: true, other: false, otherValue: '' },
         style: { modern: true, minimalist: true, corporate: true, creative: true, other: false, otherValue: '' }
       },
