@@ -10,10 +10,13 @@ import { Code, Shield, Zap, Terminal, Sparkles, GitBranch, ArrowRight } from 'lu
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
-
 const Index = () => {
-  const { t } = useLanguage();
-  const { isAuthenticated } = useAuth();
+  const {
+    t
+  } = useLanguage();
+  const {
+    isAuthenticated
+  } = useAuth();
   const isMobile = useIsMobile();
   const [visibleSections, setVisibleSections] = useState<string[]>([]);
 
@@ -58,9 +61,7 @@ const Index = () => {
       observer.disconnect();
     };
   }, []);
-  
-  return (
-    <div className="flex flex-col min-h-screen bg-darkBg">
+  return <div className="flex flex-col min-h-screen bg-darkBg">
       <Navbar />
       
       {/* Hero Section - Aumentado o tamanho vertical */}
@@ -120,7 +121,7 @@ const Index = () => {
                     <img src="/lovable-uploads/e7e6d8b7-b83c-4b6f-9ea2-e78b57be4d5f.png" alt="Replit" className="h-6" />
                     <img src="/lovable-uploads/23ab6142-d115-41c6-b4c1-f85407e0007f.png" alt="V0" className="h-6" />
                   </div>
-                  <code className="text-aquaGreen text-sm text-center text-justify">
+                  <code className="text-aquaGreen text-sm text-center text-justify px-[25px] my-0 mx-0 rounded-none py-px bg-transparent">
                     Nosso sistema gera prompts inteligentes e personalizados, ajustados ao seu fluxo de desenvolvimento e ao estilo único das ferramentas de vibe coding.
                   </code>
                 </div>
@@ -131,8 +132,7 @@ const Index = () => {
       </section>
       
       {/* How It Works - Corrigido para eliminar gaps */}
-      <section id="how-it-works-section" ref={sectionsRef.current.howItWorks as React.RefObject<HTMLDivElement>} 
-        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top connect-sections ${visibleSections.includes('how-it-works-section') ? 'slide-in' : ''}`}>
+      <section id="how-it-works-section" ref={sectionsRef.current.howItWorks as React.RefObject<HTMLDivElement>} className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top connect-sections ${visibleSections.includes('how-it-works-section') ? 'slide-in' : ''}`}>
         {/* Divisor visual superior */}
         <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-neonPurple/20 to-transparent"></div>
         {/* Sombra inferior */}
@@ -178,8 +178,7 @@ const Index = () => {
       </section>
       
       {/* Features - Corrigido para eliminar gaps */}
-      <section id="features-section" ref={sectionsRef.current.features as React.RefObject<HTMLDivElement>} 
-        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top connect-sections ${visibleSections.includes('features-section') ? 'slide-in' : ''}`}>
+      <section id="features-section" ref={sectionsRef.current.features as React.RefObject<HTMLDivElement>} className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top connect-sections ${visibleSections.includes('features-section') ? 'slide-in' : ''}`}>
         {/* Divisor visual superior */}
         <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-aquaGreen/20 to-transparent"></div>
         {/* Sombra inferior */}
@@ -217,8 +216,7 @@ const Index = () => {
       </section>
       
       {/* Social Proof - Corrigido para eliminar gaps */}
-      <section id="social-proof-section" ref={sectionsRef.current.socialProof as React.RefObject<HTMLDivElement>} 
-        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top connect-sections ${visibleSections.includes('social-proof-section') ? 'slide-in' : ''}`}>
+      <section id="social-proof-section" ref={sectionsRef.current.socialProof as React.RefObject<HTMLDivElement>} className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top connect-sections ${visibleSections.includes('social-proof-section') ? 'slide-in' : ''}`}>
         {/* Divisor visual superior */}
         <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-electricBlue/20 to-transparent"></div>
         {/* Sombra inferior */}
@@ -285,8 +283,7 @@ const Index = () => {
       </section>
       
       {/* Pricing Section Preview - Corrigido para eliminar gaps */}
-      <section id="pricing-section" ref={sectionsRef.current.pricing as React.RefObject<HTMLDivElement>} 
-        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top connect-sections ${visibleSections.includes('pricing-section') ? 'slide-in' : ''}`}>
+      <section id="pricing-section" ref={sectionsRef.current.pricing as React.RefObject<HTMLDivElement>} className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top connect-sections ${visibleSections.includes('pricing-section') ? 'slide-in' : ''}`}>
         {/* Divisor visual superior */}
         <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-neonPurple/20 to-transparent"></div>
         {/* Sombra inferior */}
@@ -302,71 +299,70 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <PricingCard title={t('pricing.free.title')} price={t('pricing.free.price')} description={t('pricing.free.description')} features={[{
-              text: `5 ${t('pricing.features.promptsPerMonth')}`,
-              included: true
-            }, {
-              text: t('pricing.features.basicQuestionnaire'),
-              included: true
-            }, {
-              text: t('pricing.features.gpt35Integration'),
-              included: true
-            }, {
-              text: t('pricing.features.promptHistory'),
-              included: true
-            }, {
-              text: t('pricing.features.useOwnApiKeys'),
-              included: false
-            }, {
-              text: t('pricing.features.advancedSecuritySection'),
-              included: false
-            }]} ctaText={t('common.startFree')} />
+            text: `5 ${t('pricing.features.promptsPerMonth')}`,
+            included: true
+          }, {
+            text: t('pricing.features.basicQuestionnaire'),
+            included: true
+          }, {
+            text: t('pricing.features.gpt35Integration'),
+            included: true
+          }, {
+            text: t('pricing.features.promptHistory'),
+            included: true
+          }, {
+            text: t('pricing.features.useOwnApiKeys'),
+            included: false
+          }, {
+            text: t('pricing.features.advancedSecuritySection'),
+            included: false
+          }]} ctaText={t('common.startFree')} />
             
             <PricingCard title={t('pricing.pro.title')} price={t('pricing.pro.price')} description={t('pricing.pro.description')} features={[{
-              text: `50 ${t('pricing.features.promptsPerMonth')}`,
-              included: true
-            }, {
-              text: t('pricing.features.fullQuestionnaire'),
-              included: true
-            }, {
-              text: t('pricing.features.aiModelIntegrations'),
-              included: true
-            }, {
-              text: t('pricing.features.promptHistoryTemplates'),
-              included: true
-            }, {
-              text: t('pricing.features.useOwnApiKeys'),
-              included: true
-            }, {
-              text: t('pricing.features.advancedSecuritySections'),
-              included: true
-            }]} ctaText="Upgrade to Pro" popular={true} apiOption={true} />
+            text: `50 ${t('pricing.features.promptsPerMonth')}`,
+            included: true
+          }, {
+            text: t('pricing.features.fullQuestionnaire'),
+            included: true
+          }, {
+            text: t('pricing.features.aiModelIntegrations'),
+            included: true
+          }, {
+            text: t('pricing.features.promptHistoryTemplates'),
+            included: true
+          }, {
+            text: t('pricing.features.useOwnApiKeys'),
+            included: true
+          }, {
+            text: t('pricing.features.advancedSecuritySections'),
+            included: true
+          }]} ctaText="Upgrade to Pro" popular={true} apiOption={true} />
             
             <PricingCard title={t('pricing.team.title')} price={t('pricing.team.price')} description={t('pricing.team.description')} features={[{
-              text: t('pricing.features.unlimitedPrompts'),
-              included: true
-            }, {
-              text: t('pricing.features.fullQuestionnaire'),
-              included: true
-            }, {
-              text: t('pricing.features.aiModelIntegrations'),
-              included: true
-            }, {
-              text: t('pricing.features.promptLibrarySharing'),
-              included: true
-            }, {
-              text: t('pricing.features.useOwnApiKeys'),
-              included: true
-            }, {
-              text: t('pricing.features.prioritySupport'),
-              included: true
-            }]} ctaText="Choose Team" apiOption={true} />
+            text: t('pricing.features.unlimitedPrompts'),
+            included: true
+          }, {
+            text: t('pricing.features.fullQuestionnaire'),
+            included: true
+          }, {
+            text: t('pricing.features.aiModelIntegrations'),
+            included: true
+          }, {
+            text: t('pricing.features.promptLibrarySharing'),
+            included: true
+          }, {
+            text: t('pricing.features.useOwnApiKeys'),
+            included: true
+          }, {
+            text: t('pricing.features.prioritySupport'),
+            included: true
+          }]} ctaText="Choose Team" apiOption={true} />
           </div>
         </div>
       </section>
       
       {/* CTA - Corrigido para eliminar gaps */}
-      <section id="cta-section" ref={sectionsRef.current.cta as React.RefObject<HTMLDivElement>} 
-        className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top connect-sections ${visibleSections.includes('cta-section') ? 'slide-in' : ''}`}>
+      <section id="cta-section" ref={sectionsRef.current.cta as React.RefObject<HTMLDivElement>} className={`py-16 md:py-24 bg-darkBg relative backdrop-blur-lg opacity-0 scroll-mt-24 section-transition section-transition-top connect-sections ${visibleSections.includes('cta-section') ? 'slide-in' : ''}`}>
         {/* Divisor visual superior */}
         <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-neonPink/20 to-transparent"></div>
         
@@ -406,7 +402,7 @@ const Index = () => {
       
       {/* Script para animações de scroll */}
       <script dangerouslySetInnerHTML={{
-        __html: `
+      __html: `
           document.addEventListener('DOMContentLoaded', function() {
             // Função para revelar elementos ao rolar
             function checkScrollReveal() {
@@ -429,9 +425,7 @@ const Index = () => {
             window.addEventListener('scroll', checkScrollReveal);
           });
         `
-      }} />
-    </div>
-  );
+    }} />
+    </div>;
 };
-
 export default Index;
