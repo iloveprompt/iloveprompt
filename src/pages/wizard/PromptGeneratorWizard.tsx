@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -157,11 +158,11 @@ const PromptGeneratorWizard = () => {
       specificFeatures: [],
       otherFeature: '',
       dynamicFeatures: [],
-      otherSpecificFeatures: [] // Added this missing property
+      otherSpecificFeatures: [] // Added this property to match the expected type
     },
     uxui: {
       colorPalette: [],
-      customColors: [], // Changed from {} (empty object) to [] (empty array) to match the expected type
+      customColors: [], // Changed from {} (empty object) to [] (empty array)
       visualStyle: '',
       otherVisualStyle: '',
       menuType: '',
@@ -176,8 +177,21 @@ const PromptGeneratorWizard = () => {
           other: false, 
           otherValues: [] // Changed from otherValue: '' to otherValues: [] to match the expected type
         },
-        elements: { video: true, form: true, animations: true, other: false, otherValue: '' },
-        style: { modern: true, minimalist: true, corporate: true, creative: true, other: false, otherValue: '' }
+        elements: { 
+          video: true, 
+          form: true, 
+          animations: true, 
+          other: false, 
+          otherValues: [] // Changed from otherValue: '' to otherValues: [] to match the expected type
+        },
+        style: { 
+          modern: true, 
+          minimalist: true, 
+          corporate: true, 
+          creative: true, 
+          other: false, 
+          otherValues: [] // Changed from otherValue: '' to otherValues: [] to match the expected type
+        }
       },
       authentication: [],
       otherAuthMethod: '',
