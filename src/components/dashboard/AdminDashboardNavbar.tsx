@@ -47,7 +47,9 @@ const AdminDashboardNavbar = () => {
               <Database className="h-4 w-4 mr-1" />
               {t('admin.database') || 'Database'}
             </Link>
-            <LanguageSwitcher />
+            <div className="z-40">
+              <LanguageSwitcher />
+            </div>
           </nav>
           
           <div className="flex items-center">
@@ -86,7 +88,7 @@ const AdminDashboardNavbar = () => {
               <Database className="h-4 w-4 mr-1" />
               {t('admin.database') || 'Database'}
             </Link>
-            <div className="px-3 py-2">
+            <div className="px-3 py-2 z-40">
               <LanguageSwitcher />
             </div>
           </div>

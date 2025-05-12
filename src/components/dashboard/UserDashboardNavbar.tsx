@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -5,15 +6,17 @@ import { Menu } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import UserProfileMenu from './UserProfileMenu';
 import LanguageSwitcher from '../LanguageSwitcher';
+
 const UserDashboardNavbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const {
-    t
-  } = useLanguage();
+  const { t } = useLanguage();
+  
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
-  return <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
+  
+  return (
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
       <div className="container mx-auto px-4 sm:px-6 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
@@ -39,7 +42,9 @@ const UserDashboardNavbar = () => {
             <Link to="/dashboard/settings" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-medium">
               {t('dashboard.settings')}
             </Link>
-            <LanguageSwitcher />
+            <div className="z-40">
+              <LanguageSwitcher />
+            </div>
           </nav>
           
           <div className="flex items-center">
@@ -55,7 +60,8 @@ const UserDashboardNavbar = () => {
       </div>
       
       {/* Mobile navigation */}
-      {isMenuOpen && <nav className="md:hidden bg-white px-4 py-3 shadow-lg">
+      {isMenuOpen && (
+        <nav className="md:hidden bg-white px-4 py-3 shadow-lg">
           <div className="flex flex-col space-y-2">
             <Link to="/dashboard" className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium" onClick={() => setIsMenuOpen(false)}>
               {t('dashboard.home')}
@@ -72,11 +78,14 @@ const UserDashboardNavbar = () => {
             <Link to="/dashboard/settings" className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium" onClick={() => setIsMenuOpen(false)}>
               {t('dashboard.settings')}
             </Link>
-            <div className="px-3 py-2">
+            <div className="px-3 py-2 z-40">
               <LanguageSwitcher />
             </div>
           </div>
-        </nav>}
-    </header>;
+        </nav>
+      )}
+    </header>
+  );
 };
+
 export default UserDashboardNavbar;

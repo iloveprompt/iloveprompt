@@ -65,7 +65,9 @@ const Navbar = () => {
 
   // We only show dashboard button for authenticated users who are not already in the dashboard
   const showDashboardButton = isAuthenticated && !isInDashboard;
-  return <header className={`sticky-menu ${isScrolled ? 'scrolled' : ''}`}>
+  
+  return (
+    <header className={`sticky-menu ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
@@ -74,119 +76,161 @@ const Navbar = () => {
             </Link>
           </div>
           
-          {/* Desktop Navigation - Melhorado o contraste dos links */}
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link to="/" className="text-pureWhite hover:text-aquaGreen font-medium transition-colors">{t('common.home')}</Link>
             <a href="/#pricing-section" className="text-pureWhite hover:text-aquaGreen font-medium transition-colors">{t('common.pricing')}</a>
             <a href="/#features-section" className="text-pureWhite hover:text-aquaGreen font-medium transition-colors">{t('common.features')}</a>
             <div className="flex items-center space-x-4">
-              <LanguageSwitcher />
+              <div className="z-40">
+                <LanguageSwitcher />
+              </div>
               
-              {showDashboardButton && <Button style={{
-              backgroundColor: colors.blue[600]
-            }} className="text-white hover:bg-opacity-90 flex items-center gap-2" onClick={handleDashboardClick}>
+              {showDashboardButton && (
+                <Button 
+                  style={{ backgroundColor: colors.blue[600] }} 
+                  className="text-white hover:bg-opacity-90 flex items-center gap-2" 
+                  onClick={handleDashboardClick}
+                >
                   <LayoutDashboard className="h-4 w-4" />
                   Dashboard
-                </Button>}
+                </Button>
+              )}
               
-              {isAuthenticated && <Button variant="outline" className="border-red-500 text-red-700 hover:bg-red-50" onClick={handleSignOut}>
+              {isAuthenticated && (
+                <Button 
+                  variant="outline" 
+                  className="border-red-500 text-red-700 hover:bg-red-50" 
+                  onClick={handleSignOut}
+                >
                   <LogOut className="h-4 w-4 mr-2" /> {t('common.logout')}
-                </Button>}
+                </Button>
+              )}
               
-              {showAuthButtons && <>
+              {showAuthButtons && (
+                <>
                   <Link to="/login">
-                    <Button variant="outline" className="border-blue-500 text-blue-700 hover:bg-blue-50" style={{
-                  borderColor: colors.blue[500],
-                  color: colors.blue[700]
-                }}>
+                    <Button 
+                      variant="outline" 
+                      className="border-blue-500 text-blue-700 hover:bg-blue-50" 
+                      style={{ borderColor: colors.blue[500], color: colors.blue[700] }}
+                    >
                       {t('common.login')}
                     </Button>
                   </Link>
                   <Link to="/register">
-                    <Button style={{
-                  backgroundColor: colors.blue[600]
-                }} className="text-white hover:bg-blue-700">
+                    <Button 
+                      style={{ backgroundColor: colors.blue[600] }} 
+                      className="text-white hover:bg-blue-700"
+                    >
                       {t('common.startFree')}
                     </Button>
                   </Link>
-                </>}
+                </>
+              )}
             </div>
           </nav>
           
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center space-x-2">
-            <LanguageSwitcher />
-            <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-pureWhite focus:outline-none">
+            <div className="z-40">
+              <LanguageSwitcher />
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setIsMenuOpen(!isMenuOpen)} 
+              className="text-pureWhite focus:outline-none"
+            >
               {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
         </div>
       </div>
       
-      {/* Mobile Navigation - melhorado com animação e melhor UX e contraste */}
-      <div className={`md:hidden bg-darkBg shadow-lg mobile-menu-container ${isMenuOpen ? 'open' : ''}`} aria-expanded={isMenuOpen}>
+      {/* Mobile Navigation */}
+      <div 
+        className={`md:hidden bg-darkBg shadow-lg mobile-menu-container ${isMenuOpen ? 'open' : ''}`} 
+        aria-expanded={isMenuOpen}
+      >
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
           <Link to="/" onClick={() => setIsMenuOpen(false)} className="block px-3 py-2 text-pureWhite hover:bg-electricBlue/30 rounded-md transition-colors font-medium">
             {t('common.home')}
           </Link>
-          <a href="/#pricing-section" className="block px-3 py-2 text-pureWhite hover:bg-electricBlue/30 rounded-md transition-colors font-medium" onClick={e => {
-          setIsMenuOpen(false);
-          if (location.pathname === '/') {
-            e.preventDefault();
-            document.getElementById('pricing-section')?.scrollIntoView({
-              behavior: 'smooth'
-            });
-          }
-        }}>
+          <a 
+            href="/#pricing-section" 
+            className="block px-3 py-2 text-pureWhite hover:bg-electricBlue/30 rounded-md transition-colors font-medium" 
+            onClick={e => {
+              setIsMenuOpen(false);
+              if (location.pathname === '/') {
+                e.preventDefault();
+                document.getElementById('pricing-section')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
             {t('common.pricing')}
           </a>
-          <a href="/#features-section" className="block px-3 py-2 text-pureWhite hover:bg-electricBlue/30 rounded-md transition-colors font-medium" onClick={e => {
-          setIsMenuOpen(false);
-          if (location.pathname === '/') {
-            e.preventDefault();
-            document.getElementById('features-section')?.scrollIntoView({
-              behavior: 'smooth'
-            });
-          }
-        }}>
+          <a 
+            href="/#features-section" 
+            className="block px-3 py-2 text-pureWhite hover:bg-electricBlue/30 rounded-md transition-colors font-medium" 
+            onClick={e => {
+              setIsMenuOpen(false);
+              if (location.pathname === '/') {
+                e.preventDefault();
+                document.getElementById('features-section')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
             {t('common.features')}
           </a>
           <div className="flex flex-col space-y-2 px-3 pt-4">
-            {showDashboardButton && <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
-                <Button className="w-full text-white" style={{
-              backgroundColor: colors.blue[600]
-            }}>
+            {showDashboardButton && (
+              <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                <Button className="w-full text-white" style={{ backgroundColor: colors.blue[600] }}>
                   <LayoutDashboard className="h-4 w-4 mr-2" /> Dashboard
                 </Button>
-              </Link>}
+              </Link>
+            )}
             
-            {showAuthButtons && <>
+            {showAuthButtons && (
+              <>
                 <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                  <Button variant="outline" className="w-full border-blue-500 text-blue-700" style={{
-                borderColor: colors.blue[500],
-                color: colors.blue[700]
-              }}>
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-blue-500 text-blue-700" 
+                    style={{ borderColor: colors.blue[500], color: colors.blue[700] }}
+                  >
                     {t('common.login')}
                   </Button>
                 </Link>
                 <Link to="/register" onClick={() => setIsMenuOpen(false)}>
-                  <Button className="w-full text-white" style={{
-                backgroundColor: colors.blue[600]
-              }}>
+                  <Button 
+                    className="w-full text-white" 
+                    style={{ backgroundColor: colors.blue[600] }}
+                  >
                     {t('common.startFree')}
                   </Button>
                 </Link>
-              </>}
+              </>
+            )}
             
-            {isAuthenticated && <Button variant="outline" className="w-full border-red-500 text-red-700" onClick={() => {
-            handleSignOut();
-            setIsMenuOpen(false);
-          }}>
+            {isAuthenticated && (
+              <Button 
+                variant="outline" 
+                className="w-full border-red-500 text-red-700" 
+                onClick={() => {
+                  handleSignOut();
+                  setIsMenuOpen(false);
+                }}
+              >
                 <LogOut className="h-4 w-4 mr-2" /> {t('common.logout')}
-              </Button>}
+              </Button>
+            )}
           </div>
         </div>
       </div>
-    </header>;
+    </header>
+  );
 };
+
 export default Navbar;
