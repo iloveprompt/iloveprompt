@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -190,7 +191,7 @@ const Index = () => {
             <FeatureCard title={t('features.feature3.title')} description={t('features.feature3.description')} icon={<Zap className="h-6 w-6" />} delay="delay-300" />
           </div>
           
-          {/* Links para plataformas de vibe coding - Updated with new logos */}
+          {/* Links para plataformas de vibe coding - Using original logos */}
           <div className="mt-16 bg-darkBg/50 p-6 rounded-xl border border-electricBlue/20 backdrop-blur-md shadow-xl">
             <h3 className="text-xl font-bold mb-4 text-pureWhite text-center">Compatível com as melhores plataformas de vibe coding</h3>
             <div className="flex flex-wrap justify-center gap-6 items-center">
@@ -380,7 +381,7 @@ const Index = () => {
                 </SimpleButton>
               </Link>
               
-              {/* Logos das plataformas como rodapé do CTA - Updated with new logos */}
+              {/* Logos das plataformas como rodapé do CTA - Using original logos */}
               <div className="flex flex-wrap justify-center gap-4 mt-8 pt-8 border-t border-neonPurple/20">
                 <div className="flex items-center gap-2">
                   <span className="text-aquaGreen/80 text-sm">Compatível com:</span>
