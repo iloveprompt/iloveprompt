@@ -134,9 +134,9 @@ const Index = () => {
                 </div>
                 <div className="flex flex-col gap-4 mt-4">
                   <div className="flex flex-wrap justify-center gap-4 items-center">
-                    <pre className="text-[10px] font-mono whitespace-pre-wrap">
+                    {/*<pre className="text-[10px] font-mono whitespace-pre-wrap">
                     <code className="text-aquaGreen">Compatível com : </code>
-                    </pre>
+                    </pre>*/}
                       <a href="https://lovable.dev/" target="_blank" rel="noopener noreferrer">
                       <img src="/lovable-uploads/1afc2e55-681b-40b7-9384-7675460432fe.png" alt="Lovable" className="h-5 w-auto" />
                       </a>
