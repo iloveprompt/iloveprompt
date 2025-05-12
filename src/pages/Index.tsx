@@ -122,12 +122,11 @@ const Index = () => {
                     <img src="/lovable-uploads/23ab6142-d115-41c6-b4c1-f85407e0007f.png" alt="V0" className="h-6" />
                   </div>
                   <pre className="text-sm font-mono whitespace-pre-wrap">
+                  <code className="text-aquaGreen">// Nosso sistema gera prompts inteligentes e personalizados</code>
                     <br /> 
-                  <code className="text-aquaGreen"># Nosso sistema gera prompts inteligentes e personalizados</code>
-                    <br /> 
-                  <code className="text-aquaGreen">## Ajustados ao seu fluxo de desenvolvimento </code>
+                  <code className="text-aquaGreen">// Ajustados ao seu fluxo de desenvolvimento </code>
                      <br />
-                  <code className="text-aquaGreen">## E ao estilo único das ferramentas de vibe coding.</code>
+                  <code className="text-aquaGreen">// E ao estilo único das ferramentas de vibe coding.</code>
                     <br />
                   </pre>
                 </div>
