@@ -180,7 +180,7 @@ const Index = () => {
                       <img src="/lovable-uploads/23ab6142-d115-41c6-b4c1-f85407e0007f.png" alt="V0" className="h-5 w-auto" />
                       </a>
                   </div>
-                </div>*/}
+                 </div>*/}
               </div>
             </div>
           </div>
@@ -340,7 +340,7 @@ const Index = () => {
                   <p className="text-sm text-neonPurple/80">Lead Engineer em <span className="text-electricBlue">V0</span></p>
                 </div>
               </div>
-              <p className="text-neonPurple/90 italic">
+              <p className="text-aquaGreen/90 italic">
                 {t('socialProof.testimonial3')}
               </p>
             </div>
