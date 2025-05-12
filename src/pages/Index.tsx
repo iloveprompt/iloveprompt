@@ -134,7 +134,7 @@ const Index = () => {
                 </div>
                 <div className="flex flex-col gap-4 mt-4">
                   <div className="flex flex-wrap justify-center gap-4 items-center">
-                    <code className="text-aquaGreen" text-sm>// Compatível com : </code>
+                    <code className="text-aquaGreen" text-[8px]>// Compatível com : </code>
                     <img src="/lovable-uploads/1afc2e55-681b-40b7-9384-7675460432fe.png" alt="Lovable" className="h-6" />
                     <img src="/lovable-uploads/72419187-c10f-411e-ba5a-301f61f4df3b.png" alt="Tempo Labs" className="h-6" />
                     <img src="/lovable-uploads/2f740ebf-bd1a-4c0b-b388-831f90482726.png" alt="Bolt" className="h-6" />
