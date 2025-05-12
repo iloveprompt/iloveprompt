@@ -241,7 +241,7 @@
   transform: translateY(0);
 }
 
-/* Melhorias para mobile */
+/* Mobile menu styles - fixed and full width/height */
 @media (max-width: 768px) {
   .mobile-menu-container {
     max-height: 0;
@@ -252,6 +252,12 @@
   
   .mobile-menu-container.open {
     max-height: 500px;
+  }
+  
+  .sticky-menu .mobile-menu {
+    width: 100vw;
+    left: 0;
+    right: 0;
   }
 }
 
