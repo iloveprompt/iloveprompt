@@ -79,13 +79,20 @@ const PromptGeneratorWizard: React.FC = () => {
     }
   }, []);
 
-  const handleStepChange = (step: number) => {
-    setCurrentStep(step);
+  // Fixed: Updated the handleStepChange function to match the expected type
+  const handleStepChange = () => {
+    // We can't use the step parameter directly since it doesn't match the type
+    // Instead, we'll update the currentStep state inside navigation component
   };
 
   const config = {
     navigation: {
-      component: ({ position, navigation }) => {
+      component: ({ position, navigation }: { position: any; navigation: any }) => {
+        // Update currentStep whenever the navigation changes
+        React.useEffect(() => {
+          setCurrentStep(position.index);
+        }, [position.index]);
+        
         return (
           <div className="hidden">
             {position.index > 0 && (
