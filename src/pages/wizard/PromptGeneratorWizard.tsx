@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback } from 'react';
-import { Step, Steps } from "react-step-builder";
+import { Steps } from "react-step-builder";
 import { toast } from "@/components/ui/use-toast";
 import { useLanguage } from '@/i18n/LanguageContext';
 import WelcomeStep from './steps/WelcomeStep';
@@ -22,6 +22,7 @@ const PromptGeneratorWizard: React.FC = () => {
   const [formData, setFormData] = useState<any>({});
   const [finalized, setFinalized] = useState<FinalizedSteps>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
 
   const updateFormData = (data: any) => {
     setFormData(prev => ({ ...prev, ...data }));
@@ -78,6 +79,10 @@ const PromptGeneratorWizard: React.FC = () => {
     }
   }, []);
 
+  const handleStepChange = (step: number) => {
+    setCurrentStep(step);
+  };
+
   const config = {
     navigation: {
       component: ({ position, navigation }) => {
@@ -92,7 +97,8 @@ const PromptGeneratorWizard: React.FC = () => {
           </div>
         );
       }
-    }
+    },
+    onStepChange: handleStepChange
   };
 
   const UXUIStepComponent = () => {
@@ -120,50 +126,42 @@ const PromptGeneratorWizard: React.FC = () => {
       )}
       <div className="max-w-5xl mx-auto">
         <Steps {...config}>
-          <Step component={WelcomeStep} />
-          <Step component={() => (
-            <ProjectDetailsStep
-              formData={formData}
-              updateFormData={updateFormData}
-              markAsFinalized={() => markAsFinalized("ProjectDetails")}
-              resetStep={() => resetStep("ProjectDetails")}
-              isFinalized={finalized.ProjectDetails}
-              onNext={handleNextStep}
-              onPrev={handlePreviousStep}
-              handleSaveProgress={handleSaveProgress}
-            />
-          )} />
-          <Step component={() => (
-            <FeatureSelectionStep
-              formData={formData}
-              updateFormData={updateFormData}
-              markAsFinalized={() => markAsFinalized("FeatureSelection")}
-              resetStep={() => resetStep("FeatureSelection")}
-              isFinalized={finalized.FeatureSelection}
-              onNext={handleNextStep}
-              onPrev={handlePreviousStep}
-              handleSaveProgress={handleSaveProgress}
-            />
-          )} />
-          <Step component={UXUIStepComponent} />
-          <Step component={() => (
-            <IntegrationsStep
-              formData={formData}
-              updateFormData={updateFormData}
-              markAsFinalized={() => markAsFinalized("Integrations")}
-              resetStep={() => resetStep("Integrations")}
-              isFinalized={finalized.Integrations}
-              onNext={handleNextStep}
-              onPrev={handlePreviousStep}
-              handleSaveProgress={handleSaveProgress}
-            />
-          )} />
-          <Step component={() => (
-            <ReviewAndGenerateStep
-              formData={formData}
-              handleSaveProgress={handleSaveProgress}
-            />
-          )} />
+          <WelcomeStep />
+          <ProjectDetailsStep
+            formData={formData}
+            updateFormData={updateFormData}
+            markAsFinalized={() => markAsFinalized("ProjectDetails")}
+            resetStep={() => resetStep("ProjectDetails")}
+            isFinalized={finalized.ProjectDetails}
+            onNext={handleNextStep}
+            onPrev={handlePreviousStep}
+            handleSaveProgress={handleSaveProgress}
+          />
+          <FeatureSelectionStep
+            formData={formData}
+            updateFormData={updateFormData}
+            markAsFinalized={() => markAsFinalized("FeatureSelection")}
+            resetStep={() => resetStep("FeatureSelection")}
+            isFinalized={finalized.FeatureSelection}
+            onNext={handleNextStep}
+            onPrev={handlePreviousStep}
+            handleSaveProgress={handleSaveProgress}
+          />
+          <UXUIStepComponent />
+          <IntegrationsStep
+            formData={formData}
+            updateFormData={updateFormData}
+            markAsFinalized={() => markAsFinalized("Integrations")}
+            resetStep={() => resetStep("Integrations")}
+            isFinalized={finalized.Integrations}
+            onNext={handleNextStep}
+            onPrev={handlePreviousStep}
+            handleSaveProgress={handleSaveProgress}
+          />
+          <ReviewAndGenerateStep
+            formData={formData}
+            handleSaveProgress={handleSaveProgress}
+          />
         </Steps>
       </div>
     </div>
