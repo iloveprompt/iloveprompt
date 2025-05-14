@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { CheckboxItem } from '@/components/CheckboxItem';
-import { RadioSpecifyItem } from '@/components/RadioSpecifyItem';
-import { toast } from "sonner";
+import RadioSpecifyItem from '@/components/RadioSpecifyItem';
+import { toast } from "@/components/ui/use-toast";
 import { useLanguage } from '@/i18n/LanguageContext';
 import { ColorPicker } from '../components/ColorPicker';
 import uxuiData from '../data/uxuiData.json';
-import { AIAssistantPanel } from '../components/AIAssistantPanel';
+import AIAssistantPanel from '../components/AIAssistantPanel';
 
 interface UXUIStepProps {
   onNext: () => void;
@@ -15,14 +15,22 @@ interface UXUIStepProps {
   formData: any;
   setFormData: React.Dispatch<React.SetStateAction<any>>;
   handleSaveProgress: () => void;
+  updateFormData: (data: any) => void;
+  markAsFinalized: () => void;
+  resetStep: () => void;
+  isFinalized: boolean;
 }
 
-const UXUIStep: React.FC<UXUIStepProps> = ({ 
-  onNext, 
-  onPrev, 
-  formData, 
-  setFormData, 
-  handleSaveProgress 
+const UXUIStep: React.FC<UXUIStepProps> = ({
+  onNext,
+  onPrev,
+  formData,
+  setFormData,
+  handleSaveProgress,
+  updateFormData,
+  markAsFinalized,
+  resetStep,
+  isFinalized
 }) => {
   const { language } = useLanguage();
   const { register, handleSubmit, setValue, watch } = useForm({
@@ -59,8 +67,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
   const landingStyleOptions = uxuiData.filter(item => item.category === 'landingStyle');
 
   const onSubmit = (data: any) => {
-    setFormData((prev: any) => ({
-      ...prev,
+    updateFormData({
       visualStyle: data.visualStyle,
       menuType: data.menuType,
       auth: data.auth,
@@ -74,7 +81,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
       textColor: data.textColor,
       backgroundColor: data.backgroundColor,
       otherUXUIRequirements: data.otherUXUIRequirements,
-    }));
+    });
     
     handleSaveProgress();
     onNext();
@@ -86,8 +93,10 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
   };
 
   const handleColorSelect = (color: string) => {
-    setValue(activeColorField, color);
-    setIsColorPickerOpen({ value: false, selectedOptions: [] });
+    if (activeColorField && Object.keys(watch()).includes(activeColorField)) {
+      setValue(activeColorField as any, color);
+      setIsColorPickerOpen({ value: false, selectedOptions: [] });
+    }
   };
 
   const getFaqPrompt = () => {
@@ -97,7 +106,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
       es: "¿Cómo puedo mejorar la experiencia de usuario de mi aplicación?"
     };
     
-    return promptTexts[language] || promptTexts.en;
+    return promptTexts[language as keyof typeof promptTexts] || promptTexts.en;
   };
 
   return (
@@ -121,9 +130,14 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                     key={option.id}
                     id={option.id}
                     label={option.label}
-                    description={option.description}
-                    register={register}
-                    name="visualStyle"
+                    checked={watch('visualStyle')?.includes(option.id)}
+                    onCheckedChange={(checked) => {
+                      const current = watch('visualStyle') || [];
+                      setValue('visualStyle', checked 
+                        ? [...current, option.id]
+                        : current.filter((id: string) => id !== option.id)
+                      );
+                    }}
                   />
                 ))}
               </div>
@@ -140,9 +154,14 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                     key={option.id}
                     id={option.id}
                     label={option.label}
-                    description={option.description}
-                    register={register}
-                    name="menuType"
+                    checked={watch('menuType')?.includes(option.id)}
+                    onCheckedChange={(checked) => {
+                      const current = watch('menuType') || [];
+                      setValue('menuType', checked 
+                        ? [...current, option.id]
+                        : current.filter((id: string) => id !== option.id)
+                      );
+                    }}
                   />
                 ))}
               </div>
@@ -159,9 +178,14 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                     key={option.id}
                     id={option.id}
                     label={option.label}
-                    description={option.description}
-                    register={register}
-                    name="auth"
+                    checked={watch('auth')?.includes(option.id)}
+                    onCheckedChange={(checked) => {
+                      const current = watch('auth') || [];
+                      setValue('auth', checked 
+                        ? [...current, option.id]
+                        : current.filter((id: string) => id !== option.id)
+                      );
+                    }}
                   />
                 ))}
               </div>
@@ -178,9 +202,14 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                     key={option.id}
                     id={option.id}
                     label={option.label}
-                    description={option.description}
-                    register={register}
-                    name="dashboardFeatures"
+                    checked={watch('dashboardFeatures')?.includes(option.id)}
+                    onCheckedChange={(checked) => {
+                      const current = watch('dashboardFeatures') || [];
+                      setValue('dashboardFeatures', checked 
+                        ? [...current, option.id]
+                        : current.filter((id: string) => id !== option.id)
+                      );
+                    }}
                   />
                 ))}
               </div>
@@ -197,9 +226,14 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                     key={option.id}
                     id={option.id}
                     label={option.label}
-                    description={option.description}
-                    register={register}
-                    name="landingStructure"
+                    checked={watch('landingStructure')?.includes(option.id)}
+                    onCheckedChange={(checked) => {
+                      const current = watch('landingStructure') || [];
+                      setValue('landingStructure', checked 
+                        ? [...current, option.id]
+                        : current.filter((id: string) => id !== option.id)
+                      );
+                    }}
                   />
                 ))}
               </div>
@@ -216,9 +250,14 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                     key={option.id}
                     id={option.id}
                     label={option.label}
-                    description={option.description}
-                    register={register}
-                    name="landingElements"
+                    checked={watch('landingElements')?.includes(option.id)}
+                    onCheckedChange={(checked) => {
+                      const current = watch('landingElements') || [];
+                      setValue('landingElements', checked 
+                        ? [...current, option.id]
+                        : current.filter((id: string) => id !== option.id)
+                      );
+                    }}
                   />
                 ))}
               </div>
@@ -234,12 +273,12 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                   <RadioSpecifyItem
                     key={option.id}
                     id={option.id}
+                    value={option.id}
                     label={option.label}
-                    description={option.description}
-                    register={register}
-                    name="landingStyle"
-                    setValue={setValue}
-                    watch={watch}
+                    groupValue={watch('landingStyle') || ''}
+                    specifyValue={''}
+                    onValueChange={(value) => setValue('landingStyle', value)}
+                    onSpecifyValueChange={() => {}}
                   />
                 ))}
               </div>
@@ -331,7 +370,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                        language === 'es' ? 'Elija un color' : 'Choose a color'}
                     </h4>
                     <ColorPicker 
-                      currentColor={watch(activeColorField)} 
+                      currentColor={watch(activeColorField as any)} 
                       onColorSelect={handleColorSelect}
                       onClose={() => setIsColorPickerOpen({ value: false, selectedOptions: [] })}
                     />
@@ -365,10 +404,30 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                 {language === 'pt' ? 'Anterior' : 
                  language === 'es' ? 'Anterior' : 'Previous'}
               </button>
-              <div>
+              <div className="space-x-2">
+                {!isFinalized && (
+                  <button
+                    type="button"
+                    onClick={markAsFinalized}
+                    className="px-4 py-2 border border-transparent rounded shadow-sm bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  >
+                    {language === 'pt' ? 'Finalizar' : 
+                      language === 'es' ? 'Finalizar' : 'Finalize'}
+                  </button>
+                )}
+                {isFinalized && (
+                  <button
+                    type="button"
+                    onClick={resetStep}
+                    className="px-4 py-2 border border-transparent rounded shadow-sm bg-amber-600 text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                  >
+                    {language === 'pt' ? 'Resetar' : 
+                      language === 'es' ? 'Reiniciar' : 'Reset'}
+                  </button>
+                )}
                 <button
                   type="submit"
-                  className="ml-3 px-4 py-2 border border-transparent rounded shadow-sm bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="px-4 py-2 border border-transparent rounded shadow-sm bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   {language === 'pt' ? 'Próximo' : 
                    language === 'es' ? 'Siguiente' : 'Next'}

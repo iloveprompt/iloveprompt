@@ -1,104 +1,71 @@
 
 import React from 'react';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { HexColorPicker } from 'react-colorful';
+import { Button } from '@/components/ui/button';
+import { X } from 'lucide-react';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 interface ColorPickerProps {
-  value: string;
-  onChange: (color: string) => void;
-  className?: string;
+  currentColor: string;
+  onColorSelect: (color: string) => void;
+  onClose: () => void;
 }
 
-interface ColorSwatchProps {
-  color: string;
-  label: string;
-  selected: boolean;
-  onToggle: (selected: boolean) => void;
-}
-
-const ColorPicker: React.FC<ColorPickerProps> = ({ value, onChange, className }) => {
-  return (
-    <div className={`flex ${className}`}>
-      <div 
-        className="w-10 h-10 border rounded-l-md flex-shrink-0" 
-        style={{ backgroundColor: value || '#fff' }}
-      />
-      <Input
-        type="color"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-10 w-full rounded-l-none"
-      />
-    </div>
-  );
-};
-
-export const ColorSwatch: React.FC<ColorSwatchProps> = ({ color, label, selected, onToggle }) => {
-  return (
-    <button
-      type="button"
-      onClick={() => onToggle(!selected)}
-      className={cn(
-        "flex items-center space-x-2 p-2 rounded-md border transition-all",
-        selected ? "border-primary bg-primary/10" : "border-gray-200 hover:border-gray-300"
-      )}
-    >
-      <div
-        className="w-6 h-6 rounded-full border"
-        style={{ backgroundColor: color }}
-      />
-      <span className="text-sm">{label}</span>
-      {selected && (
-        <span className="ml-auto">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="text-primary"
-          >
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        </span>
-      )}
-    </button>
-  );
-};
-
-export const HexColorPicker: React.FC<{ color: string; onChange: (color: string) => void }> = ({ color, onChange }) => {
-  // A simplified color picker with some preset colors
-  const presetColors = [
-    '#FF0000', '#FF7F00', '#FFFF00', '#00FF00', 
-    '#0000FF', '#4B0082', '#9400D3', '#000000', 
-    '#FFFFFF', '#808080', '#A52A2A', '#FFC0CB'
-  ];
+export const ColorPicker: React.FC<ColorPickerProps> = ({ 
+  currentColor, 
+  onColorSelect,
+  onClose 
+}) => {
+  const { t, language } = useLanguage();
+  const [color, setColor] = React.useState(currentColor || '#000000');
+  
+  const handleColorChange = (newColor: string) => {
+    setColor(newColor);
+  };
+  
+  const handleConfirm = () => {
+    onColorSelect(color);
+  };
   
   return (
-    <div className="p-3">
-      <Input
-        type="color"
-        value={color}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full h-10 mb-3"
-      />
-      <div className="grid grid-cols-4 gap-2 mt-2">
-        {presetColors.map((presetColor) => (
-          <button
-            key={presetColor}
-            type="button"
-            className="w-8 h-8 rounded-full border border-gray-200"
-            style={{ backgroundColor: presetColor }}
-            onClick={() => onChange(presetColor)}
+    <div className="color-picker-container">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-medium">
+          {language === 'pt' ? 'Selecione uma Cor' : 
+           language === 'es' ? 'Seleccione un Color' : 'Select a Color'}
+        </h3>
+        <Button variant="ghost" size="icon" onClick={onClose}>
+          <X className="h-5 w-5" />
+        </Button>
+      </div>
+      
+      <div className="flex flex-col items-center space-y-4">
+        <HexColorPicker color={color} onChange={handleColorChange} />
+        
+        <div className="flex items-center space-x-2 w-full">
+          <div 
+            className="w-10 h-10 rounded-md border border-gray-300"
+            style={{ backgroundColor: color }}
           />
-        ))}
+          <input
+            type="text"
+            value={color}
+            onChange={(e) => handleColorChange(e.target.value)}
+            className="flex-1 border rounded-md px-3 py-1"
+          />
+        </div>
+        
+        <div className="flex justify-end space-x-2 w-full">
+          <Button variant="outline" onClick={onClose}>
+            {language === 'pt' ? 'Cancelar' : 
+             language === 'es' ? 'Cancelar' : 'Cancel'}
+          </Button>
+          <Button onClick={handleConfirm}>
+            {language === 'pt' ? 'Confirmar' : 
+             language === 'es' ? 'Confirmar' : 'Confirm'}
+          </Button>
+        </div>
       </div>
     </div>
   );
 };
-
-export default ColorPicker;
