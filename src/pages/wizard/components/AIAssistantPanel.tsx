@@ -1,9 +1,11 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Wand2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Wand2, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { enhancePrompt } from '@/services/llmService';
+import { toast } from '@/hooks/use-toast';
 
 interface AIAssistantPanelProps {
   open: boolean;
@@ -21,6 +23,7 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
   const [input, setInput] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   // Obter nome do usuário logado
   const { user } = useAuth();
@@ -41,6 +44,7 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
         },
       ]);
       setInput('');
+      setHasError(false);
     }
   }, [selectedItem, userName]);
 
@@ -55,19 +59,38 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
     const item = items.find(i => i.id === id);
     setChatMessages([]); // Limpa o chat ao selecionar novo item
     setLoading(true);
+    setHasError(false);
+    
     try {
       // Envia o label/descrição do item como primeira pergunta para a LLM
       const pergunta = item?.label + (item?.description ? (': ' + item.description) : '');
-      const resposta = await enhancePrompt(pergunta, user?.id);
-      setChatMessages([
-        { sender: 'user', text: pergunta },
-        { sender: 'ia', text: resposta },
-        { sender: 'ia', text: 'Como posso ajudar?' }
-      ]);
+      
+      try {
+        const resposta = await enhancePrompt(pergunta, user?.id);
+        setChatMessages([
+          { sender: 'user', text: pergunta },
+          { sender: 'ia', text: resposta },
+          { sender: 'ia', text: 'Como posso ajudar?' }
+        ]);
+      } catch (err: any) {
+        console.error('Error during enhancePrompt:', err);
+        setHasError(true);
+        setChatMessages([
+          { sender: 'user', text: pergunta },
+          { sender: 'ia', text: 'Erro ao obter resposta da IA. Tente novamente.' }
+        ]);
+        toast({
+          title: "Erro na Assistente de IA",
+          description: "Não foi possível conectar ao serviço de IA. Verifique sua conexão e tente novamente.",
+          variant: "destructive"
+        });
+      }
     } catch (err: any) {
+      console.error('General error in handleSelect:', err);
+      setHasError(true);
       setChatMessages([
         { sender: 'user', text: item?.label || '' },
-        { sender: 'ia', text: 'Erro ao obter resposta da IA. Tente novamente.' }
+        { sender: 'ia', text: 'Erro ao processar sua solicitação. Tente novamente.' }
       ]);
     } finally {
       setLoading(false);
@@ -79,30 +102,74 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
     setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1));
     setSelectedItem(null);
   };
+  
   const goToPrevPage = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 0));
     setSelectedItem(null);
   };
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || loading) return;
+    
+    const userMessage = input;
     setChatMessages((msgs) => [
       ...msgs,
-      { sender: 'user', text: input },
+      { sender: 'user', text: userMessage },
     ]);
     setInput('');
     setLoading(true);
+    setHasError(false);
+    
     try {
-      const resposta = await enhancePrompt(input, user?.id);
+      const resposta = await enhancePrompt(userMessage, user?.id);
       setChatMessages((msgs) => [
         ...msgs,
         { sender: 'ia', text: resposta }
       ]);
     } catch (err: any) {
+      console.error('Error during handleSend:', err);
+      setHasError(true);
       setChatMessages((msgs) => [
         ...msgs,
         { sender: 'ia', text: 'Erro ao obter resposta da IA. Tente novamente.' }
       ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const retryLastMessage = async () => {
+    if (loading) return;
+    
+    // Find the last user message
+    const lastUserMessageIndex = [...chatMessages].reverse().findIndex(msg => msg.sender === 'user');
+    
+    if (lastUserMessageIndex === -1) return;
+    
+    const lastUserMessage = chatMessages[chatMessages.length - 1 - lastUserMessageIndex];
+    setLoading(true);
+    setHasError(false);
+    
+    try {
+      const resposta = await enhancePrompt(lastUserMessage.text, user?.id);
+      // Remove last error message and add the new response
+      setChatMessages((msgs) => {
+        const newMsgs = [...msgs];
+        // If last message is an error message, replace it
+        if (newMsgs.length > 0 && newMsgs[newMsgs.length - 1].sender === 'ia' && 
+            newMsgs[newMsgs.length - 1].text.includes('Erro')) {
+          newMsgs.pop();
+        }
+        return [...newMsgs, { sender: 'ia', text: resposta }];
+      });
+    } catch (err: any) {
+      console.error('Error during retry:', err);
+      setHasError(true);
+      toast({
+        title: "Erro ao tentar novamente",
+        description: "Não foi possível obter resposta da IA. Verifique as configurações da API.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -158,6 +225,19 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
                   </div>
                 </div>
               ))}
+              {hasError && (
+                <div className="flex justify-center my-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={retryLastMessage} 
+                    className="text-xs flex items-center gap-1"
+                    disabled={loading}
+                  >
+                    Tentar novamente <AlertCircle className="h-3 w-3 ml-1" />
+                  </Button>
+                </div>
+              )}
               <div ref={chatEndRef} />
             </div>
             <form
@@ -176,7 +256,9 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
                 style={{ minHeight: 48 }}
                 disabled={loading}
               />
-              <Button type="submit" variant="default" className="px-4 h-auto" disabled={loading}>{loading ? 'Enviando...' : 'Enviar'}</Button>
+              <Button type="submit" variant="default" className="px-4 h-auto" disabled={loading || !input.trim()}>
+                {loading ? 'Enviando...' : 'Enviar'}
+              </Button>
             </form>
             <div className="flex justify-end mt-1">
               <Button variant="ghost" size="sm" onClick={() => setSelectedItem(null)}>
@@ -190,4 +272,4 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
   );
 };
 
-export default AIAssistantPanel; 
+export default AIAssistantPanel;
