@@ -46,7 +46,7 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
       setInput('');
       setHasError(false);
     }
-  }, [selectedItem, userName]);
+  }, [selectedItem, userName, items]);
 
   useEffect(() => {
     if (chatEndRef.current) {
@@ -66,7 +66,7 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
       const pergunta = item?.label + (item?.description ? (': ' + item.description) : '');
       
       try {
-        const resposta = await enhancePrompt(pergunta, user?.id);
+        const resposta = await enhancePrompt(pergunta, user?.id || '');
         setChatMessages([
           { sender: 'user', text: pergunta },
           { sender: 'ia', text: resposta },
@@ -121,7 +121,7 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
     setHasError(false);
     
     try {
-      const resposta = await enhancePrompt(userMessage, user?.id);
+      const resposta = await enhancePrompt(userMessage, user?.id || '');
       setChatMessages((msgs) => [
         ...msgs,
         { sender: 'ia', text: resposta }
@@ -151,7 +151,7 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
     setHasError(false);
     
     try {
-      const resposta = await enhancePrompt(lastUserMessage.text, user?.id);
+      const resposta = await enhancePrompt(lastUserMessage.text, user?.id || '');
       // Remove last error message and add the new response
       setChatMessages((msgs) => {
         const newMsgs = [...msgs];

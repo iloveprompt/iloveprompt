@@ -44,7 +44,8 @@ export const testConnection = async (apiKey: UserLlmApi): Promise<TestConnection
         // Initialize the Gemini model directly
         try {
           const genAI = new GoogleGenerativeAI(key);
-          const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+          // Usando modelo gemini-1.5-flash em vez de gemini-pro
+          const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
           const prompt = "Hello, this is a test prompt to verify the API connection.";
           // Generate a very short response to minimize usage
           const response = await model.generateContent(prompt);
@@ -142,46 +143,37 @@ const callDeepSeek = async (key: string, payload: any) => {
 // Updated Gemini API call with direct SDK usage and fallback to edge function
 const callGemini = async (key: string, payload: any) => {
   try {
-    // First try using the direct SDK approach
-    try {
-      const genAI = new GoogleGenerativeAI(key);
-      const model = genAI.getGenerativeModel({ model: payload.model || "gemini-pro" });
-      
-      // Extract the prompt from the payload
-      const promptContent = payload.messages?.find((msg: any) => msg.role === 'user')?.content || '';
-      
-      if (!promptContent) {
-        throw new Error('No prompt content found in payload');
-      }
-      
-      const result = await model.generateContent(promptContent);
-      return result.response.text();
-    } catch (directError: any) {
-      console.warn("Direct Gemini API call failed, falling back to edge function:", directError);
-      
-      // Fallback to using the edge function
-      const res = await fetch('https://lmovpaablzagtkedhbtb.functions.supabase.co/gemini', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Origin': window.location.origin
-        },
-        body: JSON.stringify({ 
-          prompt: payload.messages?.[1]?.content || '', 
-          model: payload.model || 'gemini-pro' 
-        })
-      });
-      
-      if (!res.ok) {
-        throw new Error(await res.text());
-      }
-      
-      const data = await res.json();
-      if (data.error) throw new Error(data.error);
-      return data.result;
+    // First try using the edge function approach - skipping direct SDK to simplify
+    console.log("Tentando chamar Gemini via edge function...");
+    
+    const res = await fetch('https://lmovpaablzagtkedhbtb.functions.supabase.co/gemini', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Origin': window.location.origin
+      },
+      body: JSON.stringify({ 
+        prompt: payload.messages?.find((msg: any) => msg.role === 'user')?.content || '', 
+        model: 'gemini-1.5-flash' // Usando modelo atualizado
+      })
+    });
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`Edge function error: ${res.status} - ${errorText}`);
     }
+    
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    console.log("Resposta recebida via edge function");
+    return data.result;
   } catch (error: any) {
-    console.error("All Gemini API approaches failed:", error);
+    console.error("Gemini API via edge function failed:", error);
+    toast({
+      title: "Erro ao chamar Gemini API",
+      description: `${error.message || 'Erro desconhecido'}. Tente novamente mais tarde.`,
+      variant: "destructive"
+    });
     throw new Error(`Falha na comunicação com Gemini: ${error.message || 'Erro desconhecido'}`);
   }
 };
@@ -202,28 +194,50 @@ export const enhancePrompt = async (prompt: string, userId: string): Promise<str
     const systemContent = systemMessage?.content || 'You are a helpful assistant.';
     const provider = activeApiKey.provider;
     const key = activeApiKey.api_key;
-    const requestPayload = {
-      model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
-      messages: [
-        { role: 'system', content: systemContent },
-        { role: 'user', content: `Enhance the following prompt:\n\n${prompt}` }
-      ],
-    };
     
+    // Construindo o prompt para diferentes provedores
     let result = '';
     try {
       switch (provider) {
         case 'openai':
-          result = await callOpenAI(key, requestPayload);
+          const openaiPayload = {
+            model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
+            messages: [
+              { role: 'system', content: systemContent },
+              { role: 'user', content: `Enhance the following prompt:\n\n${prompt}` }
+            ],
+          };
+          result = await callOpenAI(key, openaiPayload);
           break;
         case 'gemini':
-          result = await callGemini(key, requestPayload);
+          const geminiPayload = {
+            model: 'gemini-1.5-flash', // Usando modelo atualizado
+            messages: [
+              { role: 'system', content: systemContent },
+              { role: 'user', content: `Enhance the following prompt:\n\n${prompt}` }
+            ],
+          };
+          result = await callGemini(key, geminiPayload);
           break;
         case 'groq':
-          result = await callGroq(key, requestPayload);
+          const groqPayload = {
+            model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
+            messages: [
+              { role: 'system', content: systemContent },
+              { role: 'user', content: `Enhance the following prompt:\n\n${prompt}` }
+            ],
+          };
+          result = await callGroq(key, groqPayload);
           break;
         case 'deepseek':
-          result = await callDeepSeek(key, requestPayload);
+          const deepseekPayload = {
+            model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
+            messages: [
+              { role: 'system', content: systemContent },
+              { role: 'user', content: `Enhance the following prompt:\n\n${prompt}` }
+            ],
+          };
+          result = await callDeepSeek(key, deepseekPayload);
           break;
         default:
           throw new Error(`Unsupported provider for enhancement: ${provider}`);
@@ -261,28 +275,49 @@ export const generateDiagram = async (promptData: any, userId: string): Promise<
     const provider = activeApiKey.provider;
     const key = activeApiKey.api_key;
     const diagramPrompt = `Based on the following project data, generate a Mermaid flowchart diagram:\n\n${JSON.stringify(promptData, null, 2)}\n\nOutput only the Mermaid syntax within a single code block.`;
-    const requestPayload = {
-      model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
-      messages: [
-        { role: 'system', content: systemContent },
-        { role: 'user', content: diagramPrompt }
-      ],
-    };
     
     let result = '';
     try {
       switch (provider) {
         case 'openai':
-          result = await callOpenAI(key, requestPayload);
+          const openaiPayload = {
+            model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
+            messages: [
+              { role: 'system', content: systemContent },
+              { role: 'user', content: diagramPrompt }
+            ],
+          };
+          result = await callOpenAI(key, openaiPayload);
           break;
         case 'gemini':
-          result = await callGemini(key, requestPayload);
+          const geminiPayload = {
+            model: 'gemini-1.5-flash', // Usando modelo atualizado
+            messages: [
+              { role: 'system', content: systemContent },
+              { role: 'user', content: diagramPrompt }
+            ],
+          };
+          result = await callGemini(key, geminiPayload);
           break;
         case 'groq':
-          result = await callGroq(key, requestPayload);
+          const groqPayload = {
+            model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
+            messages: [
+              { role: 'system', content: systemContent },
+              { role: 'user', content: diagramPrompt }
+            ],
+          };
+          result = await callGroq(key, groqPayload);
           break;
         case 'deepseek':
-          result = await callDeepSeek(key, requestPayload);
+          const deepseekPayload = {
+            model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
+            messages: [
+              { role: 'system', content: systemContent },
+              { role: 'user', content: diagramPrompt }
+            ],
+          };
+          result = await callDeepSeek(key, deepseekPayload);
           break;
         default:
           throw new Error(`Unsupported provider for diagram generation: ${provider}`);
@@ -307,7 +342,7 @@ export const generateDiagram = async (promptData: any, userId: string): Promise<
 const getDefaultModelForProvider = (provider: LlmProvider): string => {
     switch (provider) {
         case 'openai': return 'gpt-3.5-turbo'; // Or latest suitable default
-        case 'gemini': return 'gemini-pro';
+        case 'gemini': return 'gemini-1.5-flash'; // Modelo atualizado
         case 'groq': return 'llama3-8b-8192'; // Example, check Groq for current defaults
         case 'deepseek': return 'deepseek-chat'; // Example, check DeepSeek docs
         default: return 'default-model'; // Should not happen with enum

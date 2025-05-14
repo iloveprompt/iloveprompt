@@ -41,10 +41,14 @@ Deno.serve(async (req: Request) => {
     }
     
     const genAI = new GoogleGenerativeAI(apiKey);
-    const geminiModel = genAI.getGenerativeModel({ model: model || "gemini-pro" });
+    // Usando modelo gemini-1.5-flash em vez de gemini-pro que está causando o erro 404
+    const geminiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    
+    console.log("Enviando prompt para Gemini:", prompt.substring(0, 100) + "...");
     const result = await geminiModel.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
+    console.log("Resposta recebida do Gemini API");
     
     return new Response(JSON.stringify({ result: text }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
