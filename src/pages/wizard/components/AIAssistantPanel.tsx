@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Wand2, ChevronLeft, ChevronRight, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { enhancePrompt } from '@/services/llmService';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/use-toast';
 
 interface AIAssistantPanelProps {
   open: boolean;
@@ -26,6 +26,7 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
   const [loading, setLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [showMultipleSelectionConfirm, setShowMultipleSelectionConfirm] = useState(false);
+  const [showChat, setShowChat] = useState(false);
 
   // Obter nome do usuário logado
   const { user } = useAuth();
@@ -42,6 +43,20 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
       chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [chatMessages]);
+
+  // Reset state when dialog closes
+  useEffect(() => {
+    if (!open) {
+      // Wait a bit before resetting to avoid visual glitches
+      const timer = setTimeout(() => {
+        setShowChat(false);
+        setShowMultipleSelectionConfirm(false);
+        setSelectedItem(null);
+        setChatMessages([]);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [open]);
 
   // Format selected items for display
   const formatSelectedItemsText = () => {
@@ -69,7 +84,6 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
   const handleConfirmSelection = async () => {
     if (selectedItems.length === 0) {
       toast({
-        title: "Nenhum item selecionado",
         description: "Por favor, selecione pelo menos um item para continuar.",
         variant: "destructive"
       });
@@ -95,12 +109,6 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
     const selectedTopicsText = formatSelectedItemsText();
     const topicsMessage = `Vejo que você está interessado em ${selectedTopicsText}. Como posso ajudar com esse tema?`;
     
-    // Add welcome messages to chat
-    setChatMessages([
-      { sender: 'ia', text: welcomeMessage },
-      { sender: 'ia', text: topicsMessage }
-    ]);
-    
     try {
       // Create a detailed prompt with all selected items
       const detailPrompt = `O usuário selecionou os seguintes tópicos: 
@@ -109,20 +117,38 @@ ${selectedItemsDetails.map(item => `- ${item.label}${item.description ? ': ' + i
 Por favor, forneça uma resposta introdutória sobre esses tópicos no contexto de desenvolvimento de software. 
 Sua resposta deve ser em Português, clara, informativa e de 2-3 parágrafos.`;
 
-      const aiResponse = await enhancePrompt(detailPrompt, user?.id || '');
-      
-      // Add AI detailed response
-      setChatMessages(prev => [...prev, { sender: 'ia', text: aiResponse }]);
-    } catch (err: any) {
-      console.error('Error getting initial AI response:', err);
-      setHasError(true);
-      setChatMessages(prev => [
-        ...prev, 
-        { sender: 'ia', text: 'Erro ao obter resposta da IA. Por favor, tente novamente.' }
+      // Add welcome messages to chat before API call
+      setChatMessages([
+        { sender: 'ia', text: welcomeMessage },
+        { sender: 'ia', text: topicsMessage }
       ]);
+
+      // Show chat interface first
+      setShowChat(true);
+      setShowMultipleSelectionConfirm(false);
+
+      try {
+        const aiResponse = await enhancePrompt(detailPrompt, user?.id || '');
+        
+        // Add AI detailed response
+        setChatMessages(prev => [...prev, { sender: 'ia', text: aiResponse }]);
+      } catch (err: any) {
+        console.error('Error getting initial AI response:', err);
+        // Still proceed to chat but show error message
+        setChatMessages(prev => [
+          ...prev, 
+          { sender: 'ia', text: 'Não foi possível obter uma resposta detalhada da IA neste momento, mas você pode continuar a conversa digitando abaixo.' }
+        ]);
+      }
+    } catch (err: any) {
+      console.error('Error during confirmation:', err);
+      toast({
+        description: "Houve um erro ao processar sua seleção. Por favor, tente novamente.",
+        variant: "destructive"
+      });
+      setHasError(true);
     } finally {
       setLoading(false);
-      setShowMultipleSelectionConfirm(false);
     }
   };
 
@@ -192,7 +218,6 @@ Sua resposta deve ser em Português, clara, informativa e de 2-3 parágrafos.`;
       console.error('Error during retry:', err);
       setHasError(true);
       toast({
-        title: "Erro ao tentar novamente",
         description: "Não foi possível obter resposta da IA. Verifique as configurações da API.",
         variant: "destructive"
       });
@@ -200,9 +225,19 @@ Sua resposta deve ser em Português, clara, informativa e de 2-3 parágrafos.`;
       setLoading(false);
     }
   };
+
+  // Reset to selection screen
+  const handleBackToSelection = () => {
+    setSelectedItem(null);
+    setSelectedItems([]);
+    setChatMessages([]);
+    setShowChat(false);
+    setShowMultipleSelectionConfirm(false);
+    setCurrentPage(0);
+  };
   
-  // Main panel content
-  if (!selectedItem && !showMultipleSelectionConfirm) {
+  // Selection Screen
+  if (!showChat && !showMultipleSelectionConfirm) {
     return (
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="max-w-lg w-full">
@@ -257,7 +292,7 @@ Sua resposta deve ser em Português, clara, informativa e de 2-3 parágrafos.`;
   }
   
   // Confirmation screen for multiple selections
-  if (showMultipleSelectionConfirm) {
+  if (showMultipleSelectionConfirm && !showChat) {
     const selectedItemsText = formatSelectedItemsText();
     
     return (
@@ -357,12 +392,7 @@ Sua resposta deve ser em Português, clara, informativa e de 2-3 parágrafos.`;
             </Button>
           </form>
           <div className="flex justify-end mt-1">
-            <Button variant="ghost" size="sm" onClick={() => {
-              setSelectedItem(null);
-              setSelectedItems([]);
-              setChatMessages([]);
-              setShowMultipleSelectionConfirm(false);
-            }}>
+            <Button variant="ghost" size="sm" onClick={handleBackToSelection}>
               Voltar para lista de itens
             </Button>
           </div>

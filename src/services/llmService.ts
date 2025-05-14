@@ -151,7 +151,11 @@ const callEdgeFunction = async (functionName: string, payload: any) => {
     console.log(`Chamando edge function ${functionName}...`, payload);
     
     const response = await supabase.functions.invoke(functionName, {
-      body: payload
+      body: payload,
+      // Adicionando timeout mais longo e opção de retry
+      options: {
+        timeout: 30000 // 30 segundos
+      }
     });
     
     if (response.error) {
@@ -160,15 +164,27 @@ const callEdgeFunction = async (functionName: string, payload: any) => {
     }
     
     console.log(`Resposta da edge function ${functionName}:`, response.data);
-    return response.data.result;
+    return response.data.result || response.data; // Garante que retorna algo mesmo sem o campo result
   } catch (error: any) {
     console.error(`Erro ao chamar edge function ${functionName}:`, error);
+    
+    // Mensagem de erro amigável dependendo do tipo de erro
+    let errorMessage = 'Erro ao comunicar com o serviço de IA.';
+    if (error.message?.includes('non-2xx status code')) {
+      errorMessage = 'O serviço de IA está indisponível no momento. Verifique a configuração da sua chave de API.';
+    } else if (error.message?.includes('timeout')) {
+      errorMessage = 'Tempo limite excedido. O serviço de IA não respondeu a tempo.';
+    } else if (error.message?.includes('API key')) {
+      errorMessage = 'Chave de API inválida ou não configurada para este serviço.';
+    }
+    
     toast({
-      title: `Erro ao chamar serviço de IA`,
-      description: error.message || `Erro ao comunicar com o serviço de IA. Tente novamente mais tarde.`,
+      description: errorMessage,
       variant: "destructive"
     });
-    throw error;
+    
+    // Retorna uma mensagem amigável ao usuário em vez de falhar completamente
+    return 'Não foi possível obter uma resposta da IA. Por favor, verifique suas configurações de API ou tente novamente mais tarde.';
   }
 };
 
@@ -179,7 +195,11 @@ export const enhancePrompt = async (prompt: string, userId: string): Promise<str
   try {
     const activeApiKey = await getActiveApiKey(userId);
     if (!activeApiKey) {
-      throw new Error('Nenhuma chave de API ativa encontrada para o usuário.');
+      toast({
+        description: 'Nenhuma chave de API ativa encontrada. Configure uma chave de API nas configurações.',
+        variant: "destructive"
+      });
+      return 'Para usar este assistente, você precisa configurar uma chave de API válida nas configurações. Acesse o menu Configurações para adicionar sua chave de API.';
     }
     
     console.log(`Usando provedor: ${activeApiKey.provider}`);
@@ -193,6 +213,7 @@ export const enhancePrompt = async (prompt: string, userId: string): Promise<str
     }
     
     const provider = activeApiKey.provider;
+    const model = activeApiKey.models?.[0] || getDefaultModelForProvider(provider);
     
     // Usando edge functions para todas as LLMs
     try {
@@ -200,7 +221,7 @@ export const enhancePrompt = async (prompt: string, userId: string): Promise<str
         case 'openai':
           return await callEdgeFunction('openai', {
             prompt,
-            model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
+            model,
             systemContent
           });
         
@@ -214,14 +235,14 @@ export const enhancePrompt = async (prompt: string, userId: string): Promise<str
         case 'groq':
           return await callEdgeFunction('groq', {
             prompt,
-            model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
+            model,
             systemContent
           });
         
         case 'deepseek':
           return await callEdgeFunction('deepseek', {
             prompt,
-            model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
+            model,
             systemContent
           });
         
@@ -230,16 +251,11 @@ export const enhancePrompt = async (prompt: string, userId: string): Promise<str
       }
     } catch (error: any) {
       console.error(`Error while calling ${provider} API:`, error);
-      toast({
-        title: "Erro no serviço de IA",
-        description: `${error.message || 'Erro desconhecido ao chamar serviço de IA'}`,
-        variant: "destructive"
-      });
-      throw error;
+      return `Ocorreu um erro ao chamar a API de ${provider}. Por favor, verifique suas configurações.`;
     }
   } catch (error: any) {
     console.error("Enhance prompt error:", error);
-    throw new Error(error.message || 'Erro ao processar prompt');
+    return "Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente mais tarde.";
   }
 };
 
