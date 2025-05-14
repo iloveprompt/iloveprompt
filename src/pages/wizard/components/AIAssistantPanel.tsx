@@ -9,9 +9,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 export interface AIAssistantPanelProps {
-  open: boolean;
-  onClose: () => void;
-  items: Array<{
+  open?: boolean;
+  onClose?: () => void;
+  items?: Array<{
     id: string;
     label: string;
     description: string;
@@ -20,14 +20,18 @@ export interface AIAssistantPanelProps {
   }>;
   title: string;
   prompt?: string;
+  contextData?: any;
+  language?: string;
 }
 
 const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ 
-  open, 
-  onClose, 
+  open = false, 
+  onClose = () => {}, 
   items = [], 
   title,
-  prompt
+  prompt,
+  contextData,
+  language
 }) => {
   const [search, setSearch] = useState('');
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -48,6 +52,7 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({
   const handleApply = () => {
     // In a real implementation, this would apply the selected items
     console.log("Applied items:", selectedItems);
+    console.log("Context data:", contextData);
     onClose();
   };
 

@@ -5,7 +5,7 @@ import { CheckboxItem } from '@/components/CheckboxItem';
 import RadioSpecifyItem from '@/components/RadioSpecifyItem';
 import { toast } from "@/components/ui/use-toast";
 import { useLanguage } from '@/i18n/LanguageContext';
-import { ColorPicker } from '../components/ColorPicker';
+import ColorPicker from '../components/ColorPicker';
 import uxuiData from '../data/uxuiData.json';
 import AIAssistantPanel from '../components/AIAssistantPanel';
 
@@ -436,8 +436,9 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
         <div className="w-full md:w-80 flex-shrink-0">
           <AIAssistantPanel 
             prompt={getFaqPrompt()}
-            language={language}
             contextData={{ formValues: watch() }}
+            title={language === 'pt' ? 'Assistente de UX/UI' : 
+                  language === 'es' ? 'Asistente de UX/UI' : 'UX/UI Assistant'}
           />
         </div>
       </div>
