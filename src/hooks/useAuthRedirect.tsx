@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, AUTH_EVENTS } from './useAuth';
 import { supabase } from '@/lib/supabase';
@@ -9,6 +9,7 @@ export function useAuthRedirect() {
   const { user, session, isAdmin, isAuthenticated, checkIfUserIsAdmin } = useAuth();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [lastRedirectedUserId, setLastRedirectedUserId] = useState<string | null>(null);
+  const redirectTimeoutRef = useRef<number | null>(null);
 
   // Enhanced function to handle redirection after login
   const redirectAfterLogin = async (userId?: string) => {
@@ -36,27 +37,35 @@ export function useAuthRedirect() {
     setIsRedirecting(true);
     setLastRedirectedUserId(effectiveUserId);
     
+    // Limpar qualquer timeout pendente
+    if (redirectTimeoutRef.current) {
+      window.clearTimeout(redirectTimeoutRef.current);
+    }
+    
     try {
       // Direct check with database to determine admin status
       console.log('Performing direct admin check for user:', effectiveUserId);
       
+      // Definir um timeout para garantir que o redirecionamento aconteça
+      redirectTimeoutRef.current = window.setTimeout(() => {
+        console.log('Redirect timeout triggered, performing redirect with current isAdmin state:', isAdmin);
+        if (isAdmin) {
+          console.log('User is admin (from timeout), redirecting to /admin');
+          navigate('/admin');
+        } else {
+          console.log('User is not admin (from timeout), redirecting to /dashboard');
+          navigate('/dashboard');
+        }
+        setIsRedirecting(false);
+      }, 2000);
+      
       // First attempt: Use our function
       let userIsAdmin = await checkIfUserIsAdmin(effectiveUserId);
       
-      // Second attempt: Direct database query if needed
-      if (!userIsAdmin) {
-        console.log('First admin check negative, trying direct database query');
-        const { data, error } = await supabase
-          .from('user_role_assignments')
-          .select('role_id, user_roles!inner(name)')
-          .eq('user_id', effectiveUserId);
-          
-        if (error) {
-          console.error('Error during direct admin check:', error);
-        } else if (data && data.length > 0) {
-          userIsAdmin = data.some(r => r.user_roles?.name === 'admin');
-          console.log('Direct database query results:', data, 'isAdmin:', userIsAdmin);
-        }
+      // Cancelar o timeout se conseguimos determinar o status
+      if (redirectTimeoutRef.current) {
+        window.clearTimeout(redirectTimeoutRef.current);
+        redirectTimeoutRef.current = null;
       }
       
       // Explicit redirection based on determined admin status
@@ -69,6 +78,8 @@ export function useAuthRedirect() {
       }
     } catch (error) {
       console.error('Error during redirection:', error);
+      // Fallback redireciton to dashboard in case of errors
+      navigate('/dashboard');
     } finally {
       // Reset redirection flag after short delay
       setTimeout(() => {

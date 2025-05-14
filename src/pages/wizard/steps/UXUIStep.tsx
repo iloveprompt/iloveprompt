@@ -1,66 +1,111 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Check } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/i18n/LanguageContext';
+import NotInListButton from '@/components/NotInListButton';
+import CheckboxItem from '@/components/CheckboxItem';
 
-const UXUIStep = ({ onNext, onPrev, formData, updateFormData }) => {
+interface UXUIStepProps {
+  formData: any;
+  updateFormData: (data: any) => void;
+  onNext: () => void;
+  onPrev: () => void;
+  markAsFinalized: () => void;
+  resetStep: () => void;
+  isFinalized: boolean;
+}
+
+const UXUIStep: React.FC<UXUIStepProps> = ({
+  formData,
+  updateFormData,
+  onNext,
+  onPrev,
+  markAsFinalized,
+  resetStep,
+  isFinalized
+}) => {
   const { t } = useLanguage();
-  const [selectedOptions, setSelectedOptions] = useState<string[]>(formData.uxui || []);
+  const [selectedColors, setSelectedColors] = useState<string[]>(formData.colorPalette || []);
+  const [otherColor, setOtherColor] = useState<string>('');
 
-  const handleOptionSelect = (id: string) => {
-    if (selectedOptions.includes(id)) {
-      setSelectedOptions(selectedOptions.filter(item => item !== id));
-    } else {
-      setSelectedOptions([...selectedOptions, id]);
-    }
+  useEffect(() => {
+    setSelectedColors(formData.colorPalette || []);
+    setOtherColor(formData.otherColor || '');
+  }, [formData]);
+
+  const handleColorChange = (color: string, checked: boolean) => {
+    setSelectedColors(prev => {
+      if (checked) {
+        return [...prev, color];
+      } else {
+        return prev.filter(c => c !== color);
+      }
+    });
   };
 
-  const handleSave = () => {
-    updateFormData({ uxui: selectedOptions });
+  const handleOtherColorChange = (value: string) => {
+    setOtherColor(value);
+  };
+
+  const handleSaveAndFinalize = () => {
+    const updatedData = {
+      ...formData,
+      colorPalette: selectedColors,
+      otherColor,
+    };
+    updateFormData(updatedData);
+    markAsFinalized();
     onNext();
   };
 
-  return (
-    <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold">{t('wizard.uxuiStep.title')}</h2>
-        <p className="text-gray-500 mt-2">{t('wizard.uxuiStep.description')}</p>
-      </div>
+  const isColorInPalette = (color: string): boolean => {
+    return selectedColors.some((paletteColor: string) => paletteColor === color);
+  };
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {['option1', 'option2', 'option3'].map(option => (
-          <Card 
-            key={option}
-            className={`cursor-pointer transition-all ${
-              selectedOptions.includes(option) 
-                ? 'border-primary shadow-md' 
-                : 'hover:border-gray-400'
-            }`}
-            onClick={() => handleOptionSelect(option)}
-          >
-            <CardContent className="p-4 flex items-center justify-between">
-              <div>
-                <h3 className="font-medium">{t(`wizard.uxuiStep.options.${option}.name`)}</h3>
-                <p className="text-sm text-gray-500">{t(`wizard.uxuiStep.options.${option}.description`)}</p>
-              </div>
-              {selectedOptions.includes(option) && (
-                <Check className="text-primary h-5 w-5" />
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+  return (
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold">{t('wizard.steps.uxui.title')}</h2>
+      <p className="text-gray-600">{t('wizard.steps.uxui.description')}</p>
+
+      <Card className="overflow-hidden">
+        <CardContent className="p-4">
+          <h3 className="text-lg font-semibold mb-2">{t('wizard.steps.uxui.colorPalette.title')}</h3>
+          <div className="space-y-2">
+            {['red', 'blue', 'green', 'yellow'].map(color => (
+              <CheckboxItem
+                key={color}
+                id={color}
+                label={color.charAt(0).toUpperCase() + color.slice(1)}
+                checked={isColorInPalette(color)}
+                onChange={(checked) => handleColorChange(color, checked)}
+              />
+            ))}
+            <NotInListButton
+              onClick={() => {
+                // Deixe o usuário adicionar um item personalizado se necessário
+              }}
+            />
+            <input
+              type="text"
+              value={otherColor}
+              onChange={(e) => handleOtherColorChange(e.target.value)}
+              placeholder={t('wizard.steps.uxui.otherColor.placeholder')}
+              className="mt-2 p-2 border rounded"
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="flex justify-between mt-8">
-        <div>
-          <Button variant="outline" onClick={onPrev}>
-            {t('wizard.common.previous')}
+        <Button variant="outline" onClick={onPrev}>
+          {t('wizard.common.back')}
+        </Button>
+        <div className="space-x-2">
+          <Button variant="ghost" onClick={resetStep}>
+            {t('wizard.common.reset')}
           </Button>
-        </div>
-        <div>
-          <Button onClick={handleSave}>
-            {t('wizard.common.next')}
+          <Button onClick={handleSaveAndFinalize}>
+            {isFinalized ? t('wizard.common.next') : t('wizard.common.saveAndContinue')}
           </Button>
         </div>
       </div>

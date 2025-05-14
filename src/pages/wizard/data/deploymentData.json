@@ -1,55 +1,163 @@
 
 {
-  "deploymentOptions": [
+  "groups": [
     {
-      "id": "docker",
-      "name": "Docker",
-      "description": "Deploy using Docker containers for consistent environments"
+      "id": "hosting",
+      "title": "Hospedagem",
+      "items": [
+        {
+          "id": "aws",
+          "label": "AWS (Amazon Web Services)",
+          "description": "Uma plataforma de cloud computing abrangente da Amazon."
+        },
+        {
+          "id": "azure",
+          "label": "Microsoft Azure",
+          "description": "Plataforma de cloud computing desenvolvida pela Microsoft."
+        },
+        {
+          "id": "gcp",
+          "label": "Google Cloud Platform",
+          "description": "Serviços de cloud computing oferecidos pelo Google."
+        },
+        {
+          "id": "digital_ocean",
+          "label": "Digital Ocean",
+          "description": "Provedor de infraestrutura de nuvem simples e econômica."
+        },
+        {
+          "id": "heroku",
+          "label": "Heroku",
+          "description": "Plataforma como serviço (PaaS) que facilita o deploy de aplicações."
+        },
+        {
+          "id": "vercel",
+          "label": "Vercel",
+          "description": "Plataforma especializada para aplicações frontend e sites estáticos."
+        },
+        {
+          "id": "netlify",
+          "label": "Netlify",
+          "description": "Plataforma focada em CI/CD e hospedagem para sites estáticos."
+        },
+        {
+          "id": "other_hosting",
+          "label": "Outro",
+          "description": "Especifique outro provedor de hospedagem.",
+          "hasOtherField": true
+        }
+      ]
     },
     {
-      "id": "kubernetes",
-      "name": "Kubernetes",
-      "description": "Orchestrate containers with Kubernetes for scaling"
+      "id": "cicd",
+      "title": "CI/CD",
+      "items": [
+        {
+          "id": "github_actions",
+          "label": "GitHub Actions",
+          "description": "Sistema de CI/CD integrado ao GitHub."
+        },
+        {
+          "id": "gitlab_ci",
+          "label": "GitLab CI",
+          "description": "Ferramenta de CI/CD nativa do GitLab."
+        },
+        {
+          "id": "jenkins",
+          "label": "Jenkins",
+          "description": "Servidor de automação open-source para CI/CD."
+        },
+        {
+          "id": "circleci",
+          "label": "CircleCI",
+          "description": "Plataforma de CI/CD baseada em nuvem."
+        },
+        {
+          "id": "travis_ci",
+          "label": "Travis CI",
+          "description": "Serviço de integração contínua distribuído."
+        },
+        {
+          "id": "azure_devops",
+          "label": "Azure DevOps",
+          "description": "Conjunto de ferramentas DevOps da Microsoft."
+        },
+        {
+          "id": "other_cicd",
+          "label": "Outro",
+          "description": "Especifique outra ferramenta de CI/CD.",
+          "hasOtherField": true
+        }
+      ]
     },
     {
-      "id": "aws",
-      "name": "AWS",
-      "description": "Deploy on Amazon Web Services cloud platform"
+      "id": "env_vars",
+      "title": "Variáveis de Ambiente",
+      "items": [
+        {
+          "id": "env_files",
+          "label": "Arquivos .env",
+          "description": "Armazenamento de variáveis em arquivos locais."
+        },
+        {
+          "id": "platform_env_vars",
+          "label": "Variáveis na plataforma de hospedagem",
+          "description": "Configuração no painel da plataforma (Heroku, Vercel, etc)."
+        },
+        {
+          "id": "secret_manager",
+          "label": "Gerenciador de segredos (AWS Secret Manager, etc)",
+          "description": "Serviços especializados em gestão de segredos."
+        },
+        {
+          "id": "container_env_vars",
+          "label": "Variáveis de ambiente do container",
+          "description": "Configuração em Docker ou outro sistema de containerização."
+        },
+        {
+          "id": "other_env_vars",
+          "label": "Outro",
+          "description": "Especifique outra forma de gerenciar variáveis de ambiente.",
+          "hasOtherField": true
+        }
+      ]
     },
     {
-      "id": "azure",
-      "name": "Azure",
-      "description": "Deploy on Microsoft Azure cloud platform"
-    },
-    {
-      "id": "gcp",
-      "name": "Google Cloud",
-      "description": "Deploy on Google Cloud Platform services"
-    },
-    {
-      "id": "heroku",
-      "name": "Heroku",
-      "description": "Simple deployment on Heroku platform"
-    },
-    {
-      "id": "vercel",
-      "name": "Vercel",
-      "description": "Best for front-end and serverless deployments"
-    },
-    {
-      "id": "netlify",
-      "name": "Netlify",
-      "description": "Git-based deployment with continuous integration"
-    },
-    {
-      "id": "digital-ocean",
-      "name": "Digital Ocean",
-      "description": "Simple cloud infrastructure with Droplets and App Platform"
-    },
-    {
-      "id": "on-premise",
-      "name": "On-Premise",
-      "description": "Deploy on your own infrastructure and servers"
+      "id": "deployment_frequency",
+      "title": "Frequência de Deployment",
+      "items": [
+        {
+          "id": "continuous_deployment",
+          "label": "Deployment contínuo (a cada commit)",
+          "description": "Automação completa do processo de deployment."
+        },
+        {
+          "id": "daily_deployment",
+          "label": "Diário",
+          "description": "Releases são feitas diariamente."
+        },
+        {
+          "id": "weekly_deployment",
+          "label": "Semanal",
+          "description": "Releases são feitas semanalmente."
+        },
+        {
+          "id": "biweekly_deployment",
+          "label": "Quinzenal",
+          "description": "Releases são feitas a cada duas semanas."
+        },
+        {
+          "id": "monthly_deployment",
+          "label": "Mensal",
+          "description": "Releases são feitas mensalmente."
+        },
+        {
+          "id": "custom_deployment",
+          "label": "Personalizado",
+          "description": "Especifique uma frequência de deployment personalizada.",
+          "hasOtherField": true
+        }
+      ]
     }
   ]
 }
