@@ -520,12 +520,7 @@ const PromptGeneratorWizard = () => {
       case 5: // UX/UI
         return <UXUIStep 
           formData={formData.uxui} 
-          updateFormData={updateFormData}
-          markAsFinalized={markStepAsFinalized}
-          resetStep={resetCurrentStep}
-          isFinalized={isStepFinalized(6)}
-          onNext={() => handleNext()}
-          onPrev={() => handlePrev()}
+          {...stepProps}
         />;
       case 6: // Stack
         return <StackStep 

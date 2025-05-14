@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
 import { UserLlmApi, getActiveApiKey, updateUserApiKey, ApiTestStatus, LlmProvider } from './userSettingService';
@@ -151,6 +152,10 @@ const callEdgeFunction = async (functionName: string, payload: any) => {
     
     const response = await supabase.functions.invoke(functionName, {
       body: payload,
+      // Adicionando timeout mais longo e opção de retry
+      options: {
+        timeout: 30000 // 30 segundos
+      }
     });
     
     if (response.error) {

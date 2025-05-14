@@ -1,318 +1,304 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/components/ui/use-toast';
+
+import React, { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { getActiveApiKey, getUserLlmApis, updateUserApiKey, createUserApiKey, deleteUserApiKey } from '@/services/userSettingService';
-import { ApiTestStatus, testConnection } from '@/services/llmService';
-import { Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Check, Edit, Trash2, KeyRound, Zap } from 'lucide-react';
+import {
+  getUserApiKeys,
+  addUserApiKey,
+  setActiveApiKey,
+  deleteUserApiKey,
+  updateUserApiKey,
+  UserLlmApi
+} from '@/services/userSettingService';
 
-// Ajuste na definição dos tipos permitidos
-type ProviderType = "openai" | "gemini" | "groq" | "deepseek";
+// Define allowed provider types
+type ProviderType = 'openai' | 'gemini' | 'groq' | 'deepseek' | 'grok' | 'outros';
 
-const Settings: React.FC = () => {
+const LLM_MODELS: Record<string, string[]> = {
+  OpenAI: ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo', 'gpt-4o'],
+  Gemini: ['gemini-pro', 'gemini-1.5-pro', 'gemini-ultra'],
+  Groq: ['llama3-70b-8192', 'llama3-8b-8192', 'mixtral-8x7b-32768', 'gemma-7b-it'],
+  Grok: ['grok-1', 'grok-1.5'],
+  DeepSeek: ['deepseek-chat', 'deepseek-coder'],
+  Outros: ['Outro modelo...'],
+};
+
+const Settings = () => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const { t } = useLanguage();
+  const { toast } = useToast();
 
-  const [apiKey, setApiKey] = useState('');
-  const [selectedProvider, setSelectedProvider] = useState<ProviderType>("openai");
-  const [apiKeys, setApiKeys] = useState<any[]>([]);
-  const [activeApiKeyId, setActiveApiKeyId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isTesting, setIsTesting] = useState(false);
-  const [testResults, setTestResults] = useState<{ [key: string]: ApiTestStatus }>({});
+  // CRUD LLMs persistente
+  const [llms, setLlms] = useState<UserLlmApi[]>([]); // Persistente
+  const [form, setForm] = useState({ provider: 'OpenAI', model: 'gpt-4', key: '' });
+  const [editId, setEditId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  // Ao definir defaultProvider, certifique-se de que ele seja do tipo correto
-  const defaultProvider: ProviderType = "openai";
+  // Carregar LLMs do usuário ao montar
+  React.useEffect(() => {
+    if (!user?.id) return;
+    setLoading(true);
+    getUserApiKeys(user.id)
+      .then(data => setLlms(Array.isArray(data) ? data : []))
+      .catch(err => {
+        setLlms([]);
+        toast({ title: 'Erro ao carregar LLMs', description: err.message, variant: 'destructive' });
+      })
+      .finally(() => setLoading(false));
+  }, [user?.id]);
 
-  useEffect(() => {
-    const loadSettings = async () => {
-      if (user) {
-        try {
-          const keys = await getUserLlmApis(user.id);
-          setApiKeys(keys);
-
-          const activeKey = await getActiveApiKey(user.id);
-          setActiveApiKeyId(activeKey?.id || null);
-          setSelectedProvider(activeKey?.provider || defaultProvider);
-          setApiKey(activeKey?.api_key || '');
-        } catch (error) {
-          console.error("Error loading settings:", error);
-          toast({
-            title: t('settings.errorLoading'),
-            description: t('settings.errorLoadingDescription'),
-            variant: "destructive"
-          });
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    loadSettings();
-  }, [user, t]);
-
-  const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setApiKey(e.target.value);
+  // Atualiza modelos ao trocar provedor
+  const handleProviderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const provider = e.target.value;
+    setForm(f => ({ ...f, provider, model: LLM_MODELS[provider][0] }));
   };
 
-  // Certifique-se de que newProvider seja do tipo correto
-  const handleProviderChange = (newProvider: ProviderType) => {
-    setSelectedProvider(newProvider);
+  // Convert provider name to lowercase for API
+  const getProviderType = (provider: string): ProviderType => {
+    const lowercaseProvider = provider.toLowerCase();
+    return lowercaseProvider as ProviderType;
   };
 
-  const handleSaveApiKey = async () => {
-    if (!user) return;
-
-    try {
-      setIsLoading(true);
-      const newApiKeyData = {
-        user_id: user.id,
-        api_key: apiKey,
-        provider: selectedProvider,
-        is_active: true,
-      };
-
-      // Se já existe uma chave ativa, desativa-a
-      if (activeApiKeyId) {
-        await updateUserApiKey(activeApiKeyId, { is_active: false });
-      }
-
-      // Cria a nova chave
-      const newApiKey = await createUserApiKey(newApiKeyData);
-      setApiKeys(prevKeys => [...prevKeys, newApiKey]);
-      setActiveApiKeyId(newApiKey.id);
-
-      toast({
-        title: t('settings.apiKeySaved'),
-        description: t('settings.apiKeySavedDescription'),
-      });
-    } catch (error) {
-      console.error("Error saving API key:", error);
-      toast({
-        title: t('settings.errorSaving'),
-        description: t('settings.errorSavingDescription'),
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
+  // Cadastro/edição de LLM
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.key.trim()) {
+      toast({ title: 'Informe a chave secreta.' });
+      return;
     }
-  };
-
-  const handleSetActive = async (keyId: string) => {
-    if (!user) return;
-
+    if (!user?.id) return;
+    setLoading(true);
     try {
-      setIsLoading(true);
-
-      // Desativa todas as chaves
-      for (const key of apiKeys) {
-        await updateUserApiKey(key.id, { is_active: false });
-      }
-
-      // Ativa a chave selecionada
-      await updateUserApiKey(keyId, { is_active: true });
-      setActiveApiKeyId(keyId);
-
-      toast({
-        title: t('settings.apiKeyActivated'),
-        description: t('settings.apiKeyActivatedDescription'),
-      });
-    } catch (error) {
-      console.error("Error setting active API key:", error);
-      toast({
-        title: t('settings.errorActivating'),
-        description: t('settings.errorActivatingDescription'),
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDeleteApiKey = async (keyId: string) => {
-    if (!user) return;
-
-    try {
-      setIsLoading(true);
-      await deleteUserApiKey(keyId);
-      setApiKeys(prevKeys => prevKeys.filter(key => key.id !== keyId));
-
-      if (activeApiKeyId === keyId) {
-        setActiveApiKeyId(null);
-      }
-
-      toast({
-        title: t('settings.apiKeyDeleted'),
-        description: t('settings.apiKeyDeletedDescription'),
-      });
-    } catch (error) {
-      console.error("Error deleting API key:", error);
-      toast({
-        title: t('settings.errorDeleting'),
-        description: t('settings.errorDeletingDescription'),
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleTestConnection = async (keyId: string) => {
-    setIsTesting(true);
-    setTestResults(prev => ({ ...prev, [keyId]: 'testing' }));
-
-    try {
-      const apiKeyToTest = apiKeys.find(key => key.id === keyId);
-      if (!apiKeyToTest) {
-        throw new Error("API key not found");
-      }
-
-      const result = await testConnection(apiKeyToTest);
-      setTestResults(prev => ({ ...prev, [keyId]: result.status || 'failure' }));
-
-      if (!result.success) {
-        toast({
-          title: t('settings.testFailed'),
-          description: result.error || t('settings.testFailedDescription'),
-          variant: "destructive"
+      if (editId) {
+        await updateUserApiKey(editId, {
+          provider: getProviderType(form.provider),
+          api_key: form.key,
+          models: [form.model],
+          updated_at: new Date().toISOString()
         });
+        toast({ title: 'LLM atualizada!' });
       } else {
-        toast({
-          title: t('settings.testSuccess'),
-          description: t('settings.testSuccessDescription'),
+        await addUserApiKey({
+          user_id: user.id,
+          provider: getProviderType(form.provider),
+          api_key: form.key,
+          is_active: llms.length === 0, // Primeira já ativa
+          test_status: 'untested',
+          models: [form.model],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
         });
+        toast({ title: 'LLM cadastrada!' });
       }
-    } catch (error: any) {
-      console.error("Error testing connection:", error);
-      setTestResults(prev => ({ ...prev, [keyId]: 'failure' }));
-      toast({
-        title: t('settings.testFailed'),
-        description: error.message || t('settings.testFailedDescription'),
-        variant: "destructive"
-      });
+      // Recarregar lista
+      const data = await getUserApiKeys(user.id);
+      setLlms(Array.isArray(data) ? data : []);
+      setForm({ provider: 'OpenAI', model: 'gpt-4', key: '' });
+      setEditId(null);
+    } catch (err: any) {
+      toast({ title: 'Erro ao cadastrar/editar LLM', description: err.message, variant: 'destructive' });
     } finally {
-      setIsTesting(false);
+      setLoading(false);
     }
   };
 
-  if (isLoading) {
-    return <div>{t('common.loading')}...</div>;
-  }
+  // Ativar LLM
+  const handleActivate = async (id: string) => {
+    if (!user?.id) return;
+    setLoading(true);
+    try {
+      await setActiveApiKey(user.id, id);
+      const data = await getUserApiKeys(user.id);
+      setLlms(Array.isArray(data) ? data : []);
+    } catch (err: any) {
+      toast({ title: 'Erro ao ativar LLM', description: err.message, variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Excluir LLM
+  const handleDelete = async (id: string) => {
+    if (!user?.id) return;
+    setLoading(true);
+    try {
+      await deleteUserApiKey(id);
+      const data = await getUserApiKeys(user.id);
+      setLlms(Array.isArray(data) ? data : []);
+    } catch (err: any) {
+      toast({ title: 'Erro ao excluir LLM', description: err.message, variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Editar LLM (preenche o form para edição)
+  const handleEdit = (llm: any) => {
+    setForm({ provider: llm.provider.charAt(0).toUpperCase() + llm.provider.slice(1), model: llm.models?.[0] || '', key: llm.api_key });
+    setEditId(llm.id);
+  };
+
+  // Gerenciar chave: abre edição da LLM
+  const handleManageKey = (llm: any) => {
+    setForm({ provider: llm.provider.charAt(0).toUpperCase() + llm.provider.slice(1), model: llm.models?.[0] || '', key: llm.api_key });
+    setEditId(llm.id);
+  };
 
   return (
-    <div className="container mx-auto p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('settings.title')}</CardTitle>
-          <CardDescription>{t('settings.description')}</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="provider">{t('settings.provider')}</Label>
-            <Select onValueChange={handleProviderChange} defaultValue={selectedProvider}>
-              <SelectTrigger id="provider">
-                <SelectValue placeholder={t('settings.selectProvider')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="openai">OpenAI</SelectItem>
-                <SelectItem value="gemini">Gemini</SelectItem>
-                <SelectItem value="groq">Groq</SelectItem>
-                <SelectItem value="deepseek">DeepSeek</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="api-key">{t('settings.apiKey')}</Label>
-            <Input
-              id="api-key"
-              type="password"
-              value={apiKey}
-              onChange={handleApiKeyChange}
-            />
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button onClick={handleSaveApiKey} disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {t('common.saving')}
-              </>
-            ) : (
-              t('settings.saveApiKey')
-            )}
-          </Button>
-        </CardFooter>
-      </Card>
-
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">{t('settings.existingKeys')}</h2>
-        {apiKeys.length > 0 ? (
-          <div className="space-y-4">
-            {apiKeys.map((key) => (
-              <Card key={key.id}>
-                <CardHeader>
-                  <CardTitle>{key.provider}</CardTitle>
-                  <CardDescription>
-                    {t('settings.created')}: {new Date(key.created_at).toLocaleDateString()}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="flex items-center justify-between">
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold tracking-tight">{t('settings.title')}</h1>
+      <Tabs defaultValue="notifications" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="notifications">{t('settings.notifications')}</TabsTrigger>
+          <TabsTrigger value="api-keys">{t('settings.apiAccess')}</TabsTrigger>
+          <TabsTrigger value="subscription">{t('settings.subscription')}</TabsTrigger>
+        </TabsList>
+        {/* Notification Settings */}
+        <TabsContent value="notifications">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('settings.notificationPreferences')}</CardTitle>
+              <CardDescription>{t('settings.manageNotifications')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
                   <div>
-                    {t('settings.apiKey')}: {key.api_key.substring(0, 4)}...
+                    <p className="font-medium">{t('settings.emailNotifications')}</p>
+                    <p className="text-sm text-gray-500">{t('settings.receiveEmails')}</p>
+                  </div>
+                  <Switch id="email-notifications" defaultChecked />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{t('settings.marketingEmails')}</p>
+                    <p className="text-sm text-gray-500">{t('settings.receiveMarketing')}</p>
+                  </div>
+                  <Switch id="marketing-emails" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{t('settings.promptUpdates')}</p>
+                    <p className="text-sm text-gray-500">{t('settings.notifyPromptUpdates')}</p>
+                  </div>
+                  <Switch id="prompt-updates" defaultChecked />
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <Button>{t('settings.savePreferences')}</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        {/* API Keys Settings */}
+        <TabsContent value="api-keys">
+          <Card>
+            <CardHeader>
+              <CardTitle>Gerenciar LLMs e Chaves de API</CardTitle>
+              <CardDescription>Cadastre e gerencie suas conexões com LLMs (OpenAI, Gemini, Groq, Grok, DeepSeek, etc). Você pode cadastrar várias, mas apenas uma pode estar ativa.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Cadastro/edição de nova LLM */}
+              <div className="border rounded-lg p-4 bg-muted/50">
+                <form className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end" onSubmit={handleSubmit}>
+                  <div>
+                    <Label htmlFor="llm-provider">Provedor</Label>
+                    <select id="llm-provider" className="w-full border rounded px-2 py-2" value={form.provider} onChange={handleProviderChange}>
+                      {Object.keys(LLM_MODELS).map(p => <option key={p}>{p}</option>)}
+                    </select>
                   </div>
                   <div>
-                    {testResults[key.id] === 'testing' ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => handleTestConnection(key.id)}
-                        disabled={isTesting}
-                      >
-                        {t('settings.testConnection')}
+                    <Label htmlFor="llm-model">Modelo</Label>
+                    <select id="llm-model" className="w-full border rounded px-2 py-2" value={form.model} onChange={e => setForm(f => ({ ...f, model: e.target.value }))}>
+                      {LLM_MODELS[form.provider].map(m => <option key={m}>{m}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <Label htmlFor="llm-key">Chave Secreta</Label>
+                    <Input id="llm-key" type="password" placeholder="sk-..." value={form.key} onChange={e => setForm(f => ({ ...f, key: e.target.value }))} />
+                  </div>
+                  <div className="md:col-span-3 flex justify-end mt-2">
+                    <Button type="submit">{editId ? 'Salvar Alterações' : 'Cadastrar LLM'}</Button>
+                    {editId && <Button type="button" variant="ghost" className="ml-2" onClick={() => { setEditId(null); setForm({ provider: 'OpenAI', model: 'gpt-4', key: '' }); }}>Cancelar</Button>}
+                  </div>
+                </form>
+              </div>
+              {/* Listagem de LLMs cadastradas (cards) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Array.isArray(llms) && llms.length === 0 && <div className="text-center text-gray-400 col-span-2">Nenhuma LLM cadastrada ainda.</div>}
+                {Array.isArray(llms) && llms.map(llm => (
+                  <Card key={llm.id} className={`relative border-2 ${llm.is_active ? 'border-blue-500' : 'border-gray-200'}`}>
+                    <div className="absolute top-2 right-2 flex gap-2">
+                      <Button size="icon" variant={llm.is_active ? 'default' : 'outline'} title={llm.is_active ? 'Desativar' : 'Ativar'} onClick={() => handleActivate(llm.id)}>
+                        {llm.is_active ? <Check className="h-4 w-4 text-green-600" /> : <Zap className="h-4 w-4 text-green-600" />}
                       </Button>
-                    )}
-                    {testResults[key.id] === 'success' && (
-                      <span className="text-green-500 ml-2">{t('settings.testSuccess')}</span>
-                    )}
-                    {testResults[key.id] === 'failure' && (
-                      <span className="text-red-500 ml-2">{t('settings.testFailed')}</span>
-                    )}
+                      <Button size="icon" variant="outline" title="Editar" onClick={() => handleEdit(llm)}><Edit className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="outline" title="Excluir" onClick={() => handleDelete(llm.id)}><Trash2 className="h-4 w-4 text-red-500" /></Button>
+                    </div>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="flex items-center gap-2">
+                        <span className="font-bold">{llm.provider}</span>
+                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">{llm.models?.[0]}</span>
+                        {llm.is_active && <span className="ml-2 text-green-600 flex items-center"><Check className="h-4 w-4 mr-1" /> Ativa</span>}
+                      </CardTitle>
+                      <CardDescription className="flex items-center gap-2">
+                        <span className={llm.test_status === 'success' ? 'text-green-600' : llm.test_status === 'failure' ? 'text-red-600' : 'text-gray-400'}>●</span> {llm.test_status === 'success' ? 'Conexão ativa' : llm.test_status === 'failure' ? 'Erro na conexão' : 'Não testada'}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500">Chave:</span>
+                        <span className="text-xs font-mono truncate max-w-[120px] block" title={llm.api_key}>{llm.api_key.length > 8 ? `****${llm.api_key.slice(-4)}` : llm.api_key}</span>
+                        <Button size="sm" variant="outline" onClick={() => handleManageKey(llm)}><KeyRound className="h-4 w-4 mr-1" /> Gerenciar Chave</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        {/* Subscription Settings */}
+        <TabsContent value="subscription">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('settings.subscriptionPlan')}</CardTitle>
+              <CardDescription>{t('settings.managePlan')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="font-semibold text-blue-700">{t('settings.currentPlan')}: Free</h3>
+                    <p className="text-sm text-blue-600">{t('settings.usageLimit')}: 5 prompts/month</p>
                   </div>
-                </CardContent>
-                <CardFooter className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleSetActive(key.id)}
-                    disabled={isLoading || activeApiKeyId === key.id}
-                  >
-                    {activeApiKeyId === key.id ? t('settings.active') : t('settings.setActive')}
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDeleteApiKey(key.id)}
-                    disabled={isLoading}
-                  >
-                    {t('settings.delete')}
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <p>{t('settings.noKeys')}</p>
-        )}
-      </div>
+                  <Button variant="outline">{t('settings.upgradePlan')}</Button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-semibold">{t('settings.usageStats')}</h3>
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '65%' }}></div>
+                </div>
+                <p className="text-sm text-gray-600">3/5 prompts used this month</p>
+              </div>
+              <div className="pt-2">
+                <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
+                  {t('settings.cancelSubscription')}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

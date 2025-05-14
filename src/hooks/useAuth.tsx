@@ -32,7 +32,7 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 // Cache para verificação de admin para evitar verificações repetitivas
-const adminCheckCache: {[key: string]: boolean} = {};
+let adminCheckCache: {[key: string]: boolean} = {};
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -40,24 +40,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(false);
-  const [adminCheckInProgress, setAdminCheckInProgress] = useState(false);
   const { toast } = useToast();
   const { t } = useLanguage();
 
   // Melhoria: Usar uma referência estável para o cache
   const adminCheckCacheRef = React.useRef(adminCheckCache);
+
+  // Reset cache on mount and sign in
+  useEffect(() => {
+    // Clear cache on component mount
+    adminCheckCacheRef.current = {};
+    console.log('Admin check cache cleared on mount');
+  }, []);
   
   // Função aprimorada para verificar se o usuário é administrador
   const checkIfUserIsAdmin = async (userId: string): Promise<boolean> => {
     try {
-      // Evitar verificações simultâneas com um bloqueio explícito
-      if (adminCheckInProgress) {
-        console.log('Verificação de admin já em andamento, retornando cache ou false');
-        return adminCheckCacheRef.current[userId] || false;
-      }
-      
-      setAdminCheckInProgress(true);
-      
       // Reset cache for active login
       const isLoginCheck = user?.id !== userId;
       if (isLoginCheck) {
@@ -68,7 +66,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // Verificar cache primeiro
       if (adminCheckCacheRef.current[userId] !== undefined) {
         console.log('Usando resultado em cache para verificação de admin:', userId, adminCheckCacheRef.current[userId]);
-        setAdminCheckInProgress(false);
         return adminCheckCacheRef.current[userId];
       }
 
@@ -78,7 +75,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         // Wait a bit and try again
         await new Promise(r => setTimeout(r, 200));
         if (adminCheckCacheRef.current[userId] !== undefined) {
-          setAdminCheckInProgress(false);
           return adminCheckCacheRef.current[userId];
         }
       }
@@ -164,32 +160,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // Armazenar resultado no cache
       adminCheckCacheRef.current[userId] = result;
       setIsCheckingAdmin(false);
-      setAdminCheckInProgress(false);
       
-      // Dispatch event when admin status is checked (com debounce)
-      setTimeout(() => {
-        console.log('Dispatching ADMIN_STATUS_CHECKED event with result:', result);
-        window.dispatchEvent(new CustomEvent(AUTH_EVENTS.ADMIN_STATUS_CHECKED, {
-          detail: { isAdmin: result, userId }
-        }));
-      }, 300);
+      // Dispatch event when admin status is checked
+      console.log('Dispatching ADMIN_STATUS_CHECKED event with result:', result);
+      window.dispatchEvent(new CustomEvent(AUTH_EVENTS.ADMIN_STATUS_CHECKED, {
+        detail: { isAdmin: result, userId }
+      }));
       
       return result;
     } catch (error) {
       console.error('Error checking admin status:', error);
       setIsCheckingAdmin(false);
-      setAdminCheckInProgress(false);
       
       // Fallback para o método antigo caso ocorra qualquer erro
       const isAdminResult = user?.email === 'ander_dorneles@hotmail.com';
       console.log('Exception fallback: User email check for admin:', isAdminResult);
       
-      // Still dispatch the event even in case of error (com debounce)
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent(AUTH_EVENTS.ADMIN_STATUS_CHECKED, {
-          detail: { isAdmin: isAdminResult, userId: user?.id }
-        }));
-      }, 300);
+      // Still dispatch the event even in case of error
+      window.dispatchEvent(new CustomEvent(AUTH_EVENTS.ADMIN_STATUS_CHECKED, {
+        detail: { isAdmin: isAdminResult, userId: user?.id }
+      }));
       
       return isAdminResult;
     }
@@ -222,14 +212,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           // Clear admin cache on initialization
           adminCheckCacheRef.current = {};
           
-          // Check if user is admin - with debounce to prevent loop
+          // Check if user is admin
           setTimeout(async () => {
-            if (!adminCheckInProgress) {
-              const isUserAdmin = await checkIfUserIsAdmin(data.session.user.id);
-              setIsAdmin(isUserAdmin);
-              console.log('Initial admin status set to:', isUserAdmin);
-            }
-          }, 500);
+            const isUserAdmin = await checkIfUserIsAdmin(data.session.user.id);
+            setIsAdmin(isUserAdmin);
+            console.log('Initial admin status set to:', isUserAdmin);
+          }, 300);
         } else {
           // Não temos uma sessão válida
           console.log('No valid session found during initialization');
@@ -258,9 +246,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     };
 
-    // Flag para controlar quantidade de verificações
-    let initialCheckDone = false;
-
     // Set up the auth state listener first
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
@@ -277,18 +262,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         
         // Check if user is admin only if we have a valid user
         // Use setTimeout to avoid Supabase auth deadlocks
-        if (currentSession?.user && !initialCheckDone) {
-          initialCheckDone = true; // Marca que já fizemos uma verificação
+        if (currentSession?.user) {
           setTimeout(async () => {
-            if (!adminCheckInProgress) {
-              const isUserAdmin = await checkIfUserIsAdmin(currentSession.user.id);
-              setIsAdmin(isUserAdmin);
-              console.log('Admin status updated to:', isUserAdmin);
-            }
-          }, 500);
-        } else if (!currentSession?.user) {
+            const isUserAdmin = await checkIfUserIsAdmin(currentSession.user.id);
+            setIsAdmin(isUserAdmin);
+            console.log('Admin status updated to:', isUserAdmin);
+          }, 300);
+        } else {
           setIsAdmin(false);
-          initialCheckDone = false; // Reset para próximo login
         }
         
         // Handle SIGNED_IN event - show toast
@@ -310,7 +291,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           
           // Limpar cache de verificação de admin
           adminCheckCacheRef.current = {};
-          initialCheckDone = false;
         }
       }
     );
