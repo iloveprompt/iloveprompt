@@ -1,0 +1,43 @@
+
+[
+  {
+    "id": "cloud_hosting",
+    "label": "Hospedagem em Nuvem",
+    "description": "Hospede seu aplicativo em provedores de nuvem como AWS, Google Cloud ou Azure."
+  },
+  {
+    "id": "containerization",
+    "label": "Containerização",
+    "description": "Use Docker e Kubernetes para empacotar e gerenciar seu aplicativo."
+  },
+  {
+    "id": "ci_cd",
+    "label": "CI/CD",
+    "description": "Integração contínua e implantação contínua para automação do processo de entrega."
+  },
+  {
+    "id": "serverless",
+    "label": "Serverless",
+    "description": "Implemente funções sem gerenciar infraestrutura de servidor."
+  },
+  {
+    "id": "static_hosting",
+    "label": "Hospedagem Estática",
+    "description": "Para aplicativos da web estáticos usando Netlify, Vercel ou GitHub Pages."
+  },
+  {
+    "id": "load_balancing",
+    "label": "Balanceamento de Carga",
+    "description": "Distribuição de tráfego para melhor desempenho e disponibilidade."
+  },
+  {
+    "id": "custom_domain",
+    "label": "Domínio Personalizado",
+    "description": "Configure domínios personalizados para seu aplicativo."
+  },
+  {
+    "id": "ssl_certificate",
+    "label": "Certificado SSL",
+    "description": "Segurança de conexão com certificados SSL/TLS."
+  }
+]
