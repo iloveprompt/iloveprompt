@@ -6,21 +6,15 @@ import { LlmSystemMessage, getDefaultSystemMessage } from './adminSettingService
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { toast } from "@/hooks/use-toast";
 
-// Placeholder for actual API interaction libraries/SDKs
-// import { OpenAI } from 'openai'; // Example
-// import { GoogleGenerativeAI } from '@google/generative-ai'; // Example
-
 interface TestConnectionResult {
   success: boolean;
   error?: string;
-  status?: ApiTestStatus; // The status to update in the DB
+  status?: ApiTestStatus;
 }
 
 /**
  * Tests the connection for a given API key configuration.
  * Updates the key's status in the database.
- * @param apiKey - The UserLlmApi object to test.
- * @returns A promise resolving to TestConnectionResult.
  */
 export const testConnection = async (apiKey: UserLlmApi): Promise<TestConnectionResult> => {
   if (!apiKey || !apiKey.api_key || !apiKey.provider) {
@@ -35,47 +29,115 @@ export const testConnection = async (apiKey: UserLlmApi): Promise<TestConnection
     console.log(`Testing connection for provider: ${provider}`);
     switch (provider) {
       case 'openai':
-        // TODO: Implement OpenAI connection test (e.g., list models)
-        // Example: const openai = new OpenAI({ apiKey: key }); await openai.models.list();
-        console.warn(`OpenAI test not implemented yet.`);
-        result = { success: true, status: 'success' }; // Placeholder
-        break;
-      case 'gemini':
-        // Initialize the Gemini model directly
         try {
-          const genAI = new GoogleGenerativeAI(key);
-          // Usando modelo gemini-1.5-flash em vez de gemini-pro
-          const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-          const prompt = "Hello, this is a test prompt to verify the API connection.";
-          // Generate a very short response to minimize usage
-          const response = await model.generateContent(prompt);
-          const text = await response.response.text();
-          if (text) {
+          const res = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${key}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: [{ role: 'user', content: 'This is a test.' }],
+              max_tokens: 5
+            }),
+          });
+          
+          if (res.ok) {
             result = { success: true, status: 'success' };
           } else {
-            result = { success: false, error: 'No response from Gemini API', status: 'failure' };
+            const errorData = await res.json();
+            result = { success: false, error: `OpenAI API Error: ${errorData.error?.message || res.statusText}`, status: 'failure' };
           }
         } catch (error: any) {
-          console.error('Gemini API test error:', error);
-          result = { 
-            success: false, 
-            error: error.message || 'Failed to connect to Gemini API', 
-            status: 'failure' 
-          };
+          result = { success: false, error: `OpenAI connection error: ${error.message}`, status: 'failure' };
         }
         break;
+        
+      case 'gemini':
+        try {
+          // Test via edge function instead of direct SDK for consistency
+          const res = await fetch('https://lmovpaablzagtkedhbtb.functions.supabase.co/gemini', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Origin': window.location.origin
+            },
+            body: JSON.stringify({ 
+              prompt: "This is a test message to verify the API connection.",
+              model: "gemini-1.5-flash"
+            })
+          });
+          
+          if (res.ok) {
+            const data = await res.json();
+            if (data.error) {
+              result = { success: false, error: `Gemini API Error: ${data.error}`, status: 'failure' };
+            } else {
+              result = { success: true, status: 'success' };
+            }
+          } else {
+            result = { success: false, error: `Gemini API Error: ${res.statusText}`, status: 'failure' };
+          }
+        } catch (error: any) {
+          result = { success: false, error: `Gemini connection error: ${error.message}`, status: 'failure' };
+        }
+        break;
+        
       case 'groq':
-        // TODO: Implement Groq connection test (often OpenAI compatible API)
-         console.warn(`Groq test not implemented yet.`);
-        result = { success: true, status: 'success' }; // Placeholder
+        try {
+          const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${key}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'llama3-8b-8192',
+              messages: [{ role: 'user', content: 'This is a test.' }],
+              max_tokens: 5
+            }),
+          });
+          
+          if (res.ok) {
+            result = { success: true, status: 'success' };
+          } else {
+            const errorData = await res.json();
+            result = { success: false, error: `Groq API Error: ${errorData.error?.message || res.statusText}`, status: 'failure' };
+          }
+        } catch (error: any) {
+          result = { success: false, error: `Groq connection error: ${error.message}`, status: 'failure' };
+        }
         break;
+        
       case 'deepseek':
-        // TODO: Implement DeepSeek connection test (often OpenAI compatible API)
-         console.warn(`DeepSeek test not implemented yet.`);
-        result = { success: true, status: 'success' }; // Placeholder
+        try {
+          const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${key}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'deepseek-chat',
+              messages: [{ role: 'user', content: 'This is a test.' }],
+              max_tokens: 5
+            }),
+          });
+          
+          if (res.ok) {
+            result = { success: true, status: 'success' };
+          } else {
+            const errorData = await res.json();
+            result = { success: false, error: `DeepSeek API Error: ${errorData.error?.message || res.statusText}`, status: 'failure' };
+          }
+        } catch (error: any) {
+          result = { success: false, error: `DeepSeek connection error: ${error.message}`, status: 'failure' };
+        }
         break;
+        
       default:
-        result = { success: false, error: `Unsupported provider: ${provider}`, status: 'failure' };
+        result = { success: false, error: `Provedor não suportado: ${provider}`, status: 'failure' };
     }
   } catch (error: any) {
     console.error(`Connection test failed for ${provider}:`, error);
@@ -90,14 +152,12 @@ export const testConnection = async (apiKey: UserLlmApi): Promise<TestConnection
     });
   } catch (updateError) {
     console.error(`Failed to update API key status for ${apiKey.id}:`, updateError);
-    // Decide how to handle this - the test might have succeeded but the update failed.
-    // Maybe return the original test result but log the update error.
   }
 
   return result;
 };
 
-// Modified API calls with better error handling
+// API call implementations
 const callOpenAI = async (key: string, payload: any, endpoint = 'https://api.openai.com/v1/chat/completions') => {
   try {
     const res = await fetch(endpoint, {
@@ -133,18 +193,18 @@ const callGroq = async (key: string, payload: any) => {
 
 const callDeepSeek = async (key: string, payload: any) => {
   try {
-    return await callOpenAI(key, payload, 'https://api.deepseek.com/openai/v1/chat/completions');
+    return await callOpenAI(key, payload, 'https://api.deepseek.com/v1/chat/completions');
   } catch (error: any) {
     console.error("DeepSeek API call failed:", error);
     throw new Error(`Falha na comunicação com DeepSeek: ${error.message}`);
   }
 };
 
-// Updated Gemini API call with direct SDK usage and fallback to edge function
+// Updated Gemini API call with better error handling
 const callGemini = async (key: string, payload: any) => {
   try {
-    // First try using the edge function approach - skipping direct SDK to simplify
-    console.log("Tentando chamar Gemini via edge function...");
+    // Use edge function for Gemini calls
+    console.log("Chamando Gemini via edge function...");
     
     const res = await fetch('https://lmovpaablzagtkedhbtb.functions.supabase.co/gemini', {
       method: 'POST',
@@ -153,18 +213,23 @@ const callGemini = async (key: string, payload: any) => {
         'Origin': window.location.origin
       },
       body: JSON.stringify({ 
-        prompt: payload.messages?.find((msg: any) => msg.role === 'user')?.content || '', 
-        model: 'gemini-1.5-flash' // Usando modelo atualizado
+        prompt: payload.messages?.find((msg: any) => msg.role === 'user')?.content || '',
+        model: 'gemini-1.5-flash'
       })
     });
     
     if (!res.ok) {
       const errorText = await res.text();
-      throw new Error(`Edge function error: ${res.status} - ${errorText}`);
+      console.error("Erro na resposta da edge function:", errorText);
+      throw new Error(`Erro na comunicação com Gemini: ${res.status} - ${errorText}`);
     }
     
     const data = await res.json();
-    if (data.error) throw new Error(data.error);
+    if (data.error) {
+      console.error("Erro retornado pela edge function:", data.error);
+      throw new Error(data.error);
+    }
+    
     console.log("Resposta recebida via edge function");
     return data.result;
   } catch (error: any) {
@@ -180,18 +245,24 @@ const callGemini = async (key: string, payload: any) => {
 
 /**
  * Enhances a given prompt using the user's active LLM API configuration.
- * @param prompt - The original prompt text.
- * @param userId - The ID of the user requesting the enhancement.
- * @returns A promise resolving to the enhanced prompt string or throws an error.
  */
 export const enhancePrompt = async (prompt: string, userId: string): Promise<string> => {
   try {
     const activeApiKey = await getActiveApiKey(userId);
     if (!activeApiKey) {
-      throw new Error('No active API key found for the user.');
+      throw new Error('Nenhuma chave de API ativa encontrada para o usuário.');
     }
+    
+    console.log(`Usando provedor: ${activeApiKey.provider}`);
+    
     const systemMessage = await getDefaultSystemMessage();
-    const systemContent = systemMessage?.content || 'You are a helpful assistant.';
+    let systemContent = systemMessage?.content || 'Você é um assistente especializado em Desenvolvimento de Software.';
+    
+    // Adjust system message to include specialized assistant phrasing
+    if (!systemContent.includes('especializado em Desenvolvimento de Software')) {
+      systemContent = 'Você é um assistente especializado em Desenvolvimento de Software. ' + systemContent;
+    }
+    
     const provider = activeApiKey.provider;
     const key = activeApiKey.api_key;
     
@@ -204,17 +275,17 @@ export const enhancePrompt = async (prompt: string, userId: string): Promise<str
             model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
             messages: [
               { role: 'system', content: systemContent },
-              { role: 'user', content: `Enhance the following prompt:\n\n${prompt}` }
+              { role: 'user', content: prompt }
             ],
           };
           result = await callOpenAI(key, openaiPayload);
           break;
         case 'gemini':
           const geminiPayload = {
-            model: 'gemini-1.5-flash', // Usando modelo atualizado
+            model: 'gemini-1.5-flash',
             messages: [
               { role: 'system', content: systemContent },
-              { role: 'user', content: `Enhance the following prompt:\n\n${prompt}` }
+              { role: 'user', content: prompt }
             ],
           };
           result = await callGemini(key, geminiPayload);
@@ -224,7 +295,7 @@ export const enhancePrompt = async (prompt: string, userId: string): Promise<str
             model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
             messages: [
               { role: 'system', content: systemContent },
-              { role: 'user', content: `Enhance the following prompt:\n\n${prompt}` }
+              { role: 'user', content: prompt }
             ],
           };
           result = await callGroq(key, groqPayload);
@@ -234,13 +305,13 @@ export const enhancePrompt = async (prompt: string, userId: string): Promise<str
             model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
             messages: [
               { role: 'system', content: systemContent },
-              { role: 'user', content: `Enhance the following prompt:\n\n${prompt}` }
+              { role: 'user', content: prompt }
             ],
           };
           result = await callDeepSeek(key, deepseekPayload);
           break;
         default:
-          throw new Error(`Unsupported provider for enhancement: ${provider}`);
+          throw new Error(`Provedor não suportado: ${provider}`);
       }
       return result;
     } catch (error: any) {
@@ -259,22 +330,19 @@ export const enhancePrompt = async (prompt: string, userId: string): Promise<str
 };
 
 /**
- * Generates a diagram (e.g., Mermaid syntax) based on prompt data using the user's active LLM.
- * @param promptData - The structured data from the wizard.
- * @param userId - The ID of the user.
- * @returns A promise resolving to the diagram syntax string or throws an error.
+ * Generates a diagram based on prompt data using the user's active LLM.
  */
 export const generateDiagram = async (promptData: any, userId: string): Promise<string> => {
   try {
     const activeApiKey = await getActiveApiKey(userId);
     if (!activeApiKey) {
-      throw new Error('No active API key found for the user.');
+      throw new Error('Nenhuma chave de API ativa encontrada para o usuário.');
     }
     const systemMessage = await getDefaultSystemMessage();
-    const systemContent = systemMessage?.content || 'You are a helpful assistant specialized in creating diagrams.';
+    const systemContent = systemMessage?.content || 'Você é um assistente especializado em criar diagramas.';
     const provider = activeApiKey.provider;
     const key = activeApiKey.api_key;
-    const diagramPrompt = `Based on the following project data, generate a Mermaid flowchart diagram:\n\n${JSON.stringify(promptData, null, 2)}\n\nOutput only the Mermaid syntax within a single code block.`;
+    const diagramPrompt = `Com base nos seguintes dados do projeto, gere um diagrama de fluxo utilizando sintaxe Mermaid:\n\n${JSON.stringify(promptData, null, 2)}\n\nForneça apenas a sintaxe Mermaid em um único bloco de código.`;
     
     let result = '';
     try {
@@ -291,7 +359,7 @@ export const generateDiagram = async (promptData: any, userId: string): Promise<
           break;
         case 'gemini':
           const geminiPayload = {
-            model: 'gemini-1.5-flash', // Usando modelo atualizado
+            model: 'gemini-1.5-flash',
             messages: [
               { role: 'system', content: systemContent },
               { role: 'user', content: diagramPrompt }
@@ -320,7 +388,7 @@ export const generateDiagram = async (promptData: any, userId: string): Promise<
           result = await callDeepSeek(key, deepseekPayload);
           break;
         default:
-          throw new Error(`Unsupported provider for diagram generation: ${provider}`);
+          throw new Error(`Provedor não suportado para geração de diagrama: ${provider}`);
       }
       return result;
     } catch (error: any) {
@@ -341,10 +409,10 @@ export const generateDiagram = async (promptData: any, userId: string): Promise<
 // Helper function to get a default model if none is specified
 const getDefaultModelForProvider = (provider: LlmProvider): string => {
     switch (provider) {
-        case 'openai': return 'gpt-3.5-turbo'; // Or latest suitable default
-        case 'gemini': return 'gemini-1.5-flash'; // Modelo atualizado
-        case 'groq': return 'llama3-8b-8192'; // Example, check Groq for current defaults
-        case 'deepseek': return 'deepseek-chat'; // Example, check DeepSeek docs
-        default: return 'default-model'; // Should not happen with enum
+        case 'openai': return 'gpt-4o-mini';
+        case 'gemini': return 'gemini-1.5-flash';
+        case 'groq': return 'llama3-8b-8192';
+        case 'deepseek': return 'deepseek-chat';
+        default: return 'default-model';
     }
 };

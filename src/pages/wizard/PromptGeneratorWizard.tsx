@@ -745,6 +745,13 @@ const PromptGeneratorWizard = () => {
     setPreviewMarkdown(generatePreviewMarkdown(formData));
   }, [formData, t]); // t is a dependency if translations inside generatePreviewMarkdown change
 
+  // Update the onStepChange prop
+  const handleStepChange = () => {
+    console.log('Step changed');
+    // If we need to track the current step, we can update it within the navigation component
+    // The current step is accessible in the navigation.position property
+  };
+
   return (
     <div className="space-y-1"> {/* Reverted from space-y-0 to space-y-1 */}
       <Card className="p-2 mb-2"> {/* Reverted p-1 to p-2, mb-1 to mb-2 */}
