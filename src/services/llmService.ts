@@ -3,8 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
 import { UserLlmApi, getActiveApiKey, updateUserApiKey, ApiTestStatus, LlmProvider } from './userSettingService';
 import { LlmSystemMessage, getDefaultSystemMessage } from './adminSettingService';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { toast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/use-toast";
 
 interface TestConnectionResult {
   success: boolean;
@@ -56,28 +55,17 @@ export const testConnection = async (apiKey: UserLlmApi): Promise<TestConnection
         
       case 'gemini':
         try {
-          // Test via edge function instead of direct SDK for consistency
-          const res = await fetch('https://lmovpaablzagtkedhbtb.functions.supabase.co/gemini', {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              'Origin': window.location.origin
-            },
-            body: JSON.stringify({ 
-              prompt: "This is a test message to verify the API connection.",
-              model: "gemini-1.5-flash"
-            })
+          // Test via edge function
+          const res = await supabase.functions.invoke('gemini', {
+            body: {
+              prompt: "This is a test message to verify the API connection."
+            }
           });
           
-          if (res.ok) {
-            const data = await res.json();
-            if (data.error) {
-              result = { success: false, error: `Gemini API Error: ${data.error}`, status: 'failure' };
-            } else {
-              result = { success: true, status: 'success' };
-            }
+          if (res.error) {
+            result = { success: false, error: `Gemini API Error: ${res.error.message || res.error}`, status: 'failure' };
           } else {
-            result = { success: false, error: `Gemini API Error: ${res.statusText}`, status: 'failure' };
+            result = { success: true, status: 'success' };
           }
         } catch (error: any) {
           result = { success: false, error: `Gemini connection error: ${error.message}`, status: 'failure' };
@@ -157,89 +145,30 @@ export const testConnection = async (apiKey: UserLlmApi): Promise<TestConnection
   return result;
 };
 
-// API call implementations
-const callOpenAI = async (key: string, payload: any, endpoint = 'https://api.openai.com/v1/chat/completions') => {
+// Função para chamar as edge functions
+const callEdgeFunction = async (functionName: string, payload: any) => {
   try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${key}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
+    console.log(`Chamando edge function ${functionName}...`, payload);
+    
+    const response = await supabase.functions.invoke(functionName, {
+      body: payload
     });
     
-    if (!res.ok) {
-      const errorText = await res.text();
-      throw new Error(`OpenAI API error: ${res.status} - ${errorText}`);
+    if (response.error) {
+      console.error(`Erro na edge function ${functionName}:`, response.error);
+      throw new Error(response.error.message || `Erro ao chamar ${functionName}`);
     }
     
-    const data = await res.json();
-    return data.choices?.[0]?.message?.content || '';
+    console.log(`Resposta da edge function ${functionName}:`, response.data);
+    return response.data.result;
   } catch (error: any) {
-    console.error("OpenAI API call failed:", error);
-    throw new Error(`Falha na comunicação com OpenAI: ${error.message}`);
-  }
-};
-
-const callGroq = async (key: string, payload: any) => {
-  try {
-    return await callOpenAI(key, payload, 'https://api.groq.com/openai/v1/chat/completions');
-  } catch (error: any) {
-    console.error("Groq API call failed:", error);
-    throw new Error(`Falha na comunicação com Groq: ${error.message}`);
-  }
-};
-
-const callDeepSeek = async (key: string, payload: any) => {
-  try {
-    return await callOpenAI(key, payload, 'https://api.deepseek.com/v1/chat/completions');
-  } catch (error: any) {
-    console.error("DeepSeek API call failed:", error);
-    throw new Error(`Falha na comunicação com DeepSeek: ${error.message}`);
-  }
-};
-
-// Updated Gemini API call with better error handling
-const callGemini = async (key: string, payload: any) => {
-  try {
-    // Use edge function for Gemini calls
-    console.log("Chamando Gemini via edge function...");
-    
-    const res = await fetch('https://lmovpaablzagtkedhbtb.functions.supabase.co/gemini', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Origin': window.location.origin
-      },
-      body: JSON.stringify({ 
-        prompt: payload.messages?.find((msg: any) => msg.role === 'user')?.content || '',
-        model: 'gemini-1.5-flash'
-      })
-    });
-    
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error("Erro na resposta da edge function:", errorText);
-      throw new Error(`Erro na comunicação com Gemini: ${res.status} - ${errorText}`);
-    }
-    
-    const data = await res.json();
-    if (data.error) {
-      console.error("Erro retornado pela edge function:", data.error);
-      throw new Error(data.error);
-    }
-    
-    console.log("Resposta recebida via edge function");
-    return data.result;
-  } catch (error: any) {
-    console.error("Gemini API via edge function failed:", error);
+    console.error(`Erro ao chamar edge function ${functionName}:`, error);
     toast({
-      title: "Erro ao chamar Gemini API",
-      description: `${error.message || 'Erro desconhecido'}. Tente novamente mais tarde.`,
+      title: `Erro ao chamar serviço de IA`,
+      description: error.message || `Erro ao comunicar com o serviço de IA. Tente novamente mais tarde.`,
       variant: "destructive"
     });
-    throw new Error(`Falha na comunicação com Gemini: ${error.message || 'Erro desconhecido'}`);
+    throw error;
   }
 };
 
@@ -264,56 +193,41 @@ export const enhancePrompt = async (prompt: string, userId: string): Promise<str
     }
     
     const provider = activeApiKey.provider;
-    const key = activeApiKey.api_key;
     
-    // Construindo o prompt para diferentes provedores
-    let result = '';
+    // Usando edge functions para todas as LLMs
     try {
       switch (provider) {
         case 'openai':
-          const openaiPayload = {
+          return await callEdgeFunction('openai', {
+            prompt,
             model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
-            messages: [
-              { role: 'system', content: systemContent },
-              { role: 'user', content: prompt }
-            ],
-          };
-          result = await callOpenAI(key, openaiPayload);
-          break;
+            systemContent
+          });
+        
         case 'gemini':
-          const geminiPayload = {
+          return await callEdgeFunction('gemini', {
+            prompt,
             model: 'gemini-1.5-flash',
-            messages: [
-              { role: 'system', content: systemContent },
-              { role: 'user', content: prompt }
-            ],
-          };
-          result = await callGemini(key, geminiPayload);
-          break;
+            systemContent
+          });
+        
         case 'groq':
-          const groqPayload = {
+          return await callEdgeFunction('groq', {
+            prompt,
             model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
-            messages: [
-              { role: 'system', content: systemContent },
-              { role: 'user', content: prompt }
-            ],
-          };
-          result = await callGroq(key, groqPayload);
-          break;
+            systemContent
+          });
+        
         case 'deepseek':
-          const deepseekPayload = {
+          return await callEdgeFunction('deepseek', {
+            prompt,
             model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
-            messages: [
-              { role: 'system', content: systemContent },
-              { role: 'user', content: prompt }
-            ],
-          };
-          result = await callDeepSeek(key, deepseekPayload);
-          break;
+            systemContent
+          });
+        
         default:
           throw new Error(`Provedor não suportado: ${provider}`);
       }
-      return result;
     } catch (error: any) {
       console.error(`Error while calling ${provider} API:`, error);
       toast({
@@ -338,59 +252,46 @@ export const generateDiagram = async (promptData: any, userId: string): Promise<
     if (!activeApiKey) {
       throw new Error('Nenhuma chave de API ativa encontrada para o usuário.');
     }
+    
     const systemMessage = await getDefaultSystemMessage();
     const systemContent = systemMessage?.content || 'Você é um assistente especializado em criar diagramas.';
     const provider = activeApiKey.provider;
-    const key = activeApiKey.api_key;
     const diagramPrompt = `Com base nos seguintes dados do projeto, gere um diagrama de fluxo utilizando sintaxe Mermaid:\n\n${JSON.stringify(promptData, null, 2)}\n\nForneça apenas a sintaxe Mermaid em um único bloco de código.`;
     
-    let result = '';
+    // Usando edge functions para todas as LLMs
     try {
       switch (provider) {
         case 'openai':
-          const openaiPayload = {
+          return await callEdgeFunction('openai', {
+            prompt: diagramPrompt,
             model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
-            messages: [
-              { role: 'system', content: systemContent },
-              { role: 'user', content: diagramPrompt }
-            ],
-          };
-          result = await callOpenAI(key, openaiPayload);
-          break;
+            systemContent
+          });
+        
         case 'gemini':
-          const geminiPayload = {
+          return await callEdgeFunction('gemini', {
+            prompt: diagramPrompt,
             model: 'gemini-1.5-flash',
-            messages: [
-              { role: 'system', content: systemContent },
-              { role: 'user', content: diagramPrompt }
-            ],
-          };
-          result = await callGemini(key, geminiPayload);
-          break;
+            systemContent
+          });
+        
         case 'groq':
-          const groqPayload = {
+          return await callEdgeFunction('groq', {
+            prompt: diagramPrompt,
             model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
-            messages: [
-              { role: 'system', content: systemContent },
-              { role: 'user', content: diagramPrompt }
-            ],
-          };
-          result = await callGroq(key, groqPayload);
-          break;
+            systemContent
+          });
+        
         case 'deepseek':
-          const deepseekPayload = {
+          return await callEdgeFunction('deepseek', {
+            prompt: diagramPrompt,
             model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
-            messages: [
-              { role: 'system', content: systemContent },
-              { role: 'user', content: diagramPrompt }
-            ],
-          };
-          result = await callDeepSeek(key, deepseekPayload);
-          break;
+            systemContent
+          });
+        
         default:
           throw new Error(`Provedor não suportado para geração de diagrama: ${provider}`);
       }
-      return result;
     } catch (error: any) {
       console.error(`Error while calling ${provider} API for diagram generation:`, error);
       toast({

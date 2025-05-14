@@ -1,1 +1,14 @@
+
 project_id = "lmovpaablzagtkedhbtb"
+
+[functions.gemini]
+verify_jwt = false
+
+[functions.openai]
+verify_jwt = false
+
+[functions.groq]
+verify_jwt = false
+
+[functions.deepseek]
+verify_jwt = false
