@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
@@ -13,6 +13,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import AIAssistantPanel from '../components/AIAssistantPanel';
+import codeStructureData from '../data/codeStructureData.json';
 
 interface CodeStructureFormData {
   folderOrganization: string[];
@@ -57,9 +60,26 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({
   const [currentOtherBestInput, setCurrentOtherBestInput] = useState('');
   const [tempOtherBestList, setTempOtherBestList] = useState<string[]>([]);
 
-  const folderOptions = ['byFunction', 'byDomain', 'frontBackSeparation', 'modularDI'];
-  const architectureOptions = ['mvc', 'mvvm', 'cleanArch', 'ddd', 'hexagonal'];
-  const bestPracticeOptions = ['stateless', 'lowCoupling', 'testing', 'reusableComponents'];
+  const [folderOptions, setFolderOptions] = useState<any[]>([]);
+  const [architectureOptions, setArchitectureOptions] = useState<any[]>([]);
+  const [bestPracticeOptions, setBestPracticeOptions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [aiOpen, setAIOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (Array.isArray(codeStructureData)) {
+        setFolderOptions(codeStructureData.filter((item: any) => item.category === 'folderOrganization').map((item: any) => item.id));
+        setArchitectureOptions(codeStructureData.filter((item: any) => item.category === 'architecturalPattern').map((item: any) => item.id));
+        setBestPracticeOptions(codeStructureData.filter((item: any) => item.category === 'bestPractice').map((item: any) => item.id));
+      }
+      setLoading(false);
+    } catch (e) {
+      setError('Erro ao carregar estrutura de código');
+      setLoading(false);
+    }
+  }, []);
 
   const formatKeyAsFallback = (key: string, prefix: string = "") => {
     const effectiveKey = key.startsWith(prefix) ? key.substring(prefix.length) : key;
@@ -251,6 +271,9 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({
     );
   };
 
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>{error}</div>;
+
   return (
     <div className="space-y-6">
       <Card className="p-4 sm:p-6">
@@ -258,18 +281,33 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({
           <div className="flex justify-between items-start">
             <div>
               <CardTitle>{t('promptGenerator.codeStructure.title') || "Estrutura de Código"}</CardTitle>
-              <CardDescription className="text-sm text-muted-foreground">{t('promptGenerator.codeStructure.description') || "Preferências para organização de código"}</CardDescription>
+              <CardDescription className="text-sm text-muted-foreground">
+                {t('promptGenerator.codeStructure.description') || "Defina a estrutura do código do seu projeto"}
+              </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
               <Button variant="outline" onClick={handleReset} size="icon" className="h-8 w-8">
                 <RotateCcw className="h-4 w-4" />
                 <span className="sr-only">{t('common.reset')}</span>
               </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={() => setAIOpen(true)} size="icon" className="h-8 w-8">
+                      <Wand2 className="h-4 w-4 text-blue-500" />
+                      <span className="sr-only">Assistente de IA</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <span>Obter ajuda do assistente de IA para definir a estrutura do código</span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Button 
                 onClick={handleSaveAndFinalize} 
                 size="icon" 
                 className="h-8 w-8"
-                disabled={isFinalized || (formData.folderOrganization.length === 0 && (!Array.isArray(formData.otherOrganizationStyle) || formData.otherOrganizationStyle.length === 0) && formData.architecturalPattern.length === 0 && (!Array.isArray(formData.otherArchPattern) || formData.otherArchPattern.length === 0) && formData.bestPractices.length === 0 && (!Array.isArray(formData.otherBestPractice) || formData.otherBestPractice.length === 0))}
+                disabled={isFinalized}
               >
                 <Save className="h-4 w-4" />
                 <span className="sr-only">{isFinalized ? t('common.finalized') : t('common.saveAndFinalize')}</span>
@@ -286,6 +324,12 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({
           </Accordion>
         </CardContent>
       </Card>
+      <AIAssistantPanel
+        open={aiOpen}
+        onClose={() => setAIOpen(false)}
+        items={Array.isArray(codeStructureData) ? codeStructureData : []}
+        title={t('promptGenerator.codeStructure.title') || 'Estrutura de Código'}
+      />
     </div>
   );
 };

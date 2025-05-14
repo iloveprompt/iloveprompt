@@ -1,0 +1,15 @@
+[
+  { "id": "microsaas", "label": "MicroSaaS", "description": "SaaS pequeno e nichado", "category": "systemType" },
+  { "id": "saas", "label": "SaaS", "description": "Software como Serviço", "category": "systemType" },
+  { "id": "erp", "label": "ERP", "description": "Sistema de Gestão Empresarial", "category": "systemType" },
+  { "id": "crm", "label": "CRM", "description": "Gestão de Relacionamento com o Cliente", "category": "systemType" },
+  { "id": "ecommerce", "label": "E-commerce", "description": "Loja Virtual", "category": "systemType" },
+  { "id": "cms", "label": "CMS", "description": "Sistema de Gerenciamento de Conteúdo", "category": "systemType" },
+  { "id": "apiBackend", "label": "API/Backend", "description": "API ou Backend puro", "category": "systemType" },
+  { "id": "mobileApp", "label": "App Mobile", "description": "Aplicativo para dispositivos móveis", "category": "systemType" },
+  { "id": "schedulingSystem", "label": "Sistema de Agendamento", "description": "Gestão de horários e reservas", "category": "systemType" },
+  { "id": "helpdesk", "label": "Helpdesk", "description": "Atendimento e suporte", "category": "systemType" },
+  { "id": "educationalPlatform", "label": "Plataforma Educacional", "description": "EAD, cursos, treinamentos", "category": "systemType" },
+  { "id": "streamingPlatform", "label": "Plataforma de Streaming", "description": "Vídeo, áudio, lives", "category": "systemType" },
+  { "id": "staticPage", "label": "Página Estática", "description": "Landing page, institucional", "category": "systemType" }
+] 

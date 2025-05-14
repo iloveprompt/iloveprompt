@@ -1,0 +1,13 @@
+[
+  { "id": "eval", "label": "Uso de eval()", "description": "Evitar uso da função eval() por questões de segurança e performance", "category": "code" },
+  { "id": "globalVars", "label": "Variáveis Globais Excessivas", "description": "Evitar uso excessivo de variáveis globais para prevenir efeitos colaterais", "category": "code" },
+  { "id": "callbackHell", "label": "Callback Hell / Aninhamento Profundo", "description": "Evitar aninhamento excessivo de callbacks usando promises ou async/await", "category": "code" },
+  { "id": "unmaintained", "label": "Bibliotecas Desatualizadas/Sem Manutenção", "description": "Evitar uso de bibliotecas sem manutenção ativa ou com vulnerabilidades", "category": "library" },
+  { "id": "important", "label": "Uso de !important em CSS", "description": "Evitar uso de !important para manter a especificidade CSS gerenciável", "category": "practice" },
+  { "id": "paidDeps", "label": "Dependências Pagas (se projeto open-source)", "description": "Evitar dependências que requerem licenças pagas em projetos open-source", "category": "library" },
+  { "id": "classComponents", "label": "Componentes de Classe", "description": "Preferir componentes funcionais com hooks ao invés de componentes de classe", "category": "code" },
+  { "id": "redux", "label": "Redux", "description": "Evitar Redux quando o gerenciamento de estado pode ser mais simples", "category": "library" },
+  { "id": "jquery", "label": "jQuery", "description": "Evitar jQuery em favor de APIs modernas do navegador e frameworks atuais", "category": "library" },
+  { "id": "php", "label": "PHP", "description": "Evitar PHP em favor de tecnologias mais modernas para backend", "category": "library" },
+  { "id": "specificLibraries", "label": "Bibliotecas Específicas (especifique)", "description": "Evitar bibliotecas específicas conforme necessidades do projeto", "category": "library" }
+] 

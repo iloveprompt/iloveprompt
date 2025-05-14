@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { savePromptToDatabase } from '@/services/promptService';
 // import { supabase } from '@/lib/supabase'; // supabase client not directly used here
-import { Save, CheckCircle as CheckCircleIcon } from 'lucide-react'; // Added icons
+import { Save, CheckCircle as CheckCircleIcon, FileText, Wand2, Sparkles } from 'lucide-react'; // Added icons
 
 interface GenerateStepProps {
   formData: any; // Keeping 'any' for now as it's a collection of all previous steps
@@ -213,41 +212,46 @@ const GenerateStep: React.FC<GenerateStepProps> = ({
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-start"> {/* Changed items-center to items-start */}
+          <div className="flex justify-between items-start">
             <div>
               <CardTitle>{t('promptGenerator.generate.title')}</CardTitle>
               <CardDescription>
                 {t('promptGenerator.generate.description')}
               </CardDescription>
             </div>
-            <div className="flex items-center space-x-2"> {/* Group for buttons and checkmark */}
-              {/* No Reset button for GenerateStep */}
-              <Button 
-                onClick={markAsFinalized} 
-                size="icon" 
-                className="h-8 w-8"
-                disabled={isFinalized || !generatedPrompt} // Disable if not generated or already finalized
-                title={isFinalized ? (t('common.finalized') || "Finalizado") : (t('promptGenerator.generate.markAsReviewed') || "Marcar como Revisado")}
-              >
-                <Save className="h-4 w-4" />
-                <span className="sr-only">{isFinalized ? (t('common.finalized') || "Finalizado") : (t('promptGenerator.generate.markAsReviewed') || "Marcar como Revisado")}</span>
-              </Button>
-              {isFinalized && <CheckCircleIcon className="h-6 w-6 text-green-500 ml-2" />}
-            </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4 pt-4"> {/* Added pt-4 for spacing */}
-          <div className="flex justify-center mb-4">
+        <CardContent className="space-y-4 pt-4">
+          <div className="flex justify-center mb-4 gap-2">
             <Button 
               onClick={handleGenerate} 
-              className="w-64" 
+              className="flex items-center gap-2"
               disabled={isGenerating || isSaving}
             >
+              <Wand2 className="h-4 w-4" />
               {isGenerating 
                 ? t('promptGenerator.generate.generating') 
                 : isSaving 
                   ? t('promptGenerator.generate.saving')
                   : t('promptGenerator.generate.createPrompt')}
+            </Button>
+            {/* Botão Gerar Documentação */}
+            <Button 
+              onClick={() => { /* lógica de geração de documentação */ }}
+              disabled={isGenerating || isFinalized}
+              className="flex items-center gap-2"
+            >
+              <FileText className="h-4 w-4" />
+              {t('promptGenerator.generate.generateDocs') || 'Gerar Documentação'}
+            </Button>
+            {/* Botão Melhorar com IA */}
+            <Button 
+              onClick={() => { /* lógica de melhoria com IA */ }}
+              disabled={isGenerating || isFinalized}
+              className="flex items-center gap-2"
+            >
+              <Sparkles className="h-4 w-4" />
+              {t('promptGenerator.generate.enhanceWithAI') || 'Melhorar com IA'}
             </Button>
           </div>
           

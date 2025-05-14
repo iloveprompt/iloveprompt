@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -92,6 +91,9 @@
   
   body {
     @apply bg-background text-foreground;
+    background-color: #0A192F;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    width: 100%;
   }
 
   .glass-card {
@@ -114,17 +116,13 @@
 @keyframes slideIn {
   0% {
     opacity: 0;
-    transform: translateY(50px); /* Aumentado o deslocamento */
+    transform: translateY(50px);
   }
   100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
-
-/* Aumentar a duração da animação slide-in se necessário, ou aplicar diretamente na classe .slide-in */
-/* Exemplo: .slide-in { animation: slideIn 0.8s ease-in-out forwards; } */
-/* Por enquanto, manteremos a duração de 0.5s definida em tailwind.config.js, mas o translateY maior deve ajudar */
 
 .delay-100 {
   animation-delay: 0.1s;
@@ -136,4 +134,162 @@
 
 .delay-300 {
   animation-delay: 0.3s;
+}
+
+/* Efeitos de transição entre seções */
+.section-transition {
+  position: relative;
+  transition: all 0.5s ease;
+}
+
+/* Remover espaçamento negativo para evitar gaps */
+.section-transition::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  background: linear-gradient(to bottom, currentColor 0%, transparent 100%);
+  opacity: 0.05;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.section-transition-top {
+  position: relative;
+  margin-top: 0;
+}
+
+/* Remover espaçamento negativo para evitar gaps */
+.section-transition-top::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  background: linear-gradient(to top, currentColor 0%, transparent 100%);
+  opacity: 0.05;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Conectar seções para evitar espaços em branco */
+.connect-sections {
+  margin-top: -2px;
+  padding-top: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Efeito de hover para cards */
+.hover-glow {
+  transition: all 0.3s ease;
+}
+
+.hover-glow:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(58, 134, 255, 0.2);
+}
+
+/* Efeito de gradiente animado */
+.animated-gradient {
+  background-size: 400% 400%;
+  animation: gradient 8s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Fixed position for sticky menu */
+.sticky-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  background-color: rgba(10, 25, 47, 0.85); /* Dark semi-transparent background */
+  width: 100%;
+}
+
+.sticky-menu.scrolled {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  background-color: rgba(10, 25, 47, 0.95); /* Darker background when scrolled */
+}
+
+/* Animação de scroll */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Mobile menu styles - fixed and full width/height */
+@media (max-width: 768px) {
+  .mobile-menu-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease;
+    width: 100vw;
+  }
+  
+  .mobile-menu-container.open {
+    max-height: 500px;
+  }
+  
+  .sticky-menu .mobile-menu {
+    width: 100vw;
+    left: 0;
+    right: 0;
+  }
+}
+
+/* Ajuste para altura do hero */
+.hero-fullheight {
+  min-height: 100vh;
+  padding-top: 5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: -2px;
+}
+
+/* Eliminar espaços entre seções */
+.no-gap {
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Overlay para garantir que não haja espaços brancos entre transições */
+.section-overlay {
+  position: relative;
+}
+
+.section-overlay::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: inherit;
+  z-index: 2;
 }

@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
@@ -13,6 +13,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import AIAssistantPanel from '../components/AIAssistantPanel';
+import securityData from '../data/securityData.json';
 
 interface SecurityFormData {
   selectedSecurity: string[];
@@ -42,40 +45,40 @@ const SecurityStep: React.FC<SecurityStepProps> = ({
   const [isOtherPopoverOpen, setIsOtherPopoverOpen] = useState(false);
   const [currentOtherInput, setCurrentOtherInput] = useState('');
   const [tempOtherList, setTempOtherList] = useState<string[]>([]);
+  const [securityOptions, setSecurityOptions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [aiOpen, setAIOpen] = useState(false);
 
-  const securityOptions = [
-    { key: 'protection', defaultText: 'Proteção Geral (Injeção SQL, XSS, CSRF)' },
-    { key: 'authenticationSec', defaultText: 'Autenticação Segura (JWT, OAuth2, 2FA)' },
-    { key: 'httpsUsage', defaultText: 'Uso de HTTPS (SSL/TLS), CSP, HSTS' },
-    { key: 'auditLogsMonitoring', defaultText: 'Logs de Auditoria e Monitoramento de Segurança' },
-    { key: 'apiEndpointSecurity', defaultText: 'Segurança de Endpoints de API (Rate Limiting, Chaves)' },
-    { key: 'dataEncryption', defaultText: 'Criptografia de Dados (em repouso e em trânsito)' },
-    { key: 'inputValidation', defaultText: 'Validação Rigorosa de Entradas (Frontend e Backend)' },
-    { key: 'ddosProtection', defaultText: 'Proteção contra DDoS' },
-    { key: 'automatedBackups', defaultText: 'Backups Automatizados e Testes de Restauração' },
-    { key: 'securityLogging', defaultText: 'Logging Detalhado de Eventos de Segurança' },
-    { key: 'compliance', defaultText: 'Conformidade com Normas (LGPD, GDPR, HIPAA, etc.)' },
-  ];
+  useEffect(() => {
+    try {
+      setSecurityOptions(Array.isArray(securityData) ? securityData : []);
+      setLoading(false);
+    } catch (e) {
+      setError('Erro ao carregar opções de segurança');
+      setLoading(false);
+    }
+  }, []);
 
-  const handleSecurityChange = (optionKey: string, checked: boolean) => {
+  const handleSecurityChange = (optionId: string, checked: boolean) => {
     const updatedOptions = checked
-      ? [...formData.selectedSecurity, optionKey]
-      : formData.selectedSecurity.filter(oKey => oKey !== optionKey);
+      ? [...formData.selectedSecurity, optionId]
+      : formData.selectedSecurity.filter(id => id !== optionId);
     updateFormData({ selectedSecurity: updatedOptions });
   };
 
   const toggleSelectAll = () => {
-    const allOptionKeys = securityOptions.map(opt => opt.key);
-    const allSelectedCurrently = allOptionKeys.every(key => formData.selectedSecurity.includes(key));
+    const allOptionIds = securityOptions.map(opt => opt.id);
+    const allSelectedCurrently = allOptionIds.every(id => formData.selectedSecurity.includes(id));
 
     if (allSelectedCurrently) {
-      updateFormData({ selectedSecurity: formData.selectedSecurity.filter(sec => !allOptionKeys.includes(sec)) });
+      updateFormData({ selectedSecurity: formData.selectedSecurity.filter(sec => !allOptionIds.includes(sec)) });
     } else {
-      updateFormData({ selectedSecurity: Array.from(new Set([...formData.selectedSecurity, ...allOptionKeys])) });
+      updateFormData({ selectedSecurity: Array.from(new Set([...formData.selectedSecurity, ...allOptionIds])) });
     }
   };
 
-  const allSelected = securityOptions.length > 0 && securityOptions.every(opt => formData.selectedSecurity.includes(opt.key));
+  const allSelected = securityOptions.length > 0 && securityOptions.every(opt => formData.selectedSecurity.includes(opt.id));
 
   useEffect(() => {
     if (isOtherPopoverOpen) {
@@ -124,6 +127,9 @@ const SecurityStep: React.FC<SecurityStepProps> = ({
   const totalPages = Math.ceil(securityOptions.length / itemsPerPage);
   const currentItemsToDisplay = securityOptions.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
 
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>{error}</div>;
+
   return (
     <div className="space-y-6">
       <Card className="p-4 sm:p-6">
@@ -131,18 +137,33 @@ const SecurityStep: React.FC<SecurityStepProps> = ({
           <div className="flex justify-between items-start">
             <div>
               <CardTitle>{t('promptGenerator.security.title') || "Segurança"}</CardTitle>
-              <CardDescription className="text-sm text-muted-foreground">{t('promptGenerator.security.description') || "Recursos de segurança para seu projeto"}</CardDescription>
+              <CardDescription className="text-sm text-muted-foreground">
+                {t('promptGenerator.security.description') || "Defina os requisitos de segurança do seu projeto"}
+              </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
               <Button variant="outline" onClick={handleReset} size="icon" className="h-8 w-8">
                 <RotateCcw className="h-4 w-4" />
                 <span className="sr-only">{t('common.reset')}</span>
               </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={() => setAIOpen(true)} size="icon" className="h-8 w-8">
+                      <Wand2 className="h-4 w-4 text-blue-500" />
+                      <span className="sr-only">Assistente de IA</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <span>Obter ajuda do assistente de IA para definir os requisitos de segurança</span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Button 
                 onClick={handleSaveAndFinalize} 
                 size="icon" 
                 className="h-8 w-8"
-                disabled={isFinalized || (formData.selectedSecurity.length === 0 && (!Array.isArray(formData.otherSecurityFeature) || formData.otherSecurityFeature.length === 0))}
+                disabled={isFinalized}
               >
                 <Save className="h-4 w-4" />
                 <span className="sr-only">{isFinalized ? t('common.finalized') : t('common.saveAndFinalize')}</span>
@@ -161,17 +182,17 @@ const SecurityStep: React.FC<SecurityStepProps> = ({
                 <div className="space-y-2">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5"> {/* Removed minHeight style */}
                     {currentItemsToDisplay.map((optionObj) => (
-                      <div key={optionObj.key} className="flex items-start space-x-1.5"> {/* Removed h-7 */}
+                      <div key={optionObj.id} className="flex items-start space-x-1.5">
                         <Checkbox 
-                          id={`security-${optionObj.key}`}
-                          checked={formData.selectedSecurity.includes(optionObj.key)}
+                          id={`security-${optionObj.id}`}
+                          checked={formData.selectedSecurity.includes(optionObj.id)}
                           onCheckedChange={(checked) => 
-                            handleSecurityChange(optionObj.key, checked === true)
+                            handleSecurityChange(optionObj.id, checked === true)
                           }
                           className="mt-0.5"
                         />
-                        <Label htmlFor={`security-${optionObj.key}`} className="cursor-pointer text-xs font-normal whitespace-normal leading-tight">
-                          {t(`promptGenerator.security.${optionObj.key}`) || optionObj.defaultText}
+                        <Label htmlFor={`security-${optionObj.id}`} className="cursor-pointer text-xs font-normal whitespace-normal leading-tight">
+                          {optionObj.label}
                         </Label>
                       </div>
                     ))}
@@ -241,6 +262,12 @@ const SecurityStep: React.FC<SecurityStepProps> = ({
           </Accordion>
         </CardContent>
       </Card>
+      <AIAssistantPanel
+        open={aiOpen}
+        onClose={() => setAIOpen(false)}
+        items={Array.isArray(securityData) ? securityData : []}
+        title={t('promptGenerator.security.title') || 'Segurança'}
+      />
     </div>
   );
 };

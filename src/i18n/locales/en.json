@@ -32,7 +32,13 @@
     "finalized": "Finalized",
     "yes": "Yes",
     "cancel": "Cancel",
-    "saveOtherItems": "Save Others"
+    "saveOtherItems": "Save Others",
+    "createPalette": "Create your Palette",
+    "chooseColors": "Choose 4 colors for your palette",
+    "color1": "Color 1",
+    "color2": "Color 2",
+    "color3": "Color 3",
+    "color4": "Color 4"
   },
   "auth": {
     "loginTitle": "Sign in to your account",
@@ -374,19 +380,43 @@
     }
   },
   "features": {
-    "title": "Key Features",
-    "description": "Designed specifically for developers, our platform offers everything you need to create effective AI prompts.",
-    "feature1": {
-      "title": "Comprehensive Questionnaire",
-      "description": "Our guided question system covers all aspects of software development requirements."
+    "title": "Features",
+    "description": "Select the features for your project",
+    "specificFeatures": "Specific Features",
+    "dynamicFeatures": "Dynamic Features",
+    "ecommerceFeatures": {
+      "catalog": "Product Catalog with Filters and Advanced Search",
+      "cart": "Persistent Shopping Cart",
+      "checkout": "Secure Checkout with Multiple Payment Methods",
+      "inventoryManagement": "Order and Inventory Management"
     },
-    "feature2": {
-      "title": "Security Focus",
-      "description": "Includes specialized sections for security considerations and best practices."
+    "saasFeatures": {
+      "userAuthentication": "User Authentication (Email/Password, Social Login)",
+      "subscriptionManagement": "Subscription and Plan Management (Ex: Stripe, Paddle)"
     },
-    "feature3": {
-      "title": "Multiple AI Integration",
-      "description": "Execute your prompts with various AI models directly in our platform."
+    "default": {
+      "auth": "User Authentication",
+      "dashboard": "Control Panel (Dashboard)",
+      "contentManagement": "Basic Content Management",
+      "profileSettings": "Profile Settings"
+    },
+    "specificFeatures": {
+      "fileUpload": "File and Image Upload",
+      "notifications": "Notifications (Push, Email, SMS)",
+      "advancedSearch": "Advanced Filters and Search",
+      "interactiveDashboards": "Interactive Dashboards with Charts",
+      "scheduling": "Scheduling and Automatic Reminders",
+      "dataExport": "Data Export (CSV, PDF, Excel)",
+      "rbac": "Role-Based Access Control (RBAC)",
+      "apiIntegration": "External API Integration",
+      "multiLanguage": "Multi-language Support",
+      "accessibility": "Accessibility Standards (WCAG)",
+      "darkMode": "Dark and Light Theme",
+      "customLanding": "Customizable Landing Page",
+      "authentication": "User Authentication",
+      "dashboard": "Control Panel (Dashboard)",
+      "contentManagement": "Basic Content Management",
+      "profileSettings": "Profile Settings"
     }
   },
   "socialProof": {
@@ -576,7 +606,8 @@
       "complianceWithRegulations": "Compliance with Regulations",
       "enhanceSecurity": "Enhance Security",
       "otherObjective": "Other Business Objective",
-      "enhanceWithAI": "Enhance with AI"
+      "enhanceWithAI": "Enhance with AI",
+      "undefined": "Undefined Objective"
     },
     "requirements": {
       "title": "Requirements",
@@ -586,10 +617,23 @@
       "userTypesPlaceholder": "E.g. customers, administrators, moderators",
       "functionalRequirements": "Functional Requirements",
       "functionalPlaceholder": "What the system should do",
-      "nonFunctionalRequirements": "Non-Functional Requirements",
-      "nonFunctionalPlaceholder": "Performance, security, usability expectations",
+      "nonFunctionalRequirements": {
+        "performance": "Performance (loading speed)",
+        "dataSecurity": "Data Security",
+        "scalability": "Scalability (growth capacity)",
+        "usability": "Usability (ease of use)",
+        "accessibilityReq": "Accessibility (WCAG)",
+        "mobileCompatibility": "Mobile Device Compatibility",
+        "multiLanguageSupport": "Multi-language Support",
+        "compliance": "Compliance (LGPD, GDPR, etc.)",
+        "monitoringLogging": "Monitoring and Logging",
+        "backupRecovery": "Data Backup and Recovery",
+        "highAvailability": "High Availability (uptime)",
+        "browserCompatibility": "Browser Compatibility"
+      },
       "other": "Other Requirement",
-      "otherPlaceholder": "Additional requirements"
+      "otherPlaceholder": "Additional requirements",
+      "undefined": "Undefined Requirement"
     },
     "features": {
       "title": "Features",
@@ -606,7 +650,9 @@
         "dashboard": "Dashboard",
         "contentManagement": "Basic Content Management",
         "profileSettings": "Profile Settings"
-      }
+      },
+      "core": "Core Features",
+      "extra": "Specific Features"
     },
     "uxui": {
       "title": "UX/UI Design",
@@ -622,22 +668,30 @@
       "gray": "Gray",
       "custom": "Custom Color",
       "customColorPlaceholder": "Choose a custom color",
-      "visualStyle": "Visual Style",
-      "minimalist": "Minimalist",
-      "modern": "Modern with shadows",
-      "flat": "Flat/Material Design",
-      "ios": "iOS-inspired",
-      "android": "Android-inspired",
-      "otherVisualStyle": "Other style",
-      "otherVisualStylePlaceholder": "Describe your preferred style",
-      "menuType": "Menu Type",
-      "topFixed": "Fixed top",
-      "sideFixed": "Fixed sidebar",
-      "hamburger": "Hamburger menu (mobile)",
-      "horizontalTabs": "Horizontal tabs",
-      "customMenu": "Custom menu",
-      "otherMenuType": "Other menu type",
-      "otherMenuTypePlaceholder": "Describe your preferred menu",
+      "visualStyle": {
+        "minimalist": "Minimalist",
+        "modern": "Modern with shadows",
+        "flat": "Flat/Material Design",
+        "ios": "iOS-inspired",
+        "android": "Android-inspired"
+      },
+      "menuType": {
+        "topFixed": "Fixed top",
+        "sideFixed": "Fixed sidebar",
+        "hamburger": "Hamburger menu (mobile)",
+        "horizontalTabs": "Horizontal tabs"
+      },
+      "authentication": {
+        "emailPassword": "Email + Password",
+        "socialLogin": "Social Login (Google, Facebook, etc.)",
+        "twoFactor": "Two-Factor Authentication"
+      },
+      "userDashboard": {
+        "customizable": "Customizable",
+        "statistics": "Charts and Statistics",
+        "activityHistory": "Activity History",
+        "theme": "Light/Dark Theme and Responsive"
+      },
       "landingPage": "Landing Page",
       "hasLandingPage": "Yes",
       "noLandingPage": "No",
@@ -669,16 +723,6 @@
         "other": "Other Style"
       },
       "styleOtherPlaceholder": "Describe the other style",
-      "authentication": "Authentication",
-      "emailPassword": "Email + Password",
-      "socialLogin": "Social Login (Google, Facebook, etc.)",
-      "twoFactorAuth": "Two-Factor Authentication",
-      "otherAuthMethod": "Other Authentication Method",
-      "otherAuthMethodPlaceholder": "Describe your authentication method",
-      "userDashboard": "User Dashboard",
-      "customizable": "Customizable",
-      "statistics": "Charts and Statistics",
-      "activityHistory": "Activity History",
       "responsiveThemes": "Light/Dark Theme and Responsive",
       "otherDashboardFeature": "Other Dashboard Feature",
       "otherDashboardFeaturePlaceholder": "Describe your dashboard feature",
@@ -756,18 +800,18 @@
           }
         }
       },
-      "customPaletteTitle": "Paleta Personalizada",
+      "customPaletteTitle": "Custom Palette",
       "customPalette": {
-        "name": "Create Your Palette",
-        "description": "Choose 4 colors for your palette.",
-        "colorLabelBase": "Color ",
-        "colorLabel": "Color {{index}}"
+        "name": "Create your Palette",
+        "description": "Choose 4 colors for your palette"
       },
       "noUserDashboard": "No",
       "addedItemsCount": "Added ({{count}}/{{total}}):",
       "addOtherStructurePlaceholder": "Add other structure section:",
       "otherStructureItemPlaceholder": "Section name...",
-      "addedOtherStructure": "Added Other Structure Sections:"
+      "addedOtherStructure": "Added Other Structure Sections:",
+      "style": "Style",
+      "dashboardFeature": "User Dashboard"
     },
     "stack": {
       "title": "Technology Stack",
@@ -775,6 +819,21 @@
       "separateFrontendBackend": "Separate Frontend and Backend?",
       "frontendTitle": "Frontend",
       "frontendHelp": "Technologies for the user interface.",
+      "fullstack": {
+        "nextjs": "Next.js (Fullstack)",
+        "remix": "Remix",
+        "nuxt": "Nuxt.js (Fullstack)",
+        "blitz": "Blitz.js",
+        "redwood": "RedwoodJS"
+      },
+      "database": {
+        "mongodb": "MongoDB (NoSQL)",
+        "postgres": "PostgreSQL (SQL)",
+        "mysql": "MySQL (SQL)",
+        "sqlite": "SQLite (SQL)",
+        "supabase": "Supabase (Postgres)",
+        "firebase": "Firebase (NoSQL)"
+      },
       "react": "React",
       "nextjsFE": "Next.js (Frontend)",
       "vue": "Vue.js",
@@ -796,7 +855,6 @@
       "spring": "Spring Boot (Java)",
       "golang": "Go",
       "rubyOnRails": "Ruby on Rails",
-      "fullstackTitle": "Fullstack Framework",
       "fullstackHelp": "Frameworks covering both frontend and backend.",
       "nextjsFS": "Next.js (Fullstack)",
       "remix": "Remix",
@@ -834,29 +892,46 @@
       "dockerK8s": "Docker / Kubernetes",
       "other": "Other",
       "otherPlaceholder": "Specify other technology",
-      "specifyOther": "Specify other..."
+      "specifyOther": "Specify other...",
+      "fullstack": "Fullstack Framework",
+      "database": "Database",
+      "orm": "ORM / DB Tools",
+      "hosting": "Hosting / Deploy"
     },
     "security": {
       "title": "Security",
       "description": "Security features for your project",
       "securityFeatures": "Security Features",
-      "protection": "General Protection (SQL Injection, XSS, CSRF)",
+      "protection": "General Protection",
       "authenticationSec": "Secure Authentication (JWT, OAuth2, 2FA)",
       "httpsUsage": "HTTPS Usage (SSL/TLS), CSP, HSTS",
       "auditLogsMonitoring": "Audit Logs and Security Monitoring",
       "apiEndpointSecurity": "API Endpoint Security (Rate Limiting, Keys)",
       "otherSecurityFeature": "Other Security Feature",
       "otherSecurityFeaturePlaceholder": "Specify your security feature",
-      "authentication": "Authentication System",
+      "authentication": "Authentication",
       "authorization": "Authorization/Permissions",
       "dataEncryption": "Data Encryption",
       "inputValidation": "Input Validation",
       "apiSecurity": "API Security",
       "ddosProtection": "DDoS Protection",
       "backups": "Automated Backups",
-      "logging": "Security Logging",
-      "compliance": "Compliance (GDPR, etc.)",
-      "otherSecurity": "Other Security Feature"
+      "logging": "Logs and Monitoring",
+      "compliance": "Compliance",
+      "otherSecurity": "Other Security Feature",
+      "features": {
+        "generalProtection": "General Protection (SQL Injection, XSS, CSRF)",
+        "secureAuth": "Secure Authentication (JWT, OAuth2, 2FA)",
+        "https": "HTTPS Usage (SSL/TLS), CSP, HSTS",
+        "auditLogs": "Audit Logs and Security Monitoring",
+        "apiSecurity": "API Endpoint Security (Rate Limiting, Keys)",
+        "dataEncryption": "Data Encryption",
+        "inputValidation": "Input Validation",
+        "ddosProtection": "DDoS Protection",
+        "automatedBackups": "Automated Backups",
+        "securityLogging": "Security Logging",
+        "compliance": "GDPR Compliance"
+      }
     },
     "codeStructure": {
       "title": "Code Structure",
@@ -946,6 +1021,7 @@
     "generate": {
       "title": "Generate Prompt",
       "description": "Review and generate your AI prompt",
+      "generateDocs": "Generate Documentation",
       "createPrompt": "Generate Prompt",
       "generating": "Generating...",
       "success": "Success",
@@ -957,8 +1033,16 @@
       "edit": "Edit Sections",
       "maxTokens": "Approximate tokens",
       "savePrompt": "Save this prompt",
-      "reviewPrompt": "Review the generated prompt",
-      "emptyPreview": "Fill in the fields to see the preview..."
+      "reviewPrompt": "Review generated prompt",
+      "emptyPreview": "Fill in the fields to see preview...",
+      "markAsReviewed": "Mark as Reviewed",
+      "generatePrompt": "Generate Prompt",
+      "enhanceWithAI": "Enhance with AI"
+    },
+    "integrations": {
+      "options": {
+        "videoStreaming": "Video and Streaming APIs"
+      }
     }
   }
 }

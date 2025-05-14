@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from "@/components/ui/switch";
-import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
@@ -15,6 +15,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import stackData from '../data/stackData.json';
+import AIAssistantPanel from '../components/AIAssistantPanel';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface StackFormData {
   separateFrontendBackend: boolean;
@@ -50,6 +53,7 @@ const StackStep: React.FC<StackStepProps> = ({
   isFinalized 
 }) => {
   const { t } = useLanguage();
+  const [aiOpen, setAIOpen] = useState(false);
 
   // State for Popovers and Pagination
   const [popoverStates, setPopoverStates] = useState({
@@ -65,67 +69,49 @@ const StackStep: React.FC<StackStepProps> = ({
     frontend: 0, backend: 0, fullstack: 0, database: 0, orm: 0, hosting: 0
   });
 
+  const [techOptionsConfig, setTechOptionsConfig] = useState<any>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const createTechOption = (value: string, defaultLabel: string) => ({ value, i18nKey: `promptGenerator.stack.${value}`, defaultText: defaultLabel });
 
-  const techOptionsConfig = {
-    frontend: [
-      createTechOption('react', 'React'), createTechOption('nextjsFE', 'Next.js (Frontend)'),
-      createTechOption('vue', 'Vue.js'), createTechOption('angular', 'Angular'), 
-      createTechOption('svelte', 'Svelte'), createTechOption('tailwind', 'Tailwind CSS'),
-      createTechOption('mui', 'Material UI'), createTechOption('bootstrap', 'Bootstrap'),
-      createTechOption('typescriptFE', 'TypeScript (Frontend)')
-    ],
-    backend: [
-      createTechOption('nodejs', 'Node.js'), createTechOption('express', 'Express'),
-      createTechOption('nestjs', 'NestJS'), createTechOption('django', 'Django (Python)'),
-      createTechOption('flask', 'Flask (Python)'), createTechOption('laravel', 'Laravel (PHP)'),
-      createTechOption('dotnet', '.NET Core (C#)'), createTechOption('spring', 'Spring Boot (Java)'),
-      createTechOption('golang', 'Go'), createTechOption('rubyOnRails', 'Ruby on Rails')
-    ],
-    fullstack: [
-      createTechOption('nextjsFS', 'Next.js (Fullstack)'), createTechOption('remix', 'Remix'), 
-      createTechOption('nuxt', 'Nuxt.js (Fullstack)'), createTechOption('blitzjs', 'Blitz.js'), 
-      createTechOption('redwood', 'RedwoodJS'), createTechOption('meteor', 'Meteor.js')
-    ],
-    database: [
-      createTechOption('mongodb', 'MongoDB (NoSQL)'), createTechOption('postgres', 'PostgreSQL (SQL)'),
-      createTechOption('mysql', 'MySQL (SQL)'), createTechOption('sqlite', 'SQLite (SQL)'),
-      createTechOption('supabaseDB', 'Supabase (Postgres)'), createTechOption('firebaseDB', 'Firebase (NoSQL)'),
-      createTechOption('redis', 'Redis (Cache/NoSQL)')
-    ],
-    orm: [
-      createTechOption('prisma', 'Prisma'), createTechOption('sequelize', 'Sequelize'),
-      createTechOption('mongoose', 'Mongoose (MongoDB)'), createTechOption('typeorm', 'TypeORM'),
-      createTechOption('sqlalchemy', 'SQLAlchemy (Python)'), createTechOption('eloquent', 'Eloquent (Laravel)'),
-      createTechOption('hibernate', 'Hibernate (Java)')
-    ],
-    hosting: [
-      createTechOption('vercel', 'Vercel'), createTechOption('netlify', 'Netlify'),
-      createTechOption('heroku', 'Heroku'), createTechOption('aws', 'AWS (EC2, S3, etc.)'),
-      createTechOption('gcp', 'Google Cloud Platform'), createTechOption('azure', 'Microsoft Azure'),
-      createTechOption('digitalocean', 'DigitalOcean'), createTechOption('dockerK8s', 'Docker / Kubernetes')
-    ]
-  };
+  useEffect(() => {
+    try {
+      // Agrupar por categoria
+      const grouped: any = {};
+      if (Array.isArray(stackData)) {
+        stackData.forEach((item: any) => {
+          if (!grouped[item.category]) grouped[item.category] = [];
+          grouped[item.category].push(item);
+        });
+      }
+      setTechOptionsConfig(grouped);
+      setLoading(false);
+    } catch (e) {
+      setError('Erro ao carregar stack');
+      setLoading(false);
+    }
+  }, []);
 
-  type TechCategory = keyof typeof techOptionsConfig;
+  type TechCategory = 'frontend' | 'backend' | 'fullstack' | 'database' | 'orm' | 'hosting';
 
-  const handleTechSelection = (category: TechCategory, value: string, checked: boolean) => {
+  const handleTechSelection = (category: TechCategory, optionId: string, checked: boolean) => {
     const currentSelection = formData[category] as string[];
     const updatedSelection = checked
-      ? [...currentSelection, value]
-      : currentSelection.filter(item => item !== value);
+      ? [...currentSelection, optionId]
+      : currentSelection.filter(id => id !== optionId);
     updateFormData({ [category]: updatedSelection } as Partial<StackFormData>);
   };
 
   const toggleSelectAll = (category: TechCategory) => {
-    const options = techOptionsConfig[category].map(opt => opt.value);
+    const optionIds = techOptionsConfig[category].map(opt => opt.id);
     const currentSelection = formData[category] as string[];
-    const allSelected = options.length > 0 && options.every(v => currentSelection.includes(v));
+    const allSelected = optionIds.length > 0 && optionIds.every(id => currentSelection.includes(id));
     
     if (allSelected) {
-      updateFormData({ [category]: currentSelection.filter(item => !options.includes(item) || (formData[`other${capitalize(category)}` as keyof StackFormData] as string[]).length > 0 && item === 'other') } as Partial<StackFormData>);
+      updateFormData({ [category]: currentSelection.filter(item => !optionIds.includes(item)) } as Partial<StackFormData>);
     } else {
-      updateFormData({ [category]: Array.from(new Set([...currentSelection, ...options])) } as Partial<StackFormData>);
+      updateFormData({ [category]: Array.from(new Set([...currentSelection, ...optionIds])) } as Partial<StackFormData>);
     }
   };
   
@@ -210,7 +196,7 @@ const StackStep: React.FC<StackStepProps> = ({
 
     const totalPages = Math.ceil(options.length / itemsPerPage);
     const currentItemsToDisplay = options.slice(currentPages[category] * itemsPerPage, (currentPages[category] + 1) * itemsPerPage);
-    const allSelected = options.length > 0 && options.every(opt => (formData[category] as string[]).includes(opt.value));
+    const allSelected = options.length > 0 && options.every(opt => (formData[category] as string[]).includes(opt.id));
 
     return (
       <AccordionItem value={`${category}-accordion`} className="border-0">
@@ -220,17 +206,17 @@ const StackStep: React.FC<StackStepProps> = ({
         <AccordionContent className="pt-1 pb-0">
           <div className="space-y-2">
             {helpKey && <p className="text-xs text-muted-foreground mb-1.5">{t(helpKey) || defaultHelp}</p>}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5"> {/* Removed minHeight style */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
               {currentItemsToDisplay.map((option) => (
-                <div key={option.value} className="flex items-start space-x-1.5"> {/* Removed h-7 */}
+                <div key={option.id} className="flex items-start space-x-1.5">
                   <Checkbox
-                    id={`${category}-${option.value}`}
-                    checked={(formData[category] as string[]).includes(option.value)}
-                    onCheckedChange={(checked) => handleTechSelection(category, option.value, checked === true)}
+                    id={`${category}-${option.id}`}
+                    checked={(formData[category] as string[]).includes(option.id)}
+                    onCheckedChange={(checked) => handleTechSelection(category, option.id, checked === true)}
                     className="mt-0.5"
                   />
-                  <Label htmlFor={`${category}-${option.value}`} className="cursor-pointer text-xs font-normal whitespace-normal leading-tight">
-                    {t(option.i18nKey) || option.defaultText}
+                  <Label htmlFor={`${category}-${option.id}`} className="cursor-pointer text-xs font-normal whitespace-normal leading-tight">
+                    {option.label}
                   </Label>
                 </div>
               ))}
@@ -300,6 +286,9 @@ const StackStep: React.FC<StackStepProps> = ({
     );
   };
 
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>{error}</div>;
+
   return (
     <div className="space-y-6">
       <Card className="p-4 sm:p-6">
@@ -307,23 +296,33 @@ const StackStep: React.FC<StackStepProps> = ({
           <div className="flex justify-between items-start">
             <div>
               <CardTitle>{t('promptGenerator.stack.title') || "Stack Tecnológica"}</CardTitle>
-              <CardDescription className="text-sm text-muted-foreground">{t('promptGenerator.stack.description') || "Escolha as tecnologias para seu projeto"}</CardDescription>
+              <CardDescription className="text-sm text-muted-foreground">
+                {t('promptGenerator.stack.description') || "Defina a stack tecnológica do seu projeto"}
+              </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
               <Button variant="outline" onClick={handleReset} size="icon" className="h-8 w-8">
                 <RotateCcw className="h-4 w-4" />
                 <span className="sr-only">{t('common.reset')}</span>
               </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={() => setAIOpen(true)} size="icon" className="h-8 w-8">
+                      <Wand2 className="h-4 w-4 text-blue-500" />
+                      <span className="sr-only">Assistente de IA</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <span>Obter ajuda do assistente de IA para escolher a stack tecnológica</span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Button 
                 onClick={handleSaveAndFinalize} 
                 size="icon" 
                 className="h-8 w-8"
-                disabled={isFinalized || 
-                  (!(formData.separateFrontendBackend ? 
-                    (formData.frontend.length === 0 && (!Array.isArray(formData.otherFrontend) || formData.otherFrontend.length === 0) && formData.backend.length === 0 && (!Array.isArray(formData.otherBackend) || formData.otherBackend.length === 0) ) : 
-                    (formData.fullstack.length === 0 && (!Array.isArray(formData.otherFullstack) || formData.otherFullstack.length === 0))) && 
-                   (formData.database.length === 0 && (!Array.isArray(formData.otherDatabase) || formData.otherDatabase.length === 0)))
-                }
+                disabled={isFinalized}
               >
                 <Save className="h-4 w-4" />
                 <span className="sr-only">{isFinalized ? t('common.finalized') : t('common.saveAndFinalize')}</span>
@@ -360,6 +359,12 @@ const StackStep: React.FC<StackStepProps> = ({
           </Accordion>
         </CardContent>
       </Card>
+      <AIAssistantPanel
+        open={aiOpen}
+        onClose={() => setAIOpen(false)}
+        items={Array.isArray(stackData) ? stackData : []}
+        title={t('promptGenerator.stack.title') || 'Stack Tecnológica'}
+      />
     </div>
   );
 };

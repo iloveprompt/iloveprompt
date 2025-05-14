@@ -15,6 +15,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import objectivesData from '../data/objectivesData.json';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { enhancePrompt } from '@/services/llmService';
+import { toast } from '@/components/ui/use-toast';
+import AIAssistantPanel from '../components/AIAssistantPanel';
+import objectiveData from '../data/objectivesData.json';
 
 interface ObjectiveFormData {
   defineObjectives: boolean;
@@ -40,19 +46,24 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
 }) => {
   const { t } = useLanguage();
   
-  const businessObjectivesOptions = [
-    { key: 'increaseRevenue', defaultText: 'Increase Revenue' },
-    { key: 'reduceCosts', defaultText: 'Reduce Costs' },
-    { key: 'improveCustomerExperience', defaultText: 'Improve Customer Experience' },
-    { key: 'enhanceBrandAwareness', defaultText: 'Enhance Brand Awareness' },
-    { key: 'expandMarketReach', defaultText: 'Expand Market Reach' },
-    { key: 'streamlineOperations', defaultText: 'Streamline Operations' },
-    { key: 'driveInnovation', defaultText: 'Drive Innovation' },
-    { key: 'boostUserEngagement', defaultText: 'Boost User Engagement' },
-    { key: 'improveDataInsights', defaultText: 'Improve Data Insights' },
-    { key: 'complianceWithRegulations', defaultText: 'Compliance with Regulations' },
-    { key: 'enhanceSecurity', defaultText: 'Enhance Security' },
-  ];
+  const [businessObjectivesOptions, setBusinessObjectivesOptions] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [currentInput, setCurrentInput] = useState('');
+  const [tempList, setTempList] = useState<string[]>([]);
+  const [aiOpen, setAIOpen] = useState(false);
+
+  React.useEffect(() => {
+    try {
+      setBusinessObjectivesOptions(Array.isArray(objectivesData) ? objectivesData : []);
+      setLoading(false);
+    } catch (e) {
+      setError('Erro ao carregar objetivos de negócio');
+      setLoading(false);
+    }
+  }, []);
 
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 6; 
@@ -71,10 +82,10 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
     }
   }, [isOtherPopoverOpen, formData.otherObjective]);
 
-  const handleObjectiveToggle = (objectiveKey: string) => {
-    const newSelected = formData.selectedObjectives.includes(objectiveKey)
-      ? formData.selectedObjectives.filter(objKey => objKey !== objectiveKey)
-      : [...formData.selectedObjectives, objectiveKey];
+  const handleObjectiveToggle = (objectiveId: string) => {
+    const newSelected = formData.selectedObjectives.includes(objectiveId)
+      ? formData.selectedObjectives.filter(id => id !== objectiveId)
+      : [...formData.selectedObjectives, objectiveId];
     updateFormData({ selectedObjectives: newSelected });
   };
 
@@ -104,13 +115,19 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
     setIsOtherPopoverOpen(false);
   };
   
-  const enhanceWithAI = () => {
-    setTimeout(() => {
-      if (formData.primaryObjective) {
-        const enhanced = formData.primaryObjective + " [Enhanced with AI: This objective has been refined for clarity and impact.]";
-        updateFormData({ primaryObjective: enhanced });
-      }
-    }, 1000);
+  const enhanceWithAI = async () => {
+    if (!formData.primaryObjective) return;
+    setAiLoading(true);
+    try {
+      // Chama a LLM ativa do usuário
+      const enhanced = await enhancePrompt(formData.primaryObjective, user?.id);
+      updateFormData({ primaryObjective: enhanced });
+      toast({ title: 'Objetivo melhorado com IA!' });
+    } catch (err) {
+      toast({ title: 'Erro ao melhorar com IA', description: err.message, variant: 'destructive' });
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const totalPages = Math.ceil(businessObjectivesOptions.length / itemsPerPage);
@@ -145,44 +162,59 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
   };
 
   const handleToggleAllBusinessObjectives = () => {
-    const allObjectiveKeys = businessObjectivesOptions.map(opt => opt.key);
+    const allObjectiveIds = businessObjectivesOptions.map(opt => opt.id);
     const allCurrentlySelected = formData.selectedObjectives;
-    // Check if all possible business objectives are selected
-    const allAreSelected = allObjectiveKeys.every(key => allCurrentlySelected.includes(key));
+    const allAreSelected = allObjectiveIds.every(id => allCurrentlySelected.includes(id));
 
     if (allAreSelected) {
-      // Unselect all business objectives
       updateFormData({
-        selectedObjectives: allCurrentlySelected.filter(key => !allObjectiveKeys.includes(key))
-        // Keep other selected objectives if they are not part of businessObjectivesOptions (e.g. 'Other')
+        selectedObjectives: allCurrentlySelected.filter(id => !allObjectiveIds.includes(id))
       });
     } else {
-      // Select all business objectives
-      const newSelected = Array.from(new Set([...allCurrentlySelected, ...allObjectiveKeys]));
+      const newSelected = Array.from(new Set([...allCurrentlySelected, ...allObjectiveIds]));
       updateFormData({ selectedObjectives: newSelected });
     }
   };
 
-  // Determine if all business objectives (not just visible) are selected
   const allBusinessObjectivesSelected = businessObjectivesOptions.length > 0 && 
-                                      businessObjectivesOptions.every(opt => formData.selectedObjectives.includes(opt.key));
+                                      businessObjectivesOptions.every(opt => formData.selectedObjectives.includes(opt.id));
+
+  const handleAIAssistantClick = () => {
+    alert('Assistente de IA chamado!\n\nDados do JSON:\n' + JSON.stringify(businessObjectivesOptions, null, 2));
+  };
+
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="space-y-6">
       <Card className="p-4 sm:p-6">
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
-          <div className="flex justify-between items-start"> {/* Changed items-center to items-start */}
+          <div className="flex justify-between items-start">
             <div>
               <CardTitle>{t('promptGenerator.objective.title') || "Objetivo do Projeto"}</CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
                 {t('promptGenerator.objective.description') || "Qual é o objetivo principal do seu projeto?"}
               </CardDescription>
             </div>
-            <div className="flex items-center space-x-2"> {/* Group for buttons and checkmark */}
+            <div className="flex items-center space-x-2">
               <Button variant="outline" onClick={handleReset} size="icon" className="h-8 w-8">
                 <RotateCcw className="h-4 w-4" />
                 <span className="sr-only">{t('common.reset')}</span>
               </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={() => setAIOpen(true)} size="icon" className="h-8 w-8">
+                      <Wand2 className="h-4 w-4 text-blue-500" />
+                      <span className="sr-only">Assistente de IA</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <span>Obter ajuda do assistente de IA para definir os objetivos</span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Button 
                 onClick={handleSaveAndFinalize} 
                 size="icon" 
@@ -220,9 +252,10 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
                     size="sm" 
                     onClick={enhanceWithAI}
                     className="flex items-center space-x-1 text-xs h-7"
+                    disabled={aiLoading || !formData.primaryObjective}
                   >
                     <Wand2 className="h-3 w-3 mr-1" />
-                    <span>{t('promptGenerator.objective.enhanceWithAI') || "Melhorar com IA"}</span>
+                    <span>{aiLoading ? 'Melhorando...' : (t('promptGenerator.objective.enhanceWithAI') || "Melhorar com IA")}</span>
                   </Button>
                 </div>
                 <Textarea 
@@ -243,19 +276,18 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
                     </AccordionTrigger>
                     <AccordionContent className="pt-1 pb-0">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
-                        {currentObjectivesToDisplay.map((objectiveOpt) => (
-                          <div key={objectiveOpt.key} className="flex items-start space-x-1.5">
+                        {currentObjectivesToDisplay.map((optionObj) => (
+                          <div key={optionObj.id} className="flex items-start space-x-1.5">
                             <Checkbox 
-                              id={`objective-${objectiveOpt.key}`}
-                              checked={formData.selectedObjectives.includes(objectiveOpt.key)}
-                              onCheckedChange={() => handleObjectiveToggle(objectiveOpt.key)}
+                              id={`objective-${optionObj.id}`}
+                              checked={formData.selectedObjectives.includes(optionObj.id)}
+                              onCheckedChange={(checked) => 
+                                handleObjectiveToggle(optionObj.id)
+                              }
                               className="mt-0.5"
                             />
-                            <Label 
-                              htmlFor={`objective-${objectiveOpt.key}`}
-                              className="cursor-pointer text-xs font-normal whitespace-normal leading-tight"
-                            >
-                              {t(`promptGenerator.objective.${objectiveOpt.key}`) || objectiveOpt.defaultText}
+                            <Label htmlFor={`objective-${optionObj.id}`} className="cursor-pointer text-xs font-normal whitespace-normal leading-tight">
+                              {optionObj.label}
                             </Label>
                           </div>
                         ))}
@@ -362,7 +394,12 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
           )}
 
         </CardContent>
-        {/* Action Buttons DIV removed from here, they are in CardHeader now */}
+        <AIAssistantPanel
+          open={aiOpen}
+          onClose={() => setAIOpen(false)}
+          items={Array.isArray(objectiveData) ? objectiveData : []}
+          title={t('promptGenerator.objective.title') || 'Objetivos'}
+        />
       </Card>
     </div>
   );

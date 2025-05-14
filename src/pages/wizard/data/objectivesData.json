@@ -1,0 +1,12 @@
+[
+  { "id": "increaseRevenue", "label": "Aumentar Receita", "description": "Aumentar Receita", "category": "business" },
+  { "id": "reduceCosts", "label": "Reduzir Custos", "description": "Reduzir Custos", "category": "business" },
+  { "id": "improveCustomerExperience", "label": "Melhorar Experiência do Cliente", "description": "Melhorar Experiência do Cliente", "category": "business" },
+  { "id": "enhanceBrandAwareness", "label": "Aumentar Reconhecimento da Marca", "description": "Aumentar Reconhecimento da Marca", "category": "business" },
+  { "id": "expandMarketReach", "label": "Expandir Alcance de Mercado", "description": "Expandir Alcance de Mercado", "category": "business" },
+  { "id": "streamlineOperations", "label": "Otimizar Operações", "description": "Otimizar Operações", "category": "business" },
+  { "id": "driveInnovation", "label": "Impulsionar Inovação", "description": "Impulsionar Inovação", "category": "business" },
+  { "id": "boostUserEngagement", "label": "Aumentar Engajamento do Usuário", "description": "Aumentar Engajamento do Usuário", "category": "business" },
+  { "id": "improveDataInsights", "label": "Melhorar Insights de Dados", "description": "Melhorar Insights de Dados", "category": "business" },
+  { "id": "complianceWithRegulations", "label": "Conformidade com Regulamentações", "description": "Conformidade com Regulamentações", "category": "business" }
+] 

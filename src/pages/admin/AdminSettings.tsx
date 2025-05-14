@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,9 +8,66 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/hooks/useAuth';
+import { getSystemMessages, addSystemMessage, updateSystemMessage, deleteSystemMessage, setDefaultSystemMessage } from '@/services/adminSettingService';
 
 const AdminSettings = () => {
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const [systemMessages, setSystemMessages] = React.useState<any[]>([]);
+  const [loadingMessages, setLoadingMessages] = React.useState(false);
+  const [form, setForm] = React.useState({ title: '', content: '', is_default: false });
+  const [editId, setEditId] = React.useState<string | null>(null);
+  const [processing, setProcessing] = React.useState(false);
+
+  // Carregar mensagens do sistema
+  const loadMessages = async () => {
+    setLoadingMessages(true);
+    try {
+      const msgs = await getSystemMessages();
+      setSystemMessages(msgs);
+    } catch (err) {
+      // Tratar erro
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+  React.useEffect(() => { loadMessages(); }, []);
+
+  // CRUD
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.content.trim() || !form.title.trim()) return;
+    setProcessing(true);
+    try {
+      if (editId) {
+        await updateSystemMessage(editId, { ...form });
+      } else {
+        await addSystemMessage({ ...form, created_by_admin_id: user?.id });
+      }
+      setForm({ title: '', content: '', is_default: false });
+      setEditId(null);
+      loadMessages();
+    } finally {
+      setProcessing(false);
+    }
+  };
+  const handleEdit = (msg: any) => {
+    setForm({ title: msg.title, content: msg.content, is_default: msg.is_default });
+    setEditId(msg.id);
+  };
+  const handleDelete = async (id: string) => {
+    setProcessing(true);
+    await deleteSystemMessage(id);
+    loadMessages();
+    setProcessing(false);
+  };
+  const handleSetDefault = async (id: string) => {
+    setProcessing(true);
+    await setDefaultSystemMessage(id);
+    loadMessages();
+    setProcessing(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -30,6 +86,7 @@ const AdminSettings = () => {
           <TabsTrigger value="appearance">{t('dashboard.appearance')}</TabsTrigger>
           <TabsTrigger value="security">{t('dashboard.security')}</TabsTrigger>
           <TabsTrigger value="ai">{t('dashboard.ai')}</TabsTrigger>
+          <TabsTrigger value="system-messages">Mensagens do Sistema</TabsTrigger>
         </TabsList>
         
         <TabsContent value="general" className="space-y-4">
@@ -208,6 +265,71 @@ const AdminSettings = () => {
               <div className="pt-4 flex justify-end">
                 <Button>{t('dashboard.saveChanges')}</Button>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="system-messages" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Mensagens do Sistema (LLM)</CardTitle>
+              <CardDescription>Gerencie as mensagens de contexto usadas por todas as IAs do sistema.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-2">
+                <Input
+                  placeholder="Título"
+                  value={form.title}
+                  onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                  disabled={processing}
+                />
+                <Textarea
+                  placeholder="Conteúdo da mensagem do sistema..."
+                  value={form.content}
+                  onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
+                  rows={4}
+                  disabled={processing}
+                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={form.is_default}
+                    onChange={e => setForm(f => ({ ...f, is_default: e.target.checked }))}
+                    disabled={processing}
+                    id="is_default"
+                  />
+                  <label htmlFor="is_default">Definir como padrão</label>
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <Button type="submit" disabled={processing}>{editId ? 'Salvar Alterações' : 'Adicionar Mensagem'}</Button>
+                  {editId && <Button type="button" variant="ghost" onClick={() => { setEditId(null); setForm({ title: '', content: '', is_default: false }); }}>Cancelar</Button>}
+                </div>
+              </form>
+              <Separator />
+              {loadingMessages ? <div>Carregando...</div> : (
+                <div className="space-y-2">
+                  {systemMessages.length === 0 && <div className="text-gray-400">Nenhuma mensagem cadastrada.</div>}
+                  {systemMessages.map(msg => (
+                    <Card key={msg.id} className={`border-2 ${msg.is_default ? 'border-blue-500' : 'border-gray-200'}`}>
+                      <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                        <div>
+                          <CardTitle className="text-base">{msg.title}</CardTitle>
+                          <CardDescription className="text-xs">{msg.content.slice(0, 80)}{msg.content.length > 80 ? '...' : ''}</CardDescription>
+                        </div>
+                        <div className="flex gap-2 items-center">
+                          {!msg.is_default && <Button size="sm" variant="outline" onClick={() => handleSetDefault(msg.id)} disabled={processing}>Definir como padrão</Button>}
+                          <Button size="sm" variant="outline" onClick={() => handleEdit(msg)} disabled={processing}>Editar</Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleDelete(msg.id)} disabled={processing || msg.is_default}>Excluir</Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="text-xs text-gray-500 flex justify-between">
+                        <span>Criado em: {new Date(msg.created_at).toLocaleString()}</span>
+                        <span>{msg.is_default ? 'Padrão' : ''}</span>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

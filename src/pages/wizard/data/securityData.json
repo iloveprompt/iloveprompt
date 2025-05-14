@@ -1,0 +1,14 @@
+[
+  { "id": "protection", "label": "Proteção Geral (Injeção SQL, XSS, CSRF)", "description": "Implementação de medidas contra ataques comuns como SQL Injection, Cross-Site Scripting e CSRF", "category": "protection" },
+  { "id": "authenticationSec", "label": "Autenticação Segura (JWT, OAuth2, 2FA)", "description": "Sistema robusto de autenticação com suporte a JWT, OAuth2 e autenticação de dois fatores", "category": "auth" },
+  { "id": "httpsUsage", "label": "Uso de HTTPS (SSL/TLS), CSP, HSTS", "description": "Comunicação segura via HTTPS com políticas de segurança de conteúdo e HSTS", "category": "protection" },
+  { "id": "auditLogsMonitoring", "label": "Logs de Auditoria e Monitoramento de Segurança", "description": "Sistema de registro e monitoramento de eventos de segurança para auditoria", "category": "logging" },
+  { "id": "apiEndpointSecurity", "label": "Segurança de Endpoints de API (Rate Limiting, Chaves)", "description": "Proteção de endpoints com limitação de taxa e autenticação via chaves de API", "category": "api" },
+  { "id": "dataEncryption", "label": "Criptografia de Dados", "description": "Criptografia de dados sensíveis em repouso e em trânsito", "category": "protection" },
+  { "id": "inputValidation", "label": "Validação de Entrada", "description": "Validação rigorosa de todas as entradas de dados do usuário", "category": "protection" },
+  { "id": "apiSecurity", "label": "Segurança de API", "description": "Implementação de práticas seguras para desenvolvimento e exposição de APIs", "category": "api" },
+  { "id": "ddosProtection", "label": "Proteção contra DDoS", "description": "Mecanismos de proteção contra ataques de negação de serviço distribuído", "category": "protection" },
+  { "id": "automatedBackups", "label": "Backups Automatizados", "description": "Sistema automatizado de backup com criptografia e verificação de integridade", "category": "protection" },
+  { "id": "securityLogging", "label": "Registro de Segurança", "description": "Sistema detalhado de logs para eventos relacionados à segurança", "category": "logging" },
+  { "id": "lgpdCompliance", "label": "Conformidade com LGPD", "description": "Implementação de medidas para conformidade com a Lei Geral de Proteção de Dados", "category": "compliance" }
+] 

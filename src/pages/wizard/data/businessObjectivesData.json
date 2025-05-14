@@ -1,0 +1,13 @@
+[
+  { "id": "increaseRevenue", "label": "Increase Revenue", "description": "Increase Revenue", "category": "business" },
+  { "id": "reduceCosts", "label": "Reduce Costs", "description": "Reduce Costs", "category": "business" },
+  { "id": "improveCustomerExperience", "label": "Improve Customer Experience", "description": "Improve Customer Experience", "category": "business" },
+  { "id": "enhanceBrandAwareness", "label": "Enhance Brand Awareness", "description": "Enhance Brand Awareness", "category": "business" },
+  { "id": "expandMarketReach", "label": "Expand Market Reach", "description": "Expand Market Reach", "category": "business" },
+  { "id": "streamlineOperations", "label": "Streamline Operations", "description": "Streamline Operations", "category": "business" },
+  { "id": "driveInnovation", "label": "Drive Innovation", "description": "Drive Innovation", "category": "business" },
+  { "id": "boostUserEngagement", "label": "Boost User Engagement", "description": "Boost User Engagement", "category": "business" },
+  { "id": "improveDataInsights", "label": "Improve Data Insights", "description": "Improve Data Insights", "category": "business" },
+  { "id": "complianceWithRegulations", "label": "Compliance with Regulations", "description": "Compliance with Regulations", "category": "business" },
+  { "id": "enhanceSecurity", "label": "Enhance Security", "description": "Enhance Security", "category": "business" }
+] 

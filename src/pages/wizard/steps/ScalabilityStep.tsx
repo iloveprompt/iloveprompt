@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from "@/components/ui/switch";
-import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
@@ -14,6 +14,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import AIAssistantPanel from '../components/AIAssistantPanel';
+import scalabilityData from '../data/scalabilityData.json';
 
 interface ScalabilityFormData {
   isScalable: boolean;
@@ -52,8 +55,24 @@ const ScalabilityStep: React.FC<ScalabilityStepProps> = ({
   const [currentOtherPerformanceInput, setCurrentOtherPerformanceInput] = useState('');
   const [tempOtherPerformanceList, setTempOtherPerformanceList] = useState<string[]>([]);
 
-  const scalabilityOptions = ['redis', 'caching', 'autoScaling', 'horizontalScaling', 'verticalScaling', 'loadBalancing', 'cdn', 'microservices'];
-  const performanceOptions = ['lazyLoading', 'minification', 'serverRendering', 'optimization', 'codeOptimization', 'imageOptimization', 'databaseOptimization'];
+  const [scalabilityOptions, setScalabilityOptions] = useState<any[]>([]);
+  const [performanceOptions, setPerformanceOptions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [aiOpen, setAIOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (Array.isArray(scalabilityData)) {
+        setScalabilityOptions(scalabilityData.filter((item: any) => item.category === 'scalability').map((item: any) => item.id));
+        setPerformanceOptions(scalabilityData.filter((item: any) => item.category === 'performance').map((item: any) => item.id));
+      }
+      setLoading(false);
+    } catch (e) {
+      setError('Erro ao carregar opções de escalabilidade');
+      setLoading(false);
+    }
+  }, []);
 
   const handleIsScalableChange = useCallback((value: boolean) => {
     updateFormData({ isScalable: value });
@@ -254,25 +273,43 @@ const ScalabilityStep: React.FC<ScalabilityStepProps> = ({
     );
   };
 
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>{error}</div>;
+
   return (
     <div className="space-y-6">
       <Card className="p-4 sm:p-6">
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle>{t('promptGenerator.scalability.title')}</CardTitle>
-              <CardDescription>{t('promptGenerator.scalability.description')}</CardDescription>
+              <CardTitle>{t('promptGenerator.scalability.title') || "Escalabilidade"}</CardTitle>
+              <CardDescription className="text-sm text-muted-foreground">
+                {t('promptGenerator.scalability.description') || "Defina os requisitos de escalabilidade do seu projeto"}
+              </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
               <Button variant="outline" onClick={handleReset} size="icon" className="h-8 w-8">
                 <RotateCcw className="h-4 w-4" />
                 <span className="sr-only">{t('common.reset')}</span>
               </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={() => setAIOpen(true)} size="icon" className="h-8 w-8">
+                      <Wand2 className="h-4 w-4 text-blue-500" />
+                      <span className="sr-only">Assistente de IA</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <span>Obter ajuda do assistente de IA para definir os requisitos de escalabilidade</span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Button 
                 onClick={handleSaveAndFinalize} 
                 size="icon" 
                 className="h-8 w-8"
-                disabled={isFinalized || (formData.isScalable && formData.scalabilityFeatures.length === 0 && (!Array.isArray(formData.otherScalabilityFeature) || formData.otherScalabilityFeature.length === 0) && formData.performanceFeatures.length === 0 && (!Array.isArray(formData.otherPerformanceFeature) || formData.otherPerformanceFeature.length === 0))}
+                disabled={isFinalized}
               >
                 <Save className="h-4 w-4" />
                 <span className="sr-only">{isFinalized ? t('common.finalized') : t('common.saveAndFinalize')}</span>
@@ -300,6 +337,13 @@ const ScalabilityStep: React.FC<ScalabilityStepProps> = ({
             </Accordion>
           )}
         </CardContent>
+
+        <AIAssistantPanel
+          open={aiOpen}
+          onClose={() => setAIOpen(false)}
+          items={Array.isArray(scalabilityData) ? scalabilityData : []}
+          title={t('promptGenerator.scalability.title') || 'Escalabilidade'}
+        />
       </Card>
     </div>
   );

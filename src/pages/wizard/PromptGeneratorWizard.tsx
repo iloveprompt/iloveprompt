@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -23,6 +22,7 @@ import {
   ChevronRight,
   RotateCcw, // For Reset button
   Save,      // For Save & Finalize button
+  Network,   // Ícone para Integrações
 } from 'lucide-react';
 // Popover can be removed if not used for the main navigation anymore, or kept for a potential overview feature
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; 
@@ -40,6 +40,7 @@ import CodeStructureStep from './steps/CodeStructureStep';
 import ScalabilityStep from './steps/ScalabilityStep';
 import RestrictionsStep from './steps/RestrictionsStep';
 import GenerateStep from './steps/GenerateStep';
+import IntegrationsStep from './steps/IntegrationsStep';
 
 // Define wizard steps with dynamic title based on language and icons
 const getWizardSteps = (t: (key: string) => string) => [
@@ -110,6 +111,12 @@ const getWizardSteps = (t: (key: string) => string) => [
     color: '#DC3545' // Red
   },
   { 
+    id: 'integrations', 
+    title: t('promptGenerator.integrations.title'),
+    icon: Network,
+    color: '#6f42c1' // Roxo para integrações
+  },
+  { 
     id: 'generate', 
     title: t('promptGenerator.generate.title'),
     icon: Pencil,
@@ -147,7 +154,7 @@ const PromptGeneratorWizard = () => {
       userTypes: [],
       functionalRequirements: [],
       nonFunctionalRequirements: [],
-      otherRequirement: [] // Changed from '' to []
+      otherRequirement: []
     },
     systemType: {
       selected: '',
@@ -157,25 +164,52 @@ const PromptGeneratorWizard = () => {
     features: {
       specificFeatures: [],
       otherFeature: '',
-      dynamicFeatures: []
+      dynamicFeatures: [],
+      otherSpecificFeatures: [] // Added this property to match the expected type
     },
     uxui: {
       colorPalette: [],
-      customColors: {},
+      customColors: [], // Changed from {} (empty object) to [] (empty array)
       visualStyle: '',
       otherVisualStyle: '',
       menuType: '',
       otherMenuType: '',
       landingPage: false,
       landingPageDetails: {
-        structure: { hero: true, benefits: true, testimonials: true, cta: true, other: false, otherValue: '' },
-        elements: { video: true, form: true, animations: true, other: false, otherValue: '' },
-        style: { modern: true, minimalist: true, corporate: true, creative: true, other: false, otherValue: '' }
+        structure: { 
+          hero: true, 
+          benefits: true, 
+          testimonials: true, 
+          cta: true, 
+          other: false, 
+          otherValues: [] // Changed from otherValue: '' to otherValues: [] to match the expected type
+        },
+        elements: { 
+          video: true, 
+          form: true, 
+          animations: true, 
+          other: false, 
+          otherValues: [] // Changed from otherValue: '' to otherValues: [] to match the expected type
+        },
+        style: { 
+          modern: true, 
+          minimalist: true, 
+          corporate: true, 
+          creative: true, 
+          other: false, 
+          otherValues: [] // Changed from otherValue: '' to otherValues: [] to match the expected type
+        }
       },
       authentication: [],
       otherAuthMethod: '',
+      otherVisualStyles: [], // Added these missing properties
+      otherMenuTypes: [],
+      otherAuthMethods: [],
       userDashboard: false,
-      userDashboardDetails: { features: [], otherFeature: '' }
+      userDashboardDetails: { 
+        features: [], 
+        otherDashboardFeatures: [] // Changed from 'otherFeature: string' to 'otherDashboardFeatures: []' to match the expected type
+      }
     },
     stack: {
       separateFrontendBackend: false,
@@ -185,36 +219,39 @@ const PromptGeneratorWizard = () => {
       hosting: [],
       fullstack: [],
       orm: [],
-      otherFrontend: '',
-      otherBackend: '',
-      otherDatabase: '',
-      otherHosting: '',
-      otherFullstack: '',
-      otherOrm: ''
+      otherFrontend: [], // Changed these from strings to string arrays
+      otherBackend: [],
+      otherDatabase: [],
+      otherHosting: [],
+      otherFullstack: [],
+      otherOrm: []
     },
     security: {
       selectedSecurity: [],
-      otherSecurityFeature: ''
+      otherSecurityFeature: [] // Changed from string to string[]
     },
     codeStructure: {
       folderOrganization: [],
-      otherOrganizationStyle: '',
+      otherOrganizationStyle: [], // Changed from string to string[]
       architecturalPattern: [],
-      otherArchPattern: '',
+      otherArchPattern: [], // Changed from string to string[]
       bestPractices: [],
-      otherBestPractice: ''
+      otherBestPractice: [] // Changed from string to string[]
     },
     scalability: {
       isScalable: false,
       scalabilityFeatures: [],
-      otherScalabilityFeature: '',
+      otherScalabilityFeature: [], // Changed from string to string[]
       performanceFeatures: [],
-      otherPerformanceFeature: ''
+      otherPerformanceFeature: [] // Changed from string to string[]
     },
     restrictions: {
       avoidInCode: [],
-      otherRestriction: ''
-    }
+      otherRestriction: [] // Changed from string to string[]
+    },
+    integrations: {
+      selectedIntegrations: [],
+    },
   };
 
   // Initial wizard steps definition (ensure this is the single source of truth for steps)
@@ -286,6 +323,12 @@ const PromptGeneratorWizard = () => {
       color: '#DC3545' // Red
     },
     { 
+      id: 'integrations', 
+      title: t('promptGenerator.integrations.title'),
+      icon: Network,
+      color: '#6f42c1' // Roxo para integrações
+    },
+    { 
       id: 'generate', 
       title: t('promptGenerator.generate.title'),
       icon: Pencil,
@@ -355,6 +398,9 @@ const PromptGeneratorWizard = () => {
           break;
         case 'restrictions':
           isFilled = formData.restrictions.avoidInCode.length > 0 || !!formData.restrictions.otherRestriction;
+          break;
+        case 'integrations':
+          isFilled = formData.integrations.selectedIntegrations.length > 0;
           break;
         case 'generate':
           isFilled = true; // Final step, considered filled by reaching
@@ -501,7 +547,12 @@ const PromptGeneratorWizard = () => {
           formData={formData.restrictions} 
           {...stepProps}
         />;
-      case 11: // Generate
+      case 11: // Integrações
+        return <IntegrationsStep 
+          formData={formData.integrations} 
+          {...stepProps}
+        />;
+      case 12: // Generate
         return <GenerateStep 
                   formData={formData}
                   markAsFinalized={() => handleMarkAsFinalized(wizardSteps[currentStep].id)}

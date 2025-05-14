@@ -1,0 +1,15 @@
+[
+  { "id": "byFunction", "label": "Por Função (ex: controllers, services, models)", "description": "Organização do código por responsabilidade funcional, separando controllers, services e models", "category": "folderOrganization" },
+  { "id": "byDomain", "label": "Por Domínio/Módulo (ex: users, products, orders)", "description": "Organização do código por domínio de negócio, agrupando funcionalidades relacionadas", "category": "folderOrganization" },
+  { "id": "frontBackSeparation", "label": "Separação Clara Frontend/Backend", "description": "Separação clara entre código frontend e backend, com estruturas independentes", "category": "folderOrganization" },
+  { "id": "modularDI", "label": "Design Modular com Injeção de Dependências", "description": "Arquitetura modular utilizando injeção de dependências para baixo acoplamento", "category": "folderOrganization" },
+  { "id": "mvc", "label": "MVC (Modelo-Visão-Controlador)", "description": "Padrão arquitetural que separa a aplicação em Model, View e Controller", "category": "architecturalPattern" },
+  { "id": "mvvm", "label": "MVVM (Modelo-Visão-VisãoModelo)", "description": "Padrão arquitetural que separa a lógica de apresentação da lógica de negócios", "category": "architecturalPattern" },
+  { "id": "cleanArch", "label": "Arquitetura Limpa", "description": "Implementação dos princípios de Clean Architecture para maior manutenibilidade", "category": "architecturalPattern" },
+  { "id": "ddd", "label": "DDD (Design Orientado ao Domínio)", "description": "Modelagem de software baseada em domínios de negócio complexos", "category": "architecturalPattern" },
+  { "id": "hexagonal", "label": "Arquitetura Hexagonal (Portas e Adaptadores)", "description": "Arquitetura que isola o core da aplicação de detalhes externos", "category": "architecturalPattern" },
+  { "id": "stateless", "label": "Componentes/Serviços Sem Estado (Stateless)", "description": "Desenvolvimento de componentes e serviços sem estado para melhor escalabilidade", "category": "bestPractice" },
+  { "id": "lowCoupling", "label": "Baixo Acoplamento, Alta Coesão", "description": "Princípios de design para código mais modular e manutenível", "category": "bestPractice" },
+  { "id": "testing", "label": "Testes Unitários e de Integração Abrangentes", "description": "Cobertura completa de testes unitários e de integração automatizados", "category": "bestPractice" },
+  { "id": "reusableComponents", "label": "Componentes Reutilizáveis e Bem Documentados", "description": "Desenvolvimento de componentes genéricos e reutilizáveis com documentação clara", "category": "bestPractice" }
+] 

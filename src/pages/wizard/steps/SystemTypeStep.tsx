@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -6,8 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input'; // Added Input import
 import RadioSpecifyItem from '@/components/RadioSpecifyItem';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, ListPlus, RotateCcw, Save, CheckCircle } from 'lucide-react'; // Added ListPlus, RotateCcw, Save, CheckCircle
+import { ChevronLeft, ChevronRight, ListPlus, RotateCcw, Save, CheckCircle, Wand2 } from 'lucide-react'; // Added ListPlus, RotateCcw, Save, CheckCircle, Wand2
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import systemTypesData from '../data/systemTypesData.json';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import AIAssistantPanel from '../components/AIAssistantPanel';
 
 interface SystemTypeData {
   selected: string;
@@ -34,16 +37,28 @@ const SystemTypeStep: React.FC<SystemTypeStepProps> = ({
 }) => {
   const { t } = useLanguage();
 
-  // 'other' is removed from this list as it will be handled by the popover
-  const systemTypesList = [ 
-    'microsaas', 'saas', 'erp', 'crm', 'ecommerce', 'cms', 'apiBackend',
-    'mobileApp', 'schedulingSystem', 'helpdesk', 'educationalPlatform',
-    'streamingPlatform', 'staticPage'
-  ];
+  const [systemTypesList, setSystemTypesList] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      // Carregar do JSON externo
+      const types = Array.isArray(systemTypesData)
+        ? systemTypesData.map((item: any) => item.id)
+        : [];
+      setSystemTypesList(types);
+      setLoading(false);
+    } catch (e) {
+      setError('Erro ao carregar tipos de sistema');
+      setLoading(false);
+    }
+  }, []);
 
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 8; // Changed to 8 for 4 rows of 2 items
   const [isOtherPopoverOpen, setIsOtherPopoverOpen] = useState(false);
+  const [aiOpen, setAIOpen] = useState(false);
 
   const handleSystemTypeChange = (value: string) => {
     // If a regular type is selected, clear otherType
@@ -89,6 +104,9 @@ const SystemTypeStep: React.FC<SystemTypeStepProps> = ({
     markAsFinalized();
   };
 
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>{error}</div>;
+
   return (
     <div className="space-y-6">
       <Card className="p-4 sm:p-6 relative">
@@ -105,6 +123,19 @@ const SystemTypeStep: React.FC<SystemTypeStepProps> = ({
                 <RotateCcw className="h-4 w-4" />
                 <span className="sr-only">{t('common.reset') || "Resetar"}</span>
               </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={() => setAIOpen(true)} size="icon" className="h-8 w-8">
+                      <Wand2 className="h-4 w-4 text-blue-500" />
+                      <span className="sr-only">Assistente de IA</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <span>Obter ajuda do assistente de IA para escolher o tipo de sistema</span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Button 
                 onClick={handleSaveAndFinalize} 
                 size="icon" 
@@ -187,6 +218,12 @@ const SystemTypeStep: React.FC<SystemTypeStepProps> = ({
           </div>
           {/* Action Buttons DIV removed from here */}
         </CardContent>
+        <AIAssistantPanel
+          open={aiOpen}
+          onClose={() => setAIOpen(false)}
+          items={Array.isArray(systemTypesData) ? systemTypesData : []}
+          title={t('promptGenerator.systemType.title') || 'Tipo de Sistema'}
+        />
       </Card>
     </div>
   );

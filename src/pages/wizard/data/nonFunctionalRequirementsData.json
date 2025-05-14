@@ -1,0 +1,14 @@
+[
+  { "id": "performance", "label": "Performance (velocidade de carregamento)", "description": "Garantir tempos de resposta rápidos e otimização de recursos", "category": "nfr" },
+  { "id": "dataSecurity", "label": "Segurança de dados", "description": "Proteção de dados sensíveis e implementação de medidas de segurança", "category": "nfr" },
+  { "id": "scalability", "label": "Escalabilidade (capacidade de crescimento)", "description": "Capacidade de crescer e lidar com aumento de carga", "category": "nfr" },
+  { "id": "usability", "label": "Usabilidade (facilidade de uso)", "description": "Interface intuitiva e experiência do usuário otimizada", "category": "nfr" },
+  { "id": "accessibilityReq", "label": "Acessibilidade (WCAG)", "description": "Conformidade com diretrizes de acessibilidade WCAG", "category": "nfr" },
+  { "id": "mobileCompatibility", "label": "Compatibilidade com dispositivos móveis", "description": "Design responsivo e adaptável para diferentes dispositivos", "category": "nfr" },
+  { "id": "multiLanguageSupport", "label": "Suporte a múltiplos idiomas", "description": "Internacionalização e localização do sistema", "category": "nfr" },
+  { "id": "compliance", "label": "Conformidade com normas (LGPD, GDPR, etc.)", "description": "Atendimento às regulamentações de proteção de dados", "category": "nfr" },
+  { "id": "monitoringLogging", "label": "Monitoramento e logs", "description": "Sistema de monitoramento e registro de eventos do sistema", "category": "nfr" },
+  { "id": "backupRecovery", "label": "Backup e recuperação de dados", "description": "Estratégias de backup e plano de recuperação de desastres", "category": "nfr" },
+  { "id": "highAvailability", "label": "Alta disponibilidade (uptime)", "description": "Garantia de tempo de atividade e redundância do sistema", "category": "nfr" },
+  { "id": "browserCompatibility", "label": "Compatibilidade com navegadores", "description": "Suporte aos principais navegadores e versões", "category": "nfr" }
+] 

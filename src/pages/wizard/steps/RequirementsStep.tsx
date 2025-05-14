@@ -5,15 +5,18 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash, ChevronLeft, ChevronRight, ListPlus, PlusCircle, XCircle, RotateCcw, Save, CheckCircle as CheckCircleIcon } from 'lucide-react';
+import { Plus, Trash, ChevronLeft, ChevronRight, ListPlus, PlusCircle, XCircle, RotateCcw, Save, CheckCircle as CheckCircleIcon, Wand2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import AIAssistantPanel from '../components/AIAssistantPanel';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import nonFunctionalRequirementsData from '../data/nonFunctionalRequirementsData.json';
 
 interface RequirementsFormData {
   defineRequirements: boolean;
@@ -30,21 +33,6 @@ interface RequirementsStepProps {
   resetStep: () => void;
   isFinalized: boolean;
 }
-
-const commonNonFunctionalOptions = [
-  { key: 'performance', defaultText: 'Performance (velocidade de carregamento)' },
-  { key: 'dataSecurity', defaultText: 'Segurança de dados' },
-  { key: 'scalability', defaultText: 'Escalabilidade (capacidade de crescimento)' },
-  { key: 'usability', defaultText: 'Usabilidade (facilidade de uso)' },
-  { key: 'accessibilityReq', defaultText: 'Acessibilidade (WCAG)' },
-  { key: 'mobileCompatibility', defaultText: 'Compatibilidade com dispositivos móveis' },
-  { key: 'multiLanguageSupport', defaultText: 'Suporte a múltiplos idiomas' },
-  { key: 'compliance', defaultText: 'Conformidade com normas (LGPD, GDPR, etc.)' },
-  { key: 'monitoringLogging', defaultText: 'Monitoramento e logs' },
-  { key: 'backupRecovery', defaultText: 'Backup e recuperação de dados' },
-  { key: 'highAvailability', defaultText: 'Alta disponibilidade (uptime)' },
-  { key: 'browserCompatibility', defaultText: 'Compatibilidade com navegadores' }
-];
 
 const MAX_ITEMS = 10;
 const LIST_ITEMS_PER_PAGE = 4; 
@@ -70,6 +58,12 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
   const [currentOtherNfrInput, setCurrentOtherNfrInput] = useState('');
   const [tempOtherNfrList, setTempOtherNfrList] = useState<string[]>([]);
 
+  const [commonNonFunctionalOptions, setCommonNonFunctionalOptions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const [aiOpen, setAIOpen] = useState(false);
+
   const otherNfrArray = Array.isArray(formData.otherRequirement) ? formData.otherRequirement : [];
 
   useEffect(() => {
@@ -78,6 +72,16 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
       setCurrentOtherNfrInput('');
     }
   }, [isOtherNfrPopoverOpen, formData.otherRequirement]);
+
+  useEffect(() => {
+    try {
+      setCommonNonFunctionalOptions(Array.isArray(nonFunctionalRequirementsData) ? nonFunctionalRequirementsData : []);
+      setLoading(false);
+    } catch (e) {
+      setError('Erro ao carregar requisitos não funcionais');
+      setLoading(false);
+    }
+  }, []);
 
   const handleAddUserType = () => {
     if (newUserType.trim() && formData.userTypes.length < MAX_ITEMS) {
@@ -117,24 +121,24 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
   const totalFunctionalReqsPages = Math.ceil(formData.functionalRequirements.length / LIST_ITEMS_PER_PAGE);
   const functionalReqsToDisplay = formData.functionalRequirements.slice(currentFunctionalReqsPage * LIST_ITEMS_PER_PAGE, (currentFunctionalReqsPage + 1) * LIST_ITEMS_PER_PAGE);
 
-  const handleNonFunctionalRequirementToggle = (requirementKey: string) => {
-    const newSelection = formData.nonFunctionalRequirements.includes(requirementKey)
-      ? formData.nonFunctionalRequirements.filter(rKey => rKey !== requirementKey)
-      : [...formData.nonFunctionalRequirements, requirementKey];
+  const handleNonFunctionalRequirementToggle = (requirementId: string) => {
+    const newSelection = formData.nonFunctionalRequirements.includes(requirementId)
+      ? formData.nonFunctionalRequirements.filter(id => id !== requirementId)
+      : [...formData.nonFunctionalRequirements, requirementId];
     updateFormData({ nonFunctionalRequirements: newSelection });
   };
   
   const handleToggleAllNfrCheckboxes = () => {
-    const allNfrKeys = commonNonFunctionalOptions.map(opt => opt.key);
-    const allSelected = allNfrKeys.every(key => formData.nonFunctionalRequirements.includes(key));
+    const allNfrIds = commonNonFunctionalOptions.map(opt => opt.id);
+    const allSelected = allNfrIds.every(id => formData.nonFunctionalRequirements.includes(id));
     if (allSelected) {
-      const newSelection = formData.nonFunctionalRequirements.filter(key => !allNfrKeys.includes(key) || key === 'Other');
+      const newSelection = formData.nonFunctionalRequirements.filter(id => !allNfrIds.includes(id) || id === 'Other');
       updateFormData({ nonFunctionalRequirements: newSelection });
     } else {
-      updateFormData({ nonFunctionalRequirements: Array.from(new Set([...formData.nonFunctionalRequirements, ...allNfrKeys])) });
+      updateFormData({ nonFunctionalRequirements: Array.from(new Set([...formData.nonFunctionalRequirements, ...allNfrIds])) });
     }
   };
-  const allNfrCheckboxesSelected = commonNonFunctionalOptions.length > 0 && commonNonFunctionalOptions.every(opt => formData.nonFunctionalRequirements.includes(opt.key));
+  const allNfrCheckboxesSelected = commonNonFunctionalOptions.length > 0 && commonNonFunctionalOptions.every(opt => formData.nonFunctionalRequirements.includes(opt.id));
   
   const totalNfrCheckboxPages = Math.ceil(commonNonFunctionalOptions.length / NFR_CHECKBOXES_PER_PAGE);
   const nfrCheckboxesToDisplay = commonNonFunctionalOptions.slice(currentNfrCheckboxPage * NFR_CHECKBOXES_PER_PAGE, (currentNfrCheckboxPage + 1) * NFR_CHECKBOXES_PER_PAGE);
@@ -182,22 +186,38 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
     markAsFinalized();
   };
 
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>{error}</div>;
+
   return (
     <div className="space-y-6">
       <Card className="p-4 sm:p-6">
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
-          <div className="flex justify-between items-start"> {/* Changed items-center to items-start */}
+          <div className="flex justify-between items-start">
             <div>
               <CardTitle>{t('promptGenerator.requirements.title') || "Requisitos"}</CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
                 {t('promptGenerator.requirements.description') || "Especifique os requisitos para seu projeto"}
               </CardDescription>
             </div>
-            <div className="flex items-center space-x-2"> {/* Group for buttons and checkmark */}
+            <div className="flex items-center space-x-2">
               <Button variant="outline" onClick={handleReset} size="icon" className="h-8 w-8">
                 <RotateCcw className="h-4 w-4" />
                 <span className="sr-only">{t('common.reset')}</span>
               </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={() => setAIOpen(true)} size="icon" className="h-8 w-8">
+                      <Wand2 className="h-4 w-4 text-blue-500" />
+                      <span className="sr-only">Assistente de IA</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <span>Obter ajuda do assistente de IA para definir os requisitos</span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Button 
                 onClick={handleSaveAndFinalize} 
                 size="icon" 
@@ -211,7 +231,7 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="px-0 pb-0 sm:px-0 sm:pb-0 space-y-1 pt-4"> {/* Added pt-4 for spacing */}
+        <CardContent className="px-0 pb-0 sm:px-0 sm:pb-0 space-y-1 pt-4">
           <div className="flex items-center space-x-2 py-0 my-0">
             <Switch checked={formData.defineRequirements} onCheckedChange={(checked) => updateFormData({ defineRequirements: checked })} id="define-requirements-toggle"/>
             <Label htmlFor="define-requirements-toggle" className="text-sm font-medium text-foreground">{t('promptGenerator.requirements.defineRequirements') || "Definir requisitos detalhados"}</Label>
@@ -280,9 +300,9 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
                     <AccordionContent className="pt-1 pb-0">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
                         {nfrCheckboxesToDisplay.map((reqOpt) => (
-                          <div key={reqOpt.key} className="flex items-start space-x-1.5">
-                            <Checkbox id={`nfr-${reqOpt.key}`} checked={formData.nonFunctionalRequirements.includes(reqOpt.key)} onCheckedChange={() => handleNonFunctionalRequirementToggle(reqOpt.key)} className="mt-0.5"/>
-                            <Label htmlFor={`nfr-${reqOpt.key}`} className="cursor-pointer text-xs font-normal whitespace-normal leading-tight">{t(`promptGenerator.requirements.${reqOpt.key}`) || reqOpt.defaultText}</Label>
+                          <div key={reqOpt.id} className="flex items-start space-x-1.5">
+                            <Checkbox id={`nfr-${reqOpt.id}`} checked={formData.nonFunctionalRequirements.includes(reqOpt.id)} onCheckedChange={() => handleNonFunctionalRequirementToggle(reqOpt.id)} className="mt-0.5"/>
+                            <Label htmlFor={`nfr-${reqOpt.id}`} className="cursor-pointer text-xs font-normal whitespace-normal leading-tight">{reqOpt.label}</Label>
                           </div>))}
                       </div>
                       <div className="flex items-center justify-end space-x-2 mt-3 pt-2">
@@ -332,7 +352,13 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
           )}
 
         </CardContent>
-        {/* Action Buttons DIV removed from here */}
+
+        <AIAssistantPanel
+          open={aiOpen}
+          onClose={() => setAIOpen(false)}
+          items={Array.isArray(nonFunctionalRequirementsData) ? nonFunctionalRequirementsData : []}
+          title={t('promptGenerator.requirements.title') || 'Requisitos'}
+        />
       </Card>
     </div>
   );

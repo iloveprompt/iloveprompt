@@ -1,0 +1,10 @@
+[
+  {"id": "userManagement","label": "Gestão de Usuários","description": "Cadastro, autenticação e gerenciamento de usuários","value": "userManagement"},
+  {"id": "fileUpload","label": "Upload de Arquivos","description": "Sistema de upload e gerenciamento de arquivos","value": "fileUpload"},
+  {"id": "notifications","label": "Sistema de Notificações","description": "Notificações por email, push e in-app","value": "notifications"},
+  {"id": "reporting","label": "Relatórios e Análises","description": "Geração de relatórios e análise de dados","value": "reporting"},
+  {"id": "search","label": "Sistema de Busca","description": "Busca avançada com filtros e ordenação","value": "search"},
+  {"id": "payments","label": "Processamento de Pagamentos","description": "Integração com gateways de pagamento","value": "payments"},
+  {"id": "chat","label": "Chat em Tempo Real","description": "Sistema de mensagens instantâneas","value": "chat"},
+  {"id": "api","label": "API RESTful","description": "API para integração com outros sistemas","value": "api"}
+] 

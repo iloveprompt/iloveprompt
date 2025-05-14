@@ -1,0 +1,17 @@
+[
+  { "id": "redis", "label": "Redis (para cache/filas)", "description": "Implementação de Redis para cache em memória e sistema de filas distribuído", "category": "scalability" },
+  { "id": "caching", "label": "Estratégias de Cache (CDN, em memória)", "description": "Estratégias avançadas de cache usando CDN e armazenamento em memória", "category": "scalability" },
+  { "id": "autoScaling", "label": "Auto-Escalamento (Horizontal/Vertical)", "description": "Sistema automático de escalabilidade baseado em métricas de uso", "category": "scalability" },
+  { "id": "horizontalScaling", "label": "Escalabilidade Horizontal", "description": "Capacidade de adicionar mais instâncias para distribuir carga", "category": "scalability" },
+  { "id": "verticalScaling", "label": "Escalabilidade Vertical", "description": "Capacidade de aumentar recursos (CPU, RAM) de instâncias existentes", "category": "scalability" },
+  { "id": "loadBalancing", "label": "Balanceamento de Carga", "description": "Sistema de distribuição inteligente de tráfego entre múltiplos servidores", "category": "scalability" },
+  { "id": "cdn", "label": "Rede de Entrega de Conteúdo", "description": "Utilização de CDN para distribuição global de conteúdo estático", "category": "scalability" },
+  { "id": "microservices", "label": "Arquitetura de Microsserviços", "description": "Arquitetura distribuída baseada em serviços independentes e escaláveis", "category": "scalability" },
+  { "id": "lazyLoading", "label": "Carregamento Lento (Lazy Loading) de Componentes/Imagens", "description": "Otimização de performance através de carregamento sob demanda", "category": "performance" },
+  { "id": "minification", "label": "Minificação de Código (JS, CSS, HTML)", "description": "Otimização e compressão automática de arquivos estáticos", "category": "performance" },
+  { "id": "serverRendering", "label": "Renderização no Servidor (SSR) ou Geração de Site Estático (SSG)", "description": "Estratégias de renderização otimizada para melhor performance", "category": "performance" },
+  { "id": "optimization", "label": "Otimização de Consultas ao Banco de Dados", "description": "Estratégias avançadas de otimização de queries e índices", "category": "performance" },
+  { "id": "codeOptimization", "label": "Otimização de Código", "description": "Práticas e técnicas de otimização de código para melhor performance", "category": "performance" },
+  { "id": "imageOptimization", "label": "Otimização de Imagens/Assets", "description": "Compressão e otimização automática de imagens e assets", "category": "performance" },
+  { "id": "databaseOptimization", "label": "Otimização de Consultas de Banco de Dados", "description": "Técnicas avançadas de otimização de performance do banco de dados", "category": "performance" }
+] 

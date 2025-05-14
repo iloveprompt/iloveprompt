@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
@@ -13,6 +13,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import AIAssistantPanel from '../components/AIAssistantPanel';
+import restrictionsData from '../data/restrictionsData.json';
 
 interface RestrictionsFormData {
   avoidInCode: string[];
@@ -42,12 +45,20 @@ const RestrictionsStep: React.FC<RestrictionsStepProps> = ({
   const [isOtherPopoverOpen, setIsOtherPopoverOpen] = useState(false);
   const [currentOtherInput, setCurrentOtherInput] = useState('');
   const [tempOtherList, setTempOtherList] = useState<string[]>([]);
+  const [restrictionOptions, setRestrictionOptions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [aiOpen, setAIOpen] = useState(false);
 
-  const restrictionOptions = [
-    'eval', 'globalVars', 'callbackHell', 'unmaintained', 'important', 'paidDeps',
-    'classComponents', 'redux', 'jquery', 'php', 'specificLibraries' 
-    // Added specificLibraries to match common pattern, ensure i18n key exists or add default text
-  ];
+  useEffect(() => {
+    try {
+      setRestrictionOptions(Array.isArray(restrictionsData) ? restrictionsData.map((item: any) => item.id) : []);
+      setLoading(false);
+    } catch (e) {
+      setError('Erro ao carregar restrições');
+      setLoading(false);
+    }
+  }, []);
 
   const handleRestrictionChange = (option: string, checked: boolean) => {
     const updatedOptions = checked
@@ -108,20 +119,38 @@ const RestrictionsStep: React.FC<RestrictionsStepProps> = ({
   const totalPages = Math.ceil(restrictionOptions.length / itemsPerPage);
   const currentItemsToDisplay = restrictionOptions.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
 
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>{error}</div>;
+
   return (
     <div className="space-y-6">
       <Card className="p-4 sm:p-6">
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle>{t('promptGenerator.restrictions.title')}</CardTitle>
-              <CardDescription>{t('promptGenerator.restrictions.description')}</CardDescription>
+              <CardTitle>{t('promptGenerator.restrictions.title') || "Restrições"}</CardTitle>
+              <CardDescription className="text-sm text-muted-foreground">
+                {t('promptGenerator.restrictions.description') || "Defina as restrições do seu projeto"}
+              </CardDescription>
             </div>
             <div className="flex items-center space-x-2">
               <Button variant="outline" onClick={handleReset} size="icon" className="h-8 w-8">
                 <RotateCcw className="h-4 w-4" />
                 <span className="sr-only">{t('common.reset')}</span>
               </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={() => setAIOpen(true)} size="icon" className="h-8 w-8">
+                      <Wand2 className="h-4 w-4 text-blue-500" />
+                      <span className="sr-only">Assistente de IA</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <span>Obter ajuda do assistente de IA para definir as restrições</span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Button 
                 onClick={handleSaveAndFinalize} 
                 size="icon" 
@@ -224,6 +253,12 @@ const RestrictionsStep: React.FC<RestrictionsStepProps> = ({
             </AccordionItem>
           </Accordion>
         </CardContent>
+        <AIAssistantPanel
+          open={aiOpen}
+          onClose={() => setAIOpen(false)}
+          items={Array.isArray(restrictionsData) ? restrictionsData : []}
+          title={t('promptGenerator.restrictions.title') || 'Restrições'}
+        />
       </Card>
     </div>
   );

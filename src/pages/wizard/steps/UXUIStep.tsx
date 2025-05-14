@@ -9,13 +9,16 @@ import { ColorSwatch, HexColorPicker } from '../components/ColorPicker';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import AIAssistantPanel from '../components/AIAssistantPanel';
+import uxuiData from '../data/uxuiData.json';
 
 interface UXUIFormData {
   colorPalette: string[];
@@ -77,6 +80,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
   const { t } = useLanguage();
   const itemsPerPage = 6; 
   const LP_ITEMS_PER_PAGE = 4;
+  const [aiOpen, setAIOpen] = useState(false);
 
   const [customColorPickers, setCustomColorPickers] = useState<string[]>(['#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF']);
   const [activeColorPickerIndex, setActiveColorPickerIndex] = useState<number | null>(null);
@@ -111,6 +115,31 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
   const [isOtherLpStructurePopoverOpen, setIsOtherLpStructurePopoverOpen] = useState(false);
   const [currentOtherLpStructureInput, setCurrentOtherLpStructureInput] = useState('');
   const [tempOtherLpStructureList, setTempOtherLpStructureList] = useState<string[]>([]);
+
+  const [visualStyleOptions, setVisualStyleOptions] = useState<any[]>([]);
+  const [menuTypeOptions, setMenuTypeOptions] = useState<any[]>([]);
+  const [authOptions, setAuthOptions] = useState<any[]>([]);
+  const [dashboardFeaturesOptions, setDashboardFeaturesOptions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      if (Array.isArray(uxuiData)) {
+        const dashboardFeatures = uxuiData.filter((item: any) => item.category === 'dashboardFeatures');
+        console.log('Dashboard Features:', dashboardFeatures);
+        setDashboardFeaturesOptions(dashboardFeatures);
+        setVisualStyleOptions(uxuiData.filter((item: any) => item.category === 'visualStyle'));
+        setMenuTypeOptions(uxuiData.filter((item: any) => item.category === 'menuType'));
+        setAuthOptions(uxuiData.filter((item: any) => item.category === 'auth'));
+      }
+      setLoading(false);
+    } catch (e) {
+      console.error('Erro ao carregar opções de UX/UI:', e);
+      setError('Erro ao carregar opções de UX/UI');
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     setTempOtherLpStructureList(formData.landingPageDetails.structure.otherValues || []);
@@ -320,40 +349,12 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
     }
   };
 
-  const visualStyleOptions = [
-    { value: 'minimalist', i18nKey: 'promptGenerator.uxui.minimalist', defaultText: 'Minimalista' },
-    { value: 'modern', i18nKey: 'promptGenerator.uxui.modern', defaultText: 'Moderno com Sombras' },
-    { value: 'flat', i18nKey: 'promptGenerator.uxui.flat', defaultText: 'Flat/Material Design' },
-    { value: 'ios', i18nKey: 'promptGenerator.uxui.ios', defaultText: 'Inspirado em iOS' },
-    { value: 'android', i18nKey: 'promptGenerator.uxui.android', defaultText: 'Inspirado em Android' },
-  ];
-
-  const menuTypeOptions = [
-    { value: 'topFixed', i18nKey: 'promptGenerator.uxui.topFixed', defaultText: 'Topo Fixo' },
-    { value: 'sideFixed', i18nKey: 'promptGenerator.uxui.sideFixed', defaultText: 'Barra Lateral Fixa' },
-    { value: 'hamburger', i18nKey: 'promptGenerator.uxui.hamburger', defaultText: 'Menu Hamburger (Mobile)' },
-    { value: 'horizontalTabs', i18nKey: 'promptGenerator.uxui.horizontalTabs', defaultText: 'Abas Horizontais' },
-  ];
-
-  const authOptions = [
-    { value: 'emailPassword', i18nKey: 'promptGenerator.uxui.emailPassword', defaultText: 'Email + Senha' },
-    { value: 'socialLogin', i18nKey: 'promptGenerator.uxui.socialLogin', defaultText: 'Login Social (Google, Facebook, etc.)' },
-    { value: 'twoFactorAuth', i18nKey: 'promptGenerator.uxui.twoFactorAuth', defaultText: 'Autenticação de Dois Fatores (2FA)' },
-  ];
-
-  const dashboardFeaturesOptions = [
-    { value: 'customizable', i18nKey: 'promptGenerator.uxui.customizable', defaultText: 'Personalizável' },
-    { value: 'statistics', i18nKey: 'promptGenerator.uxui.statistics', defaultText: 'Gráficos e Estatísticas' },
-    { value: 'activityHistory', i18nKey: 'promptGenerator.uxui.activityHistory', defaultText: 'Histórico de Atividades' },
-    { value: 'responsiveThemes', i18nKey: 'promptGenerator.uxui.responsiveThemes', defaultText: 'Tema Claro/Escuro e Responsivo' },
-  ];
-  
   const handleLandingPageCheckboxChange = (
     category: 'structure' | 'elements' | 'style',
     itemKey: string,
     isChecked: boolean
   ) => {
-    const currentCategory = formData.landingPageDetails[category];
+    const currentCategory = formData.landingPageDetails[category] || {};
     updateFormData({
       landingPageDetails: {
         ...formData.landingPageDetails,
@@ -366,22 +367,17 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
   };
 
   const handleAuthMethodChange = (value: string, checked: boolean) => {
-    const updatedAuth = checked
+    const updatedOptions = checked
       ? [...formData.authentication, value]
-      : formData.authentication.filter((item) => item !== value && item !== 'otherAuthMethod');
-    updateFormData({ authentication: updatedAuth });
+      : formData.authentication.filter(id => id !== value);
+    updateFormData({ authentication: updatedOptions });
   };
   
   const handleDashboardFeatureChange = (value: string, checked: boolean) => {
     const updatedFeatures = checked
       ? [...formData.userDashboardDetails.features, value]
-      : formData.userDashboardDetails.features.filter((item) => item !== value && item !== 'otherDashboardFeature');
-    updateFormData({
-      userDashboardDetails: {
-        ...formData.userDashboardDetails,
-        features: updatedFeatures,
-      },
-    });
+      : formData.userDashboardDetails.features.filter(id => id !== value);
+    updateFormData({ userDashboardDetails: { ...formData.userDashboardDetails, features: updatedFeatures } });
   };
 
   const handleReset = () => {
@@ -517,28 +513,87 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
   const totalPagesAuth = Math.ceil(authOptions.length / itemsPerPage);
   const currentAuthToDisplay = authOptions.slice(currentPageAuth * itemsPerPage, (currentPageAuth + 1) * itemsPerPage);
   const toggleSelectAllAuth = () => {
-    const allKeys = authOptions.map(opt => opt.value);
-    const allSelectedCurrently = allKeys.every(key => formData.authentication.includes(key));
+    const allOptionIds = authOptions.map(opt => opt.value);
+    const allSelectedCurrently = allOptionIds.every(id => formData.authentication.includes(id));
+
     if (allSelectedCurrently) {
-      updateFormData({ authentication: formData.authentication.filter(auth => !allKeys.includes(auth) || (formData.otherAuthMethods && formData.otherAuthMethods.length > 0 && auth === 'otherAuthMethod')) });
+      updateFormData({ authentication: formData.authentication.filter(auth => !allOptionIds.includes(auth)) });
     } else {
-      updateFormData({ authentication: Array.from(new Set([...formData.authentication, ...allKeys])) });
+      updateFormData({ authentication: Array.from(new Set([...formData.authentication, ...allOptionIds])) });
     }
   };
-  const allAuthSelected = authOptions.length > 0 && authOptions.every(opt => formData.authentication.includes(opt.value));
+  const allAuthSelected = authOptions.length > 0 && authOptions.every(opt => (formData.authentication || []).includes(opt.value));
 
   const totalPagesDashboard = Math.ceil(dashboardFeaturesOptions.length / itemsPerPage);
   const currentDashboardFeaturesToDisplay = dashboardFeaturesOptions.slice(currentPageDashboard * itemsPerPage, (currentPageDashboard + 1) * itemsPerPage);
   const toggleSelectAllDashboardFeatures = () => {
-    const allKeys = dashboardFeaturesOptions.map(opt => opt.value);
-    const allSelectedCurrently = allKeys.every(key => formData.userDashboardDetails.features.includes(key));
+    const allOptionIds = dashboardFeaturesOptions.map(opt => opt.value);
+    const allSelectedCurrently = allOptionIds.every(id => formData.userDashboardDetails.features.includes(id));
+
     if (allSelectedCurrently) {
-      updateFormData({ userDashboardDetails: { ...formData.userDashboardDetails, features: formData.userDashboardDetails.features.filter(feat => !allKeys.includes(feat) || (Array.isArray(formData.userDashboardDetails.otherDashboardFeatures) && formData.userDashboardDetails.otherDashboardFeatures.length > 0 && feat === 'otherDashboardFeature')) }});
+      updateFormData({ 
+        userDashboardDetails: { 
+          ...formData.userDashboardDetails, 
+          features: formData.userDashboardDetails.features.filter(feat => !allOptionIds.includes(feat)) 
+        } 
+      });
     } else {
-      updateFormData({ userDashboardDetails: { ...formData.userDashboardDetails, features: Array.from(new Set([...formData.userDashboardDetails.features, ...allKeys])) }});
+      updateFormData({ 
+        userDashboardDetails: { 
+          ...formData.userDashboardDetails, 
+          features: Array.from(new Set([...formData.userDashboardDetails.features, ...allOptionIds])) 
+        } 
+      });
     }
   };
-  const allDashboardFeaturesSelected = dashboardFeaturesOptions.length > 0 && dashboardFeaturesOptions.every(opt => formData.userDashboardDetails.features.includes(opt.value));
+  const allDashboardFeaturesSelected = dashboardFeaturesOptions.length > 0 && dashboardFeaturesOptions.every(opt => (formData.userDashboardDetails?.features || []).includes(opt.value));
+
+  const handlePaletteSelection = (palette: { value: string, colors: string[] }) => {
+    const isSelected = formData.colorPalette.includes(palette.value);
+    let updatedPalette;
+    if (isSelected) {
+      updatedPalette = formData.colorPalette.filter(p => p !== palette.value);
+      updateFormData({ colorPalette: updatedPalette, customColors: [] });
+    } else {
+      updatedPalette = [palette.value];
+      if (formData.colorPalette.includes('custom')) {
+        updatedPalette = updatedPalette.filter(p => p !== 'custom');
+      }
+      updateFormData({ 
+        colorPalette: updatedPalette, 
+        customColors: palette.colors 
+      });
+    }
+  };
+
+  const handleApplyCustomColors = () => {
+    const allColorsValid = customColorPickers.every(color => /^#[0-9A-Fa-f]{6}$/i.test(color));
+    if (!allColorsValid) {
+      alert(t('promptGenerator.uxui.invalidColorsError') || 'Por favor, insira cores válidas em formato hexadecimal (#RRGGBB)');
+      return;
+    }
+    updateFormData({ 
+      colorPalette: ['custom'],
+      customColors: [...customColorPickers]
+    });
+  };
+
+  // Adicionando função para marcar/desmarcar todos os itens da landing page
+  const toggleSelectAllLandingPageItems = () => {
+    const allSelected = lpStructureOptions.every(opt => !!formData.landingPageDetails.structure[opt.key as keyof typeof formData.landingPageDetails.structure]);
+    
+    const newStructureState = { ...formData.landingPageDetails.structure };
+    lpStructureOptions.forEach(opt => {
+      newStructureState[opt.key as keyof typeof formData.landingPageDetails.structure] = !allSelected;
+    });
+    
+    updateFormData({
+      landingPageDetails: { ...formData.landingPageDetails, structure: newStructureState }
+    });
+  };
+
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="space-y-6">
@@ -554,6 +609,19 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                 <RotateCcw className="h-4 w-4" />
                 <span className="sr-only">{t('common.reset')}</span>
               </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={() => setAIOpen(true)} size="icon" className="h-8 w-8">
+                      <Wand2 className="h-4 w-4 text-blue-500" />
+                      <span className="sr-only">Assistente de IA</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">
+                    <span>Obter ajuda do assistente de IA para escolher as opções de UX/UI</span>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               <Button 
                 onClick={handleSaveAndFinalize} 
                 size="icon" 
@@ -575,8 +643,8 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
           </div>
         </CardHeader>
         <CardContent className="px-0 pb-0 sm:px-0 sm:pb-0 pt-4">
-          <div className="grid grid-cols-1 gap-1">
-            <div className="space-y-3 mb-1">
+          <div className="grid grid-cols-1 gap-0.5">
+            <div className="space-y-2 mb-1">
               <div className="flex justify-between items-center">
                 <h4 className="text-base font-medium text-foreground">{t('promptGenerator.uxui.landingPage')}</h4>
                 <div className="flex items-center space-x-2">
@@ -626,15 +694,15 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                 </div>
               </div>
               {formData.landingPage && (
-                <div className="space-y-3 mt-1">
-                  <div className="space-y-1"> {/* Reduzido space-y-2 para space-y-1 */}
-                    <h5 className="text-sm font-medium text-foreground mb-0.5">{t('promptGenerator.uxui.structure')}</h5> {/* Reduzido mb-1 para mb-0.5 */}
-                    <p className="text-xs text-muted-foreground mb-1">{t('promptGenerator.uxui.structureOption')}</p> {/* Reduzido mb-1.5 para mb-1 */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-1" style={{ minHeight: `${Math.ceil(LP_ITEMS_PER_PAGE / 2) * 24}px` }}> {/* Reduzido gap-1.5 para gap-1 e altura do item */}
+                <div className="space-y-2 mt-1">
+                  <div className="space-y-1">
+                    <h5 className="text-sm font-medium text-foreground mb-0.5">{t('promptGenerator.uxui.structure')}</h5>
+                    <p className="text-xs text-muted-foreground mb-1">{t('promptGenerator.uxui.structureOption')}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-0.5" style={{ minHeight: `${Math.ceil(LP_ITEMS_PER_PAGE / 2) * 20}px` }}>
                       {lpStructureOptions
                         .slice(currentPageLpStructure * LP_ITEMS_PER_PAGE, (currentPageLpStructure + 1) * LP_ITEMS_PER_PAGE)
                         .map((option) => (
-                          <div key={option.key} className="flex items-start space-x-1"> {/* Reduzido space-x-1.5 para space-x-1 */}
+                          <div key={option.key} className="flex items-start space-x-1">
                             <Checkbox
                               id={`lp-structure-${option.key}`}
                               checked={!!formData.landingPageDetails.structure[option.key as keyof typeof formData.landingPageDetails.structure]}
@@ -647,8 +715,8 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                           </div>
                         ))}
                     </div>
-                    <div className="flex items-center justify-between space-x-2 mt-2 pt-2">
-                      <Button variant="outline" size="sm" className="text-xs" onClick={toggleSelectAllLpStructure}>
+                    <div className="flex items-center justify-between space-x-2 mt-2">
+                      <Button variant="outline" size="sm" className="text-xs" onClick={toggleSelectAllLandingPageItems}>
                         {allLpStructureSelected ? t('common.unselectAll') : t('common.selectAll')}
                       </Button>
                       <div className="flex items-center space-x-2">
@@ -714,14 +782,14 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                   </div>
 
                   {/* LP Elements Section */}
-                  <div className="space-y-1 pt-2 border-t"> {/* Reduzido space-y-2 para space-y-1 */}
-                    <h5 className="text-sm font-medium text-foreground mb-0.5">{t('promptGenerator.uxui.elements')}</h5> {/* Reduzido mb-1 para mb-0.5 */}
-                    <p className="text-xs text-muted-foreground mb-1">{t('promptGenerator.uxui.elementsOption')}</p> {/* Reduzido mb-1.5 para mb-1 */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-1" style={{ minHeight: `${Math.ceil(LP_ITEMS_PER_PAGE / 2) * 24}px` }}> {/* Reduzido gap-1.5 para gap-1 e altura do item */}
+                  <div className="space-y-1 pt-2 border-t">
+                    <h5 className="text-sm font-medium text-foreground mb-0.5">{t('promptGenerator.uxui.elements')}</h5>
+                    <p className="text-xs text-muted-foreground mb-1">{t('promptGenerator.uxui.elementsOption')}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-0.5" style={{ minHeight: `${Math.ceil(LP_ITEMS_PER_PAGE / 2) * 20}px` }}>
                       {lpElementOptions
                         .slice(currentPageLpElements * LP_ITEMS_PER_PAGE, (currentPageLpElements + 1) * LP_ITEMS_PER_PAGE)
                         .map((option) => (
-                          <div key={option.key} className="flex items-start space-x-1"> {/* Reduzido space-x-1.5 para space-x-1 */}
+                          <div key={option.key} className="flex items-start space-x-1">
                             <Checkbox
                               id={`lp-elements-${option.key}`}
                               checked={!!formData.landingPageDetails.elements[option.key as keyof typeof formData.landingPageDetails.elements]}
@@ -734,7 +802,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                           </div>
                         ))}
                     </div>
-                    <div className="flex items-center justify-between space-x-2 mt-2 pt-2">
+                    <div className="flex items-center justify-between space-x-2 mt-2">
                       <Button variant="outline" size="sm" className="text-xs" onClick={toggleSelectAllLpElements}>
                         {allLpElementsSelected ? t('common.unselectAll') : t('common.selectAll')}
                       </Button>
@@ -797,14 +865,14 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                   </div>
 
                   {/* LP Style Section */}
-                  <div className="space-y-1 pt-2 border-t"> {/* Reduzido space-y-2 para space-y-1 */}
-                    <h5 className="text-sm font-medium text-foreground mb-0.5">{t('promptGenerator.uxui.style')}</h5> {/* Reduzido mb-1 para mb-0.5 */}
-                    <p className="text-xs text-muted-foreground mb-1">{t('promptGenerator.uxui.styleOption')}</p> {/* Reduzido mb-1.5 para mb-1 */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-1" style={{ minHeight: `${Math.ceil(LP_ITEMS_PER_PAGE / 2) * 24}px` }}> {/* Reduzido gap-1.5 para gap-1 e altura do item */}
+                  <div className="space-y-1 pt-2 border-t">
+                    <h5 className="text-sm font-medium text-foreground mb-0.5">{t('promptGenerator.uxui.style')}</h5>
+                    <p className="text-xs text-muted-foreground mb-1">{t('promptGenerator.uxui.styleOption')}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-0.5" style={{ minHeight: `${Math.ceil(LP_ITEMS_PER_PAGE / 2) * 20}px` }}>
                       {lpStyleOptions
                         .slice(currentPageLpStyle * LP_ITEMS_PER_PAGE, (currentPageLpStyle + 1) * LP_ITEMS_PER_PAGE)
                         .map((option) => (
-                          <div key={option.key} className="flex items-start space-x-1"> {/* Reduzido space-x-1.5 para space-x-1 */}
+                          <div key={option.key} className="flex items-start space-x-1">
                             <Checkbox
                               id={`lp-style-${option.key}`}
                               checked={!!formData.landingPageDetails.style[option.key as keyof typeof formData.landingPageDetails.style]}
@@ -817,7 +885,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                           </div>
                         ))}
                     </div>
-                    <div className="flex items-center justify-between space-x-2 mt-2 pt-2">
+                    <div className="flex items-center justify-between space-x-2 mt-2">
                       <Button variant="outline" size="sm" className="text-xs" onClick={toggleSelectAllLpStyles}>
                         {allLpStylesSelected ? t('common.unselectAll') : t('common.selectAll')}
                       </Button>
@@ -883,7 +951,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
             </div>
 
             {/* User Dashboard Section */}
-            <div className="space-y-3 mb-1"> {/* Changed mb-2 to mb-1 */}
+            <div className="space-y-2 mb-1">
               <div className="flex justify-between items-center">
                 <h4 className="text-base font-medium text-foreground">{t('promptGenerator.uxui.userDashboard') || "Painel do Usuário"}</h4>
                 <div className="flex items-center space-x-2">
@@ -898,66 +966,105 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                 </div>
               </div>
               {formData.userDashboard && (
-                <div className="space-y-1 mt-1"> {/* Reduzido space-y-2 para space-y-1 */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-1" style={{ minHeight: `${Math.ceil(itemsPerPage / 2) * 24}px` }}> {/* Reduzido gap-1.5 para gap-1 e altura do item */}
+                <div className="space-y-1 mt-1">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-0.5" style={{ minHeight: `${Math.ceil(itemsPerPage / 2) * 20}px` }}>
                     {currentDashboardFeaturesToDisplay.map((feature) => (
-                      <div key={feature.value} className="flex items-start space-x-1"> {/* Reduzido space-x-1.5 para space-x-1 */}
-                        <Checkbox id={`dashboard-${feature.value}`} checked={formData.userDashboardDetails.features.includes(feature.value)} onCheckedChange={(checked) => handleDashboardFeatureChange(feature.value, checked === true)} className="mt-0.5"/>
-                        <Label htmlFor={`dashboard-${feature.value}`} className="cursor-pointer text-xs font-normal whitespace-normal leading-tight">
-                          {t(feature.i18nKey) || feature.defaultText}
+                      <div key={feature.value} className="flex items-start space-x-1">
+                        <Checkbox 
+                          id={`dashboard-${feature.value}`} 
+                          checked={formData.userDashboardDetails.features.includes(feature.value)} 
+                          onCheckedChange={(checked) => handleDashboardFeatureChange(feature.value, checked === true)} 
+                          className="mt-0.5"
+                        />
+                        <Label 
+                          htmlFor={`dashboard-${feature.value}`} 
+                          className="cursor-pointer text-xs font-normal whitespace-normal leading-tight"
+                        >
+                          {feature.label}
                         </Label>
                       </div>
                     ))}
                   </div>
-                  <div className="flex items-center justify-between space-x-2 mt-2 pt-2">
+                  <div className="flex items-center justify-between space-x-2 mt-2">
                     {dashboardFeaturesOptions.length > 0 && (
-                        <Button variant="outline" size="sm" className="text-xs" onClick={toggleSelectAllDashboardFeatures}>
-                            {allDashboardFeaturesSelected ? (t('common.unselectAll') || "Desmarcar Todos") : (t('common.selectAll') || "Marcar Todos")}
-                        </Button>
+                      <Button variant="outline" size="sm" className="text-xs" onClick={toggleSelectAllDashboardFeatures}>
+                        {allDashboardFeaturesSelected ? t('common.unselectAll') : t('common.selectAll')}
+                      </Button>
                     )}
                     <div className="flex items-center space-x-2">
-                        <Popover open={isOtherDashboardFeaturePopoverOpen} onOpenChange={setIsOtherDashboardFeaturePopoverOpen}>
-                            <PopoverTrigger asChild>
-                                <Button variant="outline" size="sm" className="text-xs">
-                                    <ListPlus className="h-3 w-3 mr-1.5" />
-                                    {t('promptGenerator.objective.notInList') || "Não está na lista?"}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-4" side="top" align="end">
-                                <div className="space-y-3">
-                                    <Label htmlFor="other-dashboardfeature-input" className="text-sm font-medium">
-                                    {t('promptGenerator.uxui.otherDashboardFeaturePlaceholder') || 'Adicionar outra funcionalidade do painel:'}
-                                    </Label>
-                                    <div className="flex items-center space-x-2">
-                                    <Input id="other-dashboardfeature-input" value={currentOtherDashboardFeatureInput} onChange={(e) => setCurrentOtherDashboardFeatureInput(e.target.value)} placeholder={t('promptGenerator.uxui.otherDashboardFeaturePlaceholder') || 'Sua funcionalidade...'} className="text-xs h-8" onKeyDown={(e) => { if (e.key === 'Enter' && currentOtherDashboardFeatureInput.trim()) handleAddOtherDashboardFeature(); }} />
-                                    <Button size="icon" onClick={handleAddOtherDashboardFeature} disabled={!currentOtherDashboardFeatureInput.trim() || tempOtherDashboardFeaturesList.length >= 10} className="h-8 w-8 flex-shrink-0"><PlusCircle className="h-4 w-4" /></Button>
-                                    </div>
-                                    {tempOtherDashboardFeaturesList.length > 0 && (
-                                    <div className="mt-2 space-y-1 max-h-28 overflow-y-auto border p-2 rounded-md">
-                                        <p className="text-xs text-muted-foreground mb-1">{`Adicionadas (${tempOtherDashboardFeaturesList.length}/10):`}</p>
-                                        {tempOtherDashboardFeaturesList.map((feat, idx) => (
-                                        <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
-                                            <span className="truncate flex-1 mr-2">{feat}</span>
-                                            <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherDashboardFeature(idx)} className="h-5 w-5"><XCircle className="h-3.5 w-3.5 text-destructive" /></Button>
-                                        </div>
-                                        ))}
-                                    </div>
-                                    )}
-                                    {tempOtherDashboardFeaturesList.length >= 10 && <p className="text-xs text-destructive mt-1">{t('promptGenerator.objective.limitReached') || "Limite de 10 atingido."}</p>}
-                                    <div className="flex justify-end space-x-2 mt-3">
-                                    <Button size="sm" variant="ghost" onClick={() => setIsOtherDashboardFeaturePopoverOpen(false)} className="text-xs h-8">{'Cancelar'}</Button>
-                                    <Button size="sm" onClick={handleSaveOtherDashboardFeatures} disabled={tempOtherDashboardFeaturesList.length === 0 && (!Array.isArray(formData.userDashboardDetails.otherDashboardFeatures) || formData.userDashboardDetails.otherDashboardFeatures.length === 0) && !currentOtherDashboardFeatureInput.trim()} className="text-xs h-8">{'Salvar Outras'}</Button>
-                                    </div>
-                                </div>
-                            </PopoverContent>
-                        </Popover>
-                        {totalPagesDashboard > 1 && (
+                      <Popover open={isOtherDashboardFeaturePopoverOpen} onOpenChange={setIsOtherDashboardFeaturePopoverOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" size="sm" className="text-xs">
+                            <ListPlus className="h-3 w-3 mr-1.5" />
+                            {t('promptGenerator.objective.notInList') || "Não está na lista?"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-4" side="top" align="end">
+                          <div className="space-y-3">
+                            <Label htmlFor="other-dashboardfeature-input" className="text-sm font-medium">
+                              {t('promptGenerator.uxui.otherDashboardFeaturePlaceholder') || 'Adicionar outra funcionalidade do painel:'}
+                            </Label>
+                            <div className="flex items-center space-x-2">
+                              <Input 
+                                id="other-dashboardfeature-input" 
+                                value={currentOtherDashboardFeatureInput} 
+                                onChange={(e) => setCurrentOtherDashboardFeatureInput(e.target.value)} 
+                                placeholder={t('promptGenerator.uxui.otherDashboardFeaturePlaceholder') || 'Sua funcionalidade...'} 
+                                className="text-xs h-8" 
+                                onKeyDown={(e) => { if (e.key === 'Enter' && currentOtherDashboardFeatureInput.trim()) handleAddOtherDashboardFeature(); }} 
+                              />
+                              <Button 
+                                size="icon" 
+                                onClick={handleAddOtherDashboardFeature} 
+                                disabled={!currentOtherDashboardFeatureInput.trim() || tempOtherDashboardFeaturesList.length >= 10} 
+                                className="h-8 w-8 flex-shrink-0"
+                              >
+                                <PlusCircle className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            {tempOtherDashboardFeaturesList.length > 0 && (
+                              <div className="mt-2 space-y-1 max-h-28 overflow-y-auto border p-2 rounded-md">
+                                <p className="text-xs text-muted-foreground mb-1">{`Adicionadas (${tempOtherDashboardFeaturesList.length}/10):`}</p>
+                                {tempOtherDashboardFeaturesList.map((feat, idx) => (
+                                  <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
+                                    <span className="truncate flex-1 mr-2">{feat}</span>
+                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherDashboardFeature(idx)} className="h-5 w-5">
+                                      <XCircle className="h-3.5 w-3.5 text-destructive" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            {tempOtherDashboardFeaturesList.length >= 10 && (
+                              <p className="text-xs text-destructive mt-1">{t('promptGenerator.objective.limitReached') || "Limite de 10 atingido."}</p>
+                            )}
+                            <div className="flex justify-end space-x-2 mt-3">
+                              <Button size="sm" variant="ghost" onClick={() => setIsOtherDashboardFeaturePopoverOpen(false)} className="text-xs h-8">
+                                {'Cancelar'}
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                onClick={handleSaveOtherDashboardFeatures} 
+                                disabled={tempOtherDashboardFeaturesList.length === 0 && (!Array.isArray(formData.userDashboardDetails.otherDashboardFeatures) || formData.userDashboardDetails.otherDashboardFeatures.length === 0) && !currentOtherDashboardFeatureInput.trim()} 
+                                className="text-xs h-8"
+                              >
+                                {'Salvar Outras'}
+                              </Button>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                      {totalPagesDashboard > 1 && (
                         <div className="flex items-center justify-center space-x-1">
-                            <Button variant="ghost" size="icon" onClick={() => setCurrentPageDashboard(p => Math.max(0, p - 1))} disabled={currentPageDashboard === 0} className="h-7 w-7"><ChevronLeft className="h-4 w-4" /></Button>
-                            <span className="text-xs text-muted-foreground">{`${t('common.page') || 'Página'} ${currentPageDashboard + 1} ${t('common.of') || 'de'} ${totalPagesDashboard}`}</span>
-                            <Button variant="ghost" size="icon" onClick={() => setCurrentPageDashboard(p => Math.min(totalPagesDashboard - 1, p + 1))} disabled={currentPageDashboard === totalPagesDashboard - 1} className="h-7 w-7"><ChevronRight className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" onClick={() => setCurrentPageDashboard(p => Math.max(0, p - 1))} disabled={currentPageDashboard === 0} className="h-7 w-7">
+                            <ChevronLeft className="h-4 w-4" />
+                          </Button>
+                          <span className="text-xs text-muted-foreground">{`${t('common.page') || 'Página'} ${currentPageDashboard + 1} ${t('common.of') || 'de'} ${totalPagesDashboard}`}</span>
+                          <Button variant="ghost" size="icon" onClick={() => setCurrentPageDashboard(p => Math.min(totalPagesDashboard - 1, p + 1))} disabled={currentPageDashboard === totalPagesDashboard - 1} className="h-7 w-7">
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
                         </div>
-                        )}
+                      )}
                     </div>
                   </div>
                   {Array.isArray(formData.userDashboardDetails.otherDashboardFeatures) && formData.userDashboardDetails.otherDashboardFeatures.length > 0 && (
@@ -974,7 +1081,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
           </div>
 
           {/* Color Palette Accordion */}
-          <Accordion type="single" collapsible className="w-full mb-1" defaultValue="color-palette-accordion"> {/* Changed mb-2 to mb-1 */}
+          <Accordion type="single" collapsible className="w-full mb-1">
             <AccordionItem value="color-palette-accordion" className="border-0">
               <AccordionTrigger className="text-base font-medium text-foreground py-2 hover:no-underline">
                 {t('promptGenerator.uxui.colorPalette') || "Paleta de Cores"}
@@ -989,19 +1096,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                           <Card 
                             key={palette.value} 
                             className={`p-3 cursor-pointer transition-all hover:shadow-md ${formData.colorPalette.includes(palette.value) ? 'ring-2 ring-primary shadow-lg' : 'ring-1 ring-border'}`}
-                            onClick={() => {
-                              const isSelected = formData.colorPalette.includes(palette.value);
-                              let updatedPalette;
-                              if (isSelected) {
-                                updatedPalette = formData.colorPalette.filter(p => p !== palette.value);
-                              } else {
-                                updatedPalette = [palette.value]; 
-                                if (formData.colorPalette.includes('custom')) {
-                                   updatedPalette = updatedPalette.filter(p => p !== 'custom');
-                                }
-                              }
-                              updateFormData({ colorPalette: updatedPalette, customColors: [] }); 
-                            }}
+                            onClick={() => handlePaletteSelection({ value: palette.value, colors: palette.colors })}
                           >
                             <p className="text-xs font-medium mb-1.5 truncate">{palette.name}</p>
                             <div className="flex space-x-1">
@@ -1015,60 +1110,74 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                     </div>
                   ))}
                   <div>
-                    <h5 className="text-sm font-semibold mt-4 mb-2 text-muted-foreground">{t('promptGenerator.uxui.customPaletteTitle') || "Paleta Personalizada"}</h5>
+                    <h5 className="text-sm font-semibold mt-4 mb-2 text-muted-foreground">{t('promptGenerator.uxui.customPaletteTitle')}</h5>
                     <Card 
-                      className={`p-3 cursor-pointer transition-all hover:shadow-md ${formData.colorPalette.includes('custom') ? 'ring-2 ring-primary shadow-lg' : 'ring-1 ring-border'}`}
-                      onClick={() => {
-                        const isSelected = formData.colorPalette.includes('custom');
-                        if (isSelected) {
-                          updateFormData({ colorPalette: formData.colorPalette.filter(p => p !== 'custom'), customColors: [] });
-                        } else {
-                          updateFormData({ colorPalette: ['custom'], customColors: customColorPickers.filter(c => /^#[0-9A-Fa-f]{6}$/i.test(c)) });
-                        }
-                      }}
+                      className={`p-3 transition-all hover:shadow-md ${formData.colorPalette.includes('custom') ? 'ring-2 ring-primary shadow-lg' : 'ring-1 ring-border'}`}
                     >
-                      <div className="flex items-center justify-between mb-1.5">
-                        <p className="text-xs font-medium">{t('promptGenerator.uxui.customPalette.name') || "Crie sua Paleta"}</p>
-                        <Checkbox checked={formData.colorPalette.includes('custom')} disabled className="mr-1"/>
-                      </div>
-                       <p className="text-xs text-muted-foreground mb-2">{t('promptGenerator.uxui.customPalette.description') || "Escolha 4 cores para sua paleta."}</p>
-                      {formData.colorPalette.includes('custom') && (
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
-                          {customColorPickers.map((color, index) => (
-                            <div key={`custom-color-${index}`} className="space-y-1">
-                              <Label htmlFor={`custom-color-input-${index}`} className="text-xs">{(t('promptGenerator.uxui.customPalette.colorLabelPrefix') || 'Cor') + ` ${index + 1}`}</Label>
-                              <div className="flex items-center space-x-1.5">
-                                <Input
-                                  id={`custom-color-input-${index}`}
-                                  type="text"
-                                  placeholder="#RRGGBB"
-                                  value={color}
-                                  onChange={(e) => {
-                                    const newColor = e.target.value;
-                                    if (/^#[0-9A-Fa-f]{0,6}$/.test(newColor) || newColor === '') {
-                                      handleCustomColorChange(index, newColor);
-                                    }
-                                  }}
-                                  className="w-full text-xs h-8"
-                                />
-                                <Popover open={activeColorPickerIndex === index} onOpenChange={(isOpen) => setActiveColorPickerIndex(isOpen ? index : null)}>
-                                  <PopoverTrigger asChild>
-                                    <Button variant="outline" size="icon" className="h-8 w-8 flex-shrink-0">
-                                      <div className="w-4 h-4 rounded-sm border border-muted-foreground/50" style={{ backgroundColor: /^#[0-9A-Fa-f]{6}$/i.test(color) ? color : '#transparent' }}></div>
-                                    </Button>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-auto p-0" align="start">
-                                    <HexColorPicker
-                                      color={/^#[0-9A-Fa-f]{6}$/i.test(color) ? color : '#ffffff'}
-                                      onChange={(newHexColor) => handleCustomColorChange(index, newHexColor)}
+                      <p className="text-xs font-medium mb-1.5">{t('promptGenerator.uxui.customPalette.name')}</p>
+                      <p className="text-xs text-muted-foreground mb-2">{t('promptGenerator.uxui.customPalette.description')}</p>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {Array.from({ length: 4 }).map((_, index) => (
+                          <div key={`custom-color-${index}`} className="space-y-1">
+                            <Label htmlFor={`custom-color-input-${index}`} className="text-xs">
+                              {t('common.color' + (index + 1))}
+                            </Label>
+                            <div className="flex items-center space-x-1.5 color-picker-container">
+                              <Input
+                                id={`custom-color-input-${index}`}
+                                type="text"
+                                placeholder="#FFFFFF"
+                                value={customColorPickers[index] || ''}
+                                onChange={(e) => handleCustomColorChange(index, e.target.value)}
+                                className="w-full text-xs h-8"
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button 
+                                    variant="outline" 
+                                    size="icon" 
+                                    className="h-8 w-8"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <div 
+                                      className="w-4 h-4 rounded-sm border border-muted-foreground/50" 
+                                      style={{ backgroundColor: customColorPickers[index] || 'transparent' }}
                                     />
-                                  </PopoverContent>
-                                </Popover>
-                              </div>
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                  <div onClick={(e) => e.stopPropagation()}>
+                                    <HexColorPicker
+                                      color={customColorPickers[index] || '#FFFFFF'}
+                                      onChange={(color) => handleCustomColorChange(index, color)}
+                                    />
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
                             </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex justify-between items-center mt-4">
+                        <div className="flex space-x-1">
+                          {customColorPickers.map((color, index) => (
+                            <div 
+                              key={index} 
+                              className="w-5 h-5 rounded-sm border border-muted-foreground/20" 
+                              style={{ backgroundColor: color || 'transparent' }}
+                            />
                           ))}
                         </div>
-                      )}
+                        <Button
+                          size="sm"
+                          onClick={handleApplyCustomColors}
+                          className="text-xs"
+                          disabled={!customColorPickers.every(color => /^#[0-9A-Fa-f]{6}$/i.test(color))}
+                        >
+                          {t('promptGenerator.uxui.applyColors') || 'Aplicar Cores'}
+                        </Button>
+                      </div>
                     </Card>
                   </div>
                 </div>
@@ -1077,7 +1186,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
           </Accordion>
           
           <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="visual-style-accordion" className="border-0 mb-1"> {/* Changed mb-2 to mb-1 */}
+            <AccordionItem value="visual-style-accordion" className="border-0 mb-1">
               <AccordionTrigger className="text-base font-medium text-foreground py-2 hover:no-underline">
                 {t('promptGenerator.uxui.visualStyle') || "Estilo Visual"}
               </AccordionTrigger>
@@ -1096,10 +1205,10 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                     className="grid grid-cols-1 md:grid-cols-2 gap-1" 
                   >
                     {visualStyleOptions.map((option) => (
-                      <div key={option.value} className="flex items-start space-x-1"> {/* Reduzido space-x-1.5 para space-x-1 */}
+                      <div key={option.value} className="flex items-start space-x-1">
                         <RadioGroupItem value={option.value} id={`visual-style-${option.value}`} className="mt-0.5" />
                         <Label htmlFor={`visual-style-${option.value}`} className="cursor-pointer text-xs font-normal whitespace-normal leading-tight">
-                          {t(option.i18nKey) || option.defaultText}
+                          {option.label}
                         </Label>
                       </div>
                     ))}
@@ -1153,7 +1262,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
               </AccordionContent>
             </AccordionItem>
 
-            <AccordionItem value="menu-type-accordion" className="border-0 mb-1"> {/* Changed mb-2 to mb-1 */}
+            <AccordionItem value="menu-type-accordion" className="border-0 mb-1">
               <AccordionTrigger className="text-base font-medium text-foreground py-2 hover:no-underline">
                 {t('promptGenerator.uxui.menuType') || "Tipo de Menu"}
               </AccordionTrigger>
@@ -1172,10 +1281,10 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                         className="grid grid-cols-1 md:grid-cols-2 gap-1"
                       >
                         {menuTypeOptions.map((option) => (
-                          <div key={option.value} className="flex items-start space-x-1"> {/* Reduzido space-x-1.5 para space-x-1 */}
+                          <div key={option.value} className="flex items-start space-x-1">
                             <RadioGroupItem value={option.value} id={`menu-type-${option.value}`} className="mt-0.5"/>
                             <Label htmlFor={`menu-type-${option.value}`} className="cursor-pointer text-xs font-normal whitespace-normal leading-tight">
-                              {t(option.i18nKey) || option.defaultText}
+                              {option.label}
                             </Label>
                           </div>
                         ))}
@@ -1229,23 +1338,23 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
               </AccordionContent>
             </AccordionItem>
             
-            <AccordionItem value="authentication-accordion" className="border-0 mb-1"> {/* Changed mb-2 to mb-1 */}
+            <AccordionItem value="authentication-accordion" className="border-0 mb-1">
                <AccordionTrigger className="text-base font-medium text-foreground py-2 hover:no-underline">
                  {t('promptGenerator.uxui.authentication') || "Autenticação"}
                </AccordionTrigger>
                <AccordionContent className="pt-1 pb-0">
-                <div className="space-y-1"> {/* Reduzido space-y-2 para space-y-1 */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-1" style={{ minHeight: `${Math.ceil(itemsPerPage / 2) * 24}px` }}> {/* Reduzido gap-1.5 para gap-1 e altura do item */}
+                <div className="space-y-1">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-1" style={{ minHeight: `${Math.ceil(itemsPerPage / 2) * 20}px` }}>
                     {currentAuthToDisplay.map((option) => (
-                      <div key={option.value} className="flex items-start space-x-1"> {/* Reduzido space-x-1.5 para space-x-1 */}
+                      <div key={option.value} className="flex items-start space-x-1">
                         <Checkbox id={`auth-${option.value}`} checked={formData.authentication.includes(option.value)} onCheckedChange={(checked) => handleAuthMethodChange(option.value, checked === true)} className="mt-0.5"/>
                         <Label htmlFor={`auth-${option.value}`} className="cursor-pointer text-xs font-normal whitespace-normal leading-tight">
-                          {t(option.i18nKey) || option.defaultText}
+                          {option.label}
                         </Label>
                       </div>
                     ))}
                   </div>
-                  <div className="flex items-center justify-between space-x-2 mt-2 pt-2">
+                  <div className="flex items-center justify-between space-x-2 mt-2">
                     {authOptions.length > 0 && (
                         <Button variant="outline" size="sm" className="text-xs" onClick={toggleSelectAllAuth}>
                             {allAuthSelected ? (t('common.unselectAll') || "Desmarcar Todos") : (t('common.selectAll') || "Marcar Todos")}
@@ -1309,8 +1418,14 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
             </AccordionItem>
           </Accordion>
         </CardContent>
-        {/* Action Buttons DIV removed from here */}
       </Card>
+
+      <AIAssistantPanel
+        open={aiOpen}
+        onClose={() => setAIOpen(false)}
+        items={Array.isArray(uxuiData) ? uxuiData : []}
+        title={t('promptGenerator.uxui.title') || 'UX/UI'}
+      />
     </div>
   );
 };

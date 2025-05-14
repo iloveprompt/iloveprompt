@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 import enTranslations from './locales/en.json';
 import ptTranslations from './locales/pt.json';
@@ -53,19 +52,31 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
 
   // Function to get translation based on key
   const t = (key: string): string => {
+    if (!key) return '';
+    
     const keys = key.split('.');
     
     let value: any = translations[language];
     for (const k of keys) {
-      if (value && value[k]) {
+      if (value && typeof value === 'object' && k in value) {
         value = value[k];
       } else {
-        console.warn(`Translation key not found: ${key}`);
+        console.warn(`Translation key not found: ${key}, current path: ${keys.slice(0, keys.indexOf(k)).join('.')}`);
         return key;
       }
     }
     
-    return typeof value === 'string' ? value : key;
+    if (value === undefined) {
+      console.warn(`Translation value is undefined for key: ${key}`);
+      return key;
+    }
+    
+    if (typeof value === 'object') {
+      console.warn(`Translation value is an object for key: ${key}`);
+      return key;
+    }
+    
+    return value;
   };
 
   return (
@@ -74,3 +85,4 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     </LanguageContext.Provider>
   );
 };
+
