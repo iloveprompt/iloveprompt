@@ -1,13 +1,14 @@
+
 import React, { useState, useCallback } from 'react';
 import { Step, Steps } from "react-step-builder";
 import { toast } from "@/components/ui/use-toast";
+import { useLanguage } from '@/i18n/LanguageContext';
 import WelcomeStep from './steps/WelcomeStep';
 import ProjectDetailsStep from './steps/ProjectDetailsStep';
 import FeatureSelectionStep from './steps/FeatureSelectionStep';
 import UXUIStep from './steps/UXUIStep';
 import IntegrationsStep from './steps/IntegrationsStep';
 import ReviewAndGenerateStep from './steps/ReviewAndGenerateStep';
-import { useLanguage } from '@/i18n/LanguageContext';
 
 interface FinalizedSteps {
   ProjectDetails?: boolean;
