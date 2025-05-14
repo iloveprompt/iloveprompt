@@ -5,7 +5,7 @@
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'llm_provider') THEN
-        CREATE TYPE llm_provider AS ENUM ('openai', 'gemini', 'groq', 'deepseek');
+        CREATE TYPE llm_provider AS ENUM ('openai', 'gemini', 'groq', 'deepseek', 'grok');
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'api_test_status') THEN
         CREATE TYPE api_test_status AS ENUM ('untested', 'success', 'failure');

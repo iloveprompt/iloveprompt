@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
 import { UserLlmApi, getActiveApiKey, updateUserApiKey, ApiTestStatus, LlmProvider } from './userSettingService';
@@ -21,8 +20,7 @@ export const testConnection = async (apiKey: UserLlmApi): Promise<TestConnection
   }
 
   let result: TestConnectionResult = { success: false, status: 'failure' };
-  const provider = apiKey.provider;
-  const key = apiKey.api_key;
+  const { provider, api_key: key } = apiKey;
 
   try {
     console.log(`Testing connection for provider: ${provider}`);
@@ -124,6 +122,32 @@ export const testConnection = async (apiKey: UserLlmApi): Promise<TestConnection
         }
         break;
         
+      case 'grok':
+        try {
+          const res = await fetch('https://api.grok.x/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${key}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'grok-1',
+              messages: [{ role: 'user', content: 'This is a test.' }],
+              max_tokens: 5
+            }),
+          });
+          
+          if (res.ok) {
+            result = { success: true, status: 'success' };
+          } else {
+            const errorData = await res.json();
+            result = { success: false, error: `Grok API Error: ${errorData.error?.message || res.statusText}`, status: 'failure' };
+          }
+        } catch (error: any) {
+          result = { success: false, error: `Grok connection error: ${error.message}`, status: 'failure' };
+        }
+        break;
+        
       default:
         result = { success: false, error: `Provedor não suportado: ${provider}`, status: 'failure' };
     }
@@ -148,13 +172,15 @@ export const testConnection = async (apiKey: UserLlmApi): Promise<TestConnection
 // Função para chamar as edge functions
 const callEdgeFunction = async (functionName: string, payload: any) => {
   try {
-    console.log(`Chamando edge function ${functionName}...`, payload);
+    console.log(`Chamando edge function ${functionName}...`, {
+      ...payload,
+      apiKey: payload.apiKey ? '***' : undefined // Log seguro
+    });
     
     const response = await supabase.functions.invoke(functionName, {
-      body: payload,
-      // Adicionando timeout mais longo e opção de retry
-      options: {
-        timeout: 30000 // 30 segundos
+      body: {
+        ...payload,
+        apiKey: payload.apiKey // Enviar a chave no body, não no header
       }
     });
     
@@ -163,15 +189,17 @@ const callEdgeFunction = async (functionName: string, payload: any) => {
       throw new Error(response.error.message || `Erro ao chamar ${functionName}`);
     }
     
-    console.log(`Resposta da edge function ${functionName}:`, response.data);
-    return response.data.result || response.data; // Garante que retorna algo mesmo sem o campo result
+    if (!response.data) {
+      throw new Error('Resposta vazia da edge function');
+    }
+    
+    return response.data.result || response.data;
   } catch (error: any) {
     console.error(`Erro ao chamar edge function ${functionName}:`, error);
     
-    // Mensagem de erro amigável dependendo do tipo de erro
     let errorMessage = 'Erro ao comunicar com o serviço de IA.';
-    if (error.message?.includes('non-2xx status code')) {
-      errorMessage = 'O serviço de IA está indisponível no momento. Verifique a configuração da sua chave de API.';
+    if (error.message?.includes('non-2xx status code') || error.message?.includes('401')) {
+      errorMessage = 'Erro de autenticação. Verifique se sua chave de API está configurada corretamente.';
     } else if (error.message?.includes('timeout')) {
       errorMessage = 'Tempo limite excedido. O serviço de IA não respondeu a tempo.';
     } else if (error.message?.includes('API key')) {
@@ -183,8 +211,7 @@ const callEdgeFunction = async (functionName: string, payload: any) => {
       variant: "destructive"
     });
     
-    // Retorna uma mensagem amigável ao usuário em vez de falhar completamente
-    return 'Não foi possível obter uma resposta da IA. Por favor, verifique suas configurações de API ou tente novamente mais tarde.';
+    throw new Error(errorMessage);
   }
 };
 
@@ -195,67 +222,42 @@ export const enhancePrompt = async (prompt: string, userId: string): Promise<str
   try {
     const activeApiKey = await getActiveApiKey(userId);
     if (!activeApiKey) {
+      const errorMsg = 'Nenhuma chave de API ativa encontrada. Configure uma chave de API nas configurações.';
       toast({
-        description: 'Nenhuma chave de API ativa encontrada. Configure uma chave de API nas configurações.',
+        description: errorMsg,
         variant: "destructive"
       });
-      return 'Para usar este assistente, você precisa configurar uma chave de API válida nas configurações. Acesse o menu Configurações para adicionar sua chave de API.';
+      throw new Error(errorMsg);
     }
-    
-    console.log(`Usando provedor: ${activeApiKey.provider}`);
-    
-    const systemMessage = await getDefaultSystemMessage();
-    let systemContent = systemMessage?.content || 'Você é um assistente especializado em Desenvolvimento de Software.';
-    
-    // Adjust system message to include specialized assistant phrasing
-    if (!systemContent.includes('especializado em Desenvolvimento de Software')) {
-      systemContent = 'Você é um assistente especializado em Desenvolvimento de Software. ' + systemContent;
+
+    // Validar a chave de API
+    if (!activeApiKey.api_key || activeApiKey.api_key.trim() === '') {
+      const errorMsg = 'Chave de API inválida. Por favor, reconfigure sua chave de API.';
+      toast({
+        description: errorMsg,
+        variant: "destructive"
+      });
+      throw new Error(errorMsg);
     }
-    
+
+    // Usar a API correta do usuário
     const provider = activeApiKey.provider;
+    const apiKey = activeApiKey.api_key;
     const model = activeApiKey.models?.[0] || getDefaultModelForProvider(provider);
-    
-    // Usando edge functions para todas as LLMs
-    try {
-      switch (provider) {
-        case 'openai':
-          return await callEdgeFunction('openai', {
-            prompt,
-            model,
-            systemContent
-          });
-        
-        case 'gemini':
-          return await callEdgeFunction('gemini', {
-            prompt,
-            model: 'gemini-1.5-flash',
-            systemContent
-          });
-        
-        case 'groq':
-          return await callEdgeFunction('groq', {
-            prompt,
-            model,
-            systemContent
-          });
-        
-        case 'deepseek':
-          return await callEdgeFunction('deepseek', {
-            prompt,
-            model,
-            systemContent
-          });
-        
-        default:
-          throw new Error(`Provedor não suportado: ${provider}`);
-      }
-    } catch (error: any) {
-      console.error(`Error while calling ${provider} API:`, error);
-      return `Ocorreu um erro ao chamar a API de ${provider}. Por favor, verifique suas configurações.`;
-    }
+
+    // Preparar o payload
+    const payload = {
+      prompt,
+      provider,
+      apiKey,
+      model
+    };
+
+    // Chamar a edge function correspondente
+    return await callEdgeFunction(provider, payload);
   } catch (error: any) {
-    console.error("Enhance prompt error:", error);
-    return "Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente mais tarde.";
+    console.error('Error enhancing prompt:', error);
+    throw error;
   }
 };
 
@@ -305,6 +307,13 @@ export const generateDiagram = async (promptData: any, userId: string): Promise<
             systemContent
           });
         
+        case 'grok':
+          return await callEdgeFunction('grok', {
+            prompt: diagramPrompt,
+            model: 'grok-1',
+            systemContent
+          });
+        
         default:
           throw new Error(`Provedor não suportado para geração de diagrama: ${provider}`);
       }
@@ -326,10 +335,11 @@ export const generateDiagram = async (promptData: any, userId: string): Promise<
 // Helper function to get a default model if none is specified
 const getDefaultModelForProvider = (provider: LlmProvider): string => {
     switch (provider) {
-        case 'openai': return 'gpt-4o-mini';
+        case 'openai': return 'gpt-3.5-turbo';
         case 'gemini': return 'gemini-1.5-flash';
         case 'groq': return 'llama3-8b-8192';
         case 'deepseek': return 'deepseek-chat';
+        case 'grok': return 'grok-1';
         default: return 'default-model';
     }
 };

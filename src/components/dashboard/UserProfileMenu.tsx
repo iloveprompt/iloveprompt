@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { LogOut, Settings, User, AlertCircle } from 'lucide-react';
+import { LogOut, AlertCircle } from 'lucide-react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import {
   DropdownMenu,
@@ -82,14 +81,6 @@ const UserProfileMenu: React.FC<UserProfileMenuProps> = ({ showPlan = true, plan
               {t('common.completeProfile')}
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem onClick={() => navigate('/dashboard/profile')}>
-            <User className="mr-2 h-4 w-4" />
-            {t('dashboard.profile')}
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => navigate('/dashboard/settings')}>
-            <Settings className="mr-2 h-4 w-4" />
-            {t('dashboard.settings')}
-          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
             <LogOut className="mr-2 h-4 w-4" />

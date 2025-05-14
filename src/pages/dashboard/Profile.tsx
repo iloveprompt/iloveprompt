@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/i18n/LanguageContext';
@@ -257,50 +256,6 @@ const Profile = () => {
                   Edit Profile
                 </Button>
               )}
-            </div>
-          </CardContent>
-        </Card>
-        
-        {/* Security Settings */}
-        <Card className="md:col-span-3">
-          <CardHeader>
-            <CardTitle>{t('profile.securitySettings')}</CardTitle>
-          </CardHeader>
-          
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-medium">{t('profile.changePassword')}</h3>
-                <p className="text-sm text-gray-500">Update your password regularly to keep your account secure</p>
-              </div>
-              
-              <Button variant="outline">
-                {t('profile.changePassword')}
-              </Button>
-            </div>
-            
-            <Separator />
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-medium">{t('profile.twoFactorAuth')}</h3>
-                <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
-              </div>
-              
-              <Button variant="outline">
-                {t('profile.enable')}
-              </Button>
-            </div>
-            
-            <Separator />
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-medium">{t('profile.connectedApps')}</h3>
-                <p className="text-sm text-gray-500">Manage applications connected to your account</p>
-              </div>
-              
-              <span className="text-sm text-gray-500">{t('profile.noConnectedApps')}</span>
             </div>
           </CardContent>
         </Card>

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -107,7 +106,7 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
     
     // Create message about selected topics
     const selectedTopicsText = formatSelectedItemsText();
-    const topicsMessage = `Vejo que você está interessado em ${selectedTopicsText}. Como posso ajudar com esse tema?`;
+    const topicsMessage = `Vejo que você está interessado em "${selectedTopicsText}". Eu vou te ajudar com esse tema. A seguir algumas informações importantes.`;
     
     try {
       // Create a detailed prompt with all selected items

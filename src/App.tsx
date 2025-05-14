@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { AuthProvider } from "@/hooks/useAuth";
 import AuthGuard from "@/components/AuthGuard";
@@ -29,6 +29,8 @@ import UserDashboardNavbar from "./components/dashboard/UserDashboardNavbar";
 import UserDashboardFooter from "./components/dashboard/UserDashboardFooter";
 import AdminDashboardNavbar from "./components/dashboard/AdminDashboardNavbar";
 import AdminDashboardFooter from "./components/dashboard/AdminDashboardFooter";
+import WizardItems from './pages/admin/prompts';
+import AdminLayout from './components/layouts/AdminLayout';
 
 const queryClient = new QueryClient();
 
@@ -36,7 +38,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
       <TooltipProvider>
-        <BrowserRouter>
+        <Router>
           <AuthProvider>
             <Toaster />
             <Sonner />
@@ -118,102 +120,73 @@ const App = () => (
                 path="/admin" 
                 element={
                   <AuthGuard>
-                    <AdminDashboard />
+                    <AdminLayout />
                   </AuthGuard>
                 } 
-              />
-              
-              <Route 
-                path="/admin/users" 
-                element={
-                  <AuthGuard>
+              >
+                <Route path="prompts" element={<WizardItems />} />
+                <Route 
+                  path="users" 
+                  element={
                     <DashboardLayout
                       navbarComponent={<AdminDashboardNavbar />}
                       footerComponent={<AdminDashboardFooter />}
                     >
                       <AdminUsers />
                     </DashboardLayout>
-                  </AuthGuard>
-                } 
-              />
-              
-              <Route 
-                path="/admin/prompts" 
-                element={
-                  <AuthGuard>
-                    <DashboardLayout
-                      navbarComponent={<AdminDashboardNavbar />}
-                      footerComponent={<AdminDashboardFooter />}
-                    >
-                      <AdminPrompts />
-                    </DashboardLayout>
-                  </AuthGuard>
-                } 
-              />
-              
-              <Route 
-                path="/admin/settings" 
-                element={
-                  <AuthGuard>
+                  } 
+                />
+                <Route 
+                  path="settings" 
+                  element={
                     <DashboardLayout
                       navbarComponent={<AdminDashboardNavbar />}
                       footerComponent={<AdminDashboardFooter />}
                     >
                       <AdminSettings />
                     </DashboardLayout>
-                  </AuthGuard>
-                } 
-              />
-              
-              <Route 
-                path="/admin/logs" 
-                element={
-                  <AuthGuard>
+                  } 
+                />
+                <Route 
+                  path="logs" 
+                  element={
                     <DashboardLayout
                       navbarComponent={<AdminDashboardNavbar />}
                       footerComponent={<AdminDashboardFooter />}
                     >
                       <AdminLogs />
                     </DashboardLayout>
-                  </AuthGuard>
-                } 
-              />
-
-              {/* New admin profile route */}
-              <Route 
-                path="/admin/profile" 
-                element={
-                  <AuthGuard>
+                  } 
+                />
+                <Route 
+                  path="profile" 
+                  element={
                     <DashboardLayout
                       navbarComponent={<AdminDashboardNavbar />}
                       footerComponent={<AdminDashboardFooter />}
                     >
                       <AdminProfile />
                     </DashboardLayout>
-                  </AuthGuard>
-                } 
-              />
-              
-              {/* New database setup route */}
-              <Route 
-                path="/admin/database-setup" 
-                element={
-                  <AuthGuard>
+                  } 
+                />
+                <Route 
+                  path="database-setup" 
+                  element={
                     <DashboardLayout
                       navbarComponent={<AdminDashboardNavbar />}
                       footerComponent={<AdminDashboardFooter />}
                     >
                       <DatabaseSetup />
                     </DashboardLayout>
-                  </AuthGuard>
-                } 
-              />
+                  } 
+                />
+              </Route>
               
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>
-        </BrowserRouter>
+        </Router>
       </TooltipProvider>
     </LanguageProvider>
   </QueryClientProvider>

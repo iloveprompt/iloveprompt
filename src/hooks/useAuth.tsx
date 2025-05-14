@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
 import { User, Session } from '@supabase/supabase-js';
@@ -186,123 +185,86 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   useEffect(() => {
-    // Get initial session and user
-    const getInitialSession = async () => {
+    let isSubscribed = true;
+    let authSubscription: { data: { subscription: { unsubscribe: () => void } } } | null = null;
+    
+    const initializeAuth = async () => {
       try {
-        console.log('Getting initial session');
-        const { data, error } = await supabase.auth.getSession();
+        // Obter sessão inicial
+        const { data: sessionData } = await supabase.auth.getSession();
         
-        if (error) {
-          console.error('Error getting session:', error.message);
-          setSession(null);
-          setUser(null);
-          setLoading(false);
-          window.dispatchEvent(new CustomEvent(AUTH_EVENTS.AUTH_READY, {
-            detail: { authenticated: false }
-          }));
-          return;
-        }
+        if (!isSubscribed) return;
         
-        // Verifique explicitamente se temos uma sessão válida
-        if (data?.session && data.session.user) {
-          console.log('Valid session found during initialization');
-          setSession(data.session);
-          setUser(data.session.user);
+        // Configurar o listener de autenticação apenas uma vez
+        authSubscription = supabase.auth.onAuthStateChange(async (event, currentSession) => {
+          if (!isSubscribed) return;
           
-          // Clear admin cache on initialization
-          adminCheckCacheRef.current = {};
+          console.log('Auth state changed:', event);
           
-          // Check if user is admin
-          setTimeout(async () => {
-            const isUserAdmin = await checkIfUserIsAdmin(data.session.user.id);
-            setIsAdmin(isUserAdmin);
-            console.log('Initial admin status set to:', isUserAdmin);
-          }, 300);
-        } else {
-          // Não temos uma sessão válida
-          console.log('No valid session found during initialization');
-          setSession(null);
-          setUser(null);
-          setIsAdmin(false);
-        }
-        
-        // Signal authentication is ready
-        window.dispatchEvent(new CustomEvent(AUTH_EVENTS.AUTH_READY, {
-          detail: { 
-            authenticated: !!(data?.session && data.session.user),
-            user: data?.session?.user || null
+          // Ignorar eventos INITIAL_SESSION para evitar loops
+          if (event === 'INITIAL_SESSION') {
+            return;
           }
-        }));
-      } catch (error) {
-        console.error('Error in getInitialSession:', error);
-        setSession(null);
-        setUser(null);
-        setIsAdmin(false);
-        window.dispatchEvent(new CustomEvent(AUTH_EVENTS.AUTH_READY, {
-          detail: { authenticated: false }
-        }));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    // Set up the auth state listener first
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
-        console.log('Auth state changed:', event);
-        
-        // Clear admin cache on auth state change
-        if (event === 'SIGNED_IN') {
-          adminCheckCacheRef.current = {};
-        }
-        
-        // Update state with new session info
-        setSession(currentSession);
-        setUser(currentSession?.user || null);
-        
-        // Check if user is admin only if we have a valid user
-        // Use setTimeout to avoid Supabase auth deadlocks
-        if (currentSession?.user) {
-          setTimeout(async () => {
-            const isUserAdmin = await checkIfUserIsAdmin(currentSession.user.id);
-            setIsAdmin(isUserAdmin);
-            console.log('Admin status updated to:', isUserAdmin);
-          }, 300);
-        } else {
-          setIsAdmin(false);
-        }
-        
-        // Handle SIGNED_IN event - show toast
-        if (event === 'SIGNED_IN') {
-          console.log('SIGNED_IN event detected, showing toast');
-          toast({
-            title: t('auth.signedIn'),
-            description: t('auth.welcomeMessage'),
-          });
-        }
-        
-        // Handle SIGNED_OUT event
-        if (event === 'SIGNED_OUT') {
-          console.log('SIGNED_OUT event detected, showing toast');
-          toast({
-            title: t('auth.signedOut'),
-            description: t('auth.comeBackSoon'),
-          });
           
-          // Limpar cache de verificação de admin
-          adminCheckCacheRef.current = {};
+          // Atualizar estado apenas para eventos significativos
+          if (['SIGNED_IN', 'SIGNED_OUT', 'USER_UPDATED'].includes(event)) {
+            setSession(currentSession);
+            setUser(currentSession?.user || null);
+            
+            if (currentSession?.user) {
+              const isUserAdmin = await checkIfUserIsAdmin(currentSession.user.id);
+              if (isSubscribed) {
+                setIsAdmin(isUserAdmin);
+              }
+            } else {
+              setIsAdmin(false);
+              adminCheckCacheRef.current = {};
+            }
+            
+            // Mostrar toast apenas para login/logout
+            if (event === 'SIGNED_IN') {
+              toast({
+                title: t('auth.signedIn'),
+                description: t('auth.welcomeMessage'),
+              });
+            } else if (event === 'SIGNED_OUT') {
+              toast({
+                title: t('auth.signedOut'),
+                description: t('auth.comeBackSoon'),
+              });
+            }
+          }
+        });
+        
+        // Configurar estado inicial
+        if (sessionData.session?.user) {
+          setSession(sessionData.session);
+          setUser(sessionData.session.user);
+          const isUserAdmin = await checkIfUserIsAdmin(sessionData.session.user.id);
+          if (isSubscribed) {
+            setIsAdmin(isUserAdmin);
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+      } finally {
+        if (isSubscribed) {
+          setLoading(false);
         }
       }
-    );
-
-    // Then check for existing session
-    getInitialSession();
-
-    return () => {
-      console.log('Cleaning up auth listener');
-      authListener?.subscription?.unsubscribe();
     };
-  }, [toast, t]);
+
+    // Inicializar autenticação
+    initializeAuth();
+
+    // Cleanup
+    return () => {
+      isSubscribed = false;
+      if (authSubscription?.data?.subscription) {
+        authSubscription.data.subscription.unsubscribe();
+      }
+    };
+  }, []); // Dependências vazias para garantir que só rode uma vez
 
   const signOut = async () => {
     try {

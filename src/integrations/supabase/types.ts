@@ -665,7 +665,7 @@ export type Database = {
     }
     Enums: {
       api_test_status: "untested" | "success" | "failure"
-      llm_provider: "openai" | "gemini" | "groq" | "deepseek"
+      llm_provider: "openai" | "gemini" | "groq" | "deepseek" | "grok"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -782,7 +782,7 @@ export const Constants = {
   public: {
     Enums: {
       api_test_status: ["untested", "success", "failure"],
-      llm_provider: ["openai", "gemini", "groq", "deepseek"],
+      llm_provider: ["openai", "gemini", "groq", "deepseek", "grok"],
     },
   },
 } as const

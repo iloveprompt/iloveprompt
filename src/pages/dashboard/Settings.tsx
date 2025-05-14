@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -20,7 +19,7 @@ import {
 } from '@/services/userSettingService';
 
 // Define allowed provider types
-type ProviderType = 'openai' | 'gemini' | 'groq' | 'deepseek' | 'grok' | 'outros';
+type ProviderType = 'openai' | 'gemini' | 'groq' | 'deepseek' | 'grok';
 
 const LLM_MODELS: Record<string, string[]> = {
   OpenAI: ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo', 'gpt-4o'],
@@ -28,7 +27,6 @@ const LLM_MODELS: Record<string, string[]> = {
   Groq: ['llama3-70b-8192', 'llama3-8b-8192', 'mixtral-8x7b-32768', 'gemma-7b-it'],
   Grok: ['grok-1', 'grok-1.5'],
   DeepSeek: ['deepseek-chat', 'deepseek-coder'],
-  Outros: ['Outro modelo...'],
 };
 
 const Settings = () => {
@@ -42,18 +40,24 @@ const Settings = () => {
   const [editId, setEditId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Carregar LLMs do usuário ao montar
+  // Carregar LLMs do usuário ao montar e quando o usuário mudar
   React.useEffect(() => {
-    if (!user?.id) return;
-    setLoading(true);
-    getUserApiKeys(user.id)
-      .then(data => setLlms(Array.isArray(data) ? data : []))
-      .catch(err => {
+    const loadLlms = async () => {
+      if (!user?.id) return;
+      setLoading(true);
+      try {
+        const data = await getUserApiKeys(user.id);
+        setLlms(Array.isArray(data) ? data : []);
+      } catch (err: any) {
         setLlms([]);
         toast({ title: 'Erro ao carregar LLMs', description: err.message, variant: 'destructive' });
-      })
-      .finally(() => setLoading(false));
-  }, [user?.id]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadLlms();
+  }, [user?.id, toast]);
 
   // Atualiza modelos ao trocar provedor
   const handleProviderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -157,11 +161,85 @@ const Settings = () => {
       <h1 className="text-3xl font-bold tracking-tight">{t('settings.title')}</h1>
       <Tabs defaultValue="notifications" className="space-y-6">
         <TabsList>
+          <TabsTrigger value="general">{t('settings.general')}</TabsTrigger>
+          <TabsTrigger value="appearance">{t('settings.appearance')}</TabsTrigger>
           <TabsTrigger value="notifications">{t('settings.notifications')}</TabsTrigger>
-          <TabsTrigger value="api-keys">{t('settings.apiAccess')}</TabsTrigger>
+          <TabsTrigger value="security">{t('settings.security')}</TabsTrigger>
           <TabsTrigger value="subscription">{t('settings.subscription')}</TabsTrigger>
+          <TabsTrigger value="api">API</TabsTrigger>
         </TabsList>
-        {/* Notification Settings */}
+
+        {/* Configurações Gerais */}
+        <TabsContent value="general">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('settings.generalSettings')}</CardTitle>
+              <CardDescription>{t('settings.generalDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{t('settings.language')}</p>
+                    <p className="text-sm text-gray-500">{t('settings.languageDescription')}</p>
+                  </div>
+                  <select className="w-40 border rounded px-2 py-1">
+                    <option value="pt-BR">Português (BR)</option>
+                    <option value="en">English</option>
+                  </select>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{t('settings.timezone')}</p>
+                    <p className="text-sm text-gray-500">{t('settings.timezoneDescription')}</p>
+                  </div>
+                  <select className="w-40 border rounded px-2 py-1">
+                    <option value="America/Sao_Paulo">America/São Paulo</option>
+                    <option value="UTC">UTC</option>
+                  </select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Configurações de Aparência */}
+        <TabsContent value="appearance">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('settings.appearanceSettings')}</CardTitle>
+              <CardDescription>{t('settings.appearanceDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{t('settings.theme')}</p>
+                    <p className="text-sm text-gray-500">{t('settings.themeDescription')}</p>
+                  </div>
+                  <select className="w-40 border rounded px-2 py-1">
+                    <option value="light">{t('settings.light')}</option>
+                    <option value="dark">{t('settings.dark')}</option>
+                    <option value="system">{t('settings.system')}</option>
+                  </select>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{t('settings.fontSize')}</p>
+                    <p className="text-sm text-gray-500">{t('settings.fontSizeDescription')}</p>
+                  </div>
+                  <select className="w-40 border rounded px-2 py-1">
+                    <option value="small">{t('settings.small')}</option>
+                    <option value="medium">{t('settings.medium')}</option>
+                    <option value="large">{t('settings.large')}</option>
+                  </select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Configurações de Notificações */}
         <TabsContent value="notifications">
           <Card>
             <CardHeader>
@@ -192,18 +270,84 @@ const Settings = () => {
                   <Switch id="prompt-updates" defaultChecked />
                 </div>
               </div>
-              <div className="flex justify-end">
-                <Button>{t('settings.savePreferences')}</Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Configurações de Segurança */}
+        <TabsContent value="security">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('settings.securitySettings')}</CardTitle>
+              <CardDescription>{t('settings.securityDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{t('settings.twoFactor')}</p>
+                    <p className="text-sm text-gray-500">{t('settings.twoFactorDescription')}</p>
+                  </div>
+                  <Switch id="two-factor" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{t('settings.sessionTimeout')}</p>
+                    <p className="text-sm text-gray-500">{t('settings.sessionTimeoutDescription')}</p>
+                  </div>
+                  <select className="w-40 border rounded px-2 py-1">
+                    <option value="30">30 {t('settings.minutes')}</option>
+                    <option value="60">60 {t('settings.minutes')}</option>
+                    <option value="120">120 {t('settings.minutes')}</option>
+                  </select>
+                </div>
+                <Button variant="outline" className="w-full">
+                  {t('settings.changePassword')}
+                </Button>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
-        {/* API Keys Settings */}
-        <TabsContent value="api-keys">
+
+        {/* Configurações de Assinatura */}
+        <TabsContent value="subscription">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('settings.subscriptionPlan')}</CardTitle>
+              <CardDescription>{t('settings.managePlan')}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="font-semibold text-blue-700">{t('settings.currentPlan')}: Free</h3>
+                    <p className="text-sm text-blue-600">{t('settings.usageLimit')}: 5 prompts/month</p>
+                  </div>
+                  <Button variant="outline">{t('settings.upgradePlan')}</Button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-semibold">{t('settings.usageStats')}</h3>
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '65%' }}></div>
+                </div>
+                <p className="text-sm text-gray-600">3/5 prompts used this month</p>
+              </div>
+              <div className="pt-2">
+                <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
+                  {t('settings.cancelSubscription')}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* API Settings */}
+        <TabsContent value="api">
           <Card>
             <CardHeader>
               <CardTitle>Gerenciar LLMs e Chaves de API</CardTitle>
-              <CardDescription>Cadastre e gerencie suas conexões com LLMs (OpenAI, Gemini, Groq, Grok, DeepSeek, etc). Você pode cadastrar várias, mas apenas uma pode estar ativa.</CardDescription>
+              <CardDescription>Cadastre e gerencie suas conexões com LLMs (OpenAI, Gemini, Groq, Grok, DeepSeek). Você pode cadastrar várias, mas apenas uma pode estar ativa.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Cadastro/edição de nova LLM */}
@@ -262,38 +406,6 @@ const Settings = () => {
                     </CardContent>
                   </Card>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        {/* Subscription Settings */}
-        <TabsContent value="subscription">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('settings.subscriptionPlan')}</CardTitle>
-              <CardDescription>{t('settings.managePlan')}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="font-semibold text-blue-700">{t('settings.currentPlan')}: Free</h3>
-                    <p className="text-sm text-blue-600">{t('settings.usageLimit')}: 5 prompts/month</p>
-                  </div>
-                  <Button variant="outline">{t('settings.upgradePlan')}</Button>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <h3 className="font-semibold">{t('settings.usageStats')}</h3>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
-                  <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: '65%' }}></div>
-                </div>
-                <p className="text-sm text-gray-600">3/5 prompts used this month</p>
-              </div>
-              <div className="pt-2">
-                <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
-                  {t('settings.cancelSubscription')}
-                </Button>
               </div>
             </CardContent>
           </Card>
