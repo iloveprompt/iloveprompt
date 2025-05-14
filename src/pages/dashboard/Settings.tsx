@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -17,6 +18,9 @@ import {
   updateUserApiKey,
   UserLlmApi
 } from '@/services/userSettingService';
+
+// Define allowed provider types
+type ProviderType = 'openai' | 'gemini' | 'groq' | 'deepseek' | 'grok' | 'outros';
 
 const LLM_MODELS: Record<string, string[]> = {
   OpenAI: ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo', 'gpt-4o'],
@@ -57,6 +61,12 @@ const Settings = () => {
     setForm(f => ({ ...f, provider, model: LLM_MODELS[provider][0] }));
   };
 
+  // Convert provider name to lowercase for API
+  const getProviderType = (provider: string): ProviderType => {
+    const lowercaseProvider = provider.toLowerCase();
+    return lowercaseProvider as ProviderType;
+  };
+
   // Cadastro/edição de LLM
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +79,7 @@ const Settings = () => {
     try {
       if (editId) {
         await updateUserApiKey(editId, {
-          provider: form.provider.toLowerCase(),
+          provider: getProviderType(form.provider),
           api_key: form.key,
           models: [form.model],
           updated_at: new Date().toISOString()
@@ -78,7 +88,7 @@ const Settings = () => {
       } else {
         await addUserApiKey({
           user_id: user.id,
-          provider: form.provider.toLowerCase(),
+          provider: getProviderType(form.provider),
           api_key: form.key,
           is_active: llms.length === 0, // Primeira já ativa
           test_status: 'untested',

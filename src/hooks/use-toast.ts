@@ -1,22 +1,38 @@
+import { toast as sonnerToast, Toaster as SonnerToaster, ToastOptions } from "sonner";
 
-import { toast as sonnerToast, Toaster as SonnerToaster } from "sonner";
-
-// Define a proper type for toast options
-export type ToastProps = {
+export type ToastProps = ToastOptions & {
   title?: string;
   description?: string;
   variant?: 'default' | 'destructive';
   action?: React.ReactNode;
-  [key: string]: any;
 };
 
-export const toast = (props: ToastProps) => sonnerToast(props);
+export const toast = (props: ToastProps) => {
+  const { title, description, ...options } = props;
+  return sonnerToast(title || "", { description, ...options });
+};
 
 export { SonnerToaster as Toaster };
 
+// Add a storage array to keep track of toasts for compatibility with shadcn Toast component
+type Toast = ToastProps & {
+  id: string | number;
+  title?: string;
+  description?: string;
+  action?: React.ReactNode;
+};
+
+const toastStore: Toast[] = [];
+
 export const useToast = () => {
   return {
-    toast: (props: ToastProps) => sonnerToast(props),
+    toast: (props: ToastProps) => {
+      const id = toast(props);
+      const newToast = { id, ...props };
+      toastStore.push(newToast);
+      return id;
+    },
+    toasts: toastStore
   };
 };
 

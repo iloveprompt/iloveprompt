@@ -75,6 +75,10 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
     });
   };
 
+  const handleTextareaChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setOtherObjective(event.target.value);
+  };
+
   const isOtherSelected = selectedObjectives.includes('Other');
 
   React.useEffect(() => {
@@ -305,7 +309,7 @@ Por favor, reescreva mantendo a essência do objetivo, mas adicionando mais clar
                           <Textarea
                             placeholder={t('promptGenerator.objective.otherObjectivePlaceholder')}
                             value={otherObjective}
-                            onChange={handleOtherObjectiveChange}
+                            onChange={handleTextareaChange}
                             disabled={!defineObjectives}
                           />
                         </div>

@@ -6,12 +6,7 @@ export type { ToastProps };
 
 // Create wrapper functions to ensure type safety
 export const useToast = () => {
-  const original = useToastOriginal();
-  
-  return {
-    ...original,
-    toast: (options: ToastProps) => original.toast(options)
-  };
+  return useToastOriginal();
 };
 
 export const toast = (options: ToastProps) => toastOriginal(options);

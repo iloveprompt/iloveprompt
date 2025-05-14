@@ -1,77 +1,102 @@
-import React, { useState, useEffect } from 'react';
-import { useLanguage } from '@/i18n/LanguageContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { ListPlus, PlusCircle, XCircle, RotateCcw, Save, CheckCircle, Wand2 } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import AIAssistantPanel from '../components/AIAssistantPanel';
+import { Card, CardContent } from '@/components/ui/card';
+import { Check } from 'lucide-react';
+import { useLanguage } from '@/i18n/LanguageContext';
 import deploymentData from '../data/deploymentData.json';
 
+interface DeploymentStepProps {
+  onNext: () => void;
+  onPrev: () => void;
+  onReset: () => void;
+  onSaveAndFinalize: () => void;
+  formData: Record<string, any>;
+  updateFormData: (data: Record<string, any>) => void;
+}
+
 const DeploymentStep: React.FC<DeploymentStepProps> = ({ 
+  onNext, 
+  onPrev, 
+  onReset, 
+  onSaveAndFinalize,
   formData, 
-  updateFormData,
-  markAsFinalized,
-  resetStep,
-  isFinalized
+  updateFormData 
 }) => {
   const { t } = useLanguage();
-  const [aiOpen, setAIOpen] = useState(false);
+  const [selectedDeployment, setSelectedDeployment] = useState<string[]>(
+    formData.deployment || []
+  );
+
+  const handleDeploymentSelect = (id: string) => {
+    if (selectedDeployment.includes(id)) {
+      setSelectedDeployment(selectedDeployment.filter(item => item !== id));
+    } else {
+      setSelectedDeployment([...selectedDeployment, id]);
+    }
+  };
+
+  const handleSave = () => {
+    updateFormData({ deployment: selectedDeployment });
+    onNext();
+  };
+
+  const handleReset = () => {
+    setSelectedDeployment([]);
+    onReset();
+  };
 
   return (
     <div className="space-y-6">
-      <Card className="p-4 sm:p-6">
-        <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
-          <div className="flex justify-between items-start">
-            <div>
-              <CardTitle>{t('promptGenerator.deployment.title')}</CardTitle>
-              <CardDescription className="text-sm text-muted-foreground">
-                {t('promptGenerator.deployment.description')}
-              </CardDescription>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" onClick={handleReset} size="icon" className="h-8 w-8">
-                <RotateCcw className="h-4 w-4" />
-                <span className="sr-only">{t('common.reset')}</span>
-              </Button>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button variant="outline" onClick={() => setAIOpen(true)} size="icon" className="h-8 w-8">
-                      <Wand2 className="h-4 w-4 text-blue-500" />
-                      <span className="sr-only">Assistente de IA</span>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">
-                    <span>Obter ajuda do assistente de IA para escolher as opções de implantação</span>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <Button 
-                onClick={handleSaveAndFinalize} 
-                size="icon" 
-                className="h-8 w-8"
-                disabled={isFinalized || formData.deploymentOptions.length === 0}
-              >
-                <Save className="h-4 w-4" />
-                <span className="sr-only">{isFinalized ? t('common.finalized') : t('common.saveAndFinalize')}</span>
-              </Button>
-              {isFinalized && <CheckCircle className="h-6 w-6 text-green-500 ml-2" />}
-            </div>
-          </div>
-        </CardHeader>
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold">{t('wizard.deploymentStep.title')}</h2>
+        <p className="text-gray-500 mt-2">{t('wizard.deploymentStep.description')}</p>
+      </div>
 
-        <AIAssistantPanel
-          open={aiOpen}
-          onClose={() => setAIOpen(false)}
-          items={Array.isArray(deploymentData) ? deploymentData : []}
-          title={t('promptGenerator.deployment.title') || 'Implantação'}
-        />
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {deploymentData.deploymentOptions.map((option) => (
+          <Card 
+            key={option.id}
+            className={`cursor-pointer transition-all ${
+              selectedDeployment.includes(option.id) 
+                ? 'border-primary shadow-md' 
+                : 'hover:border-gray-400'
+            }`}
+            onClick={() => handleDeploymentSelect(option.id)}
+          >
+            <CardContent className="p-4 flex items-center justify-between">
+              <div>
+                <h3 className="font-medium">{option.name}</h3>
+                <p className="text-sm text-gray-500">{option.description}</p>
+              </div>
+              {selectedDeployment.includes(option.id) && (
+                <Check className="text-primary h-5 w-5" />
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="flex justify-between mt-8">
+        <div>
+          <Button variant="outline" onClick={onPrev}>
+            {t('wizard.common.previous')}
+          </Button>
+          <Button variant="outline" onClick={handleReset} className="ml-2">
+            {t('wizard.common.reset')}
+          </Button>
+        </div>
+        <div>
+          <Button variant="outline" onClick={onSaveAndFinalize} className="mr-2">
+            {t('wizard.common.saveAndFinalize')}
+          </Button>
+          <Button onClick={handleSave}>
+            {t('wizard.common.next')}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default DeploymentStep; 
+export default DeploymentStep;
