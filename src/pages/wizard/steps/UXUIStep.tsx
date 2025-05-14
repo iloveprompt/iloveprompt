@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { CheckboxItem } from '@/components/CheckboxItem';
 import RadioSpecifyItem from '@/components/RadioSpecifyItem';
@@ -41,7 +41,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
       dashboardFeatures: formData.dashboardFeatures || [],
       landingStructure: formData.landingStructure || [],
       landingElements: formData.landingElements || [],
-      landingStyle: formData.landingStyle || [],
+      landingStyle: formData.landingStyle || '',
       primaryColor: formData.primaryColor || '#4F46E5',
       secondaryColor: formData.secondaryColor || '#10B981',
       accentColor: formData.accentColor || '#F59E0B',
@@ -93,7 +93,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
   };
 
   const handleColorSelect = (color: string) => {
-    if (activeColorField && Object.keys(watch()).includes(activeColorField)) {
+    if (activeColorField) {
       setValue(activeColorField as any, color);
       setIsColorPickerOpen({ value: false, selectedOptions: [] });
     }
@@ -365,10 +365,6 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
               {isColorPickerOpen.value && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                   <div className="bg-white p-4 rounded-lg shadow-lg w-96">
-                    <h4 className="text-lg font-semibold mb-4">
-                      {language === 'pt' ? 'Escolha uma cor' : 
-                       language === 'es' ? 'Elija un color' : 'Choose a color'}
-                    </h4>
                     <ColorPicker 
                       currentColor={watch(activeColorField as any)} 
                       onColorSelect={handleColorSelect}
@@ -439,7 +435,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
         
         <div className="w-full md:w-80 flex-shrink-0">
           <AIAssistantPanel 
-            faqPrompt={getFaqPrompt()}
+            prompt={getFaqPrompt()}
             language={language}
             contextData={{ formValues: watch() }}
           />
