@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,7 +12,7 @@ import {
   updateWizardItem,
   deleteWizardItem
 } from '@/services/wizardManagementService';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 
 const WizardItemsManager: React.FC = () => {
   const { t } = useLanguage();
@@ -418,30 +417,7 @@ const WizardItemsManager: React.FC = () => {
     }
   };
 
-  // Helper functions for UI rendering
-  const renderLoading = () => (
-    <div className="flex justify-center items-center py-12">
-      <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-      <span>{t('dashboard.loading')}</span>
-    </div>
-  );
-
-  const renderError = (error: string | null) => (
-    <Alert variant="destructive" className="my-6">
-      <AlertDescription>
-        {error || t('dashboard.errorLoadingItems')}
-      </AlertDescription>
-    </Alert>
-  );
-
-  const renderEmpty = () => (
-    <div className="flex justify-center items-center flex-col py-12 text-gray-500">
-      <InfoIcon className="h-12 w-12 mb-2 text-gray-400" />
-      {t('dashboard.noItemsFound')}
-    </div>
-  );
-
-  // Add stack and security item handlers for completeness
+  // CRUD operations for stack options
   const handleAddStackOption = async (item: Partial<WizardItem>) => {
     setProcessingStack(true);
     try {
@@ -529,6 +505,7 @@ const WizardItemsManager: React.FC = () => {
     }
   };
 
+  // CRUD operations for security options
   const handleAddSecurityOption = async (item: Partial<WizardItem>) => {
     setProcessingSecurity(true);
     try {
@@ -615,6 +592,29 @@ const WizardItemsManager: React.FC = () => {
       setProcessingSecurity(false);
     }
   };
+
+  // Helper functions for UI rendering
+  const renderLoading = () => (
+    <div className="flex justify-center items-center py-12">
+      <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+      <span>{t('dashboard.loading')}</span>
+    </div>
+  );
+
+  const renderError = (error: string | null) => (
+    <Alert variant="destructive" className="my-6">
+      <AlertDescription>
+        {error || t('dashboard.errorLoadingItems')}
+      </AlertDescription>
+    </Alert>
+  );
+
+  const renderEmpty = () => (
+    <div className="flex justify-center items-center flex-col py-12 text-gray-500">
+      <InfoIcon className="h-12 w-12 mb-2 text-gray-400" />
+      {t('dashboard.noItemsFound')}
+    </div>
+  );
 
   return (
     <Tabs 

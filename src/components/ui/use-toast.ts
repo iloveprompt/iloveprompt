@@ -1,7 +1,8 @@
 
-import { useToast as useToastOriginal, toast as toastOriginal } from "@/hooks/use-toast";
+import { useToast as useToastOriginal, toast as toastOriginal, ToastProps } from "@/hooks/use-toast";
 
-type ToastOptions = Parameters<typeof toastOriginal>[0];
+// Re-export the types to make them available from both paths
+export type { ToastProps };
 
 // Create wrapper functions to ensure type safety
 export const useToast = () => {
@@ -9,8 +10,8 @@ export const useToast = () => {
   
   return {
     ...original,
-    toast: (options: ToastOptions) => original.toast(options)
+    toast: (options: ToastProps) => original.toast(options)
   };
 };
 
-export const toast = (options: ToastOptions) => toastOriginal(options);
+export const toast = (options: ToastProps) => toastOriginal(options);
