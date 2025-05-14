@@ -3,7 +3,6 @@ import React, { useState, useCallback } from 'react';
 import { Steps } from "react-step-builder";
 import { toast } from "@/components/ui/use-toast";
 import { useLanguage } from '@/i18n/LanguageContext';
-import WelcomeStep from './steps/WelcomeStep';
 import ProjectDetailsStep from './steps/ProjectDetailsStep';
 import FeatureSelectionStep from './steps/FeatureSelectionStep';
 import UXUIStep from './steps/UXUIStep';
@@ -133,7 +132,6 @@ const PromptGeneratorWizard: React.FC = () => {
       )}
       <div className="max-w-5xl mx-auto">
         <Steps {...config}>
-          <WelcomeStep />
           <ProjectDetailsStep
             formData={formData}
             updateFormData={updateFormData}
