@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'; // Restoring Button import
 import { Checkbox } from '@/components/ui/checkbox';
-import { Wand2, ChevronLeft, ChevronRight, ListPlus, PlusCircle, XCircle, RotateCcw, Save, CheckCircle as CheckCircleIcon } from 'lucide-react';
+import { Wand2, ChevronLeft, ChevronRight, ListPlus, PlusCircle, XCircle, RotateCcw, Save, CheckCircle as CheckCircleIcon } from 'lucide-react'; // Added RotateCcw, Save, CheckCircleIcon
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
@@ -19,7 +18,7 @@ import {
 import objectivesData from '../data/objectivesData.json';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { enhancePrompt } from '@/services/llmService';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/use-toast';
 import AIAssistantPanel from '../components/AIAssistantPanel';
 import objectiveData from '../data/objectivesData.json';
 
@@ -46,7 +45,6 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
   isFinalized 
 }) => {
   const { t } = useLanguage();
-  const { user } = useAuth();
   
   const [businessObjectivesOptions, setBusinessObjectivesOptions] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -125,7 +123,7 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
       const enhanced = await enhancePrompt(formData.primaryObjective, user?.id);
       updateFormData({ primaryObjective: enhanced });
       toast({ title: 'Objetivo melhorado com IA!' });
-    } catch (err: any) {
+    } catch (err) {
       toast({ title: 'Erro ao melhorar com IA', description: err.message, variant: 'destructive' });
     } finally {
       setAiLoading(false);

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -16,27 +15,16 @@ import {
   setActiveApiKey,
   deleteUserApiKey,
   updateUserApiKey,
-  UserLlmApi,
-  LlmProvider
+  UserLlmApi
 } from '@/services/userSettingService';
 
 const LLM_MODELS: Record<string, string[]> = {
   OpenAI: ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo', 'gpt-4o'],
-  Gemini: ['gemini-pro', 'gemini-1.5-pro', 'gemini-ultra', 'gemini-1.5-flash'],
+  Gemini: ['gemini-pro', 'gemini-1.5-pro', 'gemini-ultra'],
   Groq: ['llama3-70b-8192', 'llama3-8b-8192', 'mixtral-8x7b-32768', 'gemma-7b-it'],
   Grok: ['grok-1', 'grok-1.5'],
   DeepSeek: ['deepseek-chat', 'deepseek-coder'],
   Outros: ['Outro modelo...'],
-};
-
-// Map display names to valid provider enum values
-const providerMapping: Record<string, LlmProvider> = {
-  'OpenAI': 'openai',
-  'Gemini': 'gemini',
-  'Groq': 'groq',
-  'Grok': 'groq', // Assuming Grok is handled via Groq
-  'DeepSeek': 'deepseek',
-  'Outros': 'openai' // Default fallback
 };
 
 const Settings = () => {
@@ -61,7 +49,7 @@ const Settings = () => {
         toast({ title: 'Erro ao carregar LLMs', description: err.message, variant: 'destructive' });
       })
       .finally(() => setLoading(false));
-  }, [user?.id, toast]);
+  }, [user?.id]);
 
   // Atualiza modelos ao trocar provedor
   const handleProviderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -81,7 +69,7 @@ const Settings = () => {
     try {
       if (editId) {
         await updateUserApiKey(editId, {
-          provider: providerMapping[form.provider] || 'openai',
+          provider: form.provider.toLowerCase(),
           api_key: form.key,
           models: [form.model],
           updated_at: new Date().toISOString()
@@ -90,7 +78,7 @@ const Settings = () => {
       } else {
         await addUserApiKey({
           user_id: user.id,
-          provider: providerMapping[form.provider] || 'openai',
+          provider: form.provider.toLowerCase(),
           api_key: form.key,
           is_active: llms.length === 0, // Primeira já ativa
           test_status: 'untested',
