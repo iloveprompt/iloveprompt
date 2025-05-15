@@ -1043,6 +1043,10 @@
       "options": {
         "videoStreaming": "Video and Streaming APIs"
       }
+    },
+    "wizard": {
+      "confirmGlobalResetTitle": "Confirm Global Reset",
+      "confirmGlobalResetMessage": "Are you sure you want to delete all choices? This action will remove all selections made in all steps."
     }
   }
 }

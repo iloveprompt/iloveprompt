@@ -128,7 +128,7 @@ const RestrictionsStep: React.FC<RestrictionsStepProps> = ({
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle>{t('promptGenerator.restrictions.title') || "Restrições"}</CardTitle>
+              <CardTitle className="mb-1">{t('promptGenerator.restrictions.title') || "Restrições"}</CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
                 {t('promptGenerator.restrictions.description') || "Defina as restrições do seu projeto"}
               </CardDescription>

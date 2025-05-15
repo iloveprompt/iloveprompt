@@ -1051,6 +1051,10 @@
       "options": {
         "videoStreaming": "APIs de Video y Streaming"
       }
+    },
+    "wizard": {
+      "confirmGlobalResetTitle": "Confirmar Reinicio Global",
+      "confirmGlobalResetMessage": "¿Estás seguro de que deseas borrar todas las elecciones? Esta acción eliminará todas las selecciones realizadas en todas las etapas."
     }
   }
 }

@@ -376,7 +376,15 @@
       "contentManagement": "Gerenciamento de Conteúdo Básico",
       "profileSettings": "Configurações de Perfil"
     },
-    "undefined": "Funcionalidade Não Especificada"
+    "undefined": "Funcionalidade Não Especificada",
+    "payments": "Processamento de Pagamentos",
+    "chat": "Chat em Tempo Real",
+    "api": "API RESTful",
+    "userManagement": "Gestão de Usuários",
+    "fileUpload": "Upload de Arquivos",
+    "notifications": "Sistema de Notificações",
+    "reporting": "Relatórios e Análises",
+    "search": "Sistema de Busca"
   },
   "socialProof": {
     "title": "O Que Nossos Desenvolvedores Dizem",
@@ -579,7 +587,8 @@
       "enhanceSecurity": "Aumentar Segurança",
       "otherObjective": "Outro Objetivo de Negócio",
       "enhanceWithAI": "Melhorar com IA",
-      "undefined": "Objetivo Não Especificado"
+      "undefined": "Objetivo Não Especificado",
+      "additionalObjectivesTitle": "Objetivos Adicionais"
     },
     "requirements": {
       "title": "Requisitos",
@@ -684,6 +693,14 @@
       "userProfiles": "Perfis de Usuário",
       "searchFunctionality": "Funcionalidade de Busca Avançada",
       "adminPanel": "Painel Administrativo",
+      "payments": "Processamento de Pagamentos",
+      "chat": "Chat em Tempo Real",
+      "api": "API RESTful",
+      "userManagement": "Gestão de Usuários",
+      "fileUpload": "Upload de Arquivos",
+      "notifications": "Sistema de Notificações",
+      "reporting": "Relatórios e Análises",
+      "search": "Sistema de Busca",
       "ecommerceFeatures": "Funcionalidades Sugeridas para E-commerce",
       "apiBackendFeatures": "Funcionalidades Sugeridas para API/Backend",
       "crmFeatures": "Funcionalidades Sugeridas para CRM",
@@ -869,7 +886,11 @@
         "export": "Exportação de Dados",
         "realtime": "Atualizações em Tempo Real"
       },
-      "applyColors": "Aplicar Cores"
+      "applyColors": "Aplicar Cores",
+      "addOtherElementPlaceholder": "Adicionar outro elemento:",
+      "otherElementItemPlaceholder": "Nome do elemento...",
+      "addOtherStylePlaceholder": "Adicionar outro estilo:",
+      "otherStyleItemPlaceholder": "Nome do estilo..."
     },
     "stack": {
       "title": "Stack Tecnológica",
@@ -945,10 +966,10 @@
       "description": "Recursos de segurança para seu projeto",
       "securityFeatures": "Recursos de Segurança",
       "protection": "Proteção Geral",
-      "authenticationSec": "Autenticação Segura (JWT, OAuth2, 2FA)",
-      "httpsUsage": "Uso de HTTPS (SSL/TLS), CSP, HSTS",
-      "auditLogsMonitoring": "Logs de Auditoria e Monitoramento de Segurança",
-      "apiEndpointSecurity": "Segurança de Endpoints de API (Rate Limiting, Chaves)",
+      "authenticationSec": "Autenticação Segura",
+      "httpsUsage": "Uso de HTTPS",
+      "auditLogsMonitoring": "Monitoramento de Logs e Auditoria",
+      "apiEndpointSecurity": "Segurança de Endpoints de API",
       "otherSecurityFeature": "Outro Recurso de Segurança",
       "otherSecurityFeaturePlaceholder": "Especifique seu recurso de segurança",
       "authentication": "Autenticação",
@@ -963,8 +984,8 @@
       "otherSecurity": "Outro Recurso de Segurança",
       "undefined": "Recurso de Segurança Não Especificado",
       "automatedBackups": "Backups Automatizados",
-      "securityLogging": "Registro de Segurança",
-      "lgpdCompliance": "Conformidade com LGPD"
+      "securityLogging": "Logs de Segurança",
+      "lgpdCompliance": "Conformidade com a LGPD"
     },
     "codeStructure": {
       "title": "Estrutura de Código",
@@ -1038,18 +1059,18 @@
       "description": "Alguma restrição ou preferência?",
       "avoidInCode": "Coisas a Evitar",
       "eval": "Uso de eval()",
-      "globalVars": "Variáveis Globais Excessivas",
-      "callbackHell": "Callback Hell / Aninhamento Profundo",
+      "globalVars": "Evitar variáveis globais",
+      "callbackHell": "Evitar callback hell",
       "unmaintained": "Bibliotecas Desatualizadas/Sem Manutenção",
       "important": "Uso de !important em CSS",
-      "paidDeps": "Dependências Pagas (se projeto open-source)",
+      "paidDeps": "Evitar dependências pagas",
       "otherRestriction": "Outra Restrição",
       "otherRestrictionPlaceholder": "Especifique sua restrição",
-      "classComponents": "Componentes de Classe",
+      "classComponents": "Evitar componentes de classe",
       "redux": "Redux",
       "jquery": "jQuery",
       "php": "PHP",
-      "specificLibraries": "Bibliotecas Específicas (especifique)"
+      "specificLibraries": "Evitar bibliotecas específicas"
     },
     "integrations": {
       "title": "Integrações",
@@ -1153,6 +1174,10 @@
         "videoStreaming": "APIs de Vídeo e Streaming"
       },
       "needsIntegrations": "Projeto precisa de Integrações"
+    },
+    "wizard": {
+      "confirmGlobalResetTitle": "Confirmar Reset Global",
+      "confirmGlobalResetMessage": "Tem certeza que deseja apagar todas as escolhas? Esta ação irá remover todas as seleções feitas em todas as etapas."
     }
   },
   "userStatus": {

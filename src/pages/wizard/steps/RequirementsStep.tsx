@@ -195,7 +195,7 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle>{t('promptGenerator.requirements.title') || "Requisitos"}</CardTitle>
+              <CardTitle className="mb-1">{t('promptGenerator.requirements.title') || "Requisitos"}</CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
                 {t('promptGenerator.requirements.description') || "Especifique os requisitos para seu projeto"}
               </CardDescription>

@@ -98,7 +98,9 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({
   // The `formData.specificFeatures` will store the selected *display strings*.
   
   const allFeaturesOptions: string[] = React.useMemo(() => {
-    const translatedSpecificOptions = featuresOptions.map(key => t(`promptGenerator.features.${key}`) || key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()));
+    const translatedSpecificOptions = featuresOptions.map(opt =>
+      t(`promptGenerator.features.${opt.value}`) || opt.label || opt.value
+    );
     return Array.from(new Set([...translatedSpecificOptions, ...suggestedFeatures]));
   }, [t, systemType, featuresOptions, suggestedFeatures]);
 
@@ -182,7 +184,7 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle>{t('promptGenerator.features.title')}</CardTitle>
+              <CardTitle className="mb-1">{t('promptGenerator.features.title')}</CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
                 {t('promptGenerator.features.description')}
               </CardDescription>

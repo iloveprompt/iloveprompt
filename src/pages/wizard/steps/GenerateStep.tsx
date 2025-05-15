@@ -1,8 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
@@ -278,86 +276,69 @@ Melhore-o tornando mais detalhado, estruturado, e eficaz para gerar um resultado
   };
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-start">
-            <div>
-              <CardTitle>{t('promptGenerator.generate.title')}</CardTitle>
-              <CardDescription>
-                {t('promptGenerator.generate.description')}
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4 pt-4">
-          <div className="flex justify-center mb-4 gap-2">
-            <Button 
-              onClick={handleGenerate} 
-              className="flex items-center gap-2"
-              disabled={isGenerating || isSaving || isEnhancing}
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> {t('promptGenerator.generate.generating')}
-                </>
-              ) : (
-                <>
-                  <Wand2 className="h-4 w-4" /> {t('promptGenerator.generate.createPrompt')}
-                </>
-              )}
-            </Button>
-            
-            {/* Botão Gerar Documentação */}
-            <Button 
-              onClick={handleGenerateDocumentation}
-              disabled={!generatedPrompt || isGenerating || isSaving || isEnhancing}
-              className="flex items-center gap-2"
-            >
-              <FileText className="h-4 w-4" />
-              {t('promptGenerator.generate.generateDocs') || 'Gerar Documentação'}
-            </Button>
-            
-            {/* Botão Melhorar com IA */}
-            <Button 
-              onClick={handleEnhanceWithAI}
-              disabled={!generatedPrompt || isGenerating || isSaving || isEnhancing}
-              className="flex items-center gap-2"
-            >
-              {isEnhancing ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> Melhorando...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-4 w-4" /> {t('promptGenerator.generate.enhanceWithAI') || 'Melhorar com IA'}
-                </>
-              )}
-            </Button>
-          </div>
-          
-          {generatedPrompt && (
-            <div className="space-y-4">
-              <div className="border rounded-md p-4 bg-muted/50">
-                <h3 className="font-semibold mb-2">{t('promptGenerator.generate.result')}</h3>
-                <Textarea 
-                  value={generatedPrompt}
-                  readOnly
-                  rows={15}
-                  className="font-mono text-sm"
-                />
-              </div>
-              
-              <div className="flex justify-end items-center mt-6 pt-4 border-t"> {/* Kept Copy button here */}
-                <Button onClick={handleCopyToClipboard} variant="outline" size="sm">
-                  {t('promptGenerator.generate.copyToClipboard')}
-                </Button>
-              </div>
-            </div>
+    <>
+      <div className="flex flex-row gap-2 mb-4 items-center">
+        <Button 
+          onClick={handleGenerate} 
+          className="flex items-center gap-2 px-4 py-2 text-sm"
+          disabled={isGenerating || isSaving || isEnhancing}
+          size="sm"
+        >
+          {isGenerating ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" /> {t('promptGenerator.generate.generating')}
+            </>
+          ) : (
+            <>
+              <Wand2 className="h-4 w-4" /> {t('promptGenerator.generate.createPrompt')}
+            </>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </Button>
+        <Button 
+          onClick={handleGenerateDocumentation}
+          disabled={!generatedPrompt || isGenerating || isSaving || isEnhancing}
+          className="flex items-center gap-2 px-4 py-2 text-sm"
+          size="sm"
+        >
+          <FileText className="h-4 w-4" />
+          {t('promptGenerator.generate.generateDocs') || 'Gerar Documentação'}
+        </Button>
+        <Button 
+          onClick={handleEnhanceWithAI}
+          disabled={!generatedPrompt || isGenerating || isSaving || isEnhancing}
+          className="flex items-center gap-2 px-4 py-2 text-sm"
+          size="sm"
+        >
+          {isEnhancing ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" /> Melhorando...
+            </>
+          ) : (
+            <>
+              <Sparkles className="h-4 w-4" /> {t('promptGenerator.generate.enhanceWithAI') || 'Melhorar com IA'}
+            </>
+          )}
+        </Button>
+      </div>
+      {generatedPrompt && (
+        <div className="space-y-4">
+          <div className="border rounded-md p-4 bg-muted/50">
+            <h3 className="font-semibold mb-2">{t('promptGenerator.generate.result')}</h3>
+            <Textarea 
+              value={generatedPrompt}
+              readOnly
+              rows={15}
+              className="font-mono text-sm"
+            />
+          </div>
+          <div className="flex justify-end items-center mt-6 pt-4 border-t">
+            <Button onClick={handleCopyToClipboard} variant="outline" size="sm">
+              {t('promptGenerator.generate.copyToClipboard')}
+            </Button>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

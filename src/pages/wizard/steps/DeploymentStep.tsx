@@ -49,8 +49,8 @@ const DeploymentStep: React.FC<DeploymentStepProps> = ({
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold">{t('wizard.deploymentStep.title')}</h2>
-        <p className="text-gray-500 mt-2">{t('wizard.deploymentStep.description')}</p>
+        <h2 className="text-3xl font-bold mb-1">{t('wizard.deploymentStep.title')}</h2>
+        <p className="text-gray-500 mt-0">{t('wizard.deploymentStep.description')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

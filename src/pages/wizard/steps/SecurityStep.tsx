@@ -136,7 +136,7 @@ const SecurityStep: React.FC<SecurityStepProps> = ({
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle>{t('promptGenerator.security.title') || "Segurança"}</CardTitle>
+              <CardTitle className="mb-1">{t('promptGenerator.security.title') || "Segurança"}</CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
                 {t('promptGenerator.security.description') || "Defina os requisitos de segurança do seu projeto"}
               </CardDescription>
