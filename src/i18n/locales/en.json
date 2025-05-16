@@ -668,23 +668,18 @@
       "gray": "Gray",
       "custom": "Custom Color",
       "customColorPlaceholder": "Choose a custom color",
-      "visualStyle": {
-        "minimalist": "Minimalist",
-        "modern": "Modern with shadows",
-        "flat": "Flat/Material Design",
-        "ios": "iOS-inspired",
-        "android": "Android-inspired"
-      },
-      "menuType": {
-        "topFixed": "Fixed top",
-        "sideFixed": "Fixed sidebar",
-        "hamburger": "Hamburger menu (mobile)",
-        "horizontalTabs": "Horizontal tabs"
-      },
-      "authentication": {
-        "emailPassword": "Email + Password",
-        "socialLogin": "Social Login (Google, Facebook, etc.)",
-        "twoFactor": "Two-Factor Authentication"
+      "visualStyle": "Visual Style",
+      "menuType": "Menu Type",
+      "authentication": "Authentication",
+      "auth": {
+        "emailPassword": "Email and Password",
+        "socialLogin": "Social Login",
+        "twoFactor": "Two-Factor Authentication",
+        "biometrics": "Biometrics",
+        "digitalCertificates": "Digital Certificates",
+        "physicalToken": "Physical Token",
+        "securityQuestions": "Security Questions",
+        "continuousAuth": "Continuous Authentication"
       },
       "userDashboard": {
         "customizable": "Customizable",
@@ -1047,6 +1042,21 @@
     "wizard": {
       "confirmGlobalResetTitle": "Confirm Global Reset",
       "confirmGlobalResetMessage": "Are you sure you want to delete all choices? This action will remove all selections made in all steps."
-    }
+    },
+    "uxui.visualStyle": "Visual Style",
+    "uxui.menuType": "Menu Type",
+    "uxui.authentication": "Authentication",
+    "uxui.auth.emailPassword": "Email and Password",
+    "uxui.auth.socialLogin": "Social Login",
+    "uxui.auth.twoFactor": "Two-Factor Authentication",
+    "uxui.auth.biometrics": "Biometrics",
+    "uxui.auth.digitalCertificates": "Digital Certificates",
+    "uxui.auth.physicalToken": "Physical Token",
+    "uxui.auth.securityQuestions": "Security Questions",
+    "uxui.auth.continuousAuth": "Continuous Authentication"
+  },
+  "llmApisManager": {
+    "success": "Key tested successfully!",
+    "failure": "Failed to test key."
   }
 }

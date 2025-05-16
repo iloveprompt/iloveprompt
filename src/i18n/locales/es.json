@@ -681,23 +681,18 @@
       "gray": "Gris",
       "custom": "Color Personalizado",
       "customColorPlaceholder": "Elige un color personalizado",
-      "visualStyle": {
-        "minimalist": "Minimalista",
-        "modern": "Moderno con sombras",
-        "flat": "Diseño Flat/Material",
-        "ios": "Inspirado en iOS",
-        "android": "Inspirado en Android"
-      },
-      "menuType": {
-        "topFixed": "Tope fijo",
-        "sideFixed": "Barra lateral fija",
-        "hamburger": "Menú hamburguesa (móvil)",
-        "horizontalTabs": "Pestañas horizontales"
-      },
-      "authentication": {
-        "emailPassword": "Email + Contraseña",
-        "socialLogin": "Login Social (Google, Facebook, etc.)",
-        "twoFactor": "Autenticación de Dos Factores"
+      "visualStyle": "Estilo Visual",
+      "menuType": "Tipo de Menú",
+      "authentication": "Autenticación",
+      "auth": {
+        "emailPassword": "Correo y Contraseña",
+        "socialLogin": "Login Social",
+        "twoFactor": "Autenticación en Dos Factores",
+        "biometrics": "Biometría",
+        "digitalCertificates": "Certificados Digitales",
+        "physicalToken": "Token Físico",
+        "securityQuestions": "Preguntas de Seguridad",
+        "continuousAuth": "Autenticación Continua"
       },
       "userDashboard": {
         "customizable": "Personalizable",
@@ -1056,5 +1051,9 @@
       "confirmGlobalResetTitle": "Confirmar Reinicio Global",
       "confirmGlobalResetMessage": "¿Estás seguro de que deseas borrar todas las elecciones? Esta acción eliminará todas las selecciones realizadas en todas las etapas."
     }
+  },
+  "llmApisManager": {
+    "success": "¡Clave probada con éxito!",
+    "failure": "Error al probar la clave."
   }
 }

@@ -17,16 +17,22 @@ import {
   updateUserApiKey,
   UserLlmApi
 } from '@/services/userSettingService';
+import { testConnection } from '@/services/llmService';
 
 // Define allowed provider types
 type ProviderType = 'openai' | 'gemini' | 'groq' | 'deepseek' | 'grok';
 
-const LLM_MODELS: Record<string, string[]> = {
-  OpenAI: ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo', 'gpt-4o'],
-  Gemini: ['gemini-pro', 'gemini-1.5-pro', 'gemini-ultra'],
-  Groq: ['llama3-70b-8192', 'llama3-8b-8192', 'mixtral-8x7b-32768', 'gemma-7b-it'],
-  Grok: ['grok-1', 'grok-1.5'],
-  DeepSeek: ['deepseek-chat', 'deepseek-coder'],
+const LLM_MODELS: Record<ProviderType, string[]> = {
+  openai: ['gpt-4', 'gpt-4-turbo', 'gpt-3.5-turbo', 'gpt-4o'],
+  gemini: [
+    'gemini-2.0-flash',
+    'gemini-1.5-pro',
+    'gemini-pro',
+    'gemini-ultra'
+  ],
+  groq: ['llama3-70b-8192', 'llama3-8b-8192', 'mixtral-8x7b-32768', 'gemma-7b-it'],
+  grok: ['grok-1', 'grok-1.5'],
+  deepseek: ['deepseek-chat', 'deepseek-coder'],
 };
 
 const Settings = () => {
@@ -36,7 +42,7 @@ const Settings = () => {
 
   // CRUD LLMs persistente
   const [llms, setLlms] = useState<UserLlmApi[]>([]); // Persistente
-  const [form, setForm] = useState({ provider: 'OpenAI', model: 'gpt-4', key: '' });
+  const [form, setForm] = useState({ provider: 'openai', model: 'gpt-4', key: '' });
   const [editId, setEditId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -55,44 +61,86 @@ const Settings = () => {
         setLoading(false);
       }
     };
-
     loadLlms();
-  }, [user?.id, toast]);
+  }, [user?.id]);
 
   // Atualiza modelos ao trocar provedor
   const handleProviderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const provider = e.target.value;
+    const provider = e.target.value as ProviderType;
     setForm(f => ({ ...f, provider, model: LLM_MODELS[provider][0] }));
   };
 
   // Convert provider name to lowercase for API
   const getProviderType = (provider: string): ProviderType => {
-    const lowercaseProvider = provider.toLowerCase();
-    return lowercaseProvider as ProviderType;
+    return provider as ProviderType;
+  };
+
+  // Editar LLM (preenche o form para edição)
+  const handleEdit = (llm: any) => {
+    setForm({
+      provider: llm.provider.toLowerCase(),
+      model: llm.models?.[0] || '',
+      key: llm.api_key
+    });
+    setEditId(llm.id);
+  };
+
+  // Gerenciar chave: abre edição da LLM
+  const handleManageKey = (llm: any) => {
+    setForm({
+      provider: llm.provider.toLowerCase(),
+      model: llm.models?.[0] || '',
+      key: llm.api_key
+    });
+    setEditId(llm.id);
   };
 
   // Cadastro/edição de LLM
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log('handleSubmit chamado');
     e.preventDefault();
+    // Validação forte da chave
+    const provider = getProviderType(form.provider);
+    if (provider === 'gemini') {
+      if (!/^AIza[0-9A-Za-z\-_]{35,}$/.test(form.key)) {
+        toast({ title: 'Chave Gemini inválida. Cole apenas a chave secreta (começa com AIza...)' });
+        console.log('Chave Gemini inválida:', form.key);
+        return;
+      }
+    }
+    if (provider === 'openai') {
+      if (!form.key.startsWith('sk-')) {
+        toast({ title: 'Chave OpenAI inválida. Cole apenas a chave secreta (começa com sk-...)' });
+        console.log('Chave OpenAI inválida:', form.key);
+        return;
+      }
+    }
     if (!form.key.trim()) {
       toast({ title: 'Informe a chave secreta.' });
+      console.log('Form.key vazio, abortando submit');
       return;
     }
-    if (!user?.id) return;
+    if (!user?.id) {
+      toast({ title: 'Usuário não autenticado.' });
+      console.log('Usuário não autenticado, abortando submit');
+      return;
+    }
     setLoading(true);
     try {
       if (editId) {
+        console.log('Editando LLM:', { id: editId, ...form });
         await updateUserApiKey(editId, {
-          provider: getProviderType(form.provider),
           api_key: form.key,
+          provider: provider,
           models: [form.model],
           updated_at: new Date().toISOString()
         });
         toast({ title: 'LLM atualizada!' });
       } else {
+        console.log('Cadastrando nova LLM:', { ...form, user_id: user.id });
         await addUserApiKey({
           user_id: user.id,
-          provider: getProviderType(form.provider),
+          provider: provider,
           api_key: form.key,
           is_active: llms.length === 0, // Primeira já ativa
           test_status: 'untested',
@@ -105,10 +153,12 @@ const Settings = () => {
       // Recarregar lista
       const data = await getUserApiKeys(user.id);
       setLlms(Array.isArray(data) ? data : []);
-      setForm({ provider: 'OpenAI', model: 'gpt-4', key: '' });
+      setForm({ provider: 'openai', model: 'gpt-4', key: '' });
       setEditId(null);
+      console.log('Cadastro/edição finalizado com sucesso');
     } catch (err: any) {
-      toast({ title: 'Erro ao cadastrar/editar LLM', description: err.message, variant: 'destructive' });
+      toast({ title: 'Erro ao cadastrar/editar LLM', description: err?.message || String(err), variant: 'destructive' });
+      console.error('Erro no submit:', err);
     } finally {
       setLoading(false);
     }
@@ -122,6 +172,7 @@ const Settings = () => {
       await setActiveApiKey(user.id, id);
       const data = await getUserApiKeys(user.id);
       setLlms(Array.isArray(data) ? data : []);
+      toast({ title: 'LLM ativada!' });
     } catch (err: any) {
       toast({ title: 'Erro ao ativar LLM', description: err.message, variant: 'destructive' });
     } finally {
@@ -137,23 +188,12 @@ const Settings = () => {
       await deleteUserApiKey(id);
       const data = await getUserApiKeys(user.id);
       setLlms(Array.isArray(data) ? data : []);
+      toast({ title: 'LLM excluída!' });
     } catch (err: any) {
       toast({ title: 'Erro ao excluir LLM', description: err.message, variant: 'destructive' });
     } finally {
       setLoading(false);
     }
-  };
-
-  // Editar LLM (preenche o form para edição)
-  const handleEdit = (llm: any) => {
-    setForm({ provider: llm.provider.charAt(0).toUpperCase() + llm.provider.slice(1), model: llm.models?.[0] || '', key: llm.api_key });
-    setEditId(llm.id);
-  };
-
-  // Gerenciar chave: abre edição da LLM
-  const handleManageKey = (llm: any) => {
-    setForm({ provider: llm.provider.charAt(0).toUpperCase() + llm.provider.slice(1), model: llm.models?.[0] || '', key: llm.api_key });
-    setEditId(llm.id);
   };
 
   return (
@@ -356,13 +396,13 @@ const Settings = () => {
                   <div>
                     <Label htmlFor="llm-provider">Provedor</Label>
                     <select id="llm-provider" className="w-full border rounded px-2 py-2" value={form.provider} onChange={handleProviderChange}>
-                      {Object.keys(LLM_MODELS).map(p => <option key={p}>{p}</option>)}
+                      {Object.keys(LLM_MODELS).map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
                     </select>
                   </div>
                   <div>
                     <Label htmlFor="llm-model">Modelo</Label>
                     <select id="llm-model" className="w-full border rounded px-2 py-2" value={form.model} onChange={e => setForm(f => ({ ...f, model: e.target.value }))}>
-                      {LLM_MODELS[form.provider].map(m => <option key={m}>{m}</option>)}
+                      {LLM_MODELS[form.provider as ProviderType].map(m => <option key={m}>{m}</option>)}
                     </select>
                   </div>
                   <div>
@@ -370,8 +410,8 @@ const Settings = () => {
                     <Input id="llm-key" type="password" placeholder="sk-..." value={form.key} onChange={e => setForm(f => ({ ...f, key: e.target.value }))} />
                   </div>
                   <div className="md:col-span-3 flex justify-end mt-2">
-                    <Button type="submit">{editId ? 'Salvar Alterações' : 'Cadastrar LLM'}</Button>
-                    {editId && <Button type="button" variant="ghost" className="ml-2" onClick={() => { setEditId(null); setForm({ provider: 'OpenAI', model: 'gpt-4', key: '' }); }}>Cancelar</Button>}
+                    <button type="submit" className="btn btn-primary">{editId ? 'Salvar Alterações' : 'Cadastrar LLM'}</button>
+                    {editId && <Button type="button" variant="ghost" className="ml-2" onClick={() => { setEditId(null); setForm({ provider: 'openai', model: 'gpt-4', key: '' }); }}>Cancelar</Button>}
                   </div>
                 </form>
               </div>
@@ -386,6 +426,22 @@ const Settings = () => {
                       </Button>
                       <Button size="icon" variant="outline" title="Editar" onClick={() => handleEdit(llm)}><Edit className="h-4 w-4" /></Button>
                       <Button size="icon" variant="outline" title="Excluir" onClick={() => handleDelete(llm.id)}><Trash2 className="h-4 w-4 text-red-500" /></Button>
+                      <Button size="icon" variant="outline" title="Testar" onClick={async () => {
+                        try {
+                          const testResult = await testConnection(llm);
+                          toast({ title: testResult.success ? 'Conexão testada com sucesso!' : 'Erro ao testar conexão', description: testResult.error, variant: testResult.success ? 'default' : 'destructive' });
+                          // Só recarrega a lista se o teste foi bem-sucedido
+                          if (testResult.success && user?.id) {
+                            const data = await getUserApiKeys(user.id);
+                            setLlms(Array.isArray(data) ? data : []);
+                          }
+                        } catch (err: any) {
+                          toast({ title: 'Erro inesperado ao testar conexão', description: err?.message || String(err), variant: 'destructive' });
+                          // Não recarrega a lista em caso de erro
+                        }
+                      }}>
+                        <Zap className="h-4 w-4 text-blue-500" />
+                      </Button>
                     </div>
                     <CardHeader className="pb-2">
                       <CardTitle className="flex items-center gap-2">

@@ -70,6 +70,8 @@ interface UXUIStepProps {
   isFinalized: boolean;
 }
 
+// Componente responsável por exibir e gerenciar as opções de UX/UI do wizard
+// Importação dos hooks e componentes necessários do React e do projeto
 const UXUIStep: React.FC<UXUIStepProps> = ({ 
   formData, 
   updateFormData,
@@ -77,60 +79,67 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
   resetStep,
   isFinalized
 }) => {
+  // Hook de tradução para internacionalização
   const { t } = useLanguage();
+  // Define quantos itens aparecem por página nas listas
   const itemsPerPage = 6; 
   const LP_ITEMS_PER_PAGE = 4;
+  // Estado para controlar a abertura do painel de IA
   const [aiOpen, setAIOpen] = useState(false);
 
+  // Estados para controle dos seletores de cores customizadas
   const [customColorPickers, setCustomColorPickers] = useState<string[]>(['#FFFFFF', '#FFFFFF', '#FFFFFF', '#FFFFFF']);
   const [activeColorPickerIndex, setActiveColorPickerIndex] = useState<number | null>(null);
 
+  // Estados para paginação e popover dos estilos visuais
   const [currentPageVisualStyle, setCurrentPageVisualStyle] = useState(0);
   const [isOtherVisualStylePopoverOpen, setIsOtherVisualStylePopoverOpen] = useState(false);
   const [currentOtherVisualStyleInput, setCurrentOtherVisualStyleInput] = useState('');
   const [tempOtherVisualStylesList, setTempOtherVisualStylesList] = useState<string[]>([]);
 
+  // Estados para paginação e popover dos tipos de menu
   const [currentPageMenuType, setCurrentPageMenuType] = useState(0);
   const [isOtherMenuTypePopoverOpen, setIsOtherMenuTypePopoverOpen] = useState(false);
   const [currentOtherMenuTypeInput, setCurrentOtherMenuTypeInput] = useState('');
   const [tempOtherMenuTypesList, setTempOtherMenuTypesList] = useState<string[]>([]);
   
+  // Estados para paginação e popover dos métodos de autenticação
   const [currentPageAuth, setCurrentPageAuth] = useState(0);
   const [isOtherAuthPopoverOpen, setIsOtherAuthPopoverOpen] = useState(false);
   const [currentOtherAuthInput, setCurrentOtherAuthInput] = useState('');
   const [tempOtherAuthList, setTempOtherAuthList] = useState<string[]>([]);
   
+  // Estados para paginação e popover das funcionalidades do dashboard
   const [currentPageDashboard, setCurrentPageDashboard] = useState(0);
   const [isOtherDashboardFeaturePopoverOpen, setIsOtherDashboardFeaturePopoverOpen] = useState(false);
   const [currentOtherDashboardFeatureInput, setCurrentOtherDashboardFeatureInput] = useState('');
   const [tempOtherDashboardFeaturesList, setTempOtherDashboardFeaturesList] = useState<string[]>([]);
 
+  // Opções pré-definidas para estrutura da landing page
   const lpStructureOptions = [
     { key: 'hero', i18nKey: 'promptGenerator.uxui.structureItems.hero', defaultText: 'Seção Principal' },
     { key: 'benefits', i18nKey: 'promptGenerator.uxui.structureItems.benefits', defaultText: 'Benefícios/Funcionalidades' },
     { key: 'testimonials', i18nKey: 'promptGenerator.uxui.structureItems.testimonials', defaultText: 'Depoimentos' },
     { key: 'cta', i18nKey: 'promptGenerator.uxui.structureItems.cta', defaultText: 'Chamada para Ação' },
   ];
+  // Estados para paginação e popover dos itens de estrutura da landing page
   const [currentPageLpStructure, setCurrentPageLpStructure] = useState(0);
   const [isOtherLpStructurePopoverOpen, setIsOtherLpStructurePopoverOpen] = useState(false);
   const [currentOtherLpStructureInput, setCurrentOtherLpStructureInput] = useState('');
   const [tempOtherLpStructureList, setTempOtherLpStructureList] = useState<string[]>([]);
 
-  const [visualStyleOptions, setVisualStyleOptions] = useState<any[]>([]);
-  const [menuTypeOptions, setMenuTypeOptions] = useState<any[]>([]);
-  const [authOptions, setAuthOptions] = useState<any[]>([]);
+  // Estados para armazenar as opções carregadas do arquivo uxuiData.json
   const [dashboardFeaturesOptions, setDashboardFeaturesOptions] = useState<any[]>([]);
+  // Estados de carregamento e erro
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // useEffect para carregar as opções do arquivo uxuiData.json ao montar o componente
   useEffect(() => {
     try {
       if (Array.isArray(uxuiData)) {
         const dashboardFeatures = uxuiData.filter((item: any) => item.category === 'dashboardFeatures');
         setDashboardFeaturesOptions(dashboardFeatures);
-        setVisualStyleOptions(uxuiData.filter((item: any) => item.category === 'visualStyle'));
-        setMenuTypeOptions(uxuiData.filter((item: any) => item.category === 'menuType'));
-        setAuthOptions(uxuiData.filter((item: any) => item.category === 'auth'));
       }
       setLoading(false);
     } catch (e) {
@@ -140,10 +149,12 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
     }
   }, []);
 
+  // useEffect para atualizar a lista temporária de outros itens de estrutura da landing page quando o popover abre ou os dados mudam
   useEffect(() => {
     setTempOtherLpStructureList(formData.landingPageDetails.structure.otherValues || []);
   }, [formData.landingPageDetails.structure.otherValues, isOtherLpStructurePopoverOpen]);
 
+  // Função para adicionar um novo item "outro" na estrutura da landing page
   const handleAddOtherLpStructure = () => {
     if (currentOtherLpStructureInput.trim() && tempOtherLpStructureList.length < 10) {
       setTempOtherLpStructureList([...tempOtherLpStructureList, currentOtherLpStructureInput.trim()]);
@@ -151,10 +162,12 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
     }
   };
 
+  // Função para remover um item "outro" da estrutura da landing page
   const handleRemoveOtherLpStructure = (index: number) => {
     setTempOtherLpStructureList(tempOtherLpStructureList.filter((_, i) => i !== index));
   };
 
+  // Função para salvar os itens "outros" na estrutura da landing page
   const handleSaveOtherLpStructure = () => {
     updateFormData({
       landingPageDetails: {
@@ -192,20 +205,24 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
     
   const allLpStructureSelected = lpStructureOptions.every(opt => !!formData.landingPageDetails.structure[opt.key as keyof Omit<typeof formData.landingPageDetails.structure, 'other' | 'otherValues'>]);
 
+  // Opções pré-definidas para elementos da landing page
   const lpElementOptions = [
     { key: 'video', i18nKey: 'promptGenerator.uxui.elementsItems.video', defaultText: 'Vídeo/Animação' },
     { key: 'form', i18nKey: 'promptGenerator.uxui.elementsItems.form', defaultText: 'Formulário de Contato' },
     { key: 'animations', i18nKey: 'promptGenerator.uxui.elementsItems.animations', defaultText: 'Elementos Interativos' },
   ];
+  // Estados para paginação e popover dos elementos da landing page
   const [currentPageLpElements, setCurrentPageLpElements] = useState(0);
   const [isOtherLpElementsPopoverOpen, setIsOtherLpElementsPopoverOpen] = useState(false);
   const [currentOtherLpElementsInput, setCurrentOtherLpElementsInput] = useState('');
   const [tempOtherLpElementsList, setTempOtherLpElementsList] = useState<string[]>([]);
 
+  // useEffect para atualizar a lista temporária de outros elementos quando o popover abre ou os dados mudam
   useEffect(() => {
     setTempOtherLpElementsList(formData.landingPageDetails.elements.otherValues || []);
   }, [formData.landingPageDetails.elements.otherValues, isOtherLpElementsPopoverOpen]);
 
+  // Função para adicionar um novo elemento "outro" na landing page
   const handleAddOtherLpElement = () => {
     if (currentOtherLpElementsInput.trim() && tempOtherLpElementsList.length < 10) {
       setTempOtherLpElementsList([...tempOtherLpElementsList, currentOtherLpElementsInput.trim()]);
@@ -371,14 +388,6 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
       },
     });
   };
-
-  const handleAuthMethodChange = (value: string, checked: boolean) => {
-    const currentAuth = formData.authentication || [];
-    const updatedOptions = checked
-      ? [...currentAuth, value]
-      : currentAuth.filter(id => id !== value);
-    updateFormData({ authentication: Array.from(new Set(updatedOptions)) });
-  };
   
   const handleDashboardFeatureChange = (value: string, checked: boolean) => {
     const updatedFeatures = checked
@@ -511,26 +520,6 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
     setIsOtherDashboardFeaturePopoverOpen(false);
   };
 
-  const totalPagesVisualStyle = Math.ceil(visualStyleOptions.length / itemsPerPage);
-  const currentVisualStyleToDisplay = visualStyleOptions.slice(currentPageVisualStyle * itemsPerPage, (currentPageVisualStyle + 1) * itemsPerPage);
-
-  const totalPagesMenuType = Math.ceil(menuTypeOptions.length / itemsPerPage);
-  const currentMenuTypeToDisplay = menuTypeOptions.slice(currentPageMenuType * itemsPerPage, (currentPageMenuType + 1) * itemsPerPage);
-
-  const totalPagesAuth = Math.ceil(authOptions.length / itemsPerPage);
-  const currentAuthToDisplay = authOptions.slice(currentPageAuth * itemsPerPage, (currentPageAuth + 1) * itemsPerPage);
-  const toggleSelectAllAuth = () => {
-    const allOptionIds = authOptions.map(opt => opt.value);
-    const allSelectedCurrently = allOptionIds.every(id => formData.authentication.includes(id));
-
-    if (allSelectedCurrently) {
-      updateFormData({ authentication: formData.authentication.filter(auth => !allOptionIds.includes(auth)) });
-    } else {
-      updateFormData({ authentication: Array.from(new Set([...formData.authentication, ...allOptionIds])) });
-    }
-  };
-  const allAuthSelected = authOptions.length > 0 && authOptions.every(opt => (formData.authentication || []).includes(opt.value));
-
   const totalPagesDashboard = Math.ceil(dashboardFeaturesOptions.length / itemsPerPage);
   const currentDashboardFeaturesToDisplay = dashboardFeaturesOptions.slice(currentPageDashboard * itemsPerPage, (currentPageDashboard + 1) * itemsPerPage);
   const toggleSelectAllDashboardFeatures = () => {
@@ -606,6 +595,79 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
     });
   };
 
+  // 1. Estilo Visual (única escolha)
+  const visualStyleOptions = [
+    { value: 'minimalist', label: 'promptGenerator.uxui.visualStyleOptions.minimalist' },
+    { value: 'modernShadows', label: 'promptGenerator.uxui.visualStyleOptions.modernShadows' },
+    { value: 'flatMaterial', label: 'promptGenerator.uxui.visualStyleOptions.flatMaterial' },
+    { value: 'iosInspired', label: 'promptGenerator.uxui.visualStyleOptions.iosInspired' },
+    { value: 'androidInspired', label: 'promptGenerator.uxui.visualStyleOptions.androidInspired' },
+    { value: 'neumorphism', label: 'promptGenerator.uxui.visualStyleOptions.neumorphism' },
+    { value: 'glassmorphism', label: 'promptGenerator.uxui.visualStyleOptions.glassmorphism' },
+    { value: 'retroVintage', label: 'promptGenerator.uxui.visualStyleOptions.retroVintage' },
+    { value: 'brutalism', label: 'promptGenerator.uxui.visualStyleOptions.brutalism' },
+    { value: 'darkMode', label: 'promptGenerator.uxui.visualStyleOptions.darkMode' },
+    { value: 'thematic', label: 'promptGenerator.uxui.visualStyleOptions.thematic' },
+  ];
+  const itemsPerPageVisualStyle = 6;
+  const totalPagesVisualStyle = Math.ceil(visualStyleOptions.length / itemsPerPageVisualStyle);
+  const currentVisualStyleToDisplay = visualStyleOptions.slice(currentPageVisualStyle * itemsPerPageVisualStyle, (currentPageVisualStyle + 1) * itemsPerPageVisualStyle);
+
+  // 2. Tipo de Menu (única escolha)
+  const menuTypeOptions = [
+    { value: 'horizontal', label: 'promptGenerator.uxui.menuTypeOptions.horizontal' },
+    { value: 'vertical', label: 'promptGenerator.uxui.menuTypeOptions.vertical' },
+    { value: 'hamburger', label: 'promptGenerator.uxui.menuTypeOptions.hamburger' },
+    { value: 'mixed', label: 'promptGenerator.uxui.menuTypeOptions.mixed' },
+    { value: 'dropdown', label: 'promptGenerator.uxui.menuTypeOptions.dropdown' },
+    { value: 'context', label: 'promptGenerator.uxui.menuTypeOptions.context' },
+    { value: 'circular', label: 'promptGenerator.uxui.menuTypeOptions.circular' },
+    { value: 'mega', label: 'promptGenerator.uxui.menuTypeOptions.mega' },
+  ];
+  const itemsPerPageMenuType = 6;
+  const totalPagesMenuType = Math.ceil(menuTypeOptions.length / itemsPerPageMenuType);
+  const currentMenuTypeToDisplay = menuTypeOptions.slice(currentPageMenuType * itemsPerPageMenuType, (currentPageMenuType + 1) * itemsPerPageMenuType);
+
+  // 3. Autenticação (múltipla escolha)
+  const authOptions = [
+    { value: 'emailPassword', label: 'promptGenerator.uxui.authOptions.emailPassword' },
+    { value: 'socialLogin', label: 'promptGenerator.uxui.authOptions.socialLogin' },
+    { value: 'twoFactor', label: 'promptGenerator.uxui.authOptions.twoFactor' },
+    { value: 'biometrics', label: 'promptGenerator.uxui.authOptions.biometrics' },
+    { value: 'digitalCertificates', label: 'promptGenerator.uxui.authOptions.digitalCertificates' },
+    { value: 'physicalToken', label: 'promptGenerator.uxui.authOptions.physicalToken' },
+    { value: 'securityQuestions', label: 'promptGenerator.uxui.authOptions.securityQuestions' },
+    { value: 'continuousAuth', label: 'promptGenerator.uxui.authOptions.continuousAuth' },
+  ];
+  const itemsPerPageAuth = 6;
+  const totalPagesAuth = Math.ceil(authOptions.length / itemsPerPageAuth);
+  const currentAuthToDisplay = authOptions.slice(currentPageAuth * itemsPerPageAuth, (currentPageAuth + 1) * itemsPerPageAuth);
+
+  // Handlers para seleção
+  const handleVisualStyleChange = (value: string) => {
+    updateFormData({ visualStyle: value });
+  };
+  const handleMenuTypeChange = (value: string) => {
+    updateFormData({ menuType: value });
+  };
+  const handleAuthChange = (value: string, checked: boolean) => {
+    let updated = formData.authentication || [];
+    if (checked) {
+      updated = [...updated, value];
+    } else {
+      updated = updated.filter(item => item !== value);
+    }
+    updateFormData({ authentication: updated });
+  };
+  const toggleSelectAllAuth = () => {
+    if ((formData.authentication || []).length === authOptions.length) {
+      updateFormData({ authentication: [] });
+    } else {
+      updateFormData({ authentication: authOptions.map(opt => opt.value) });
+    }
+  };
+  const allAuthSelected = (formData.authentication || []).length === authOptions.length;
+
   if (loading) return <div>Carregando...</div>;
   if (error) return <div>{error}</div>;
 
@@ -658,7 +720,245 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
         </CardHeader>
         <CardContent className="px-0 pb-0 sm:px-0 sm:pb-0 pt-4">
           <div className="grid grid-cols-1 gap-0.5">
-            <div className="space-y-2"> {/* Removed mb-1 */}
+            {/* Accordions de Estilo Visual, Tipo de Menu e Autenticação */}
+            <Accordion type="single" collapsible className="w-full mt-2">
+              {/* Estilo Visual */}
+              <AccordionItem value="visual-style-accordion" className="border-0">
+                <AccordionTrigger className="text-base font-medium text-foreground py-1 hover:no-underline">
+                  {t('promptGenerator.uxui.visualStyle')}
+                </AccordionTrigger>
+                <AccordionContent className="pt-1 pb-0">
+                  <div className="space-y-2">
+                    <RadioGroup
+                      value={formData.visualStyle}
+                      onValueChange={handleVisualStyleChange}
+                      className="grid grid-cols-1 md:grid-cols-2 gap-2"
+                    >
+                      {currentVisualStyleToDisplay.map((option) => (
+                        <div key={option.value} className="flex items-center space-x-2">
+                          <RadioGroupItem value={option.value} id={`visual-style-${option.value}`} />
+                          <Label htmlFor={`visual-style-${option.value}`} className="cursor-pointer text-xs font-normal">
+                            {t(option.label)}
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                    {totalPagesVisualStyle > 1 && (
+                      <div className="flex flex-row justify-end items-center gap-2 mt-2">
+                        <Button variant="outline" size="sm" className="text-xs" style={{ minWidth: 120 }}>
+                          <ListPlus className="h-3 w-3 mr-1.5" />
+                          {t('promptGenerator.objective.notInList') || 'Não está na lista?'}
+                        </Button>
+                        <div className="flex flex-row items-center gap-1">
+                          <Button variant="ghost" size="icon" onClick={() => setCurrentPageVisualStyle(p => Math.max(0, p - 1))} disabled={currentPageVisualStyle === 0} className="h-7 w-7">
+                            <ChevronLeft className="h-4 w-4" />
+                          </Button>
+                          <span className="text-xs text-muted-foreground">{`${t('common.page')} ${currentPageVisualStyle + 1} ${t('common.of')} ${totalPagesVisualStyle}`}</span>
+                          <Button variant="ghost" size="icon" onClick={() => setCurrentPageVisualStyle(p => Math.min(totalPagesVisualStyle - 1, p + 1))} disabled={currentPageVisualStyle === totalPagesVisualStyle - 1} className="h-7 w-7">
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Paleta de Cores - movido para logo após Estilo Visual */}
+              <AccordionItem value="color-palette-accordion" className="border-0">
+                <AccordionTrigger className="text-base font-medium text-foreground py-1 hover:no-underline">
+                  {t('promptGenerator.uxui.colorPalette') || "Paleta de Cores"}
+                </AccordionTrigger>
+                <AccordionContent className="pt-1 pb-0">
+                  <div className="space-y-4">
+                    {Object.entries(colorPalettes).map(([categoryKey, category]) => (
+                      <div key={categoryKey}>
+                        <h5 className="text-sm font-semibold mb-2 text-muted-foreground">{category.title}</h5>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {category.palettes.map((palette) => (
+                            <Card 
+                              key={palette.value} 
+                              className={`p-3 cursor-pointer transition-all hover:shadow-md ${formData.colorPalette.includes(palette.value) ? 'ring-2 ring-primary shadow-lg' : 'ring-1 ring-border'}`}
+                              onClick={() => handlePaletteSelection({ value: palette.value, colors: palette.colors })}
+                            >
+                              <p className="text-xs font-medium mb-1.5 truncate">{palette.name}</p>
+                              <div className="flex space-x-1">
+                                {palette.colors.map((color, index) => (
+                                  <div key={index} className="w-5 h-5 rounded-sm border border-muted-foreground/20" style={{ backgroundColor: color }}></div>
+                                ))}
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                    <div>
+                      <h5 className="text-sm font-semibold mt-4 mb-2 text-muted-foreground">{t('promptGenerator.uxui.customPaletteTitle')}</h5>
+                      <Card 
+                        className={`p-3 transition-all hover:shadow-md ${formData.colorPalette.includes('custom') ? 'ring-2 ring-primary shadow-lg' : 'ring-1 ring-border'}`}
+                      >
+                        <p className="text-xs font-medium mb-1.5">{t('promptGenerator.uxui.customPalette.name')}</p>
+                        <p className="text-xs text-muted-foreground mb-2">{t('promptGenerator.uxui.customPalette.description')}</p>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                          {Array.from({ length: 4 }).map((_, index) => (
+                            <div key={`custom-color-${index}`} className="space-y-1">
+                              <Label htmlFor={`custom-color-input-${index}`} className="text-xs">
+                                {t('common.color' + (index + 1))}
+                              </Label>
+                              <div className="flex items-center space-x-1.5 color-picker-container">
+                                <Input
+                                  id={`custom-color-input-${index}`}
+                                  type="text"
+                                  placeholder="#FFFFFF"
+                                  value={customColorPickers[index] || ''}
+                                  onChange={(e) => handleCustomColorChange(index, e.target.value)}
+                                  className="w-full text-xs h-8"
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <Button 
+                                      variant="outline" 
+                                      size="icon" 
+                                      className="h-8 w-8"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <div 
+                                        className="w-4 h-4 rounded-sm border border-muted-foreground/50" 
+                                        style={{ backgroundColor: customColorPickers[index] || 'transparent' }}
+                                      />
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto p-0" align="start">
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                      <HexColorPicker
+                                        color={customColorPickers[index] || '#FFFFFF'}
+                                        onChange={(color) => handleCustomColorChange(index, color)}
+                                      />
+                                    </div>
+                                  </PopoverContent>
+                                </Popover>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex justify-between items-center mt-4">
+                          <div className="flex space-x-1">
+                            {customColorPickers.map((color, index) => (
+                              <div 
+                                key={index} 
+                                className="w-5 h-5 rounded-sm border border-muted-foreground/20" 
+                                style={{ backgroundColor: color || 'transparent' }}
+                              />
+                            ))}
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={handleApplyCustomColors}
+                            className="text-xs"
+                            disabled={!customColorPickers.every(color => /^#[0-9A-Fa-f]{6}$/i.test(color))}
+                          >
+                            {t('promptGenerator.uxui.applyColors') || 'Aplicar Cores'}
+                          </Button>
+                        </div>
+                      </Card>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Tipo de Menu */}
+              <AccordionItem value="menu-type-accordion" className="border-0">
+                <AccordionTrigger className="text-base font-medium text-foreground py-1 hover:no-underline">
+                  {t('promptGenerator.uxui.menuType')}
+                </AccordionTrigger>
+                <AccordionContent className="pt-1 pb-0">
+                  <div className="space-y-2">
+                    <RadioGroup
+                      value={formData.menuType}
+                      onValueChange={handleMenuTypeChange}
+                      className="grid grid-cols-1 md:grid-cols-2 gap-2"
+                    >
+                      {currentMenuTypeToDisplay.map((option) => (
+                        <div key={option.value} className="flex items-center space-x-2">
+                          <RadioGroupItem value={option.value} id={`menu-type-${option.value}`} />
+                          <Label htmlFor={`menu-type-${option.value}`} className="cursor-pointer text-xs font-normal">
+                            {t(option.label)}
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                    {totalPagesMenuType > 1 && (
+                      <div className="flex flex-row justify-end items-center gap-2 mt-2">
+                        <Button variant="outline" size="sm" className="text-xs" style={{ minWidth: 120 }}>
+                          <ListPlus className="h-3 w-3 mr-1.5" />
+                          {t('promptGenerator.objective.notInList') || 'Não está na lista?'}
+                        </Button>
+                        <div className="flex flex-row items-center gap-1">
+                          <Button variant="ghost" size="icon" onClick={() => setCurrentPageMenuType(p => Math.max(0, p - 1))} disabled={currentPageMenuType === 0} className="h-7 w-7">
+                            <ChevronLeft className="h-4 w-4" />
+                          </Button>
+                          <span className="text-xs text-muted-foreground">{`${t('common.page')} ${currentPageMenuType + 1} ${t('common.of')} ${totalPagesMenuType}`}</span>
+                          <Button variant="ghost" size="icon" onClick={() => setCurrentPageMenuType(p => Math.min(totalPagesMenuType - 1, p + 1))} disabled={currentPageMenuType === totalPagesMenuType - 1} className="h-7 w-7">
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Autenticação */}
+              <AccordionItem value="auth-accordion" className="border-0">
+                <AccordionTrigger className="text-base font-medium text-foreground py-1 hover:no-underline">
+                  {t('promptGenerator.uxui.authentication')}
+                </AccordionTrigger>
+                <AccordionContent className="pt-1 pb-0">
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      {currentAuthToDisplay.map((option) => (
+                        <div key={option.value} className="flex items-start space-x-2">
+                          <Checkbox
+                            id={`auth-${option.value}`}
+                            checked={formData.authentication.includes(option.value)}
+                            onCheckedChange={(checked) => handleAuthChange(option.value, Boolean(checked))}
+                            className="mt-0.5"
+                          />
+                          <Label htmlFor={`auth-${option.value}`} className="cursor-pointer text-xs font-normal whitespace-normal leading-tight">
+                            {t(option.label)}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                    {totalPagesAuth > 1 && (
+                      <div className="flex flex-row items-center justify-between gap-2 mt-2">
+                        <Button variant="outline" size="sm" className="text-xs" onClick={toggleSelectAllAuth}>
+                          {allAuthSelected ? t('common.unselectAll') : t('common.selectAll')}
+                        </Button>
+                        <div className="flex flex-row items-center gap-2">
+                          <Button variant="outline" size="sm" className="text-xs" style={{ minWidth: 120 }}>
+                            <ListPlus className="h-3 w-3 mr-1.5" />
+                            {t('promptGenerator.objective.notInList') || 'Não está na lista?'}
+                          </Button>
+                          <div className="flex flex-row items-center gap-1">
+                            <Button variant="ghost" size="icon" onClick={() => setCurrentPageAuth(p => Math.max(0, p - 1))} disabled={currentPageAuth === 0} className="h-7 w-7">
+                              <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                            <span className="text-xs text-muted-foreground">{`${t('common.page')} ${currentPageAuth + 1} ${t('common.of')} ${totalPagesAuth}`}</span>
+                            <Button variant="ghost" size="icon" onClick={() => setCurrentPageAuth(p => Math.min(totalPagesAuth - 1, p + 1))} disabled={currentPageAuth === totalPagesAuth - 1} className="h-7 w-7">
+                              <ChevronRight className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+            {/* Página Inicial (Landing Page) - mover para após os Accordions */}
               <div className="flex justify-between items-center">
                 <h4 className="text-base font-medium text-foreground">{t('promptGenerator.uxui.landingPage')}</h4>
                 <div className="flex items-center space-x-2">
@@ -677,14 +977,14 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                             testimonials: false,
                             cta: false,
                             other: false,
-                            otherValues: formData.landingPageDetails.structure.otherValues || [], // Manter otherValues se já existirem
+                          otherValues: formData.landingPageDetails.structure.otherValues || [],
                           },
                           elements: {
                             video: false,
                             form: false,
                             animations: false,
                             other: false,
-                            otherValues: formData.landingPageDetails.elements.otherValues || [], // Manter otherValues
+                          otherValues: formData.landingPageDetails.elements.otherValues || [],
                           },
                           style: {
                             modern: false,
@@ -692,12 +992,11 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                             corporate: false,
                             creative: false,
                             other: false,
-                            otherValues: formData.landingPageDetails.style.otherValues || [], // Manter otherValues
+                          otherValues: formData.landingPageDetails.style.otherValues || [],
                           },
                         };
                         updateFormData({ landingPage: newLandingPageValue, landingPageDetails: { ...formData.landingPageDetails, ...landingPageDetailsUpdate } });
                       } else {
-                        // Se NÃO, apenas atualiza o estado da landingPage
                         updateFormData({ landingPage: newLandingPageValue });
                       }
                     }}
@@ -955,9 +1254,8 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                   </div>
                 </div>
               )}
-            </div>
 
-            {/* User Dashboard Section */}
+            {/* Painel do Usuário (User Dashboard) - mover para após Landing Page */}
             <div className="space-y-2"> {/* Removed mb-1 */}
               <div className="flex justify-between items-center">
                 <h4 className="text-base font-medium text-foreground">{t('promptGenerator.uxui.userDashboard') || "Painel do Usuário"}</h4>
@@ -1066,7 +1364,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                           <Button variant="ghost" size="icon" onClick={() => setCurrentPageDashboard(p => Math.max(0, p - 1))} disabled={currentPageDashboard === 0} className="h-7 w-7">
                             <ChevronLeft className="h-4 w-4" />
                           </Button>
-                          <span className="text-xs text-muted-foreground">{`${t('common.page') || 'Página'} ${currentPageDashboard + 1} ${t('common.of') || 'de'} ${totalPagesDashboard}`}</span>
+                          <span className="text-xs text-muted-foreground">{`${t('common.page')} ${currentPageDashboard + 1} ${t('common.of')} ${totalPagesDashboard}`}</span>
                           <Button variant="ghost" size="icon" onClick={() => setCurrentPageDashboard(p => Math.min(totalPagesDashboard - 1, p + 1))} disabled={currentPageDashboard === totalPagesDashboard - 1} className="h-7 w-7">
                             <ChevronRight className="h-4 w-4" />
                           </Button>
@@ -1086,341 +1384,6 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
               )}
             </div>
           </div>
-
-          {/* Color Palette Accordion */}
-          <Accordion type="single" collapsible className="w-full"> {/* Removed mb-1 */}
-            <AccordionItem value="color-palette-accordion" className="border-0">
-              <AccordionTrigger className="text-base font-medium text-foreground py-1 hover:no-underline"> {/* py-2 to py-1 */}
-                {t('promptGenerator.uxui.colorPalette') || "Paleta de Cores"}
-              </AccordionTrigger>
-              <AccordionContent className="pt-1 pb-0">
-                <div className="space-y-4">
-                  {Object.entries(colorPalettes).map(([categoryKey, category]) => (
-                    <div key={categoryKey}>
-                      <h5 className="text-sm font-semibold mb-2 text-muted-foreground">{category.title}</h5>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {category.palettes.map((palette) => (
-                          <Card 
-                            key={palette.value} 
-                            className={`p-3 cursor-pointer transition-all hover:shadow-md ${formData.colorPalette.includes(palette.value) ? 'ring-2 ring-primary shadow-lg' : 'ring-1 ring-border'}`}
-                            onClick={() => handlePaletteSelection({ value: palette.value, colors: palette.colors })}
-                          >
-                            <p className="text-xs font-medium mb-1.5 truncate">{palette.name}</p>
-                            <div className="flex space-x-1">
-                              {palette.colors.map((color, index) => (
-                                <div key={index} className="w-5 h-5 rounded-sm border border-muted-foreground/20" style={{ backgroundColor: color }}></div>
-                              ))}
-                            </div>
-                          </Card>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                  <div>
-                    <h5 className="text-sm font-semibold mt-4 mb-2 text-muted-foreground">{t('promptGenerator.uxui.customPaletteTitle')}</h5>
-                    <Card 
-                      className={`p-3 transition-all hover:shadow-md ${formData.colorPalette.includes('custom') ? 'ring-2 ring-primary shadow-lg' : 'ring-1 ring-border'}`}
-                    >
-                      <p className="text-xs font-medium mb-1.5">{t('promptGenerator.uxui.customPalette.name')}</p>
-                      <p className="text-xs text-muted-foreground mb-2">{t('promptGenerator.uxui.customPalette.description')}</p>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        {Array.from({ length: 4 }).map((_, index) => (
-                          <div key={`custom-color-${index}`} className="space-y-1">
-                            <Label htmlFor={`custom-color-input-${index}`} className="text-xs">
-                              {t('common.color' + (index + 1))}
-                            </Label>
-                            <div className="flex items-center space-x-1.5 color-picker-container">
-                              <Input
-                                id={`custom-color-input-${index}`}
-                                type="text"
-                                placeholder="#FFFFFF"
-                                value={customColorPickers[index] || ''}
-                                onChange={(e) => handleCustomColorChange(index, e.target.value)}
-                                className="w-full text-xs h-8"
-                                onClick={(e) => e.stopPropagation()}
-                              />
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button 
-                                    variant="outline" 
-                                    size="icon" 
-                                    className="h-8 w-8"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    <div 
-                                      className="w-4 h-4 rounded-sm border border-muted-foreground/50" 
-                                      style={{ backgroundColor: customColorPickers[index] || 'transparent' }}
-                                    />
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                  <div onClick={(e) => e.stopPropagation()}>
-                                    <HexColorPicker
-                                      color={customColorPickers[index] || '#FFFFFF'}
-                                      onChange={(color) => handleCustomColorChange(index, color)}
-                                    />
-                                  </div>
-                                </PopoverContent>
-                              </Popover>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="flex justify-between items-center mt-4">
-                        <div className="flex space-x-1">
-                          {customColorPickers.map((color, index) => (
-                            <div 
-                              key={index} 
-                              className="w-5 h-5 rounded-sm border border-muted-foreground/20" 
-                              style={{ backgroundColor: color || 'transparent' }}
-                            />
-                          ))}
-                        </div>
-                        <Button
-                          size="sm"
-                          onClick={handleApplyCustomColors}
-                          className="text-xs"
-                          disabled={!customColorPickers.every(color => /^#[0-9A-Fa-f]{6}$/i.test(color))}
-                        >
-                          {t('promptGenerator.uxui.applyColors') || 'Aplicar Cores'}
-                        </Button>
-                      </div>
-                    </Card>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-          
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="visual-style-accordion" className="border-0"> {/* Removed mb-1 */}
-              <AccordionTrigger className="text-base font-medium text-foreground py-1 hover:no-underline"> {/* py-2 to py-1 */}
-                {t('promptGenerator.uxui.visualStyle') || "Estilo Visual"}
-              </AccordionTrigger>
-              <AccordionContent className="pt-1 pb-0">
-                <div className="space-y-2">
-                  {/* Estilo Visual (RadioGroup do sistema, escolha única) */}
-                  <RadioGroup
-                    value={formData.visualStyle}
-                    onValueChange={(value) => {
-                      updateFormData({ visualStyle: value, otherVisualStyles: value === 'other' ? formData.otherVisualStyles : [] });
-                    }}
-                    className="grid grid-cols-1 md:grid-cols-2 gap-2"
-                  >
-                    {visualStyleOptions.map((option, index) => (
-                      <div key={`visual-style-opt-${option.value}-${index}`} className="flex items-center space-x-2">
-                        <RadioGroupItem value={String(option.value)} id={`visual-style-${option.value}`} />
-                        <Label htmlFor={`visual-style-${option.value}`} className="cursor-pointer text-xs font-normal">
-                          {option.label}
-                        </Label>
-                      </div>
-                    ))}
-                  </RadioGroup>
-                  <div className="flex items-center justify-end space-x-2 mt-2 pt-2">
-                     <Popover open={isOtherVisualStylePopoverOpen} onOpenChange={setIsOtherVisualStylePopoverOpen}>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-xs ml-auto">
-                            <ListPlus className="h-3 w-3 mr-1.5" />
-                            {t('promptGenerator.objective.notInList') || "Não está na lista?"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-4" side="top" align="end">
-                          <div className="space-y-3">
-                            <Label htmlFor="other-visualstyle-input" className="text-sm font-medium">
-                              {t('promptGenerator.uxui.otherVisualStylePlaceholder') || 'Adicionar outro estilo visual:'}
-                            </Label>
-                            <div className="flex items-center space-x-2">
-                              <Input id="other-visualstyle-input" value={currentOtherVisualStyleInput} onChange={(e) => setCurrentOtherVisualStyleInput(e.target.value)} placeholder={t('promptGenerator.uxui.otherVisualStylePlaceholder') || 'Seu estilo...'} className="text-xs h-8" onKeyDown={(e) => { if (e.key === 'Enter' && currentOtherVisualStyleInput.trim()) handleAddOtherVisualStyle(); }} />
-                              <Button size="icon" onClick={handleAddOtherVisualStyle} disabled={!currentOtherVisualStyleInput.trim() || tempOtherVisualStylesList.length >= 10} className="h-8 w-8 flex-shrink-0"><PlusCircle className="h-4 w-4" /></Button>
-                            </div>
-                            {tempOtherVisualStylesList.length > 0 && (
-                              <div className="mt-2 space-y-1 max-h-28 overflow-y-auto border p-2 rounded-md">
-                                <p className="text-xs text-muted-foreground mb-1">{`Adicionados (${tempOtherVisualStylesList.length}/10):`}</p>
-                                {tempOtherVisualStylesList.map((style, idx) => (
-                                  <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
-                                    <span className="truncate flex-1 mr-2">{style}</span>
-                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherVisualStyle(idx)} className="h-5 w-5"><XCircle className="h-3.5 w-3.5 text-destructive" /></Button>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                            {tempOtherVisualStylesList.length >= 10 && <p className="text-xs text-destructive mt-1">{t('promptGenerator.objective.limitReached') || "Limite de 10 atingido."}</p>}
-                            <div className="flex justify-end space-x-2 mt-3">
-                              <Button size="sm" variant="ghost" onClick={() => setIsOtherVisualStylePopoverOpen(false)} className="text-xs h-8">{'Cancelar'}</Button>
-                              <Button size="sm" onClick={handleSaveOtherVisualStyles} disabled={tempOtherVisualStylesList.length === 0 && (!Array.isArray(formData.otherVisualStyles) || formData.otherVisualStyles.length === 0) && !currentOtherVisualStyleInput.trim()} className="text-xs h-8">{'Salvar Outros'}</Button>
-                            </div>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                  </div>
-                  {Array.isArray(formData.otherVisualStyles) && formData.otherVisualStyles.length > 0 && (
-                    <div className="mt-2 space-y-1 border p-2 rounded-md bg-muted/30">
-                      <p className="text-xs font-medium text-muted-foreground mb-1">Outros Estilos Visuais Adicionados:</p>
-                      {formData.otherVisualStyles.map((style, index) => (
-                        <div key={`saved-other-vs-${index}`} className="text-xs text-foreground p-1 bg-muted/50 rounded">{style}</div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-
-            <AccordionItem value="menu-type-accordion" className="border-0"> {/* Removed mb-1 */}
-              <AccordionTrigger className="text-base font-medium text-foreground py-1 hover:no-underline"> {/* py-2 to py-1 */}
-                {t('promptGenerator.uxui.menuType') || "Tipo de Menu"}
-              </AccordionTrigger>
-              <AccordionContent className="pt-1 pb-0">
-                 <div className="space-y-2">
-                    {/* Tipo de Menu (RadioGroup do sistema, escolha única) */}
-                    <RadioGroup
-                      value={formData.menuType}
-                      onValueChange={(value) => {
-                        updateFormData({ menuType: value, otherMenuTypes: value === 'other' ? formData.otherMenuTypes : [] });
-                      }}
-                      className="grid grid-cols-1 md:grid-cols-2 gap-2"
-                    >
-                      {menuTypeOptions.map((option, index) => (
-                        <div key={`menu-type-opt-${option.value}-${index}`} className="flex items-center space-x-2">
-                          <RadioGroupItem value={String(option.value)} id={`menu-type-${option.value}`} />
-                          <Label htmlFor={`menu-type-${option.value}`} className="cursor-pointer text-xs font-normal">
-                            {option.label}
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                    <div className="flex items-center justify-end space-x-2 mt-2 pt-2">
-                      <Popover open={isOtherMenuTypePopoverOpen} onOpenChange={setIsOtherMenuTypePopoverOpen}>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-xs ml-auto">
-                            <ListPlus className="h-3 w-3 mr-1.5" />
-                            {t('promptGenerator.objective.notInList') || "Não está na lista?"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-4" side="top" align="end">
-                           <div className="space-y-3">
-                              <Label htmlFor="other-menutype-input" className="text-sm font-medium">
-                                {t('promptGenerator.uxui.otherMenuTypePlaceholder') || 'Adicionar outro tipo de menu:'}
-                              </Label>
-                              <div className="flex items-center space-x-2">
-                                <Input id="other-menutype-input" value={currentOtherMenuTypeInput} onChange={(e) => setCurrentOtherMenuTypeInput(e.target.value)} placeholder={t('promptGenerator.uxui.otherMenuTypePlaceholder') || 'Seu tipo de menu...'} className="text-xs h-8" onKeyDown={(e) => { if (e.key === 'Enter' && currentOtherMenuTypeInput.trim()) handleAddOtherMenuType(); }} />
-                                <Button size="icon" onClick={handleAddOtherMenuType} disabled={!currentOtherMenuTypeInput.trim() || tempOtherMenuTypesList.length >= 10} className="h-8 w-8 flex-shrink-0"><PlusCircle className="h-4 w-4" /></Button>
-                              </div>
-                              {tempOtherMenuTypesList.length > 0 && (
-                                <div className="mt-2 space-y-1 max-h-28 overflow-y-auto border p-2 rounded-md">
-                                  <p className="text-xs text-muted-foreground mb-1">{`Adicionados (${tempOtherMenuTypesList.length}/10):`}</p>
-                                  {tempOtherMenuTypesList.map((type, idx) => (
-                                    <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
-                                      <span className="truncate flex-1 mr-2">{type}</span>
-                                      <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherMenuType(idx)} className="h-5 w-5"><XCircle className="h-3.5 w-3.5 text-destructive" /></Button>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-                              {tempOtherMenuTypesList.length >= 10 && <p className="text-xs text-destructive mt-1">{t('promptGenerator.objective.limitReached') || "Limite de 10 atingido."}</p>}
-                              <div className="flex justify-end space-x-2 mt-3">
-                                <Button size="sm" variant="ghost" onClick={() => setIsOtherMenuTypePopoverOpen(false)} className="text-xs h-8">{'Cancelar'}</Button>
-                                <Button size="sm" onClick={handleSaveOtherMenuTypes} disabled={tempOtherMenuTypesList.length === 0 && (!Array.isArray(formData.otherMenuTypes) || formData.otherMenuTypes.length === 0) && !currentOtherMenuTypeInput.trim()} className="text-xs h-8">{'Salvar Outros'}</Button>
-                              </div>
-                            </div>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                    {Array.isArray(formData.otherMenuTypes) && formData.otherMenuTypes.length > 0 && (
-                      <div className="mt-2 space-y-1 border p-2 rounded-md bg-muted/30">
-                        <p className="text-xs font-medium text-muted-foreground mb-1">Outros Tipos de Menu Adicionados:</p>
-                        {formData.otherMenuTypes.map((type, index) => (
-                          <div key={`saved-other-mt-${index}`} className="text-xs text-foreground p-1 bg-muted/50 rounded">{type}</div>
-                        ))}
-                      </div>
-                    )}
-                 </div>
-              </AccordionContent>
-            </AccordionItem>
-            
-            <AccordionItem value="authentication-accordion" className="border-0"> {/* Removed mb-1 */}
-               <AccordionTrigger className="text-base font-medium text-foreground py-1 hover:no-underline"> {/* py-2 to py-1 */}
-                 {t('promptGenerator.uxui.authentication') || "Autenticação"}
-               </AccordionTrigger>
-               <AccordionContent className="pt-1 pb-0">
-                <div className="space-y-1">
-                  {/* Autenticação (Checkbox do sistema, múltipla escolha) */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {authOptions.map((option, index) => (
-                      <div key={`auth-opt-${option.value}-${index}`} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`auth-${option.value}`}
-                          checked={formData.authentication.includes(option.value)}
-                          onCheckedChange={(checked) => handleAuthMethodChange(option.value, Boolean(checked))}
-                        />
-                        <Label htmlFor={`auth-${option.value}`} className="cursor-pointer text-xs font-normal">
-                          {option.label}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between space-x-2 mt-2">
-                    {authOptions.length > 0 && (
-                        <Button variant="outline" size="sm" className="text-xs" onClick={toggleSelectAllAuth}>
-                            {allAuthSelected ? (t('common.unselectAll') || "Desmarcar Todos") : (t('common.selectAll') || "Marcar Todos")}
-                        </Button>
-                    )}
-                    <div className="flex items-center space-x-2">
-                        <Popover open={isOtherAuthPopoverOpen} onOpenChange={setIsOtherAuthPopoverOpen}>
-                            <PopoverTrigger asChild>
-                                <Button variant="outline" size="sm" className="text-xs">
-                                    <ListPlus className="h-3 w-3 mr-1.5" />
-                                    {t('promptGenerator.objective.notInList') || "Não está na lista?"}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-4" side="top" align="end">
-                               <div className="space-y-3">
-                                    <Label htmlFor="other-auth-input" className="text-sm font-medium">
-                                    {t('promptGenerator.uxui.otherAuthMethodPlaceholder') || 'Adicionar outro método de autenticação:'}
-                                    </Label>
-                                    <div className="flex items-center space-x-2">
-                                    <Input id="other-auth-input" value={currentOtherAuthInput} onChange={(e) => setCurrentOtherAuthInput(e.target.value)} placeholder={t('promptGenerator.uxui.otherAuthMethodPlaceholder') || 'Seu método...'} className="text-xs h-8" onKeyDown={(e) => { if (e.key === 'Enter' && currentOtherAuthInput.trim()) handleAddOtherAuth(); }} />
-                                    <Button size="icon" onClick={handleAddOtherAuth} disabled={!currentOtherAuthInput.trim() || tempOtherAuthList.length >= 10} className="h-8 w-8 flex-shrink-0"><PlusCircle className="h-4 w-4" /></Button>
-                                    </div>
-                                    {tempOtherAuthList.length > 0 && (
-                                    <div className="mt-2 space-y-1 max-h-28 overflow-y-auto border p-2 rounded-md">
-                                        <p className="text-xs text-muted-foreground mb-1">{`Adicionados (${tempOtherAuthList.length}/10):`}</p>
-                                        {tempOtherAuthList.map((method, idx) => (
-                                        <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
-                                            <span className="truncate flex-1 mr-2">{method}</span>
-                                            <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherAuth(idx)} className="h-5 w-5"><XCircle className="h-3.5 w-3.5 text-destructive" /></Button>
-                                        </div>
-                                        ))}
-                                    </div>
-                                    )}
-                                    {tempOtherAuthList.length >= 10 && <p className="text-xs text-destructive mt-1">{t('promptGenerator.objective.limitReached') || "Limite de 10 atingido."}</p>}
-                                    <div className="flex justify-end space-x-2 mt-3">
-                                    <Button size="sm" variant="ghost" onClick={() => setIsOtherAuthPopoverOpen(false)} className="text-xs h-8">{'Cancelar'}</Button>
-                                    <Button size="sm" onClick={handleSaveOtherAuths} disabled={tempOtherAuthList.length === 0 && (!Array.isArray(formData.otherAuthMethods) || formData.otherAuthMethods.length === 0) && !currentOtherAuthInput.trim()} className="text-xs h-8">{'Salvar Outros'}</Button>
-                                    </div>
-                                </div>
-                            </PopoverContent>
-                        </Popover>
-                        {totalPagesAuth > 1 && (
-                        <div className="flex items-center justify-center space-x-1">
-                            <Button variant="ghost" size="icon" onClick={() => setCurrentPageAuth(p => Math.max(0, p - 1))} disabled={currentPageAuth === 0} className="h-7 w-7"><ChevronLeft className="h-4 w-4" /></Button>
-                            <span className="text-xs text-muted-foreground">{`${t('common.page') || 'Página'} ${currentPageAuth + 1} ${t('common.of') || 'de'} ${totalPagesAuth}`}</span>
-                            <Button variant="ghost" size="icon" onClick={() => setCurrentPageAuth(p => Math.min(totalPagesAuth - 1, p + 1))} disabled={currentPageAuth === totalPagesAuth - 1} className="h-7 w-7"><ChevronRight className="h-4 w-4" /></Button>
-                        </div>
-                        )}
-                    </div>
-                  </div>
-                  {Array.isArray(formData.otherAuthMethods) && formData.otherAuthMethods.length > 0 && (
-                    <div className="mt-2 space-y-1 border p-2 rounded-md bg-muted/30">
-                      <p className="text-xs font-medium text-muted-foreground mb-1">Outros Métodos de Autenticação Adicionados:</p>
-                      {formData.otherAuthMethods.map((method, index) => (
-                        <div key={`saved-other-auth-${index}`} className="text-xs text-foreground p-1 bg-muted/50 rounded">{method}</div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-               </AccordionContent>
-            </AccordionItem>
-          </Accordion>
         </CardContent>
       </Card>
 

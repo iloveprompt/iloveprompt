@@ -10,6 +10,7 @@ import { Code, Shield, Zap, Terminal, Sparkles, GitBranch, ArrowRight } from 'lu
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
+
 const Index = () => {
   const {
     t

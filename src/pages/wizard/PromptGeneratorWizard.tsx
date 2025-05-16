@@ -36,6 +36,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"; // Add AlertDialog imports
+import PromptPreview from '@/components/prompt/PromptPreview';
 
 // Components
 import ProjectStep from './steps/ProjectStep';
@@ -353,6 +354,8 @@ const PromptGeneratorWizard = () => {
   // Form data state
   const [formData, setFormData] = useState(initialFormData);
 
+  const [generatedPrompt, setGeneratedPrompt] = useState('');
+
   useEffect(() => {
     const newFilledSteps: Record<string, boolean> = {};
     wizardSteps.forEach(step => {
@@ -616,6 +619,7 @@ const PromptGeneratorWizard = () => {
                 formData={formData}
                 markAsFinalized={() => handleMarkAsFinalized(wizardSteps[currentStep].id)}
                 isFinalized={finalizedSteps[wizardSteps[currentStep].id] || false}
+                onPromptGenerated={setGeneratedPrompt}
               />
             </CardContent>
           </Card>
@@ -1051,12 +1055,13 @@ const PromptGeneratorWizard = () => {
             {/* Right Column: Markdown Preview */}
             <div className="flex-1 md:w-2/5 lg:w-1/3 mt-6 md:mt-0 p-1">
               <div className="sticky top-24"> {/* Sticky positioning for preview */}
-                <h3 className="text-lg font-semibold mb-2 text-center md:text-left">{t('promptGenerator.generate.reviewPrompt') || 'Preview do Prompt'}</h3>
-                <div className="bg-muted p-3 rounded-lg shadow-sm max-h-[calc(100vh-220px)] overflow-y-auto scrollbar-thin">
-                  <pre className="text-xs whitespace-pre-wrap break-words">
-                    {previewMarkdown}
-                  </pre>
-                </div>
+                <PromptPreview 
+                  previewContent={previewMarkdown}
+                  codeContent={previewMarkdown}
+                  markdownContent={previewMarkdown}
+                  generatedPromptContent={generatedPrompt}
+                  documentationContent={''}
+                />
               </div>
             </div>
           </div>

@@ -1,3 +1,4 @@
+// Importa as dependências do React e componentes reutilizáveis
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { Copy, Check, AlertCircle, ArrowLeft, ArrowRight, Clipboard, CheckCircle
 import ScrollToTopOnMount from "@/components/ScrollToTopOnMount";
 import { useAuth } from "@/hooks/useAuth";
 
+// Define os passos do wizard do gerador de prompts
 const wizardSteps = [
   { value: "system-type", label: "Tipo" },
   { value: "objective-features", label: "Objetivo" },
@@ -26,6 +28,7 @@ const wizardSteps = [
   { value: "generate", label: "Gerar" },
 ];
 
+// Componente principal do gerador de prompts
 const PromptGenerator = () => {
   const { toast } = useToast();
   const [currentTab, setCurrentTab] = useState(wizardSteps[0].value);

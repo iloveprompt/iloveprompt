@@ -12,12 +12,14 @@ interface GenerateStepProps {
   formData: any;
   markAsFinalized: () => void;
   isFinalized: boolean;
+  onPromptGenerated?: (prompt: string) => void;
 }
 
 const GenerateStep: React.FC<GenerateStepProps> = ({ 
   formData,
   markAsFinalized,
-  isFinalized
+  isFinalized,
+  onPromptGenerated
 }) => {
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -33,6 +35,7 @@ const GenerateStep: React.FC<GenerateStepProps> = ({
     setTimeout(async () => {
       const prompt = generatePromptFromFormData(formData);
       setGeneratedPrompt(prompt);
+      if (onPromptGenerated) onPromptGenerated(prompt);
       setIsGenerating(false);
       
       if (user) {
@@ -270,6 +273,25 @@ Melhore-o tornando mais detalhado, estruturado, e eficaz para gerar um resultado
       prompt += '\n';
     }
     
+    // UX/UI (Design)
+    if (data.uxui) {
+      prompt += `## Design e UX/UI\n`;
+      // Estilo Visual
+      if (data.uxui.visualStyle) {
+        prompt += `- Estilo Visual: ${t('promptGenerator.uxui.visualStyleOptions.' + data.uxui.visualStyle)}\n`;
+      }
+      // Tipo de Menu
+      if (data.uxui.menuType) {
+        prompt += `- Tipo de Menu: ${t('promptGenerator.uxui.menuTypeOptions.' + data.uxui.menuType)}\n`;
+      }
+      // Autenticação
+      if (data.uxui.authentication && Array.isArray(data.uxui.authentication) && data.uxui.authentication.length > 0) {
+        const authLabels = data.uxui.authentication.map((a: string) => t('promptGenerator.uxui.authOptions.' + a)).join(', ');
+        prompt += `- Autenticação: ${authLabels}\n`;
+      }
+      prompt += '\n';
+    }
+    
     prompt += `\nCom base nas informações acima, por favor desenvolva um prompt detalhado para o meu sistema.`;
     
     return prompt;
@@ -320,24 +342,6 @@ Melhore-o tornando mais detalhado, estruturado, e eficaz para gerar um resultado
           )}
         </Button>
       </div>
-      {generatedPrompt && (
-        <div className="space-y-4">
-          <div className="border rounded-md p-4 bg-muted/50">
-            <h3 className="font-semibold mb-2">{t('promptGenerator.generate.result')}</h3>
-            <Textarea 
-              value={generatedPrompt}
-              readOnly
-              rows={15}
-              className="font-mono text-sm"
-            />
-          </div>
-          <div className="flex justify-end items-center mt-6 pt-4 border-t">
-            <Button onClick={handleCopyToClipboard} variant="outline" size="sm">
-              {t('promptGenerator.generate.copyToClipboard')}
-            </Button>
-          </div>
-        </div>
-      )}
     </>
   );
 };

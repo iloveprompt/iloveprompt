@@ -1,3 +1,4 @@
+// Importação dos componentes e bibliotecas necessárias para o funcionamento da aplicação
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,6 +7,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { AuthProvider } from "@/hooks/useAuth";
 import AuthGuard from "@/components/AuthGuard";
+// Importação das páginas principais do sistema
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -32,24 +34,35 @@ import AdminDashboardFooter from "./components/dashboard/AdminDashboardFooter";
 import WizardItems from './pages/admin/prompts';
 import AdminLayout from './components/layouts/AdminLayout';
 
+// Criação do cliente de queries para gerenciamento de cache e requisições
 const queryClient = new QueryClient();
 
+// Componente principal da aplicação
 const App = () => (
+  // Provedor do React Query para gerenciamento de dados assíncronos
   <QueryClientProvider client={queryClient}>
+    {/* Provedor de contexto de idioma para internacionalização */}
     <LanguageProvider>
+      {/* Provedor de tooltips para exibir dicas ao usuário */}
       <TooltipProvider>
+        {/* Router para navegação entre páginas */}
         <Router>
+          {/* Provedor de autenticação para gerenciar login/logout */}
           <AuthProvider>
+            {/* Componente para exibir notificações do sistema */}
             <Toaster />
             <Sonner />
+            {/* Definição das rotas da aplicação */}
             <Routes>
+              {/* Rota da página inicial */}
               <Route path="/" element={<Index />} />
+              {/* Rotas de autenticação */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               
-              {/* Dashboard routes */}
+              {/* Rotas do dashboard do usuário, protegidas por autenticação */}
               <Route 
                 path="/dashboard" 
                 element={
@@ -58,7 +71,7 @@ const App = () => (
                   </AuthGuard>
                 } 
               />
-              
+              {/* Rota para o gerador de prompts dentro do dashboard */}
               <Route 
                 path="/dashboard/prompt-generator" 
                 element={
@@ -72,7 +85,7 @@ const App = () => (
                   </AuthGuard>
                 } 
               />
-              
+              {/* Rota para configurações do usuário */}
               <Route 
                 path="/dashboard/settings" 
                 element={
@@ -86,7 +99,7 @@ const App = () => (
                   </AuthGuard>
                 } 
               />
-              
+              {/* Rota para perfil do usuário */}
               <Route 
                 path="/dashboard/profile" 
                 element={
@@ -100,7 +113,7 @@ const App = () => (
                   </AuthGuard>
                 } 
               />
-              
+              {/* Rota para histórico do usuário */}
               <Route 
                 path="/dashboard/history" 
                 element={
@@ -115,7 +128,7 @@ const App = () => (
                 } 
               />
               
-              {/* Admin routes */}
+              {/* Rotas administrativas, protegidas por autenticação */}
               <Route 
                 path="/admin" 
                 element={
@@ -124,6 +137,7 @@ const App = () => (
                   </AuthGuard>
                 } 
               >
+                {/* Sub-rotas administrativas */}
                 <Route path="prompts" element={<WizardItems />} />
                 <Route 
                   path="users" 
@@ -181,8 +195,8 @@ const App = () => (
                   } 
                 />
               </Route>
-              
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              {/* Todas as rotas personalizadas devem ser adicionadas acima da rota catch-all */}
+              {/* Rota para página não encontrada */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>
@@ -192,4 +206,5 @@ const App = () => (
   </QueryClientProvider>
 );
 
+// Exporta o componente principal para ser utilizado no ponto de entrada da aplicação
 export default App;

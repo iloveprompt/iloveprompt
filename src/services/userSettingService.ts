@@ -7,6 +7,8 @@ export type UpdateUserLlmApi = Database['public']['Tables']['user_llm_apis']['Up
 export type LlmProvider = Database['public']['Enums']['llm_provider'];
 export type ApiTestStatus = Database['public']['Enums']['api_test_status'];
 
+let isFetchingUserApiKeys = false;
+
 /**
  * Fetches all LLM API keys for a given user.
  * @param userId - The ID of the user.
@@ -17,19 +19,43 @@ export const getUserApiKeys = async (userId: string): Promise<UserLlmApi[]> => {
     console.error('User ID is required to fetch API keys.');
     return [];
   }
-
-  const { data, error } = await supabase
-    .from('user_llm_apis')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: true });
-
-  if (error) {
-    console.error('Error fetching user API keys:', error);
-    throw error;
+  if (isFetchingUserApiKeys) {
+    // Proteção definitiva: nunca faz concorrência
+    return [];
   }
+  isFetchingUserApiKeys = true;
+  try {
+    const { data, error } = await supabase
+      .from('user_llm_apis')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true });
 
-  return data || [];
+    if (error) {
+      if (
+        error.message?.includes('Failed to fetch') ||
+        error.message?.includes('ERR_INSUFFICIENT_RESOURCES')
+      ) {
+        console.error('Erro de rede ao buscar user_llm_apis:', error);
+        return [];
+      }
+      console.error('Error fetching user API keys:', error);
+      return [];
+    }
+    return data || [];
+  } catch (err: any) {
+    if (
+      err.message?.includes('Failed to fetch') ||
+      err.message?.includes('ERR_INSUFFICIENT_RESOURCES')
+    ) {
+      console.error('Erro de rede ao buscar user_llm_apis:', err);
+      return [];
+    }
+    console.error('Erro inesperado ao buscar user_llm_apis:', err);
+    return [];
+  } finally {
+    isFetchingUserApiKeys = false;
+  }
 };
 
 /**

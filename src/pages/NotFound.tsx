@@ -1,9 +1,13 @@
+// Importa hooks do React Router
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
+// Componente de página não encontrada (404)
 const NotFound = () => {
+  // Hook para obter a localização atual da rota
   const location = useLocation();
 
+  // Efeito para logar no console quando a página não existe
   useEffect(() => {
     console.error(
       "404 Error: User attempted to access non-existent route:",
@@ -11,6 +15,7 @@ const NotFound = () => {
     );
   }, [location.pathname]);
 
+  // Renderização da mensagem de erro 404
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="text-center">
@@ -24,4 +29,5 @@ const NotFound = () => {
   );
 };
 
+// Exporta o componente de página não encontrada
 export default NotFound;

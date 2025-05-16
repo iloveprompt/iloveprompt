@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -17,7 +16,6 @@ const ForgotPasswordPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Define the form schema
   const formSchema = z.object({
     email: z.string().email({
       message: t('auth.invalidEmail'),
@@ -31,7 +29,6 @@ const ForgotPasswordPage = () => {
     },
   });
 
-  // Handle form submission
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(values.email, {

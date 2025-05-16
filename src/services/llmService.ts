@@ -53,18 +53,13 @@ export const testConnection = async (apiKey: UserLlmApi): Promise<TestConnection
         
       case 'gemini':
         try {
-          // Test via edge function
-          const res = await supabase.functions.invoke('gemini', {
-            body: {
-              prompt: "This is a test message to verify the API connection."
-            }
+          // Test via edge function, enviando apiKey e model
+          const resultData = await callEdgeFunction('gemini', {
+            prompt: "This is a test message to verify the API connection.",
+            apiKey: key,
+            model: 'gemini-1.5-pro'
           });
-          
-          if (res.error) {
-            result = { success: false, error: `Gemini API Error: ${res.error.message || res.error}`, status: 'failure' };
-          } else {
-            result = { success: true, status: 'success' };
-          }
+          result = { success: true, status: 'success' };
         } catch (error: any) {
           result = { success: false, error: `Gemini connection error: ${error.message}`, status: 'failure' };
         }
