@@ -1,3 +1,4 @@
+
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
@@ -10,6 +11,10 @@ const resources = {
         perMonth: '/mês',
         saveDiscount: 'Economize 20% neste plano',
         apiKeyDiscount: 'Use suas próprias chaves de API e ganhe 20% de desconto na assinatura'
+      },
+      dashboard: {
+        title: 'Painel de Controle',
+        yourApis: 'Suas APIs'
       }
     }
   },
@@ -20,6 +25,10 @@ const resources = {
         perMonth: '/month',
         saveDiscount: 'Save 20% on this plan',
         apiKeyDiscount: 'Use your own API keys and get 20% off the subscription price'
+      },
+      dashboard: {
+        title: 'Dashboard',
+        yourApis: 'Your APIs'
       }
     }
   }
@@ -36,4 +45,4 @@ i18n
     }
   });
 
-export default i18n; 
+export default i18n;

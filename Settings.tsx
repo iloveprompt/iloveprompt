@@ -1,6 +1,8 @@
+
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { addUserApiKey } from '../services/userSettingService';
+import { useLanguage } from '@/i18n/LanguageContext';
 
 const PROVIDERS = ['openai', 'gemini', 'groq', 'deepseek'] as const;
 const MODELS = {
@@ -12,6 +14,7 @@ const MODELS = {
 
 const Settings = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [selectedProvider, setSelectedProvider] = useState<typeof PROVIDERS[number]>('openai');
   const [selectedModel, setSelectedModel] = useState(MODELS.openai[0]);
   const [apiKey, setApiKey] = useState('');
@@ -28,7 +31,7 @@ const Settings = () => {
       const apiData = {
         provider: selectedProvider,
         model: selectedModel,
-        key: apiKey,
+        api_key: apiKey,
         user_id: user?.id || ''
       };
 
@@ -80,4 +83,4 @@ const Settings = () => {
   );
 };
 
-export default Settings; 
+export default Settings;
