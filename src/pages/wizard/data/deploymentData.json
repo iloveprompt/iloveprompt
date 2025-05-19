@@ -1,0 +1,55 @@
+
+{
+  "deploymentOptions": [
+    {
+      "id": "docker",
+      "name": "Docker",
+      "description": "Deploy using Docker containers for consistent environments"
+    },
+    {
+      "id": "kubernetes",
+      "name": "Kubernetes",
+      "description": "Orchestrate containers with Kubernetes for scaling"
+    },
+    {
+      "id": "aws",
+      "name": "AWS",
+      "description": "Deploy on Amazon Web Services cloud platform"
+    },
+    {
+      "id": "azure",
+      "name": "Azure",
+      "description": "Deploy on Microsoft Azure cloud platform"
+    },
+    {
+      "id": "gcp",
+      "name": "Google Cloud",
+      "description": "Deploy on Google Cloud Platform services"
+    },
+    {
+      "id": "heroku",
+      "name": "Heroku",
+      "description": "Simple deployment on Heroku platform"
+    },
+    {
+      "id": "vercel",
+      "name": "Vercel",
+      "description": "Best for front-end and serverless deployments"
+    },
+    {
+      "id": "netlify",
+      "name": "Netlify",
+      "description": "Git-based deployment with continuous integration"
+    },
+    {
+      "id": "digital-ocean",
+      "name": "Digital Ocean",
+      "description": "Simple cloud infrastructure with Droplets and App Platform"
+    },
+    {
+      "id": "on-premise",
+      "name": "On-Premise",
+      "description": "Deploy on your own infrastructure and servers"
+    }
+  ]
+}

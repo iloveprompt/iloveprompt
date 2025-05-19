@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import DashboardLayout from '@/components/layouts/DashboardLayout';
@@ -6,6 +5,7 @@ import UserDashboardNavbar from '@/components/dashboard/UserDashboardNavbar';
 import UserDashboardFooter from '@/components/dashboard/UserDashboardFooter';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/i18n/LanguageContext';
+import UserLlmApisManager from '@/components/dashboard/UserLlmApisManager';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -55,6 +55,15 @@ const Dashboard = () => {
               <p className="text-4xl font-bold">7</p>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Card de APIs cadastradas */}
+        <div className="mt-6">
+          {user?.id && (
+            <UserLlmApisManager userId={user.id} />
+          )}
+          {/* Mensagem de importância se não houver APIs cadastradas */}
+          {/* O próprio UserLlmApisManager pode ser ajustado para exibir a mensagem se apis.length === 0, mas se preferir, pode-se adicionar aqui uma mensagem condicional */}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">

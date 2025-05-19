@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -24,7 +23,6 @@ const LoginPage = () => {
   const { redirectAfterLogin } = useAuthRedirect();
   const navigate = useNavigate();
   
-  // Define the form schema
   const formSchema = z.object({
     email: z.string().email({
       message: t('auth.invalidEmail'),
@@ -42,7 +40,6 @@ const LoginPage = () => {
     },
   });
 
-  // Handle login form submission
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoggingIn(true);
@@ -61,12 +58,9 @@ const LoginPage = () => {
         description: t('auth.welcomeBack'),
       });
       
-      // Explicitly redirect after successful login
       if (data.user && data.session) {
-        console.log('Login successful, triggering redirect for user ID:', data.user.id);
-        setTimeout(() => {
-          redirectAfterLogin(data.user.id);
-        }, 300);
+        console.log('Login successful, redirecting for user ID:', data.user.id);
+        redirectAfterLogin(data.user.id);
       }
       
     } catch (error: any) {
@@ -77,12 +71,10 @@ const LoginPage = () => {
         description: error.message || t('auth.tryAgain'),
       });
     } finally {
-      // Important: Always reset loading state 
       setIsLoggingIn(false);
     }
   };
 
-  // Social login handlers with timeout safety
   const handleGoogleLogin = async () => {
     try {
       setIsLoggingIn(true);
@@ -91,13 +83,16 @@ const LoginPage = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}`,
-        },
+          redirectTo: window.location.origin,
+          queryParams: {
+            prompt: 'select_account',
+            access_type: 'offline'
+          }
+        }
       });
       
       if (error) throw error;
       
-      // Safety timeout to reset the loading state if redirect doesn't happen quickly
       setTimeout(() => {
         setIsLoggingIn(false);
       }, 3000);
@@ -121,13 +116,15 @@ const LoginPage = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${window.location.origin}`,
+          redirectTo: window.location.origin,
+          queryParams: {
+            prompt: 'login' // Força nova autenticação
+          }
         },
       });
       
       if (error) throw error;
       
-      // Safety timeout to reset the loading state if redirect doesn't happen quickly
       setTimeout(() => {
         setIsLoggingIn(false);
       }, 3000);
@@ -159,7 +156,6 @@ const LoginPage = () => {
         </div>
         
         <div className="space-y-4">
-          {/* Social login buttons */}
           <div className="grid grid-cols-2 gap-4">
             <Button 
               variant="outline" 
@@ -190,7 +186,6 @@ const LoginPage = () => {
             </div>
           </div>
           
-          {/* Email/Password login form */}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField

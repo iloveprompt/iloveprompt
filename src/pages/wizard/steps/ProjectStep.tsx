@@ -64,7 +64,7 @@ const ProjectStep: React.FC<ProjectStepProps> = ({
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0">
           <div className="flex justify-between items-start"> {/* Changed items-center to items-start */}
             <div>
-              <CardTitle>{t('promptGenerator.project.title') || "Informações do Projeto"}</CardTitle>
+              <CardTitle className="mb-1">{t('promptGenerator.project.title') || "Informações do Projeto"}</CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
                 {t('promptGenerator.project.description') || "Informações básicas sobre seu projeto"}
               </CardDescription>
@@ -96,7 +96,7 @@ const ProjectStep: React.FC<ProjectStepProps> = ({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="px-0 pb-0 sm:px-0 sm:pb-0 space-y-0 pt-4"> {/* Added pt-4 for spacing after header */}
+        <CardContent className="px-0 pb-0 sm:px-0 sm:pb-0 space-y-0"> {/* Removed pt-4 */}
           <div className="space-y-0 py-0 my-0">
             <Label htmlFor="project-title" className="text-sm font-medium text-foreground">
               {t('promptGenerator.project.projectTitle') || "Título do Projeto"} <span className="text-red-500">*</span>

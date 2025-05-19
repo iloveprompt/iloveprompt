@@ -2,23 +2,17 @@ import { supabase } from '@/integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
 import { UserLlmApi, getActiveApiKey, updateUserApiKey, ApiTestStatus, LlmProvider } from './userSettingService';
 import { LlmSystemMessage, getDefaultSystemMessage } from './adminSettingService';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-// Placeholder for actual API interaction libraries/SDKs
-// import { OpenAI } from 'openai'; // Example
-// import { GoogleGenerativeAI } from '@google/generative-ai'; // Example
+import { toast } from "@/components/ui/use-toast";
 
 interface TestConnectionResult {
   success: boolean;
   error?: string;
-  status?: ApiTestStatus; // The status to update in the DB
+  status?: ApiTestStatus;
 }
 
 /**
  * Tests the connection for a given API key configuration.
  * Updates the key's status in the database.
- * @param apiKey - The UserLlmApi object to test.
- * @returns A promise resolving to TestConnectionResult.
  */
 export const testConnection = async (apiKey: UserLlmApi): Promise<TestConnectionResult> => {
   if (!apiKey || !apiKey.api_key || !apiKey.provider) {
@@ -26,36 +20,131 @@ export const testConnection = async (apiKey: UserLlmApi): Promise<TestConnection
   }
 
   let result: TestConnectionResult = { success: false, status: 'failure' };
-  const provider = apiKey.provider;
-  const key = apiKey.api_key;
+  const { provider, api_key: key } = apiKey;
 
   try {
     console.log(`Testing connection for provider: ${provider}`);
     switch (provider) {
       case 'openai':
-        // TODO: Implement OpenAI connection test (e.g., list models)
-        // Example: const openai = new OpenAI({ apiKey: key }); await openai.models.list();
-        console.warn(`OpenAI test not implemented yet.`);
-        result = { success: true, status: 'success' }; // Placeholder
+        try {
+          const res = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${key}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'gpt-4o-mini',
+              messages: [{ role: 'user', content: 'This is a test.' }],
+              max_tokens: 5
+            }),
+          });
+          
+          if (res.ok) {
+            result = { success: true, status: 'success' };
+          } else {
+            const errorData = await res.json();
+            result = { success: false, error: `OpenAI API Error: ${errorData.error?.message || res.statusText}`, status: 'failure' };
+          }
+        } catch (error: any) {
+          result = { success: false, error: `OpenAI connection error: ${error.message}`, status: 'failure' };
+        }
         break;
+        
       case 'gemini':
-        // TODO: Implement Gemini connection test
-        // Example: const genAI = new GoogleGenerativeAI(key); await genAI.getGenerativeModel({ model: "gemini-pro" }).generateContent("test");
-         console.warn(`Gemini test not implemented yet.`);
-        result = { success: true, status: 'success' }; // Placeholder
+        try {
+          // Test via edge function, enviando apiKey e model
+          const resultData = await callEdgeFunction('gemini', {
+            prompt: "This is a test message to verify the API connection.",
+            apiKey: key,
+            model: 'gemini-1.5-pro'
+          });
+          result = { success: true, status: 'success' };
+        } catch (error: any) {
+          result = { success: false, error: `Gemini connection error: ${error.message}`, status: 'failure' };
+        }
         break;
+        
       case 'groq':
-        // TODO: Implement Groq connection test (often OpenAI compatible API)
-         console.warn(`Groq test not implemented yet.`);
-        result = { success: true, status: 'success' }; // Placeholder
+        try {
+          const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${key}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'llama3-8b-8192',
+              messages: [{ role: 'user', content: 'This is a test.' }],
+              max_tokens: 5
+            }),
+          });
+          
+          if (res.ok) {
+            result = { success: true, status: 'success' };
+          } else {
+            const errorData = await res.json();
+            result = { success: false, error: `Groq API Error: ${errorData.error?.message || res.statusText}`, status: 'failure' };
+          }
+        } catch (error: any) {
+          result = { success: false, error: `Groq connection error: ${error.message}`, status: 'failure' };
+        }
         break;
+        
       case 'deepseek':
-        // TODO: Implement DeepSeek connection test (often OpenAI compatible API)
-         console.warn(`DeepSeek test not implemented yet.`);
-        result = { success: true, status: 'success' }; // Placeholder
+        try {
+          const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${key}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'deepseek-chat',
+              messages: [{ role: 'user', content: 'This is a test.' }],
+              max_tokens: 5
+            }),
+          });
+          
+          if (res.ok) {
+            result = { success: true, status: 'success' };
+          } else {
+            const errorData = await res.json();
+            result = { success: false, error: `DeepSeek API Error: ${errorData.error?.message || res.statusText}`, status: 'failure' };
+          }
+        } catch (error: any) {
+          result = { success: false, error: `DeepSeek connection error: ${error.message}`, status: 'failure' };
+        }
         break;
+        
+      case 'grok':
+        try {
+          const res = await fetch('https://api.grok.x/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${key}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'grok-1',
+              messages: [{ role: 'user', content: 'This is a test.' }],
+              max_tokens: 5
+            }),
+          });
+          
+          if (res.ok) {
+            result = { success: true, status: 'success' };
+          } else {
+            const errorData = await res.json();
+            result = { success: false, error: `Grok API Error: ${errorData.error?.message || res.statusText}`, status: 'failure' };
+          }
+        } catch (error: any) {
+          result = { success: false, error: `Grok connection error: ${error.message}`, status: 'failure' };
+        }
+        break;
+        
       default:
-        result = { success: false, error: `Unsupported provider: ${provider}`, status: 'failure' };
+        result = { success: false, error: `Provedor não suportado: ${provider}`, status: 'failure' };
     }
   } catch (error: any) {
     console.error(`Connection test failed for ${provider}:`, error);
@@ -70,131 +159,182 @@ export const testConnection = async (apiKey: UserLlmApi): Promise<TestConnection
     });
   } catch (updateError) {
     console.error(`Failed to update API key status for ${apiKey.id}:`, updateError);
-    // Decide how to handle this - the test might have succeeded but the update failed.
-    // Maybe return the original test result but log the update error.
   }
-
 
   return result;
 };
 
-const callOpenAI = async (key: string, payload: any, endpoint = 'https://api.openai.com/v1/chat/completions') => {
-  const res = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${key}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) throw new Error(await res.text());
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content || '';
-};
-
-const callGroq = async (key: string, payload: any) => callOpenAI(key, payload, 'https://api.groq.com/openai/v1/chat/completions');
-const callDeepSeek = async (key: string, payload: any) => callOpenAI(key, payload, 'https://api.deepseek.com/openai/v1/chat/completions');
-// Gemini: endpoint e payload podem variar, aqui é um exemplo simplificado
-const callGemini = async (key: string, payload: any) => {
-  // Ignora o parâmetro key, pois a autenticação é feita no backend edge
+// Função para chamar as edge functions
+const callEdgeFunction = async (functionName: string, payload: any) => {
   try {
-    const res = await fetch('https://lmovpaablzagtkedhbtb.functions.supabase.co/gemini', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: payload.messages?.[1]?.content || '', model: payload.model || 'gemini-pro' })
+    console.log(`Chamando edge function ${functionName}...`, {
+      ...payload,
+      apiKey: payload.apiKey ? '***' : undefined // Log seguro
     });
-    if (!res.ok) throw new Error(await res.text());
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    return data.result;
+    
+    const response = await supabase.functions.invoke(functionName, {
+      body: {
+        ...payload,
+        apiKey: payload.apiKey // Enviar a chave no body, não no header
+      }
+    });
+    
+    if (response.error) {
+      console.error(`Erro na edge function ${functionName}:`, response.error);
+      throw new Error(response.error.message || `Erro ao chamar ${functionName}`);
+    }
+    
+    if (!response.data) {
+      throw new Error('Resposta vazia da edge function');
+    }
+    
+    return response.data.result || response.data;
   } catch (error: any) {
-    throw new Error(error?.message || 'Erro ao chamar Gemini via Edge Function');
+    console.error(`Erro ao chamar edge function ${functionName}:`, error);
+    
+    let errorMessage = 'Erro ao comunicar com o serviço de IA.';
+    if (error.message?.includes('non-2xx status code') || error.message?.includes('401')) {
+      errorMessage = 'Erro de autenticação. Verifique se sua chave de API está configurada corretamente.';
+    } else if (error.message?.includes('timeout')) {
+      errorMessage = 'Tempo limite excedido. O serviço de IA não respondeu a tempo.';
+    } else if (error.message?.includes('API key')) {
+      errorMessage = 'Chave de API inválida ou não configurada para este serviço.';
+    }
+    
+    toast({
+      description: errorMessage,
+      variant: "destructive"
+    });
+    
+    throw new Error(errorMessage);
   }
 };
 
 /**
  * Enhances a given prompt using the user's active LLM API configuration.
- * @param prompt - The original prompt text.
- * @param userId - The ID of the user requesting the enhancement.
- * @returns A promise resolving to the enhanced prompt string or throws an error.
  */
 export const enhancePrompt = async (prompt: string, userId: string): Promise<string> => {
-  const activeApiKey = await getActiveApiKey(userId);
-  if (!activeApiKey) {
-    throw new Error('No active API key found for the user.');
-  }
-  const systemMessage = await getDefaultSystemMessage();
-  const systemContent = systemMessage?.content || 'You are a helpful assistant.';
-  const provider = activeApiKey.provider;
-  const key = activeApiKey.api_key;
-  const requestPayload = {
-    model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
-    messages: [
-      { role: 'system', content: systemContent },
-      { role: 'user', content: `Enhance the following prompt:\n\n${prompt}` }
-    ],
-  };
-  switch (provider) {
-    case 'openai':
-      return await callOpenAI(key, requestPayload);
-    case 'gemini':
-      return await callGemini(key, requestPayload);
-    case 'groq':
-      return await callGroq(key, requestPayload);
-    case 'deepseek':
-      return await callDeepSeek(key, requestPayload);
-    default:
-      throw new Error(`Unsupported provider for enhancement: ${provider}`);
+  try {
+    const activeApiKey = await getActiveApiKey(userId);
+    if (!activeApiKey) {
+      const errorMsg = 'Nenhuma chave de API ativa encontrada. Configure uma chave de API nas configurações.';
+      toast({
+        description: errorMsg,
+        variant: "destructive"
+      });
+      throw new Error(errorMsg);
+    }
+
+    // Validar a chave de API
+    if (!activeApiKey.api_key || activeApiKey.api_key.trim() === '') {
+      const errorMsg = 'Chave de API inválida. Por favor, reconfigure sua chave de API.';
+      toast({
+        description: errorMsg,
+        variant: "destructive"
+      });
+      throw new Error(errorMsg);
+    }
+
+    // Usar a API correta do usuário
+    const provider = activeApiKey.provider;
+    const apiKey = activeApiKey.api_key;
+    const model = activeApiKey.models?.[0] || getDefaultModelForProvider(provider);
+
+    // Preparar o payload
+    const payload = {
+      prompt,
+      provider,
+      apiKey,
+      model
+    };
+
+    // Chamar a edge function correspondente
+    return await callEdgeFunction(provider, payload);
+  } catch (error: any) {
+    console.error('Error enhancing prompt:', error);
+    throw error;
   }
 };
 
 /**
- * Generates a diagram (e.g., Mermaid syntax) based on prompt data using the user's active LLM.
- * @param promptData - The structured data from the wizard.
- * @param userId - The ID of the user.
- * @returns A promise resolving to the diagram syntax string or throws an error.
+ * Generates a diagram based on prompt data using the user's active LLM.
  */
 export const generateDiagram = async (promptData: any, userId: string): Promise<string> => {
-  const activeApiKey = await getActiveApiKey(userId);
-  if (!activeApiKey) {
-    throw new Error('No active API key found for the user.');
-  }
-  const systemMessage = await getDefaultSystemMessage();
-  const systemContent = systemMessage?.content || 'You are a helpful assistant specialized in creating diagrams.';
-  const provider = activeApiKey.provider;
-  const key = activeApiKey.api_key;
-  const diagramPrompt = `Based on the following project data, generate a Mermaid flowchart diagram:\n\n${JSON.stringify(promptData, null, 2)}\n\nOutput only the Mermaid syntax within a single code block.`;
-  const requestPayload = {
-    model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
-    messages: [
-      { role: 'system', content: systemContent },
-      { role: 'user', content: diagramPrompt }
-    ],
-  };
-  switch (provider) {
-    case 'openai':
-      return await callOpenAI(key, requestPayload);
-    case 'gemini':
-      return await callGemini(key, requestPayload);
-    case 'groq':
-      return await callGroq(key, requestPayload);
-    case 'deepseek':
-      return await callDeepSeek(key, requestPayload);
-    default:
-      throw new Error(`Unsupported provider for diagram generation: ${provider}`);
+  try {
+    const activeApiKey = await getActiveApiKey(userId);
+    if (!activeApiKey) {
+      throw new Error('Nenhuma chave de API ativa encontrada para o usuário.');
+    }
+    
+    const systemMessage = await getDefaultSystemMessage();
+    const systemContent = systemMessage?.content || 'Você é um assistente especializado em criar diagramas.';
+    const provider = activeApiKey.provider;
+    const diagramPrompt = `Com base nos seguintes dados do projeto, gere um diagrama de fluxo utilizando sintaxe Mermaid:\n\n${JSON.stringify(promptData, null, 2)}\n\nForneça apenas a sintaxe Mermaid em um único bloco de código.`;
+    
+    // Usando edge functions para todas as LLMs
+    try {
+      switch (provider) {
+        case 'openai':
+          return await callEdgeFunction('openai', {
+            prompt: diagramPrompt,
+            model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
+            systemContent
+          });
+        
+        case 'gemini':
+          return await callEdgeFunction('gemini', {
+            prompt: diagramPrompt,
+            model: 'gemini-1.5-flash',
+            systemContent
+          });
+        
+        case 'groq':
+          return await callEdgeFunction('groq', {
+            prompt: diagramPrompt,
+            model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
+            systemContent
+          });
+        
+        case 'deepseek':
+          return await callEdgeFunction('deepseek', {
+            prompt: diagramPrompt,
+            model: activeApiKey.models?.[0] || getDefaultModelForProvider(provider),
+            systemContent
+          });
+        
+        case 'grok':
+          return await callEdgeFunction('grok', {
+            prompt: diagramPrompt,
+            model: 'grok-1',
+            systemContent
+          });
+        
+        default:
+          throw new Error(`Provedor não suportado para geração de diagrama: ${provider}`);
+      }
+    } catch (error: any) {
+      console.error(`Error while calling ${provider} API for diagram generation:`, error);
+      toast({
+        title: "Erro na geração do diagrama",
+        description: `${error.message || 'Erro desconhecido ao gerar diagrama'}`,
+        variant: "destructive"
+      });
+      throw error;
+    }
+  } catch (error: any) {
+    console.error("Generate diagram error:", error);
+    throw new Error(error.message || 'Erro ao gerar diagrama');
   }
 };
 
 // Helper function to get a default model if none is specified
 const getDefaultModelForProvider = (provider: LlmProvider): string => {
     switch (provider) {
-        case 'openai': return 'gpt-3.5-turbo'; // Or latest suitable default
-        case 'gemini': return 'gemini-pro';
-        case 'groq': return 'llama3-8b-8192'; // Example, check Groq for current defaults
-        case 'deepseek': return 'deepseek-chat'; // Example, check DeepSeek docs
-        default: return 'default-model'; // Should not happen with enum
+        case 'openai': return 'gpt-3.5-turbo';
+        case 'gemini': return 'gemini-1.5-flash';
+        case 'groq': return 'llama3-8b-8192';
+        case 'deepseek': return 'deepseek-chat';
+        case 'grok': return 'grok-1';
+        default: return 'default-model';
     }
 };
-
-// TODO: Implement actual API call logic using fetch or SDKs
-// TODO: Implement helper function `extractMermaidSyntax` if needed

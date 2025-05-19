@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
@@ -32,7 +31,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
   return (
     <div className={`group relative bg-darkBg/80 backdrop-blur-md rounded-2xl p-8 shadow-xl transition-all duration-300 ${
       popular ? 'border-2 border-neonPink hover:border-aquaGreen shadow-neonPink/20 hover:shadow-aquaGreen/30' : 'border border-electricBlue/30 hover:border-neonPurple hover:shadow-neonPurple/20'
-    }`}> {/* Fundo atualizado */}
+    }`}>
       {popular && (
         <div className="inline-block rounded-full bg-neonPink/20 px-4 py-1.5 text-xs font-bold text-pureWhite mb-4 backdrop-blur-sm border border-neonPink/30">
           {t('pricing.mostPopular')}
@@ -42,10 +41,10 @@ const PricingCard: React.FC<PricingCardProps> = ({
       <h3 className="text-2xl font-bold text-pureWhite">{title}</h3>
       <div className="mt-4 flex items-baseline">
         <span className="text-4xl font-bold tracking-tight text-electricBlue">{price}</span>
-        <span className="ml-1 text-sm font-semibold text-pureWhite/70">/month</span> {/* Alterado */}
+        <span className="ml-1 text-sm font-semibold text-pureWhite/70">{t('pricing.perMonth')}</span>
       </div>
       
-      <p className="mt-2 text-sm text-pureWhite/90">{description}</p> {/* Alterado */}
+      <p className="mt-2 text-sm text-pureWhite/90">{description}</p>
       
       <ul className="mt-6 space-y-3">
         {features.map((feature, index) => (
@@ -55,7 +54,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
                 feature.included ? 'text-neonPink' : 'text-electricBlue/50'
               }`}
             />
-            <span className={feature.included ? 'text-pureWhite' : 'text-gray-400'}> {/* Alterado */}
+            <span className={feature.included ? 'text-pureWhite' : 'text-gray-400'}>
               {feature.text}
             </span>
           </li>
@@ -63,9 +62,9 @@ const PricingCard: React.FC<PricingCardProps> = ({
       </ul>
       
       {apiOption && (
-        <div className="mt-6 bg-darkBg/50 rounded-lg p-3 text-sm text-pureWhite/90 border border-electricBlue/20 backdrop-blur-sm"> {/* Texto principal alterado */}
-          <p className="font-medium mb-1 text-neonPurple">Save 20% on this plan</p>
-          <p>Use your own API keys and get 20% off the subscription price</p>
+        <div className="mt-6 bg-darkBg/50 rounded-lg p-3 text-sm text-pureWhite/90 border border-electricBlue/20 backdrop-blur-sm">
+          <p className="font-medium mb-1 text-neonPurple">{t('pricing.saveDiscount')}</p>
+          <p>{t('pricing.apiKeyDiscount')}</p>
         </div>
       )}
       

@@ -1,3 +1,4 @@
+// Importa as dependências do React e componentes reutilizáveis
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { Copy, Check, AlertCircle, ArrowLeft, ArrowRight, Clipboard, CheckCircle
 import ScrollToTopOnMount from "@/components/ScrollToTopOnMount";
 import { useAuth } from "@/hooks/useAuth";
 
+// Define os passos do wizard do gerador de prompts
 const wizardSteps = [
   { value: "system-type", label: "Tipo" },
   { value: "objective-features", label: "Objetivo" },
@@ -26,6 +28,7 @@ const wizardSteps = [
   { value: "generate", label: "Gerar" },
 ];
 
+// Componente principal do gerador de prompts
 const PromptGenerator = () => {
   const { toast } = useToast();
   const [currentTab, setCurrentTab] = useState(wizardSteps[0].value);
@@ -248,245 +251,250 @@ const PromptGenerator = () => {
   };
 
   const generatePrompt = () => {
-    let prompt = `# Sistema ${formData.systemType === "outro" ? formData.systemTypeCustom : formData.systemType}\n\n`;
-    
-    // Add objective
-    prompt += `## Objetivo\n${formData.objective}\n\n`;
-    
-    // Add features
-    prompt += "## Funcionalidades\n";
-    if (formData.specificFeatures.length > 0) {
-      prompt += "### Gerais\n";
-      formData.specificFeatures.forEach(feature => {
-        prompt += `- ${feature}\n`;
-      });
-      if (formData.specificFeaturesCustom) {
-        prompt += `- ${formData.specificFeaturesCustom}\n`;
-      }
-      prompt += "\n";
+    let prompt = "";
+    // Título
+    if (formData.systemType && (formData.systemType !== "outro" || formData.systemTypeCustom.trim() !== "")) {
+      prompt += `# Sistema ${formData.systemType === "outro" ? formData.systemTypeCustom : formData.systemType}\n\n`;
     }
-    
-    if (formData.dynamicFeatures.length > 0) {
-      prompt += "### Específicas\n";
-      formData.dynamicFeatures.forEach(feature => {
-        prompt += `- ${feature}\n`;
-      });
-      if (formData.dynamicFeaturesCustom) {
-        prompt += `- ${formData.dynamicFeaturesCustom}\n`;
-      }
-      prompt += "\n";
+    // Objetivo
+    if (formData.objective && formData.objective.trim() !== "") {
+      prompt += `## Objetivo\n${formData.objective}\n\n`;
     }
-    
-    // Add design
-    prompt += "## Design e UX/UI\n";
-    
-    if (formData.colorPalette.length > 0) {
-      prompt += "### Cores\n";
-      formData.colorPalette.forEach(color => {
-        prompt += `- ${color}\n`;
-      });
-      if (formData.customColor) {
-        prompt += `- Personalizada: ${formData.customColor}\n`;
-      }
-      prompt += "\n";
-    }
-    
-    if (formData.visualStyle) {
-      prompt += `### Estilo Visual\n${formData.visualStyle === "outro" ? formData.visualStyleCustom : formData.visualStyle}\n\n`;
-    }
-    
-    if (formData.menuType) {
-      prompt += `### Tipo de Menu\n${formData.menuType === "outro" ? formData.menuTypeCustom : formData.menuType}\n\n`;
-    }
-    
-    if (formData.hasLandingPage) {
-      prompt += "### Landing Page\n";
-      if (formData.landingPageStructure.length > 0) {
-        prompt += "Estrutura:\n";
-        formData.landingPageStructure.forEach(item => {
-          prompt += `- ${item}\n`;
-        });
-        prompt += "\n";
-      }
-      
-      if (formData.landingPageElements.length > 0) {
-        prompt += "Elementos:\n";
-        formData.landingPageElements.forEach(item => {
-          prompt += `- ${item}\n`;
-        });
-        prompt += "\n";
-      }
-      
-      if (formData.landingPageStyle) {
-        prompt += `Estilo: ${formData.landingPageStyle === "outro" ? formData.landingPageStyleCustom : formData.landingPageStyle}\n\n`;
-      }
-    }
-    
-    if (formData.authTypes.length > 0) {
-      prompt += "### Autenticação\n";
-      formData.authTypes.forEach(type => {
-        prompt += `- ${type}\n`;
-      });
-      if (formData.authTypesCustom) {
-        prompt += `- ${formData.authTypesCustom}\n`;
-      }
-      prompt += "\n";
-    }
-    
-    if (formData.hasDashboard) {
-      prompt += "### Dashboard\n";
-      if (formData.dashboardFeatures.length > 0) {
-        formData.dashboardFeatures.forEach(feature => {
+    // Funcionalidades
+    const hasFeatures = formData.specificFeatures.length > 0 || formData.specificFeaturesCustom.trim() !== "" || formData.dynamicFeatures.length > 0 || formData.dynamicFeaturesCustom.trim() !== "";
+    if (hasFeatures) {
+      prompt += "## Funcionalidades\n";
+      if (formData.specificFeatures.length > 0 || formData.specificFeaturesCustom.trim() !== "") {
+        prompt += "### Gerais\n";
+        formData.specificFeatures.forEach(feature => {
           prompt += `- ${feature}\n`;
         });
-        if (formData.dashboardFeaturesCustom) {
+        if (formData.specificFeaturesCustom.trim() !== "") {
+          prompt += `- ${formData.specificFeaturesCustom}\n`;
+        }
+        prompt += "\n";
+      }
+      if (formData.dynamicFeatures.length > 0 || formData.dynamicFeaturesCustom.trim() !== "") {
+        prompt += "### Específicas\n";
+        formData.dynamicFeatures.forEach(feature => {
+          prompt += `- ${feature}\n`;
+        });
+        if (formData.dynamicFeaturesCustom.trim() !== "") {
+          prompt += `- ${formData.dynamicFeaturesCustom}\n`;
+        }
+        prompt += "\n";
+      }
+    }
+    // Design e UX/UI
+    const hasDesign = formData.colorPalette.length > 0 || formData.customColor.trim() !== "" || (formData.visualStyle && (formData.visualStyle !== "outro" || formData.visualStyleCustom.trim() !== "")) || (formData.menuType && (formData.menuType !== "outro" || formData.menuTypeCustom.trim() !== "")) || (formData.hasLandingPage && (formData.landingPageStructure.length > 0 || formData.landingPageElements.length > 0 || (formData.landingPageStyle && (formData.landingPageStyle !== "outro" || formData.landingPageStyleCustom.trim() !== "")))) || formData.authTypes.length > 0 || formData.authTypesCustom.trim() !== "" || (formData.hasDashboard && (formData.dashboardFeatures.length > 0 || formData.dashboardFeaturesCustom.trim() !== ""));
+    if (hasDesign) {
+      prompt += "## Design e UX/UI\n";
+      if (formData.colorPalette.length > 0 || formData.customColor.trim() !== "") {
+        prompt += "### Cores\n";
+        formData.colorPalette.forEach(color => {
+          prompt += `- ${color}\n`;
+        });
+        if (formData.customColor.trim() !== "") {
+          prompt += `- Personalizada: ${formData.customColor}\n`;
+        }
+        prompt += "\n";
+      }
+      if (formData.visualStyle && (formData.visualStyle !== "outro" || formData.visualStyleCustom.trim() !== "")) {
+        prompt += `### Estilo Visual\n${formData.visualStyle === "outro" ? formData.visualStyleCustom : formData.visualStyle}\n\n`;
+      }
+      if (formData.menuType && (formData.menuType !== "outro" || formData.menuTypeCustom.trim() !== "")) {
+        prompt += `### Tipo de Menu\n${formData.menuType === "outro" ? formData.menuTypeCustom : formData.menuType}\n\n`;
+      }
+      if (formData.hasLandingPage && (formData.landingPageStructure.length > 0 || formData.landingPageElements.length > 0 || (formData.landingPageStyle && (formData.landingPageStyle !== "outro" || formData.landingPageStyleCustom.trim() !== "")))) {
+        prompt += "### Landing Page\n";
+        if (formData.landingPageStructure.length > 0) {
+          prompt += "Estrutura:\n";
+          formData.landingPageStructure.forEach(item => {
+            prompt += `- ${item}\n`;
+          });
+          prompt += "\n";
+        }
+        if (formData.landingPageElements.length > 0) {
+          prompt += "Elementos:\n";
+          formData.landingPageElements.forEach(item => {
+            prompt += `- ${item}\n`;
+          });
+          prompt += "\n";
+        }
+        if (formData.landingPageStyle && (formData.landingPageStyle !== "outro" || formData.landingPageStyleCustom.trim() !== "")) {
+          prompt += `Estilo: ${formData.landingPageStyle === "outro" ? formData.landingPageStyleCustom : formData.landingPageStyle}\n\n`;
+        }
+      }
+      if (formData.authTypes.length > 0 || formData.authTypesCustom.trim() !== "") {
+        prompt += "### Autenticação\n";
+        formData.authTypes.forEach(type => {
+          prompt += `- ${type}\n`;
+        });
+        if (formData.authTypesCustom.trim() !== "") {
+          prompt += `- ${formData.authTypesCustom}\n`;
+        }
+        prompt += "\n";
+      }
+      if (formData.hasDashboard && (formData.dashboardFeatures.length > 0 || formData.dashboardFeaturesCustom.trim() !== "")) {
+        prompt += "### Dashboard\n";
+        if (formData.dashboardFeatures.length > 0) {
+          formData.dashboardFeatures.forEach(feature => {
+            prompt += `- ${feature}\n`;
+          });
+        }
+        if (formData.dashboardFeaturesCustom.trim() !== "") {
           prompt += `- ${formData.dashboardFeaturesCustom}\n`;
         }
+        prompt += "\n";
       }
-      prompt += "\n";
     }
-    
-    // Add tech stack
-    prompt += "## Stack Tecnológica\n";
-    
+    // Stack Tecnológica
+    let hasStack = false;
+    let stackPrompt = "";
     if (formData.separateFrontendBackend) {
-      prompt += "### Frontend\n";
-      if (formData.frontend.length > 0) {
+      if (formData.frontend.length > 0 || formData.frontendCustom.trim() !== "") {
+        stackPrompt += "### Frontend\n";
         formData.frontend.forEach(tech => {
-          prompt += `- ${tech}\n`;
+          stackPrompt += `- ${tech}\n`;
         });
-        if (formData.frontendCustom) {
-          prompt += `- ${formData.frontendCustom}\n`;
+        if (formData.frontendCustom.trim() !== "") {
+          stackPrompt += `- ${formData.frontendCustom}\n`;
         }
+        stackPrompt += "\n";
+        hasStack = true;
       }
-      prompt += "\n";
-      
-      prompt += "### Backend\n";
-      if (formData.backend.length > 0) {
+      if (formData.backend.length > 0 || formData.backendCustom.trim() !== "") {
+        stackPrompt += "### Backend\n";
         formData.backend.forEach(tech => {
-          prompt += `- ${tech}\n`;
+          stackPrompt += `- ${tech}\n`;
         });
-        if (formData.backendCustom) {
-          prompt += `- ${formData.backendCustom}\n`;
+        if (formData.backendCustom.trim() !== "") {
+          stackPrompt += `- ${formData.backendCustom}\n`;
         }
+        stackPrompt += "\n";
+        hasStack = true;
       }
-      prompt += "\n";
     } else {
-      if (formData.fullstack) {
-        prompt += `### Fullstack\n${formData.fullstack === "outro" ? formData.fullstackCustom : formData.fullstack}\n\n`;
+      if ((formData.fullstack && formData.fullstack !== "outro") || (formData.fullstack === "outro" && formData.fullstackCustom.trim() !== "")) {
+        stackPrompt += "### Fullstack\n";
+        if (formData.fullstack === "outro" && formData.fullstackCustom.trim() !== "") {
+          stackPrompt += `${formData.fullstackCustom}\n\n`;
+        } else if (formData.fullstack !== "outro") {
+          stackPrompt += `${formData.fullstack}\n\n`;
+        }
+        hasStack = true;
       }
     }
-    
-    if (formData.database) {
-      prompt += `### Banco de Dados\n${formData.database === "outro" ? formData.databaseCustom : formData.database}\n\n`;
+    if ((formData.database && formData.database !== "outro") || (formData.database === "outro" && formData.databaseCustom.trim() !== "")) {
+      stackPrompt += "### Banco de Dados\n";
+      if (formData.database === "outro" && formData.databaseCustom.trim() !== "") {
+        stackPrompt += `${formData.databaseCustom}\n\n`;
+      } else if (formData.database !== "outro") {
+        stackPrompt += `${formData.database}\n\n`;
+      }
+      hasStack = true;
     }
-    
-    if (formData.orm.length > 0) {
-      prompt += "### ORM/ODM\n";
+    if (formData.orm.length > 0 || formData.ormCustom.trim() !== "") {
+      stackPrompt += "### ORM/ODM\n";
       formData.orm.forEach(item => {
-        prompt += `- ${item}\n`;
+        stackPrompt += `- ${item}\n`;
       });
-      if (formData.ormCustom) {
-        prompt += `- ${formData.ormCustom}\n`;
+      if (formData.ormCustom.trim() !== "") {
+        stackPrompt += `- ${formData.ormCustom}\n`;
       }
-      prompt += "\n";
+      stackPrompt += "\n";
+      hasStack = true;
     }
-    
-    if (formData.deploy) {
-      prompt += `### Deploy/Infraestrutura\n${formData.deploy === "outro" ? formData.deployCustom : formData.deploy}\n\n`;
+    if ((formData.deploy && formData.deploy !== "outro") || (formData.deploy === "outro" && formData.deployCustom.trim() !== "")) {
+      stackPrompt += "### Deploy/Infraestrutura\n";
+      if (formData.deploy === "outro" && formData.deployCustom.trim() !== "") {
+        stackPrompt += `${formData.deployCustom}\n\n`;
+      } else if (formData.deploy !== "outro") {
+        stackPrompt += `${formData.deploy}\n\n`;
+      }
+      hasStack = true;
     }
-    
-    // Add security
+    if (hasStack && stackPrompt.replace(/\s/g, "") !== "") {
+      prompt += `## Stack Tecnológica\n${stackPrompt}`;
+    }
+    // Segurança
+    let hasSecurity = false;
+    let securityPrompt = "";
     if (formData.securityRequirements.length > 0) {
-      prompt += "## Segurança\n";
       formData.securityRequirements.forEach(req => {
-        prompt += `- ${req}\n`;
+        securityPrompt += `- ${req}\n`;
       });
-      if (formData.securityRequirementsCustom) {
-        prompt += `- ${formData.securityRequirementsCustom}\n`;
-      }
-      prompt += "\n";
+      hasSecurity = true;
     }
-    
-    // Add code structure
-    prompt += "## Estrutura de Código\n";
-    
+    if (formData.securityRequirementsCustom.trim() !== "") {
+      securityPrompt += `- ${formData.securityRequirementsCustom}\n`;
+      hasSecurity = true;
+    }
+    if (hasSecurity && securityPrompt.replace(/\s/g, "") !== "") {
+      prompt += `## Segurança\n${securityPrompt}\n`;
+    }
+    // Estrutura de Código
+    let hasCodeStructure = false;
+    let codeStructurePrompt = "";
     if (formData.folderStructure.length > 0) {
-      prompt += "### Organização de Pastas\n";
+      codeStructurePrompt += "### Organização de Pastas\n";
       formData.folderStructure.forEach(item => {
-        prompt += `- ${item}\n`;
+        codeStructurePrompt += `- ${item}\n`;
       });
-      if (formData.folderStructureCustom) {
-        prompt += `- ${formData.folderStructureCustom}\n`;
-      }
-      prompt += "\n";
+      hasCodeStructure = true;
     }
-    
+    if (formData.folderStructureCustom.trim() !== "") {
+      if (!codeStructurePrompt.includes("### Organização de Pastas")) codeStructurePrompt += "### Organização de Pastas\n";
+      codeStructurePrompt += `- ${formData.folderStructureCustom}\n`;
+      hasCodeStructure = true;
+    }
     if (formData.architecturePattern.length > 0) {
-      prompt += "### Padrão Arquitetural\n";
+      codeStructurePrompt += "### Padrão Arquitetural\n";
       formData.architecturePattern.forEach(pattern => {
-        prompt += `- ${pattern}\n`;
+        codeStructurePrompt += `- ${pattern}\n`;
       });
-      if (formData.architecturePatternCustom) {
-        prompt += `- ${formData.architecturePatternCustom}\n`;
-      }
-      prompt += "\n";
+      hasCodeStructure = true;
     }
-    
+    if (formData.architecturePatternCustom.trim() !== "") {
+      if (!codeStructurePrompt.includes("### Padrão Arquitetural")) codeStructurePrompt += "### Padrão Arquitetural\n";
+      codeStructurePrompt += `- ${formData.architecturePatternCustom}\n`;
+      hasCodeStructure = true;
+    }
     if (formData.bestPractices.length > 0) {
-      prompt += "### Boas Práticas\n";
+      codeStructurePrompt += "### Boas Práticas\n";
       formData.bestPractices.forEach(practice => {
-        prompt += `- ${practice}\n`;
+        codeStructurePrompt += `- ${practice}\n`;
       });
-      if (formData.bestPracticesCustom) {
-        prompt += `- ${formData.bestPracticesCustom}\n`;
-      }
-      prompt += "\n";
+      hasCodeStructure = true;
     }
-    
-    // Add scalability
-    if (formData.needsScalability) {
-      prompt += "## Escalabilidade e Performance\n";
-      
-      if (formData.scalabilityFeatures.length > 0) {
-        prompt += "### Escalabilidade\n";
-        formData.scalabilityFeatures.forEach(feature => {
-          prompt += `- ${feature}\n`;
-        });
-        if (formData.scalabilityFeaturesCustom) {
-          prompt += `- ${formData.scalabilityFeaturesCustom}\n`;
-        }
-        prompt += "\n";
-      }
-      
-      if (formData.performanceOptimizations.length > 0) {
-        prompt += "### Performance\n";
-        formData.performanceOptimizations.forEach(opt => {
-          prompt += `- ${opt}\n`;
-        });
-        if (formData.performanceOptimizationsCustom) {
-          prompt += `- ${formData.performanceOptimizationsCustom}\n`;
-        }
-        prompt += "\n";
-      }
+    if (formData.bestPracticesCustom.trim() !== "") {
+      if (!codeStructurePrompt.includes("### Boas Práticas")) codeStructurePrompt += "### Boas Práticas\n";
+      codeStructurePrompt += `- ${formData.bestPracticesCustom}\n`;
+      hasCodeStructure = true;
     }
-    
-    // Add restrictions
+    if (hasCodeStructure && codeStructurePrompt.replace(/\s/g, "") !== "") {
+      prompt += `## Estrutura de Código\n${codeStructurePrompt}`;
+    }
+    // Restrições Técnicas
+    let hasRestrictions = false;
+    let restrictionsPrompt = "";
     if (formData.codeRestrictions.length > 0) {
-      prompt += "## Restrições Técnicas\n";
       formData.codeRestrictions.forEach(restriction => {
-        prompt += `- Evitar: ${restriction}\n`;
+        restrictionsPrompt += `- Evitar: ${restriction}\n`;
       });
-      if (formData.codeRestrictionsCustom) {
-        prompt += `- Evitar: ${formData.codeRestrictionsCustom}\n`;
-      }
-      prompt += "\n";
+      hasRestrictions = true;
     }
-    
-    // Add final instruction
-    prompt += "Por favor, construa este sistema seguindo todas as especificações acima. Apresente uma estrutura de arquivos, as principais bibliotecas a serem usadas e trechos de código importantes para implementar as funcionalidades principais.";
-    
-    setGeneratedPrompt(prompt);
+    if (formData.codeRestrictionsCustom.trim() !== "") {
+      restrictionsPrompt += `- Evitar: ${formData.codeRestrictionsCustom}\n`;
+      hasRestrictions = true;
+    }
+    if (hasRestrictions && restrictionsPrompt.replace(/\s/g, "") !== "") {
+      prompt += `## Restrições Técnicas\n${restrictionsPrompt}\n`;
+    }
+    // Instrução final
+    if (prompt.replace(/\s/g, "") !== "") {
+      prompt += "Por favor, construa este sistema seguindo todas as especificações acima. Apresente uma estrutura de arquivos, as principais bibliotecas a serem usadas e trechos de código importantes para implementar as funcionalidades principais.";
+    }
     return prompt;
   };
 
@@ -606,6 +614,11 @@ const PromptGenerator = () => {
       setFilledSteps(newFilledSteps);
     }
   }, [formData, filledSteps]); // Added filledSteps to dependency array carefully
+
+  // Atualizar o preview em tempo real
+  useEffect(() => {
+    setGeneratedPrompt(generatePrompt());
+  }, [formData]);
 
   return (
     <div className="container mx-auto py-10 px-4">

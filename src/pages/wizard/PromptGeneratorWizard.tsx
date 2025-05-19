@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { 
   Info,
@@ -24,8 +24,19 @@ import {
   Save,      // For Save & Finalize button
   Network,   // Ícone para Integrações
 } from 'lucide-react';
-// Popover can be removed if not used for the main navigation anymore, or kept for a potential overview feature
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; 
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"; // Keep for other popovers if any
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"; // Add AlertDialog imports
+import PromptPreview from '@/components/prompt/PromptPreview';
 
 // Components
 import ProjectStep from './steps/ProjectStep';
@@ -132,6 +143,7 @@ const PromptGeneratorWizard = () => {
   // For now, let's keep it as it might be used for other logic, but the primary visual indicator will be finalizedSteps.
   const [filledStepsData, setFilledStepsData] = useState<Record<string, boolean>>({});
   const [finalizedSteps, setFinalizedSteps] = useState<Record<string, boolean>>({});
+  // isGlobalResetConfirmOpen state is no longer needed for uncontrolled AlertDialog
 
   const initialFormData = {
     project: {
@@ -342,6 +354,8 @@ const PromptGeneratorWizard = () => {
   // Form data state
   const [formData, setFormData] = useState(initialFormData);
 
+  const [generatedPrompt, setGeneratedPrompt] = useState('');
+
   useEffect(() => {
     const newFilledSteps: Record<string, boolean> = {};
     wizardSteps.forEach(step => {
@@ -473,6 +487,15 @@ const PromptGeneratorWizard = () => {
     }
   };
 
+  // Adicionar função para resetar tudo
+  const executeGlobalReset = () => { // Renamed and logic separated from confirm
+    setFormData(initialFormData);
+    setFinalizedSteps({});
+    setCurrentStep(0);
+    // Optionally, add a toast message for successful reset if desired
+    // toast({ title: "Wizard Resetado", description: "Todas as suas escolhas foram limpas." });
+  };
+
   // Moved renderCurrentStep definition before its use in the return statement
   const renderCurrentStep = () => {
     const currentStepId = wizardSteps[currentStep]?.id;
@@ -553,100 +576,142 @@ const PromptGeneratorWizard = () => {
           {...stepProps}
         />;
       case 12: // Generate
-        return <GenerateStep 
-                  formData={formData}
-                  markAsFinalized={() => handleMarkAsFinalized(wizardSteps[currentStep].id)}
-                  isFinalized={finalizedSteps[wizardSteps[currentStep].id] || false}
-               />;
+        return (
+          <Card className="p-4 sm:p-6">
+            <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="mb-1">{t('promptGenerator.generate.title')}</CardTitle>
+                  <CardDescription className="text-sm text-muted-foreground">
+                    {t('promptGenerator.generate.description')}
+                  </CardDescription>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="icon" className="h-8 w-8">
+                        <RotateCcw className="h-4 w-4" />
+                        <span className="sr-only">Resetar Tudo</span>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          {t('promptGenerator.wizard.confirmGlobalResetTitle') || "Confirmar Reset Global"}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          {t('promptGenerator.wizard.confirmGlobalResetMessage') || "Tem certeza que deseja apagar todas as escolhas? Esta ação irá remover todas as seleções feitas em todas as etapas."}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>{t('common.cancel') || "Cancelar"}</AlertDialogCancel>
+                        <AlertDialogAction onClick={executeGlobalReset}>
+                          {t('common.yes') || "Sim"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="px-0 pb-0 sm:px-0 sm:pb-0 pt-4">
+              <GenerateStep 
+                formData={formData}
+                markAsFinalized={() => handleMarkAsFinalized(wizardSteps[currentStep].id)}
+                isFinalized={finalizedSteps[wizardSteps[currentStep].id] || false}
+                onPromptGenerated={setGeneratedPrompt}
+              />
+            </CardContent>
+          </Card>
+        );
       default:
         return null;
     }
   };
 
+  // Função utilitária para tradução segura
+  const getLabelOrTranslation = (key: string, fallback: string) => {
+    const translated = t(key);
+    // Se a tradução não existe, retorna o fallback
+    if (!translated || translated === key) return fallback;
+    return translated;
+  };
+
   const generatePreviewMarkdown = (data: typeof formData): string => {
     let md = "";
 
-    // Project Info - Always show all labels, and values or placeholders
-    md += `# ${t('promptGenerator.project.title') || 'Informações do Projeto'}\n`;
-    md += `**${t('promptGenerator.project.projectTitle') || 'Título do Projeto'}:** ${data.project.title || `*(${t('promptGenerator.project.projectTitlePlaceholder') || 'Ex: Plataforma de E-commerce'})*`}\n`;
-    md += `**${t('promptGenerator.project.author') || 'Autor'}:** ${data.project.author || `*(${t('promptGenerator.project.authorPlaceholder') || 'Seu nome'})*`}\n`;
-    md += `**${t('promptGenerator.project.email') || 'Email'}:** ${data.project.email || `*(${t('promptGenerator.project.emailPlaceholder') || 'Seu endereço de email'})*`}\n`;
-    md += `**${t('promptGenerator.project.url') || 'Website'}:** ${data.project.url || `*(${t('promptGenerator.project.urlPlaceholder') || 'URL do seu site'})*`}\n`;
-    // createdAt and updatedAt are Date objects, might not be suitable for direct placeholder like this.
-    // md += `**${t('promptGenerator.project.createdDate') || 'Data de Criação'}:** ${data.project.createdAt ? new Date(data.project.createdAt).toLocaleDateString() : '*N/A*'}\n`;
-    // md += `**${t('promptGenerator.project.updatedDate') || 'Última Atualização'}:** ${data.project.updatedAt ? new Date(data.project.updatedAt).toLocaleDateString() : '*N/A*'}\n`;
-    md += `**${t('promptGenerator.project.version') || 'Versão'}:** ${data.project.version || '1.0.0'}\n\n`;
-    
+    // Project Info
+    if (data.project.title || data.project.author || data.project.email || data.project.url) {
+      md += `# ${getLabelOrTranslation('promptGenerator.project.title', 'Informações do Projeto')}\n`;
+      if (data.project.title) md += `**${getLabelOrTranslation('promptGenerator.project.projectTitle', 'Título do Projeto')}:** ${data.project.title}\n`;
+      if (data.project.author) md += `**${getLabelOrTranslation('promptGenerator.project.author', 'Autor')}:** ${data.project.author}\n`;
+      if (data.project.email) md += `**${getLabelOrTranslation('promptGenerator.project.email', 'Email')}:** ${data.project.email}\n`;
+      if (data.project.url) md += `**${getLabelOrTranslation('promptGenerator.project.url', 'Website')}:** ${data.project.url}\n`;
+      if (data.project.version) md += `**${getLabelOrTranslation('promptGenerator.project.version', 'Versão')}:** ${data.project.version}\n`;
+      md += "\n";
+    }
 
     // System Type
-    if (data.systemType.selected) {
-      md += `## ${t('promptGenerator.systemType.title')}\n`;
+    if (data.systemType.selected && (data.systemType.selected !== 'other' || data.systemType.otherType)) {
+      md += `## ${getLabelOrTranslation('promptGenerator.systemType.title', 'Tipo de Sistema')}\n`;
       const systemTypeId = data.systemType.selected.toLowerCase().replace(/\s+/g, '');
       const selectedType = data.systemType.selected === 'other' 
         ? data.systemType.otherType 
-        : (t(`promptGenerator.systemType.${systemTypeId}`) || data.systemType.selected);
-      md += `- ${selectedType || 'N/A'}\n`; // Ensure selectedType has a fallback
+        : getLabelOrTranslation(`promptGenerator.systemType.${systemTypeId}`, data.systemType.selected);
+      md += `- ${selectedType}\n`;
       if (data.systemType.examples && data.systemType.examples.length > 0) {
-        md += `  - ${t('promptGenerator.systemType.examples') || 'Exemplos'}: ${data.systemType.examples.join(', ')}\n`;
+        md += `  - ${getLabelOrTranslation('promptGenerator.systemType.examples', 'Exemplos')}: ${data.systemType.examples.join(', ')}\n`;
       }
       md += "\n";
     }
 
     // Objective
     if (data.objective.primaryObjective || data.objective.selectedObjectives.length > 0 || (Array.isArray(data.objective.otherObjective) && data.objective.otherObjective.length > 0) ) {
-      md += `## ${t('promptGenerator.objective.title') || 'Objetivo'}\n`;
+      md += `## ${getLabelOrTranslation('promptGenerator.objective.title', 'Objetivo')}\n`;
       if (data.objective.primaryObjective) {
-        md += `**${t('promptGenerator.objective.primaryObjective') || 'Objetivo Principal'}:** ${data.objective.primaryObjective}\n\n`;
+        md += `**${getLabelOrTranslation('promptGenerator.objective.primaryObjective', 'Objetivo Principal')}:** ${data.objective.primaryObjective}\n\n`;
       }
-
       if (data.objective.selectedObjectives.length > 0) {
-        md += `**${t('promptGenerator.objective.additionalObjectivesTitle') || 'Objetivos Adicionais'}:**\n`;
+        md += `**${getLabelOrTranslation('promptGenerator.objective.additionalObjectivesTitle', 'Objetivos Adicionais')}:**\n`;
         data.objective.selectedObjectives.forEach((objKey: string) => {
-          // Assuming objKey is a key like 'increaseRevenue', not 'Other'
-          if (objKey !== 'Other') { // 'Other' is a special key for the pop-up list, not a checkbox item
-            const objectiveLabel = t(`promptGenerator.objective.${objKey}`) || objKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          if (objKey !== 'Other') {
+            const objectiveLabel = getLabelOrTranslation(`promptGenerator.objective.${objKey}`, objKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()));
             md += `- ${objectiveLabel}\n`;
           }
         });
         md += "\n";
       }
-      
-      // Add custom objectives from the array (formData.otherObjective)
       if (Array.isArray(data.objective.otherObjective) && data.objective.otherObjective.length > 0) {
-        md += `**${t('promptGenerator.objective.specifiedOtherObjectivesTitle') || 'Outros Objetivos Especificados:'}**\n`;
+        md += `**${getLabelOrTranslation('promptGenerator.objective.specifiedOtherObjectivesTitle', 'Outros Objetivos Especificados:')}**\n`;
         data.objective.otherObjective.forEach(customObj => {
           if (customObj.trim()) md += `- ${customObj.trim()}\n`;
         });
         md += "\n";
       }
     }
-    
     // Requirements
     if (data.requirements.userTypes.length > 0 || 
         data.requirements.functionalRequirements.length > 0 || 
         data.requirements.nonFunctionalRequirements.length > 0 || 
         (Array.isArray(data.requirements.otherRequirement) && data.requirements.otherRequirement.length > 0)) {
-      md += `## ${t('promptGenerator.requirements.title') || 'Requisitos'}\n`;
+      md += `## ${getLabelOrTranslation('promptGenerator.requirements.title', 'Requisitos')}\n`;
       if (data.requirements.userTypes.length > 0) {
-        md += `**${t('promptGenerator.requirements.userTypes') || 'Tipos de Usuários'}:** ${data.requirements.userTypes.join(', ')}\n\n`;
+        md += `**${getLabelOrTranslation('promptGenerator.requirements.userTypes', 'Tipos de Usuários')}:** ${data.requirements.userTypes.join(', ')}\n\n`;
       }
       if (data.requirements.functionalRequirements.length > 0) {
-        md += `**${t('promptGenerator.requirements.functionalRequirements') || 'Requisitos Funcionais'}:**\n`;
+        md += `**${getLabelOrTranslation('promptGenerator.requirements.functionalRequirements', 'Requisitos Funcionais')}:**\n`;
         data.requirements.functionalRequirements.forEach(r => {
           if (r.trim()) md += `- ${r.trim()}\n`;
         });
         md += "\n";
       }
-
-      // Combine selected NFRs and other NFRs
       const hasSelectedNFRs = data.requirements.nonFunctionalRequirements.filter(r => r !== 'Other').length > 0;
       const hasOtherNFRs = Array.isArray(data.requirements.otherRequirement) && data.requirements.otherRequirement.length > 0;
-
       if (hasSelectedNFRs || hasOtherNFRs) {
-        md += `**${t('promptGenerator.requirements.nonFunctionalRequirements') || 'Requisitos Não-Funcionais'}:**\n`;
+        md += `**${getLabelOrTranslation('promptGenerator.requirements.nonFunctionalRequirements', 'Requisitos Não-Funcionais')}:**\n`;
         data.requirements.nonFunctionalRequirements.forEach(reqKey => {
-          if (reqKey !== 'Other') { // 'Other' is a special key, actual text is in otherRequirement
-            const reqLabel = t(`promptGenerator.requirements.${reqKey}`) || reqKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          if (reqKey !== 'Other') {
+            const reqLabel = getLabelOrTranslation(`promptGenerator.requirements.${reqKey}`, reqKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()));
             md += `- ${reqLabel}\n`;
           }
         });
@@ -658,92 +723,193 @@ const PromptGeneratorWizard = () => {
         md += "\n";
       }
     }
-
     // Features
     if (data.features.specificFeatures.length > 0 || data.features.dynamicFeatures.length > 0 || data.features.otherFeature) {
-      md += `## ${t('promptGenerator.features.title')}\n`;
+      md += `## ${getLabelOrTranslation('promptGenerator.features.title', 'Funcionalidades')}\n`;
       if (data.features.specificFeatures.length > 0) {
-         md += `### ${t('promptGenerator.features.specificFeatures') || 'Funcionalidades Específicas'}\n${data.features.specificFeatures.map(f => `- ${f}`).join('\n')}\n`;
+         md += `### ${getLabelOrTranslation('promptGenerator.features.specificFeatures', 'Funcionalidades Específicas')}\n${data.features.specificFeatures.map(f => `- ${getLabelOrTranslation(`promptGenerator.features.${f}`, f)}`).join('\n')}\n`;
       }
       if (data.features.dynamicFeatures.length > 0) {
-        md += `### ${t('promptGenerator.features.dynamicFeatures') || 'Funcionalidades Dinâmicas'}\n${data.features.dynamicFeatures.map(f => `- ${f}`).join('\n')}\n`;
+        md += `### ${getLabelOrTranslation('promptGenerator.features.dynamicFeatures', 'Funcionalidades Dinâmicas')}\n${data.features.dynamicFeatures.map(f => `- ${getLabelOrTranslation(`promptGenerator.features.${f}`, f)}`).join('\n')}\n`;
       }
-      if (data.features.otherFeature) md += `- ${t('common.other') || 'Outro'}: ${data.features.otherFeature}\n`;
+      if (data.features.otherFeature) md += `- ${getLabelOrTranslation('common.other', 'Outro')}: ${data.features.otherFeature}\n`;
       md += "\n";
     }
-    
     // UX/UI
     let uxuiContent = "";
-    if (data.uxui.colorPalette.length > 0) uxuiContent += `**${t('promptGenerator.uxui.colorPalette') || 'Paleta de Cores'}:** ${data.uxui.colorPalette.join(', ')}\n`;
-    if (Object.keys(data.uxui.customColors).length > 0) uxuiContent += `**${t('promptGenerator.uxui.custom') || 'Cores Customizadas'}:** ${JSON.stringify(data.uxui.customColors)}\n`;
-    if (data.uxui.visualStyle) {
-      const visualStyleId = data.uxui.visualStyle.toLowerCase();
-      uxuiContent += `**${t('promptGenerator.uxui.visualStyle') || 'Estilo Visual'}:** ${data.uxui.visualStyle === 'other' ? data.uxui.otherVisualStyle : (t(`promptGenerator.uxui.${visualStyleId}`) || data.uxui.visualStyle)}\n`;
+    // Paleta de Cores
+    if (data.uxui.colorPalette.length > 0) {
+      data.uxui.colorPalette.forEach(pal => {
+        let palLabel = pal;
+        const paletteTranslations: Record<string, string> = {
+          techInnovation: 'Tecnologia/Inovação',
+          creativityDesign: 'Criatividade/Design',
+          healthWellness: 'Saúde/Bem-estar',
+          foodGastronomy: 'Alimentos/Gastronomia',
+          educationLearning: 'Educação/Aprendizado',
+          corporateFinance: 'Corporativo/Finanças',
+          legalConsulting: 'Jurídico/Consultoria',
+          newsInformation: 'Notícias/Informação',
+          portfolioPersonal: 'Portfólio/Pessoal',
+          realEstate: 'Imobiliário',
+          fashionLuxury: 'Moda/Luxo',
+          artCulture: 'Arte/Cultura',
+          minimalism: 'Minimalismo',
+          natureSustainability: 'Natureza/Sustentabilidade',
+          travelAdventure: 'Viagem/Aventura',
+          kidsToys: 'Infantil/Brinquedos',
+          musicEntertainment: 'Música/Entretenimento',
+          sportsFitness: 'Esportes/Fitness',
+          weddingEvents: 'Casamento/Eventos',
+          communityNGO: 'Comunidade/ONG',
+          custom: 'Paleta Personalizada',
+        };
+        if (pal === 'custom') palLabel = 'Paleta Personalizada';
+        else palLabel = paletteTranslations[pal] || pal;
+        uxuiContent += `- Tipo de Paleta: ${palLabel}.\n`;
+        if (pal === 'custom' && Array.isArray(data.uxui.customColors) && data.uxui.customColors.length > 0) {
+          uxuiContent += `- Cores da Paleta: ${JSON.stringify(data.uxui.customColors)}\n`;
+        } else if (Array.isArray(data.uxui.customColors) && data.uxui.customColors.length > 0) {
+          uxuiContent += `- Cores da Paleta: ${JSON.stringify(data.uxui.customColors)}\n`;
+        }
+      });
     }
-    // TODO: Add detailed breakdown for landingPageDetails, authentication, userDashboardDetails similar to other complex sections.
-    if (uxuiContent) md += `## ${t('promptGenerator.uxui.title')}\n${uxuiContent}\n`;
-
+    // Página Inicial (Landing Page)
+    if (data.uxui.landingPage) {
+      // Estrutura
+      const struct = data.uxui.landingPageDetails.structure;
+      const structItems = [];
+      ['hero','benefits','testimonials','cta'].forEach(key => { if (struct[key]) structItems.push(getLabelOrTranslation(`promptGenerator.uxui.structureItems.${key}`, key)); });
+      if (Array.isArray(struct.otherValues)) struct.otherValues.forEach(val => { if (val) structItems.push(val); });
+      if (structItems.length > 0) uxuiContent += `- Estrutura: ${structItems.join(', ')}\n`;
+      // Elementos
+      const elem = data.uxui.landingPageDetails.elements;
+      const elemItems = [];
+      ['video','form','animations'].forEach(key => { if (elem[key]) elemItems.push(getLabelOrTranslation(`promptGenerator.uxui.elementsItems.${key}`, key)); });
+      if (Array.isArray(elem.otherValues)) elem.otherValues.forEach(val => { if (val) elemItems.push(val); });
+      if (elemItems.length > 0) uxuiContent += `- Elementos: ${elemItems.join(', ')}\n`;
+      // Estilo
+      const style = data.uxui.landingPageDetails.style;
+      const styleItems = [];
+      ['modern','minimalist','corporate','creative'].forEach(key => { if (style[key]) styleItems.push(getLabelOrTranslation(`promptGenerator.uxui.styleItems.${key}`, key)); });
+      if (Array.isArray(style.otherValues)) style.otherValues.forEach(val => { if (val) styleItems.push(val); });
+      if (styleItems.length > 0) uxuiContent += `- Estilo: ${styleItems.join(', ')}\n`;
+    }
+    // Painel do Usuário
+    if (data.uxui.userDashboard) {
+      const dash = data.uxui.userDashboardDetails;
+      const dashItems = [];
+      if (Array.isArray(dash.features)) dash.features.forEach(f => dashItems.push(getLabelOrTranslation(`promptGenerator.uxui.dashboardFeatures.${f}`, f)));
+      if (Array.isArray(dash.otherDashboardFeatures)) dash.otherDashboardFeatures.forEach(f => { if (f) dashItems.push(f); });
+      if (dashItems.length > 0) uxuiContent += `- Painel do Usuário: ${dashItems.join(', ')}\n`;
+    }
+    // Estilo Visual
+    if (data.uxui.visualStyle && data.uxui.visualStyle !== 'other') {
+      uxuiContent += `- Estilo Visual: ${getLabelOrTranslation(`promptGenerator.uxui.visualStyleItems.${data.uxui.visualStyle}`, data.uxui.visualStyle)}\n`;
+    } else if (data.uxui.visualStyle === 'other' && Array.isArray(data.uxui.otherVisualStyles) && data.uxui.otherVisualStyles.length > 0) {
+      uxuiContent += `- Estilo Visual: ${data.uxui.otherVisualStyles.join(', ')}\n`;
+    }
+    // Tipo de Menu
+    if (data.uxui.menuType && data.uxui.menuType !== 'other') {
+      uxuiContent += `- Tipo de Menu: ${getLabelOrTranslation(`promptGenerator.uxui.menuTypeItems.${data.uxui.menuType}`, data.uxui.menuType)}\n`;
+    } else if (data.uxui.menuType === 'other' && Array.isArray(data.uxui.otherMenuTypes) && data.uxui.otherMenuTypes.length > 0) {
+      uxuiContent += `- Tipo de Menu: ${data.uxui.otherMenuTypes.join(', ')}\n`;
+    }
+    // Autenticação
+    const authItems = [];
+    if (Array.isArray(data.uxui.authentication)) data.uxui.authentication.forEach(a => authItems.push(getLabelOrTranslation(`promptGenerator.uxui.authItems.${a}`, a)));
+    if (Array.isArray(data.uxui.otherAuthMethods)) data.uxui.otherAuthMethods.forEach(a => { if (a) authItems.push(a); });
+    if (authItems.length > 0) uxuiContent += `**${getLabelOrTranslation('promptGenerator.uxui.authentication', 'Autenticação')}:** ${authItems.join(', ')}\n`;
+    if (uxuiContent) md += `## ${getLabelOrTranslation('promptGenerator.uxui.title', 'UX/UI')}\n${uxuiContent}\n`;
     // Stack
     let stackContent = "";
     if (data.stack.separateFrontendBackend) {
-      if (data.stack.frontend.length > 0 || data.stack.otherFrontend) stackContent += `**${t('promptGenerator.stack.frontend')}:** ${[...data.stack.frontend, data.stack.otherFrontend].filter(Boolean).join(', ')}\n`;
-      if (data.stack.backend.length > 0 || data.stack.otherBackend) stackContent += `**${t('promptGenerator.stack.backend')}:** ${[...data.stack.backend, data.stack.otherBackend].filter(Boolean).join(', ')}\n`;
+      if (data.stack.frontend.length > 0 || (Array.isArray(data.stack.otherFrontend) && data.stack.otherFrontend.length > 0)) stackContent += `**${getLabelOrTranslation('promptGenerator.stack.frontend', 'Frontend')}:** ${[...data.stack.frontend, ...(Array.isArray(data.stack.otherFrontend) ? data.stack.otherFrontend : [])].filter(Boolean).map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
+      if (data.stack.backend.length > 0 || (Array.isArray(data.stack.otherBackend) && data.stack.otherBackend.length > 0)) stackContent += `**${getLabelOrTranslation('promptGenerator.stack.backend', 'Backend')}:** ${[...data.stack.backend, ...(Array.isArray(data.stack.otherBackend) ? data.stack.otherBackend : [])].filter(Boolean).map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
     } else {
-      if (data.stack.fullstack.length > 0 || data.stack.otherFullstack) stackContent += `**${t('promptGenerator.stack.fullstack')}:** ${[...data.stack.fullstack, data.stack.otherFullstack].filter(Boolean).join(', ')}\n`;
+      if (data.stack.fullstack.length > 0 || (Array.isArray(data.stack.otherFullstack) && data.stack.otherFullstack.length > 0)) stackContent += `**${getLabelOrTranslation('promptGenerator.stack.fullstack', 'Fullstack')}:** ${[...data.stack.fullstack, ...(Array.isArray(data.stack.otherFullstack) ? data.stack.otherFullstack : [])].filter(Boolean).map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
     }
-    if (data.stack.database.length > 0 || data.stack.otherDatabase) stackContent += `**${t('promptGenerator.stack.database')}:** ${[...data.stack.database, data.stack.otherDatabase].filter(Boolean).join(', ')}\n`;
-    // Add ORM, Hosting etc.
-    if (stackContent) md += `## ${t('promptGenerator.stack.title')}\n${stackContent}\n`;
-    
+    if (data.stack.database.length > 0 || (Array.isArray(data.stack.otherDatabase) && data.stack.otherDatabase.length > 0)) stackContent += `**${getLabelOrTranslation('promptGenerator.stack.database', 'Banco de Dados')}:** ${[...data.stack.database, ...(Array.isArray(data.stack.otherDatabase) ? data.stack.otherDatabase : [])].filter(Boolean).map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
+    if (stackContent.replace(/\s/g, "") !== "") md += `## ${getLabelOrTranslation('promptGenerator.stack.title', 'Stack Tecnológica')}\n${stackContent}\n`;
     // Security
-    if (data.security.selectedSecurity.length > 0 || data.security.otherSecurityFeature) {
-        md += `## ${t('promptGenerator.security.title')}\n`;
-        data.security.selectedSecurity.forEach(s => {
-          const securityId = s.toLowerCase().replace(/\s+/g, '');
-          md += `- ${t(`promptGenerator.security.${securityId}`) || s}\n`;
-        });
-        if (data.security.otherSecurityFeature) md += `- ${t('common.other') || 'Outro'}: ${data.security.otherSecurityFeature}\n`;
-        md += "\n";
+    let securityContent = "";
+    if (data.security.selectedSecurity.length > 0) {
+      data.security.selectedSecurity.forEach(s => {
+        const securityId = s.toLowerCase().replace(/\s+/g, '');
+        securityContent += `- ${getLabelOrTranslation(`promptGenerator.security.${securityId}`, s)}\n`;
+      });
     }
-
-    // Code Structure - TODO: Add detailed breakdown for folderOrganization, architecturalPattern, bestPractices
+    if (Array.isArray(data.security.otherSecurityFeature) && data.security.otherSecurityFeature.length > 0) {
+      data.security.otherSecurityFeature.forEach(other => {
+        if (other && other.trim()) securityContent += `- ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
+      });
+    }
+    if (securityContent.replace(/\s/g, "") !== "") md += `## ${getLabelOrTranslation('promptGenerator.security.title', 'Segurança')}\n${securityContent}\n`;
+    // Code Structure
     let codeStructureContent = "";
-    if (data.codeStructure.folderOrganization.length > 0) codeStructureContent += `**${t('promptGenerator.codeStructure.folderOrganization') || 'Organização de Pastas'}:** ${data.codeStructure.folderOrganization.join(', ')}\n`;
-    if (data.codeStructure.otherOrganizationStyle) codeStructureContent += `  - ${t('common.other') || 'Outro'}: ${data.codeStructure.otherOrganizationStyle}\n`;
-    if (data.codeStructure.architecturalPattern.length > 0) codeStructureContent += `**${t('promptGenerator.codeStructure.architecturalPattern') || 'Padrão Arquitetural'}:** ${data.codeStructure.architecturalPattern.join(', ')}\n`;
-    if (data.codeStructure.otherArchPattern) codeStructureContent += `  - ${t('common.other') || 'Outro'}: ${data.codeStructure.otherArchPattern}\n`;
-    if (data.codeStructure.bestPractices.length > 0) codeStructureContent += `**${t('promptGenerator.codeStructure.bestPractices') || 'Melhores Práticas'}:** ${data.codeStructure.bestPractices.join(', ')}\n`;
-    if (data.codeStructure.otherBestPractice) codeStructureContent += `  - ${t('common.other') || 'Outro'}: ${data.codeStructure.otherBestPractice}\n`;
-    if (codeStructureContent) md += `## ${t('promptGenerator.codeStructure.title')}\n${codeStructureContent}\n`;
-    
-    // Scalability - TODO: Add detailed breakdown for scalabilityFeatures, performanceFeatures
+    if (data.codeStructure.folderOrganization.length > 0) codeStructureContent += `**${getLabelOrTranslation('promptGenerator.codeStructure.folderOrganization', 'Organização de Pastas')}:** ${data.codeStructure.folderOrganization.map(f => getLabelOrTranslation(`promptGenerator.codeStructure.${f}`, f)).join(', ')}\n`;
+    if (Array.isArray(data.codeStructure.otherOrganizationStyle) && data.codeStructure.otherOrganizationStyle.length > 0) {
+      data.codeStructure.otherOrganizationStyle.forEach(other => {
+        if (other && other.trim()) codeStructureContent += `  - ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
+      });
+    }
+    if (data.codeStructure.architecturalPattern.length > 0) codeStructureContent += `**${getLabelOrTranslation('promptGenerator.codeStructure.architecturalPattern', 'Padrão Arquitetural')}:** ${data.codeStructure.architecturalPattern.map(f => getLabelOrTranslation(`promptGenerator.codeStructure.${f}`, f)).join(', ')}\n`;
+    if (Array.isArray(data.codeStructure.otherArchPattern) && data.codeStructure.otherArchPattern.length > 0) {
+      data.codeStructure.otherArchPattern.forEach(other => {
+        if (other && other.trim()) codeStructureContent += `  - ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
+      });
+    }
+    if (data.codeStructure.bestPractices.length > 0) codeStructureContent += `**${getLabelOrTranslation('promptGenerator.codeStructure.bestPractices', 'Melhores Práticas')}:** ${data.codeStructure.bestPractices.map(f => getLabelOrTranslation(`promptGenerator.codeStructure.${f}`, f)).join(', ')}\n`;
+    if (Array.isArray(data.codeStructure.otherBestPractice) && data.codeStructure.otherBestPractice.length > 0) {
+      data.codeStructure.otherBestPractice.forEach(other => {
+        if (other && other.trim()) codeStructureContent += `  - ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
+      });
+    }
+    if (codeStructureContent.replace(/\s/g, "") !== "") md += `## ${getLabelOrTranslation('promptGenerator.codeStructure.title', 'Estrutura de Código')}\n${codeStructureContent}\n`;
+    // Scalability
+    let scalabilityContent = "";
     if (data.scalability.isScalable) {
-        let scalabilityDetails = "";
-        if (data.scalability.scalabilityFeatures.length > 0) scalabilityDetails += `**${t('promptGenerator.scalability.scalabilityFeatures') || 'Recursos de Escalabilidade'}:** ${data.scalability.scalabilityFeatures.join(', ')}\n`;
-        if (data.scalability.otherScalabilityFeature) scalabilityDetails += `  - ${t('common.other') || 'Outro'}: ${data.scalability.otherScalabilityFeature}\n`;
-        if (data.scalability.performanceFeatures.length > 0) scalabilityDetails += `**${t('promptGenerator.scalability.performanceFeatures') || 'Recursos de Performance'}:** ${data.scalability.performanceFeatures.join(', ')}\n`;
-        if (data.scalability.otherPerformanceFeature) scalabilityDetails += `  - ${t('common.other') || 'Outro'}: ${data.scalability.otherPerformanceFeature}\n`;
-        if(scalabilityDetails) md += `## ${t('promptGenerator.scalability.title')}\n${t('promptGenerator.scalability.isScalable')}\n${scalabilityDetails}\n`;
-    }
-
-
-    // Restrictions
-    if (data.restrictions.avoidInCode.length > 0 || data.restrictions.otherRestriction) {
-        md += `## ${t('promptGenerator.restrictions.title')}\n`;
-        data.restrictions.avoidInCode.forEach(r => {
-          const restrictionId = r.toLowerCase().replace(/\s+/g, '');
-          md += `- ${t(`promptGenerator.restrictions.${restrictionId}`) || r}\n`;
+      if (data.scalability.scalabilityFeatures.length > 0) scalabilityContent += `**${getLabelOrTranslation('promptGenerator.scalability.scalabilityFeatures', 'Recursos de Escalabilidade')}:** ${data.scalability.scalabilityFeatures.map(f => getLabelOrTranslation(`promptGenerator.scalability.${f}`, f)).join(', ')}\n`;
+      if (Array.isArray(data.scalability.otherScalabilityFeature) && data.scalability.otherScalabilityFeature.length > 0) {
+        data.scalability.otherScalabilityFeature.forEach(other => {
+          if (other && other.trim()) scalabilityContent += `  - ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
         });
-        if (data.restrictions.otherRestriction) md += `- ${t('common.other') || 'Outro'}: ${data.restrictions.otherRestriction}\n`;
-        md += "\n";
+      }
+      if (data.scalability.performanceFeatures.length > 0) scalabilityContent += `**${getLabelOrTranslation('promptGenerator.scalability.performanceFeatures', 'Recursos de Performance')}:** ${data.scalability.performanceFeatures.map(f => getLabelOrTranslation(`promptGenerator.scalability.${f}`, f)).join(', ')}\n`;
+      if (Array.isArray(data.scalability.otherPerformanceFeature) && data.scalability.otherPerformanceFeature.length > 0) {
+        data.scalability.otherPerformanceFeature.forEach(other => {
+          if (other && other.trim()) scalabilityContent += `  - ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
+        });
+      }
     }
-
+    if (scalabilityContent.replace(/\s/g, "") !== "") md += `## ${getLabelOrTranslation('promptGenerator.scalability.title', 'Escalabilidade')}\n${getLabelOrTranslation('promptGenerator.scalability.isScalable', 'Escalável')}\n${scalabilityContent}\n`;
+    // Restrictions
+    let restrictionsContent = "";
+    if (data.restrictions.avoidInCode.length > 0) {
+      data.restrictions.avoidInCode.forEach(r => {
+        const restrictionId = r.toLowerCase().replace(/\s+/g, '');
+        restrictionsContent += `- ${getLabelOrTranslation(`promptGenerator.restrictions.${restrictionId}`, r)}\n`;
+      });
+    }
+    if (Array.isArray(data.restrictions.otherRestriction) && data.restrictions.otherRestriction.length > 0) {
+      data.restrictions.otherRestriction.forEach(other => {
+        if (other && other.trim()) restrictionsContent += `- ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
+      });
+    }
+    if (restrictionsContent.replace(/\s/g, "") !== "") md += `## ${getLabelOrTranslation('promptGenerator.restrictions.title', 'Restrições')}\n${restrictionsContent}\n`;
     return md;
   };
 
   useEffect(() => {
     setPreviewMarkdown(generatePreviewMarkdown(formData));
   }, [formData, t]); // t is a dependency if translations inside generatePreviewMarkdown change
+
+  // Update the onStepChange prop
+  const handleStepChange = () => {
+    console.log('Step changed');
+    // If we need to track the current step, we can update it within the navigation component
+    // The current step is accessible in the navigation.position property
+  };
 
   return (
     <div className="space-y-1"> {/* Reverted from space-y-0 to space-y-1 */}
@@ -889,12 +1055,13 @@ const PromptGeneratorWizard = () => {
             {/* Right Column: Markdown Preview */}
             <div className="flex-1 md:w-2/5 lg:w-1/3 mt-6 md:mt-0 p-1">
               <div className="sticky top-24"> {/* Sticky positioning for preview */}
-                <h3 className="text-lg font-semibold mb-2 text-center md:text-left">{t('promptGenerator.generate.reviewPrompt') || 'Preview do Prompt'}</h3>
-                <div className="bg-muted p-3 rounded-lg shadow-sm max-h-[calc(100vh-220px)] overflow-y-auto scrollbar-thin">
-                  <pre className="text-xs whitespace-pre-wrap break-words">
-                    {previewMarkdown}
-                  </pre>
-                </div>
+                <PromptPreview 
+                  previewContent={previewMarkdown}
+                  codeContent={previewMarkdown}
+                  markdownContent={previewMarkdown}
+                  generatedPromptContent={generatedPrompt}
+                  documentationContent={''}
+                />
               </div>
             </div>
           </div>

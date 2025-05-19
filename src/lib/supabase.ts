@@ -1,21 +1,40 @@
+import { createClient } from '@supabase/supabase-js'
+import { Database } from '@/integrations/supabase/types'
 
-import { supabase as integrationSupabase } from '@/integrations/supabase/client';
+// No Vite, as variáveis de ambiente são acessadas via import.meta.env
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
 
-// Supabase client configuration - usando o cliente da integração
-export const supabase = integrationSupabase;
-
-// Em caso de erro com a integração, temos um fallback
-if (!supabase) {
-  console.error('Erro ao inicializar o cliente Supabase da integração. Usando fallback.');
-  
-  // Crie um mock client para evitar erros
-  const mockClient = {
-    auth: {
-      getSession: () => Promise.resolve({ data: { session: null }, error: new Error('Supabase configuration missing') }),
-      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
-      signInWithPassword: () => Promise.resolve({ error: new Error('Supabase configuration missing') }),
-      signInWithOAuth: () => Promise.resolve({ error: new Error('Supabase configuration missing') }),
-      signOut: () => Promise.resolve({ error: new Error('Supabase configuration missing') })
-    },
-  } as any;
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Faltam variáveis de ambiente do Supabase. Verifique .env')
 }
+
+// Configuração inicial do cliente com opções para persistência
+const supabaseOptions = {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
+    storage: localStorage,
+    storageKey: 'sb-auth-token'
+  },
+  global: {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+};
+
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, supabaseOptions);
+
+// Função robusta de logout
+export const robustSignOut = async () => {
+  try {
+    await supabase.auth.signOut();
+    localStorage.clear();
+    window.location.replace('/');
+  } catch (error) {
+    localStorage.clear();
+    window.location.replace('/');
+  }
+};

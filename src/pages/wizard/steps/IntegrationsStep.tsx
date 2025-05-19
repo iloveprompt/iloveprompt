@@ -91,7 +91,7 @@ const IntegrationsStep: React.FC<IntegrationsStepProps> = ({ formData, updateFor
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle>{t('promptGenerator.integrations.title')}</CardTitle>
+              <CardTitle className="mb-1">{t('promptGenerator.integrations.title')}</CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
                 {t('promptGenerator.integrations.description')}
               </CardDescription>

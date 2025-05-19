@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 import ItemManager, { WizardItem } from './ItemManager';
 import { fetchSystemTypes, createWizardItem, updateWizardItem, deleteWizardItem } from '@/services/wizardManagementService';
 import { Loader2 } from 'lucide-react';

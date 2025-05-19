@@ -295,7 +295,7 @@ const StackStep: React.FC<StackStepProps> = ({
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle>{t('promptGenerator.stack.title') || "Stack Tecnológica"}</CardTitle>
+              <CardTitle className="mb-1">{t('promptGenerator.stack.title') || "Stack Tecnológica"}</CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
                 {t('promptGenerator.stack.description') || "Defina a stack tecnológica do seu projeto"}
               </CardDescription>
@@ -332,7 +332,7 @@ const StackStep: React.FC<StackStepProps> = ({
           </div>
         </CardHeader>
         <CardContent className="px-0 pb-0 sm:px-0 sm:pb-0 space-y-3 pt-4">
-          <div className="flex items-center space-x-2 p-2.5 border rounded-md bg-background">
+          <div className="flex items-center space-x-2 py-0 my-0"> {/* Changed classes here */}
             <Switch
               checked={formData.separateFrontendBackend}
               onCheckedChange={(checked) => updateFormData({ separateFrontendBackend: checked })}
@@ -350,9 +350,9 @@ const StackStep: React.FC<StackStepProps> = ({
                 {renderTechSection('backend', 'promptGenerator.stack.backendTitle', 'Backend', 'promptGenerator.stack.backendHelp', 'Tecnologias para a lógica do servidor.')}
               </>
             ) : (
-              renderTechSection('fullstack', 'promptGenerator.stack.fullstackTitle', 'Framework Fullstack', 'promptGenerator.stack.fullstackHelp', 'Frameworks que cobrem frontend e backend.')
+              renderTechSection('fullstack', 'promptGenerator.stack.fullstackTitle', 'Fullstack') // Changed defaultTitle
             )}
-            <Separator className="my-3" /> 
+            {/* <Separator className="my-3" />  Removed Separator */}
             {renderTechSection('database', 'promptGenerator.stack.databaseTitle', 'Banco de Dados', 'promptGenerator.stack.databaseHelp', 'Sistemas para armazenamento de dados.')}
             {renderTechSection('orm', 'promptGenerator.stack.ormTitle', 'ORM / Ferramentas de BD', 'promptGenerator.stack.ormHelp', 'Mapeamento Objeto-Relacional e ferramentas.')}
             {renderTechSection('hosting', 'promptGenerator.stack.hostingTitle', 'Hospedagem / Deploy', 'promptGenerator.stack.hostingHelp', 'Plataformas para implantar sua aplicação.')}

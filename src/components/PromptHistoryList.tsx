@@ -5,7 +5,7 @@ import { usePromptHistory } from '@/hooks/usePromptHistory';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 import { pt, enUS, es } from 'date-fns/locale';
 import { Trash, Copy, Eye } from 'lucide-react';

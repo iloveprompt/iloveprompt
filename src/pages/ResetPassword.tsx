@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -17,7 +16,6 @@ const ResetPasswordPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Define the form schema
   const formSchema = z.object({
     password: z.string().min(6, {
       message: t('auth.passwordMinLength'),
@@ -38,7 +36,6 @@ const ResetPasswordPage = () => {
     },
   });
 
-  // Handle form submission
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const { error } = await supabase.auth.updateUser({

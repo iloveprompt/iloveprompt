@@ -282,7 +282,7 @@ const ScalabilityStep: React.FC<ScalabilityStepProps> = ({
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle>{t('promptGenerator.scalability.title') || "Escalabilidade"}</CardTitle>
+              <CardTitle className="mb-1">{t('promptGenerator.scalability.title') || "Escalabilidade"}</CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
                 {t('promptGenerator.scalability.description') || "Defina os requisitos de escalabilidade do seu projeto"}
               </CardDescription>

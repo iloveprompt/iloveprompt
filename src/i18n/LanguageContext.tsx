@@ -10,7 +10,7 @@ type LanguageType = 'en' | 'pt' | 'es';
 interface LanguageContextType {
   language: LanguageType;
   setLanguage: (language: LanguageType) => void;
-  t: (key: string) => string;
+  t: (key: string, params?: Record<string, any>) => string;
 }
 
 // Create context with a default value
@@ -51,7 +51,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   };
 
   // Function to get translation based on key
-  const t = (key: string): string => {
+  const t = (key: string, params?: Record<string, any>): string => {
     if (!key) return '';
     
     const keys = key.split('.');
@@ -74,6 +74,13 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     if (typeof value === 'object') {
       console.warn(`Translation value is an object for key: ${key}`);
       return key;
+    }
+    
+    // Handle interpolation
+    if (params) {
+      return value.replace(/\{\{(\w+)\}\}/g, (match: string, key: string) => {
+        return params[key]?.toString() ?? match;
+      });
     }
     
     return value;

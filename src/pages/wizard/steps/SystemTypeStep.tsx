@@ -113,7 +113,7 @@ const SystemTypeStep: React.FC<SystemTypeStepProps> = ({
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start"> {/* Changed items-center to items-start */}
             <div>
-              <CardTitle>{t('promptGenerator.systemType.title') || "Tipo de Sistema"}</CardTitle>
+              <CardTitle className="mb-1">{t('promptGenerator.systemType.title') || "Tipo de Sistema"}</CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
                 {t('promptGenerator.systemType.description') || "Que tipo de sistema você está construindo?"}
               </CardDescription>

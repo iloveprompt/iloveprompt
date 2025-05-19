@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import AdminWizardTabs from './AdminWizardTabs';
 
 const AdminPrompts = () => {
@@ -20,15 +18,6 @@ const AdminPrompts = () => {
           </p>
         </div>
       </div>
-
-      <Alert>
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>{t('dashboard.information')}</AlertTitle>
-        <AlertDescription>
-          {t('dashboard.wizardItemsHelpText') ||
-            "Here you can manage all the items that appear in the prompt generator wizard. Changes made here will be immediately available to users."}
-        </AlertDescription>
-      </Alert>
 
       <Card>
         <CardHeader>

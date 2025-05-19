@@ -21,6 +21,7 @@ import { enhancePrompt } from '@/services/llmService';
 import { toast } from '@/components/ui/use-toast';
 import AIAssistantPanel from '../components/AIAssistantPanel';
 import objectiveData from '../data/objectivesData.json';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ObjectiveFormData {
   defineObjectives: boolean;
@@ -45,6 +46,7 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
   isFinalized 
 }) => {
   const { t } = useLanguage();
+  const { user } = useAuth();
   
   const [businessObjectivesOptions, setBusinessObjectivesOptions] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -116,15 +118,19 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
   };
   
   const enhanceWithAI = async () => {
-    if (!formData.primaryObjective) return;
+    if (!formData.primaryObjective || !user?.id) {
+      toast({ title: 'Erro', description: 'Preencha o objetivo principal e esteja logado.', variant: 'destructive' });
+      return;
+    }
     setAiLoading(true);
     try {
-      // Chama a LLM ativa do usuário
-      const enhanced = await enhancePrompt(formData.primaryObjective, user?.id);
+      console.log('Chamando enhancePrompt com:', formData.primaryObjective, user.id);
+      const enhanced = await enhancePrompt(formData.primaryObjective, user.id);
       updateFormData({ primaryObjective: enhanced });
       toast({ title: 'Objetivo melhorado com IA!' });
-    } catch (err) {
-      toast({ title: 'Erro ao melhorar com IA', description: err.message, variant: 'destructive' });
+    } catch (err: any) {
+      console.error('Erro ao melhorar com IA:', err);
+      toast({ title: 'Erro ao melhorar com IA', description: err.message || String(err), variant: 'destructive' });
     } finally {
       setAiLoading(false);
     }
@@ -192,7 +198,7 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle>{t('promptGenerator.objective.title') || "Objetivo do Projeto"}</CardTitle>
+              <CardTitle className="mb-1">{t('promptGenerator.objective.title') || "Objetivo do Projeto"}</CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
                 {t('promptGenerator.objective.description') || "Qual é o objetivo principal do seu projeto?"}
               </CardDescription>
@@ -261,11 +267,17 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
                 <Textarea 
                   id="primary-objective"
                   value={formData.primaryObjective}
-                  onChange={(e) => updateFormData({ primaryObjective: e.target.value })}
+                  onChange={(e) => {
+                    if (e.target.value.length <= 150) {
+                      updateFormData({ primaryObjective: e.target.value });
+                    }
+                  }}
                   placeholder={t('promptGenerator.objective.primaryObjectivePlaceholder') || "Descreva o objetivo principal..."}
                   rows={2}
                   className="py-1 text-sm" 
+                  maxLength={150}
                 />
+                <div className="text-xs text-muted-foreground text-right mt-1">{formData.primaryObjective.length}/150</div>
               </div>
               
               <div className="pt-2">

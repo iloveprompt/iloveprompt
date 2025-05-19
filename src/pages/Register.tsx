@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -19,7 +18,6 @@ const RegisterPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Define the form schema
   const formSchema = z.object({
     email: z.string().email({
       message: t('auth.invalidEmail'),
@@ -44,7 +42,6 @@ const RegisterPage = () => {
     },
   });
 
-  // Handle form submission
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const { error } = await supabase.auth.signUp({
@@ -69,7 +66,6 @@ const RegisterPage = () => {
     }
   };
 
-  // Social login handlers
   const handleGoogleSignUp = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -122,7 +118,6 @@ const RegisterPage = () => {
         </div>
         
         <div className="space-y-4">
-          {/* Social signup buttons */}
           <div className="grid grid-cols-2 gap-4">
             <Button 
               variant="outline" 
@@ -151,7 +146,6 @@ const RegisterPage = () => {
             </div>
           </div>
           
-          {/* Email/Password signup form */}
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField

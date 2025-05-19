@@ -280,7 +280,7 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle>{t('promptGenerator.codeStructure.title') || "Estrutura de Código"}</CardTitle>
+              <CardTitle className="mb-1">{t('promptGenerator.codeStructure.title') || "Estrutura de Código"}</CardTitle>
               <CardDescription className="text-sm text-muted-foreground">
                 {t('promptGenerator.codeStructure.description') || "Defina a estrutura do código do seu projeto"}
               </CardDescription>
