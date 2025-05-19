@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
+import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, Trash2, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
@@ -93,12 +93,12 @@ const RestrictionsStep: React.FC<RestrictionsStepProps> = ({
   };
   const handleRemoveOtherItem = (index: number) => setTempOtherList(tempOtherList.filter((_, i) => i !== index));
   const handleSaveOtherList = () => {
-    const currentAvoidInCode = Array.isArray(formData.avoidInCode) ? formData.avoidInCode : [];
+    // Remove duplicados entre avoidInCode e tempOtherList
+    const currentAvoidInCode = Array.isArray(formData.avoidInCode) ? formData.avoidInCode.filter(item => !tempOtherList.includes(item)) : [];
     const newAvoidInCode = Array.from(new Set([...currentAvoidInCode, ...tempOtherList]));
-
     updateFormData({ 
-      otherRestriction: tempOtherList, // Keep for separate display in UI if needed
-      avoidInCode: newAvoidInCode    // Add to main list for prompt generation
+      otherRestriction: tempOtherList, // Só para exibir no campo visual
+      avoidInCode: newAvoidInCode    // Só para o Preview, sem duplicidade
     });
     setIsOtherPopoverOpen(false);
   };
@@ -155,7 +155,7 @@ const RestrictionsStep: React.FC<RestrictionsStepProps> = ({
                 onClick={handleSaveAndFinalize} 
                 size="icon" 
                 className="h-8 w-8"
-                disabled={isFinalized}
+                disabled={isFinalized || (formData.avoidInCode.length === 0 && (!Array.isArray(formData.otherRestriction) || formData.otherRestriction.length === 0))}
               >
                 <Save className="h-4 w-4" />
                 <span className="sr-only">{isFinalized ? t('common.finalized') : t('common.saveAndFinalize')}</span>
@@ -218,7 +218,7 @@ const RestrictionsStep: React.FC<RestrictionsStepProps> = ({
                                 {tempOtherList.map((item, idx) => (
                                   <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
                                     <span className="truncate flex-1 mr-2">{item}</span>
-                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherItem(idx)} className="h-5 w-5"><XCircle className="h-3.5 w-3.5 text-destructive" /></Button>
+                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherItem(idx)} className="h-5 w-5"><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
                                   </div>
                                 ))}
                               </div>
@@ -241,11 +241,32 @@ const RestrictionsStep: React.FC<RestrictionsStepProps> = ({
                     </div>
                   </div>
                   {Array.isArray(formData.otherRestriction) && formData.otherRestriction.length > 0 && (
-                    <div className="mt-2 space-y-1 border p-2 rounded-md bg-muted/30">
+                    <div className="mt-2 border p-2 rounded-md bg-muted/30">
                       <p className="text-xs font-medium text-muted-foreground mb-1">Outras Restrições Adicionadas:</p>
-                      {formData.otherRestriction.map((item, index) => (
-                        <div key={`saved-other-restriction-${index}`} className="text-xs text-foreground p-1 bg-muted/50 rounded">{item}</div>
-                      ))}
+                      <div className="flex flex-wrap gap-2">
+                        {formData.otherRestriction.map((item, index) => (
+                          <div key={`saved-other-restriction-${index}`} className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                            <span className="truncate mr-1.5">{item}</span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-4 w-4 p-0"
+                              onClick={() => {
+                                const newOther = formData.otherRestriction.filter((_, i) => i !== index);
+                                // Remove também de avoidInCode se existir
+                                const newAvoid = Array.isArray(formData.avoidInCode) ? formData.avoidInCode.filter(r => r !== item) : [];
+                                updateFormData({
+                                  otherRestriction: newOther,
+                                  avoidInCode: newAvoid
+                                });
+                              }}
+                              aria-label="Remover"
+                            >
+                              <Trash2 className="h-3 w-3 text-destructive" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>

@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
+import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, Trash2, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -292,7 +292,7 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({
                                   onClick={() => handleRemoveOtherSpecificFromList(idx)}
                                   className="h-5 w-5"
                                 >
-                                  <XCircle className="h-3.5 w-3.5 text-destructive" />
+                                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
                                 </Button>
                               </div>
                             ))}
@@ -350,13 +350,31 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({
                 </div>
               </div>
               {Array.isArray(formData.otherSpecificFeatures) && formData.otherSpecificFeatures.length > 0 && (
-                <div className="mt-2 space-y-1 border p-2 rounded-md bg-muted/30">
+                <div className="mt-2 border p-2 rounded-md bg-muted/30">
                   <p className="text-xs font-medium text-muted-foreground mb-1">Outras Funcionalidades Adicionadas:</p>
-                  {formData.otherSpecificFeatures.map((feat, index) => (
-                    <div key={`saved-other-feat-${index}`} className="text-xs text-foreground p-1 bg-muted/50 rounded">
-                      {feat}
-                    </div>
-                  ))}
+                  <div className="flex flex-wrap gap-2">
+                    {formData.otherSpecificFeatures.map((item, index) => (
+                      <div key={`saved-other-feature-${index}`} className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                        <span className="truncate mr-1.5">{item}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-4 w-4 p-0"
+                          onClick={() => {
+                            const newOther = formData.otherSpecificFeatures.filter((_, i) => i !== index);
+                            const newSpecific = Array.isArray(formData.specificFeatures) ? formData.specificFeatures.filter(sel => sel !== item) : [];
+                            updateFormData({
+                              otherSpecificFeatures: newOther,
+                              specificFeatures: newSpecific
+                            });
+                          }}
+                          aria-label="Remover"
+                        >
+                          <Trash2 className="h-3 w-3 text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

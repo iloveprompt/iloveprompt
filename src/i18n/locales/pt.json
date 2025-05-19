@@ -99,14 +99,16 @@
     "digitalCertificates": "Certificados Digitais",
     "physicalToken": "Token Físico",
     "securityQuestions": "Perguntas de Segurança",
-    "continuousAuth": "Autenticação Contínua"
+    "continuousAuth": "Autenticação Contínua",
+    "logoutError": "Erro ao fazer logout",
+    "tryAgain": "Por favor, tente novamente. Se o problema persistir, feche o navegador e abra novamente."
   },
   "dashboard": {
     "home": "Início",
     "createPrompt": "Criar Prompt",
     "promptHistory": "Histórico de Prompts",
     "settingsLink": "Configurações",
-    "title": "Painel",
+    "title": "Dashboard",
     "profile": "Perfil",
     "welcomeBack": "Bem-vindo de volta",
     "promptsCreated": "Prompts Criados",
@@ -194,7 +196,14 @@
     "searchItems": "Buscar itens...",
     "active": "Ativo",
     "inactive": "Inativo",
-    "noItemsFound": "Nenhum item encontrado"
+    "noItemsFound": "Nenhum item encontrado",
+    "noApisTitle": "Nenhuma API configurada",
+    "noApisDesc": "Você ainda não configurou nenhuma API de LLM. Configure suas APIs nas configurações.",
+    "apiModels": "{{count}} modelos configurados",
+    "noModels": "Nenhum modelo configurado",
+    "lastTested": "Último teste",
+    "never": "Nunca",
+    "yourApis": "Suas APIs LLM"
   },
   "history": {
     "title": "Histórico de Prompts",
@@ -367,6 +376,18 @@
     "title": "Funcionalidades",
     "description": "Selecione as funcionalidades do seu projeto",
     "specificFeatures": "Funcionalidades Específicas",
+    "feature1": {
+      "title": "Geração de Código com IA",
+      "description": "Gere automaticamente trechos de código baseados em prompts de linguagem natural"
+    },
+    "feature2": {
+      "title": "Colaboração em Tempo Real",
+      "description": "Trabalhe simultaneamente com membros da equipe na engenharia de prompts"
+    },
+    "feature3": {
+      "title": "Integração com Controle de Versão",
+      "description": "Integre-se perfeitamente com Git para rastrear iterações de prompts"
+    },
     "dynamicFeatures": "Funcionalidades Dinâmicas",
     "ecommerceFeatures": {
       "catalog": "Catálogo de Produtos com Filtros e Busca Avançada",
@@ -557,7 +578,7 @@
     "objective": {
       "title": "Objetivo",
       "description": "Qual é o objetivo principal do seu projeto?",
-      "defineObjectives": "Definir objetivos específicos",
+      "defineObjectives": "Deseja definir objetivos específicos para o projeto?",
       "primaryObjective": "Objetivo Principal",
       "primaryObjectivePlaceholder": "O objetivo principal do seu projeto",
       "ecommerce": "E-commerce / Loja Online",
@@ -601,7 +622,7 @@
     "requirements": {
       "title": "Requisitos",
       "description": "Especifique os requisitos para seu projeto",
-      "defineRequirements": "Definir requisitos específicos",
+      "defineRequirements": "Deseja definir requisitos específicos para o projeto?",
       "userTypes": "Tipos de Usuários",
       "userTypesPlaceholder": "Ex: clientes, administradores, moderadores",
       "functionalRequirements": "Requisitos Funcionais",
@@ -902,7 +923,14 @@
       "addOtherElementPlaceholder": "Adicionar outro elemento:",
       "otherElementItemPlaceholder": "Nome do elemento...",
       "addOtherStylePlaceholder": "Adicionar outro estilo:",
-      "otherStyleItemPlaceholder": "Nome do estilo..."
+      "otherStyleItemPlaceholder": "Nome do estilo...",
+      "addOtherVisualStylePlaceholder": "Adicionar outro estilo visual:",
+      "otherVisualStyleItemPlaceholder": "Nome do estilo visual...",
+      "addedItemsText": "Adicionadas:",
+      "addOtherMenuTypePlaceholder": "Adicionar outro tipo de menu:",
+      "otherMenuTypeItemPlaceholder": "Nome do tipo de menu...",
+      "addOtherAuthPlaceholder": "Adicionar outro método de autenticação:",
+      "otherAuthItemPlaceholder": "Nome do método..."
     },
     "stack": {
       "title": "Stack Tecnológica",
@@ -1039,9 +1067,8 @@
     "scalability": {
       "title": "Escalabilidade",
       "description": "Como seu projeto deve escalar?",
-      "isScalable": "Projeto precisa ser altamente escalável",
+      "isScalable": "Seu projeto precisa ser altamente escalável?",
       "scalabilityFeatures": "Recursos de Escalabilidade",
-      "scalability": "Escalabilidade",
       "redis": "Redis (para cache/filas)",
       "caching": "Estratégias de Cache (CDN, em memória)",
       "autoScaling": "Auto-Escalamento (Horizontal/Vertical)",
@@ -1185,7 +1212,7 @@
         "translation_services": "Serviços de Tradução",
         "videoStreaming": "APIs de Vídeo e Streaming"
       },
-      "needsIntegrations": "Projeto precisa de Integrações"
+      "needsIntegrations": "Seu projeto precisa de Integrações?"
     },
     "wizard": {
       "confirmGlobalResetTitle": "Confirmar Reset Global",
@@ -1233,5 +1260,32 @@
     "groq": "Groq",
     "deepseek": "DeepSeek",
     "gemini": "Gemini"
+  },
+  "status": {
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "success": "Funcionando",
+    "failure": "Falha",
+    "untested": "Não testado"
+  },
+  "actions": {
+    "manage": "Gerenciar",
+    "tryAgain": "Tentar novamente"
+  },
+  "errors": {
+    "title": "Erro",
+    "fetchApis": "Erro ao carregar APIs",
+    "addApi": "Erro ao adicionar API",
+    "updateApi": "Erro ao atualizar API",
+    "deleteApi": "Erro ao deletar API",
+    "tryAgain": "Por favor, tente novamente"
+  },
+  "success": {
+    "apiAdded": "API adicionada",
+    "apiAddedDesc": "A API foi adicionada com sucesso",
+    "apiUpdated": "API atualizada",
+    "apiUpdatedDesc": "A API foi atualizada com sucesso",
+    "apiDeleted": "API removida",
+    "apiDeletedDesc": "A API foi removida com sucesso"
   }
 }

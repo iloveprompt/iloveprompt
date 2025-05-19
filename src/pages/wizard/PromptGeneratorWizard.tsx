@@ -53,6 +53,9 @@ import RestrictionsStep from './steps/RestrictionsStep';
 import GenerateStep from './steps/GenerateStep';
 import IntegrationsStep from './steps/IntegrationsStep';
 
+// Importar securityData para usar os labels corretos
+import securityData from './data/securityData.json';
+
 // Define wizard steps with dynamic title based on language and icons
 const getWizardSteps = (t: (key: string) => string) => [
   { 
@@ -667,24 +670,31 @@ const PromptGeneratorWizard = () => {
 
     // Objective
     if (data.objective.primaryObjective || data.objective.selectedObjectives.length > 0 || (Array.isArray(data.objective.otherObjective) && data.objective.otherObjective.length > 0) ) {
-      md += `## ${getLabelOrTranslation('promptGenerator.objective.title', 'Objetivo')}\n`;
+      md += `## ${getLabelOrTranslation('promptGenerator.objective.title', 'Objetivo')}
+`;
       if (data.objective.primaryObjective) {
-        md += `**${getLabelOrTranslation('promptGenerator.objective.primaryObjective', 'Objetivo Principal')}:** ${data.objective.primaryObjective}\n\n`;
+        md += `**${getLabelOrTranslation('promptGenerator.objective.primaryObjective', 'Objetivo Principal')}:** ${data.objective.primaryObjective}
+
+`;
       }
       if (data.objective.selectedObjectives.length > 0) {
-        md += `**${getLabelOrTranslation('promptGenerator.objective.additionalObjectivesTitle', 'Objetivos Adicionais')}:**\n`;
+        md += `**${getLabelOrTranslation('promptGenerator.objective.additionalObjectivesTitle', 'Objetivos Adicionais')}:**
+`;
         data.objective.selectedObjectives.forEach((objKey: string) => {
           if (objKey !== 'Other') {
             const objectiveLabel = getLabelOrTranslation(`promptGenerator.objective.${objKey}`, objKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()));
-            md += `- ${objectiveLabel}\n`;
+            md += `- ${objectiveLabel}
+`;
           }
         });
         md += "\n";
       }
       if (Array.isArray(data.objective.otherObjective) && data.objective.otherObjective.length > 0) {
-        md += `**${getLabelOrTranslation('promptGenerator.objective.specifiedOtherObjectivesTitle', 'Outros Objetivos Especificados:')}**\n`;
+        md += `**${getLabelOrTranslation('promptGenerator.objective.specifiedOtherObjectivesTitle', 'Outros Objetivos Especificados:')}**
+`;
         data.objective.otherObjective.forEach(customObj => {
-          if (customObj.trim()) md += `- ${customObj.trim()}\n`;
+          if (customObj.trim()) md += `- ${customObj.trim()}
+`;
         });
         md += "\n";
       }
@@ -692,47 +702,64 @@ const PromptGeneratorWizard = () => {
     // Requirements
     if (data.requirements.userTypes.length > 0 || 
         data.requirements.functionalRequirements.length > 0 || 
-        data.requirements.nonFunctionalRequirements.length > 0 || 
-        (Array.isArray(data.requirements.otherRequirement) && data.requirements.otherRequirement.length > 0)) {
-      md += `## ${getLabelOrTranslation('promptGenerator.requirements.title', 'Requisitos')}\n`;
+        data.requirements.nonFunctionalRequirements.length > 0) {
+      md += `## ${getLabelOrTranslation('promptGenerator.requirements.title', 'Requisitos')}
+`;
       if (data.requirements.userTypes.length > 0) {
-        md += `**${getLabelOrTranslation('promptGenerator.requirements.userTypes', 'Tipos de Usuários')}:** ${data.requirements.userTypes.join(', ')}\n\n`;
+        md += `**${getLabelOrTranslation('promptGenerator.requirements.userTypes', 'Tipos de Usuários')}:** ${data.requirements.userTypes.join(', ')}
+
+`;
       }
       if (data.requirements.functionalRequirements.length > 0) {
-        md += `**${getLabelOrTranslation('promptGenerator.requirements.functionalRequirements', 'Requisitos Funcionais')}:**\n`;
+        md += `**${getLabelOrTranslation('promptGenerator.requirements.functionalRequirements', 'Requisitos Funcionais')}:**
+`;
         data.requirements.functionalRequirements.forEach(r => {
-          if (r.trim()) md += `- ${r.trim()}\n`;
+          if (r.trim()) md += `- ${r.trim()}
+`;
         });
         md += "\n";
       }
       const hasSelectedNFRs = data.requirements.nonFunctionalRequirements.filter(r => r !== 'Other').length > 0;
-      const hasOtherNFRs = Array.isArray(data.requirements.otherRequirement) && data.requirements.otherRequirement.length > 0;
-      if (hasSelectedNFRs || hasOtherNFRs) {
-        md += `**${getLabelOrTranslation('promptGenerator.requirements.nonFunctionalRequirements', 'Requisitos Não-Funcionais')}:**\n`;
+      if (hasSelectedNFRs) {
+        md += `**${getLabelOrTranslation('promptGenerator.requirements.nonFunctionalRequirements', 'Requisitos Não-Funcionais')}:**
+`;
         data.requirements.nonFunctionalRequirements.forEach(reqKey => {
           if (reqKey !== 'Other') {
             const reqLabel = getLabelOrTranslation(`promptGenerator.requirements.${reqKey}`, reqKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()));
-            md += `- ${reqLabel}\n`;
+            md += `- ${reqLabel}
+`;
           }
         });
-        if (hasOtherNFRs) {
-          data.requirements.otherRequirement.forEach(customReq => {
-            if (customReq.trim()) md += `- ${customReq.trim()}\n`;
-          });
-        }
+        md += "\n";
+      }
+      if (Array.isArray(data.requirements.otherRequirement) && data.requirements.otherRequirement.length > 0) {
+        data.requirements.otherRequirement.forEach(other => {
+          if (other && other.trim()) md += `- ${other.trim()}
+`;
+        });
         md += "\n";
       }
     }
     // Features
     if (data.features.specificFeatures.length > 0 || data.features.dynamicFeatures.length > 0 || data.features.otherFeature) {
-      md += `## ${getLabelOrTranslation('promptGenerator.features.title', 'Funcionalidades')}\n`;
+      md += `## ${getLabelOrTranslation('promptGenerator.features.title', 'Funcionalidades')}
+`;
       if (data.features.specificFeatures.length > 0) {
-         md += `### ${getLabelOrTranslation('promptGenerator.features.specificFeatures', 'Funcionalidades Específicas')}\n${data.features.specificFeatures.map(f => `- ${getLabelOrTranslation(`promptGenerator.features.${f}`, f)}`).join('\n')}\n`;
+         md += `### ${getLabelOrTranslation('promptGenerator.features.specificFeatures', 'Funcionalidades Específicas')}
+${data.features.specificFeatures.map(f => `- ${getLabelOrTranslation(`promptGenerator.features.${f}`, f)}`).join('\n')}
+`;
       }
       if (data.features.dynamicFeatures.length > 0) {
-        md += `### ${getLabelOrTranslation('promptGenerator.features.dynamicFeatures', 'Funcionalidades Dinâmicas')}\n${data.features.dynamicFeatures.map(f => `- ${getLabelOrTranslation(`promptGenerator.features.${f}`, f)}`).join('\n')}\n`;
+        md += `### ${getLabelOrTranslation('promptGenerator.features.dynamicFeatures', 'Funcionalidades Dinâmicas')}
+${data.features.dynamicFeatures.map(f => `- ${getLabelOrTranslation(`promptGenerator.features.${f}`, f)}`).join('\n')}
+`;
       }
-      if (data.features.otherFeature) md += `- ${getLabelOrTranslation('common.other', 'Outro')}: ${data.features.otherFeature}\n`;
+      if (data.features.otherFeature) md += `- ${data.features.otherFeature}\n`;
+      if (Array.isArray(data.features.otherSpecificFeatures) && data.features.otherSpecificFeatures.length > 0) {
+        data.features.otherSpecificFeatures.forEach(other => {
+          if (other && other.trim()) md += `- ${other.trim()}\n`;
+        });
+      }
       md += "\n";
     }
     // UX/UI
@@ -824,24 +851,40 @@ const PromptGeneratorWizard = () => {
     // Stack
     let stackContent = "";
     if (data.stack.separateFrontendBackend) {
-      if (data.stack.frontend.length > 0 || (Array.isArray(data.stack.otherFrontend) && data.stack.otherFrontend.length > 0)) stackContent += `**${getLabelOrTranslation('promptGenerator.stack.frontend', 'Frontend')}:** ${[...data.stack.frontend, ...(Array.isArray(data.stack.otherFrontend) ? data.stack.otherFrontend : [])].filter(Boolean).map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
-      if (data.stack.backend.length > 0 || (Array.isArray(data.stack.otherBackend) && data.stack.otherBackend.length > 0)) stackContent += `**${getLabelOrTranslation('promptGenerator.stack.backend', 'Backend')}:** ${[...data.stack.backend, ...(Array.isArray(data.stack.otherBackend) ? data.stack.otherBackend : [])].filter(Boolean).map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
+      if (data.stack.frontend.length > 0) stackContent += `**${getLabelOrTranslation('promptGenerator.stack.frontend', 'Frontend')}:** ${data.stack.frontend.map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
+      if (data.stack.backend.length > 0) stackContent += `**${getLabelOrTranslation('promptGenerator.stack.backend', 'Backend')}:** ${data.stack.backend.map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
     } else {
-      if (data.stack.fullstack.length > 0 || (Array.isArray(data.stack.otherFullstack) && data.stack.otherFullstack.length > 0)) stackContent += `**${getLabelOrTranslation('promptGenerator.stack.fullstack', 'Fullstack')}:** ${[...data.stack.fullstack, ...(Array.isArray(data.stack.otherFullstack) ? data.stack.otherFullstack : [])].filter(Boolean).map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
+      if (data.stack.fullstack.length > 0) stackContent += `**${getLabelOrTranslation('promptGenerator.stack.fullstack', 'Fullstack')}:** ${data.stack.fullstack.map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
     }
-    if (data.stack.database.length > 0 || (Array.isArray(data.stack.otherDatabase) && data.stack.otherDatabase.length > 0)) stackContent += `**${getLabelOrTranslation('promptGenerator.stack.database', 'Banco de Dados')}:** ${[...data.stack.database, ...(Array.isArray(data.stack.otherDatabase) ? data.stack.otherDatabase : [])].filter(Boolean).map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
+    if (data.stack.database.length > 0) stackContent += `**${getLabelOrTranslation('promptGenerator.stack.database', 'Banco de Dados')}:** ${data.stack.database.map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
+    // Adicionar ORM
+    if (data.stack.orm && data.stack.orm.length > 0) {
+      stackContent += `**${getLabelOrTranslation('promptGenerator.stack.orm', 'ORM / Ferramentas de BD')}:** ${data.stack.orm.map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
+    }
+    if (Array.isArray(data.stack.otherOrm) && data.stack.otherOrm.length > 0) {
+      stackContent += `**${getLabelOrTranslation('promptGenerator.stack.orm', 'ORM / Ferramentas de BD')} (${getLabelOrTranslation('common.other', 'Outros')}):** ${data.stack.otherOrm.join(', ')}\n`;
+    }
+    // Adicionar Hosting
+    if (data.stack.hosting && data.stack.hosting.length > 0) {
+      stackContent += `**${getLabelOrTranslation('promptGenerator.stack.hosting', 'Hospedagem / Deploy')}:** ${data.stack.hosting.map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
+    }
+    if (Array.isArray(data.stack.otherHosting) && data.stack.otherHosting.length > 0) {
+      stackContent += `**${getLabelOrTranslation('promptGenerator.stack.hosting', 'Hospedagem / Deploy')} (${getLabelOrTranslation('common.other', 'Outros')}):** ${data.stack.otherHosting.join(', ')}\n`;
+    }
     if (stackContent.replace(/\s/g, "") !== "") md += `## ${getLabelOrTranslation('promptGenerator.stack.title', 'Stack Tecnológica')}\n${stackContent}\n`;
     // Security
     let securityContent = "";
+    // Criar um mapa id->label para lookup rápido
+    const securityLabelMap = Array.isArray(securityData) ? Object.fromEntries(securityData.map(item => [item.id, item.label])) : {};
     if (data.security.selectedSecurity.length > 0) {
       data.security.selectedSecurity.forEach(s => {
-        const securityId = s.toLowerCase().replace(/\s+/g, '');
-        securityContent += `- ${getLabelOrTranslation(`promptGenerator.security.${securityId}`, s)}\n`;
+        const label = securityLabelMap[s] || getLabelOrTranslation(`promptGenerator.security.${s.toLowerCase().replace(/\s+/g, '')}`, s);
+        securityContent += `- ${label}\n`;
       });
     }
     if (Array.isArray(data.security.otherSecurityFeature) && data.security.otherSecurityFeature.length > 0) {
       data.security.otherSecurityFeature.forEach(other => {
-        if (other && other.trim()) securityContent += `- ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
+        if (other && other.trim()) securityContent += `- ${other.trim()}\n`;
       });
     }
     if (securityContent.replace(/\s/g, "") !== "") md += `## ${getLabelOrTranslation('promptGenerator.security.title', 'Segurança')}\n${securityContent}\n`;
@@ -850,19 +893,19 @@ const PromptGeneratorWizard = () => {
     if (data.codeStructure.folderOrganization.length > 0) codeStructureContent += `**${getLabelOrTranslation('promptGenerator.codeStructure.folderOrganization', 'Organização de Pastas')}:** ${data.codeStructure.folderOrganization.map(f => getLabelOrTranslation(`promptGenerator.codeStructure.${f}`, f)).join(', ')}\n`;
     if (Array.isArray(data.codeStructure.otherOrganizationStyle) && data.codeStructure.otherOrganizationStyle.length > 0) {
       data.codeStructure.otherOrganizationStyle.forEach(other => {
-        if (other && other.trim()) codeStructureContent += `  - ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
+        if (other && other.trim()) codeStructureContent += `- ${other.trim()}\n`;
       });
     }
     if (data.codeStructure.architecturalPattern.length > 0) codeStructureContent += `**${getLabelOrTranslation('promptGenerator.codeStructure.architecturalPattern', 'Padrão Arquitetural')}:** ${data.codeStructure.architecturalPattern.map(f => getLabelOrTranslation(`promptGenerator.codeStructure.${f}`, f)).join(', ')}\n`;
     if (Array.isArray(data.codeStructure.otherArchPattern) && data.codeStructure.otherArchPattern.length > 0) {
       data.codeStructure.otherArchPattern.forEach(other => {
-        if (other && other.trim()) codeStructureContent += `  - ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
+        if (other && other.trim()) codeStructureContent += `- ${other.trim()}\n`;
       });
     }
     if (data.codeStructure.bestPractices.length > 0) codeStructureContent += `**${getLabelOrTranslation('promptGenerator.codeStructure.bestPractices', 'Melhores Práticas')}:** ${data.codeStructure.bestPractices.map(f => getLabelOrTranslation(`promptGenerator.codeStructure.${f}`, f)).join(', ')}\n`;
     if (Array.isArray(data.codeStructure.otherBestPractice) && data.codeStructure.otherBestPractice.length > 0) {
       data.codeStructure.otherBestPractice.forEach(other => {
-        if (other && other.trim()) codeStructureContent += `  - ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
+        if (other && other.trim()) codeStructureContent += `- ${other.trim()}\n`;
       });
     }
     if (codeStructureContent.replace(/\s/g, "") !== "") md += `## ${getLabelOrTranslation('promptGenerator.codeStructure.title', 'Estrutura de Código')}\n${codeStructureContent}\n`;
@@ -872,31 +915,51 @@ const PromptGeneratorWizard = () => {
       if (data.scalability.scalabilityFeatures.length > 0) scalabilityContent += `**${getLabelOrTranslation('promptGenerator.scalability.scalabilityFeatures', 'Recursos de Escalabilidade')}:** ${data.scalability.scalabilityFeatures.map(f => getLabelOrTranslation(`promptGenerator.scalability.${f}`, f)).join(', ')}\n`;
       if (Array.isArray(data.scalability.otherScalabilityFeature) && data.scalability.otherScalabilityFeature.length > 0) {
         data.scalability.otherScalabilityFeature.forEach(other => {
-          if (other && other.trim()) scalabilityContent += `  - ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
+          if (other && other.trim()) scalabilityContent += `- ${other.trim()}\n`;
         });
       }
       if (data.scalability.performanceFeatures.length > 0) scalabilityContent += `**${getLabelOrTranslation('promptGenerator.scalability.performanceFeatures', 'Recursos de Performance')}:** ${data.scalability.performanceFeatures.map(f => getLabelOrTranslation(`promptGenerator.scalability.${f}`, f)).join(', ')}\n`;
       if (Array.isArray(data.scalability.otherPerformanceFeature) && data.scalability.otherPerformanceFeature.length > 0) {
         data.scalability.otherPerformanceFeature.forEach(other => {
-          if (other && other.trim()) scalabilityContent += `  - ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
+          if (other && other.trim()) scalabilityContent += `- ${other.trim()}\n`;
         });
       }
     }
     if (scalabilityContent.replace(/\s/g, "") !== "") md += `## ${getLabelOrTranslation('promptGenerator.scalability.title', 'Escalabilidade')}\n${getLabelOrTranslation('promptGenerator.scalability.isScalable', 'Escalável')}\n${scalabilityContent}\n`;
     // Restrictions
     let restrictionsContent = "";
+    const restrictionTranslations = {
+      classComponents: 'Componentes de Classe',
+      specificLibraries: 'Bibliotecas Específicas',
+      callbackHell: 'Callback Hell',
+      globalVars: 'Variáveis Globais',
+      paidDeps: 'Dependências Pagas',
+    };
     if (data.restrictions.avoidInCode.length > 0) {
       data.restrictions.avoidInCode.forEach(r => {
-        const restrictionId = r.toLowerCase().replace(/\s+/g, '');
-        restrictionsContent += `- ${getLabelOrTranslation(`promptGenerator.restrictions.${restrictionId}`, r)}\n`;
-      });
-    }
-    if (Array.isArray(data.restrictions.otherRestriction) && data.restrictions.otherRestriction.length > 0) {
-      data.restrictions.otherRestriction.forEach(other => {
-        if (other && other.trim()) restrictionsContent += `- ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
+        const key = r;
+        const translated = restrictionTranslations[key] || getLabelOrTranslation(`promptGenerator.restrictions.${key}`, key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()));
+        restrictionsContent += `- Evitar: ${translated}\n`;
       });
     }
     if (restrictionsContent.replace(/\s/g, "") !== "") md += `## ${getLabelOrTranslation('promptGenerator.restrictions.title', 'Restrições')}\n${restrictionsContent}\n`;
+    // Integrations
+    if (
+      data.integrations &&
+      typeof data.integrations === 'object' &&
+      'needsIntegrations' in data.integrations &&
+      data.integrations.needsIntegrations
+    ) {
+      const selected = Array.isArray(data.integrations.selectedIntegrations) ? data.integrations.selectedIntegrations : [];
+      const uniqueIntegrations = Array.from(new Set(selected));
+      if (uniqueIntegrations.length > 0) {
+        md += `## ${getLabelOrTranslation('promptGenerator.integrations.title', 'Integrações')}` + '\n';
+        uniqueIntegrations.forEach((integration) => {
+          md += `- ${getLabelOrTranslation('promptGenerator.integrations.options.' + integration, integration)}` + '\n';
+        });
+        md += '\n';
+      }
+    }
     return md;
   };
 

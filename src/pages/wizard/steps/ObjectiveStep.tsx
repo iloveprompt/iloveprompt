@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button'; // Restoring Button import
 import { Checkbox } from '@/components/ui/checkbox';
-import { Wand2, ChevronLeft, ChevronRight, ListPlus, PlusCircle, XCircle, RotateCcw, Save, CheckCircle as CheckCircleIcon } from 'lucide-react'; // Added RotateCcw, Save, CheckCircleIcon
+import { Wand2, ChevronLeft, ChevronRight, ListPlus, PlusCircle, Trash2, RotateCcw, Save, CheckCircle as CheckCircleIcon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
@@ -225,7 +225,18 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
                 onClick={handleSaveAndFinalize} 
                 size="icon" 
                 className="h-8 w-8"
-                disabled={isFinalized || (formData.defineObjectives && !formData.primaryObjective.trim() && formData.selectedObjectives.length === 0 && otherObjectivesArray.length === 0)}
+                disabled={isFinalized || (
+                  (formData.defineObjectives &&
+                    !formData.primaryObjective.trim() &&
+                    formData.selectedObjectives.length === 0 &&
+                    otherObjectivesArray.length === 0
+                  ) ||
+                  (!formData.defineObjectives &&
+                    !formData.primaryObjective.trim() &&
+                    formData.selectedObjectives.length === 0 &&
+                    otherObjectivesArray.length === 0
+                  )
+                )}
               >
                 <Save className="h-4 w-4" />
                 <span className="sr-only">{isFinalized ? t('common.finalized') : t('common.saveAndFinalize')}</span>
@@ -242,7 +253,7 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
               id="define-objectives-toggle"
             />
             <Label htmlFor="define-objectives-toggle" className="text-sm font-medium text-foreground">
-              {t('promptGenerator.objective.defineObjectives') || "Definir objetivos específicos"}
+              {t('promptGenerator.objective.defineObjectives') || "Deseja definir objetivos específicos para o projeto?"}
             </Label>
           </div>
 
@@ -357,7 +368,7 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
                                     <div key={index} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
                                       <span className="truncate flex-1 mr-2">{obj}</span>
                                       <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherObjectiveFromList(index)} className="h-5 w-5">
-                                        <XCircle className="h-3.5 w-3.5 text-destructive" />
+                                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
                                       </Button>
                                     </div>
                                   ))}
@@ -403,6 +414,35 @@ const ObjectiveStep: React.FC<ObjectiveStepProps> = ({
                 </Accordion>
               </div>
             </>
+          )}
+
+          {Array.isArray(formData.otherObjective) && formData.otherObjective.length > 0 && (
+            <div className="mt-2 border p-2 rounded-md bg-muted/30">
+              <p className="text-xs font-medium text-muted-foreground mb-1">Outros Objetivos Adicionados:</p>
+              <div className="flex flex-wrap gap-2">
+                {formData.otherObjective.map((item, index) => (
+                  <div key={`saved-other-objective-${index}`} className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                    <span className="truncate mr-1.5">{item}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-4 w-4 p-0"
+                      onClick={() => {
+                        const newOther = formData.otherObjective.filter((_, i) => i !== index);
+                        const newSelected = Array.isArray(formData.selectedObjectives) ? formData.selectedObjectives.filter(sel => sel !== item) : [];
+                        updateFormData({
+                          otherObjective: newOther,
+                          selectedObjectives: newSelected
+                        });
+                      }}
+                      aria-label="Remover"
+                    >
+                      <Trash2 className="h-3 w-3 text-destructive" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
         </CardContent>

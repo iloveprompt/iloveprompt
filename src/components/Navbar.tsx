@@ -59,8 +59,8 @@ const Navbar = () => {
   }, [isMenuOpen, isMobile]);
   
   const handleSignOut = async () => {
+    if (isMenuOpen) setIsMenuOpen(false);
     await signOut();
-    navigate('/');
   };
   
   const handleDashboardClick = () => {
@@ -80,15 +80,14 @@ const Navbar = () => {
   const isInDashboard = location.pathname.includes('/dashboard') || location.pathname.includes('/admin');
 
   // On landing page (homepage), we always show login/register buttons
-  // For other non-dashboard pages, we check authentication status
   const isHomePage = location.pathname === '/';
 
-  // Important: We want to show auth buttons on the homepage regardless of auth status
-  // This ensures users always see the landing page buttons
-  const showAuthButtons = isHomePage || !isInDashboard && !isAuthenticated;
+  // Show auth buttons ONLY if we're on homepage OR if not authenticated and not in dashboard
+  const showAuthButtons = isHomePage || (!isInDashboard && !isAuthenticated);
 
-  // We only show dashboard button for authenticated users who are not already in the dashboard
-  const showDashboardButton = isAuthenticated && !isInDashboard;
+  // Show dashboard/logout buttons ONLY if authenticated AND not on homepage AND not in dashboard
+  const showDashboardButton = isAuthenticated && !isHomePage && !isInDashboard;
+  const showLogoutButton = isAuthenticated && !isHomePage;
   
   return (
     <header className={`sticky-menu ${isScrolled ? 'scrolled' : ''}`}>
@@ -121,7 +120,7 @@ const Navbar = () => {
                 </Button>
               )}
               
-              {isAuthenticated && (
+              {showLogoutButton && (
                 <Button 
                   variant="outline" 
                   className="border-red-500 text-red-700 hover:bg-red-50" 
@@ -239,7 +238,7 @@ const Navbar = () => {
                 </>
               )}
               
-              {isAuthenticated && (
+              {showLogoutButton && (
                 <Button 
                   variant="outline" 
                   className="w-full border-red-500 text-red-700" 

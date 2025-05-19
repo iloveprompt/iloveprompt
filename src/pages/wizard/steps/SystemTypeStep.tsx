@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input'; // Added Input import
 import RadioSpecifyItem from '@/components/RadioSpecifyItem';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, ListPlus, RotateCcw, Save, CheckCircle, Wand2 } from 'lucide-react'; // Added ListPlus, RotateCcw, Save, CheckCircle, Wand2
+import { ChevronLeft, ChevronRight, ListPlus, RotateCcw, Save, CheckCircle, Wand2, Trash2 } from 'lucide-react'; // Added ListPlus, RotateCcw, Save, CheckCircle, Wand2, Trash2
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import systemTypesData from '../data/systemTypesData.json';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -214,6 +214,28 @@ const SystemTypeStep: React.FC<SystemTypeStepProps> = ({
                 </div>
               )}
             </div>
+
+            {formData.selected === 'other' && formData.otherType && (
+              <div className="mt-2 border p-2 rounded-md bg-muted/30">
+                <p className="text-xs font-medium text-muted-foreground mb-1">Tipo Personalizado Adicionado:</p>
+                <div className="flex flex-wrap gap-2">
+                  <div className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                    <span className="truncate mr-1.5">{formData.otherType}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-4 w-4 p-0"
+                      onClick={() => {
+                        updateFormData('systemType', { selected: '', otherType: '' });
+                      }}
+                      aria-label="Remover"
+                    >
+                      <Trash2 className="h-3 w-3 text-destructive" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
 
           </div>
           {/* Action Buttons DIV removed from here */}

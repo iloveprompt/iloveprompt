@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from "@/components/ui/switch";
-import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
+import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight, Wand2, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
@@ -95,12 +95,19 @@ const StackStep: React.FC<StackStepProps> = ({
 
   type TechCategory = 'frontend' | 'backend' | 'fullstack' | 'database' | 'orm' | 'hosting';
 
-  const handleTechSelection = (category: TechCategory, optionId: string, checked: boolean) => {
-    const currentSelection = formData[category] as string[];
-    const updatedSelection = checked
-      ? [...currentSelection, optionId]
-      : currentSelection.filter(id => id !== optionId);
-    updateFormData({ [category]: updatedSelection } as Partial<StackFormData>);
+  const singleChoiceCategories: TechCategory[] = ['frontend', 'backend', 'fullstack', 'database', 'orm', 'hosting'];
+
+  const handleTechSelection = (category: TechCategory, optionId: string) => {
+    if (singleChoiceCategories.includes(category)) {
+      updateFormData({ [category]: [optionId] } as Partial<StackFormData>);
+    } else {
+      // fallback para múltipla escolha se necessário para outras categorias
+      const currentSelection = formData[category] as string[];
+      const updatedSelection = currentSelection.includes(optionId)
+        ? currentSelection.filter(id => id !== optionId)
+        : [...currentSelection, optionId];
+      updateFormData({ [category]: updatedSelection } as Partial<StackFormData>);
+    }
   };
 
   const toggleSelectAll = (category: TechCategory) => {
@@ -209,75 +216,99 @@ const StackStep: React.FC<StackStepProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
               {currentItemsToDisplay.map((option) => (
                 <div key={option.id} className="flex items-start space-x-1.5">
-                  <Checkbox
-                    id={`${category}-${option.id}`}
-                    checked={(formData[category] as string[]).includes(option.id)}
-                    onCheckedChange={(checked) => handleTechSelection(category, option.id, checked === true)}
-                    className="mt-0.5"
-                  />
+                  {singleChoiceCategories.includes(category) ? (
+                    <input
+                      type="radio"
+                      id={`${category}-${option.id}`}
+                      name={`radio-${category}`}
+                      checked={(formData[category] as string[])[0] === option.id}
+                      onChange={() => handleTechSelection(category, option.id)}
+                      className="mt-0.5 accent-primary h-4 w-4"
+                    />
+                  ) : (
+                    <Checkbox
+                      id={`${category}-${option.id}`}
+                      checked={(formData[category] as string[]).includes(option.id)}
+                      onCheckedChange={() => handleTechSelection(category, option.id)}
+                      className="mt-0.5"
+                    />
+                  )}
                   <Label htmlFor={`${category}-${option.id}`} className="cursor-pointer text-xs font-normal whitespace-normal leading-tight">
                     {option.label}
                   </Label>
                 </div>
               ))}
             </div>
-            <div className="flex items-center justify-between space-x-2 mt-2 pt-2">
-              {options.length > 0 && (
-                <Button variant="outline" size="sm" className="text-xs" onClick={() => toggleSelectAll(category)}>
-                  {allSelected ? (t('common.unselectAll') || "Desmarcar Todos") : (t('common.selectAll') || "Marcar Todos")}
-                </Button>
-              )}
-              <div className="flex items-center space-x-2">
-                <Popover open={popoverStates[category]} onOpenChange={(isOpen) => setPopoverStates(prev => ({ ...prev, [category]: isOpen }))}>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm" className="text-xs">
-                      <ListPlus className="h-3 w-3 mr-1.5" />
-                      {t('promptGenerator.objective.notInList') || "Não está na lista?"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-4" side="top" align="end">
-                    <div className="space-y-3">
-                      <Label htmlFor={`other-${category}-input`} className="text-sm font-medium">
-                        {t('promptGenerator.stack.specifyOther') || `Adicionar outra tecnologia ${defaultTitle.toLowerCase()}:`}
-                      </Label>
-                      <div className="flex items-center space-x-2">
-                        <Input id={`other-${category}-input`} value={currentInputs[category]} onChange={(e) => setCurrentInputs(prev => ({ ...prev, [category]: e.target.value }))} placeholder={t('promptGenerator.stack.otherPlaceholder') || 'Sua tecnologia...'} className="text-xs h-8" onKeyDown={(e) => { if (e.key === 'Enter' && currentInputs[category].trim()) handleAddOtherItem(category); }} />
-                        <Button size="icon" onClick={() => handleAddOtherItem(category)} disabled={!currentInputs[category].trim() || tempLists[category].length >= 10} className="h-8 w-8 flex-shrink-0"><PlusCircle className="h-4 w-4" /></Button>
-                      </div>
-                      {tempLists[category].length > 0 && (
-                        <div className="mt-2 space-y-1 max-h-28 overflow-y-auto border p-2 rounded-md">
-                          <p className="text-xs text-muted-foreground mb-1">{`Adicionadas (${tempLists[category].length}/10):`}</p>
-                          {tempLists[category].map((item, idx) => (
-                            <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
-                              <span className="truncate flex-1 mr-2">{item}</span>
-                              <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherItem(category, idx)} className="h-5 w-5"><XCircle className="h-3.5 w-3.5 text-destructive" /></Button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {tempLists[category].length >= 10 && <p className="text-xs text-destructive mt-1">{t('promptGenerator.objective.limitReached') || "Limite de 10 atingido."}</p>}
-                      <div className="flex justify-end space-x-2 mt-3">
-                        <Button size="sm" variant="ghost" onClick={() => setPopoverStates(prev => ({ ...prev, [category]: false }))} className="text-xs h-8">{'Cancelar'}</Button>
-                        <Button size="sm" onClick={() => handleSaveOtherList(category)} disabled={tempLists[category].length === 0 && otherItems.length === 0 && !currentInputs[category].trim()} className="text-xs h-8">{'Salvar Outras'}</Button>
-                      </div>
+            <div className="flex items-center justify-end space-x-2">
+              <Popover open={popoverStates[category]} onOpenChange={(isOpen) => setPopoverStates(prev => ({ ...prev, [category]: isOpen }))}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="text-xs">
+                    <ListPlus className="h-3 w-3 mr-1.5" />
+                    {t('promptGenerator.objective.notInList') || "Não está na lista?"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-4" side="top" align="end">
+                  <div className="space-y-3">
+                    <Label htmlFor={`other-${category}-input`} className="text-sm font-medium">
+                      {t('promptGenerator.stack.specifyOther') || `Adicionar outra tecnologia ${defaultTitle.toLowerCase()}:`}
+                    </Label>
+                    <div className="flex items-center space-x-2">
+                      <Input id={`other-${category}-input`} value={currentInputs[category]} onChange={(e) => setCurrentInputs(prev => ({ ...prev, [category]: e.target.value }))} placeholder={t('promptGenerator.stack.otherPlaceholder') || 'Sua tecnologia...'} className="text-xs h-8" onKeyDown={(e) => { if (e.key === 'Enter' && currentInputs[category].trim()) handleAddOtherItem(category); }} />
+                      <Button size="icon" onClick={() => handleAddOtherItem(category)} disabled={!currentInputs[category].trim() || tempLists[category].length >= 10} className="h-8 w-8 flex-shrink-0"><PlusCircle className="h-4 w-4" /></Button>
                     </div>
-                  </PopoverContent>
-                </Popover>
-                {totalPages > 1 && (
-                  <div className="flex items-center justify-center space-x-1">
-                    <Button variant="ghost" size="icon" onClick={() => setCurrentPages(prev => ({...prev, [category]: Math.max(0, prev[category] - 1)}))} disabled={currentPages[category] === 0} className="h-7 w-7"><ChevronLeft className="h-4 w-4" /></Button>
-                    <span className="text-xs text-muted-foreground">{`${t('common.page') || 'Página'} ${currentPages[category] + 1} ${t('common.of') || 'de'} ${totalPages}`}</span>
-                    <Button variant="ghost" size="icon" onClick={() => setCurrentPages(prev => ({...prev, [category]: Math.min(totalPages - 1, prev[category] + 1)}))} disabled={currentPages[category] === totalPages - 1} className="h-7 w-7"><ChevronRight className="h-4 w-4" /></Button>
+                    {tempLists[category].length > 0 && (
+                      <div className="mt-2 space-y-1 max-h-28 overflow-y-auto border p-2 rounded-md">
+                        <p className="text-xs text-muted-foreground mb-1">{`Adicionadas (${tempLists[category].length}/10):`}</p>
+                        {tempLists[category].map((item, idx) => (
+                          <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
+                            <span className="truncate flex-1 mr-2">{item}</span>
+                            <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherItem(category, idx)} className="h-5 w-5"><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {tempLists[category].length >= 10 && <p className="text-xs text-destructive mt-1">{t('promptGenerator.objective.limitReached') || "Limite de 10 atingido."}</p>}
+                    <div className="flex justify-end space-x-2 mt-3">
+                      <Button size="sm" variant="ghost" onClick={() => setPopoverStates(prev => ({ ...prev, [category]: false }))} className="text-xs h-8">{'Cancelar'}</Button>
+                      <Button size="sm" onClick={() => handleSaveOtherList(category)} disabled={tempLists[category].length === 0 && otherItems.length === 0 && !currentInputs[category].trim()} className="text-xs h-8">{'Salvar Outras'}</Button>
+                    </div>
                   </div>
-                )}
-              </div>
+                </PopoverContent>
+              </Popover>
+              {totalPages > 1 && (
+                <div className="flex items-center justify-center space-x-1">
+                  <Button variant="ghost" size="icon" onClick={() => setCurrentPages(prev => ({...prev, [category]: Math.max(0, prev[category] - 1)}))} disabled={currentPages[category] === 0} className="h-7 w-7"><ChevronLeft className="h-4 w-4" /></Button>
+                  <span className="text-xs text-muted-foreground">{`${t('common.page') || 'Página'} ${currentPages[category] + 1} ${t('common.of') || 'de'} ${totalPages}`}</span>
+                  <Button variant="ghost" size="icon" onClick={() => setCurrentPages(prev => ({...prev, [category]: Math.min(totalPages - 1, prev[category] + 1)}))} disabled={currentPages[category] === totalPages - 1} className="h-7 w-7"><ChevronRight className="h-4 w-4" /></Button>
+                </div>
+              )}
             </div>
             {otherItems.length > 0 && (
-              <div className="mt-2 space-y-1 border p-2 rounded-md bg-muted/30">
+              <div className="mt-2 border p-2 rounded-md bg-muted/30">
                 <p className="text-xs font-medium text-muted-foreground mb-1">{`Outras tecnologias ${defaultTitle.toLowerCase()} adicionadas:`}</p>
-                {otherItems.map((item, index) => (
-                  <div key={`saved-other-${category}-${index}`} className="text-xs text-foreground p-1 bg-muted/50 rounded">{item}</div>
-                ))}
+                <div className="flex flex-wrap gap-2">
+                  {otherItems.map((item, index) => (
+                    <div key={`saved-other-${category}-${index}`} className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                      <span className="truncate mr-1.5">{item}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-4 w-4 p-0"
+                        onClick={() => {
+                          const newOther = otherItems.filter((_: any, i: number) => i !== index);
+                          const mainList = Array.isArray(formData[category]) ? formData[category].filter((sel: string) => sel !== item) : [];
+                          updateFormData({
+                            [otherFieldName]: newOther,
+                            [category]: mainList
+                          });
+                        }}
+                        aria-label="Remover"
+                      >
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -322,7 +353,20 @@ const StackStep: React.FC<StackStepProps> = ({
                 onClick={handleSaveAndFinalize} 
                 size="icon" 
                 className="h-8 w-8"
-                disabled={isFinalized}
+                disabled={isFinalized || (
+                  formData.frontend.length === 0 &&
+                  formData.backend.length === 0 &&
+                  formData.fullstack.length === 0 &&
+                  formData.database.length === 0 &&
+                  formData.hosting.length === 0 &&
+                  formData.orm.length === 0 &&
+                  (!Array.isArray(formData.otherFrontend) || formData.otherFrontend.length === 0) &&
+                  (!Array.isArray(formData.otherBackend) || formData.otherBackend.length === 0) &&
+                  (!Array.isArray(formData.otherFullstack) || formData.otherFullstack.length === 0) &&
+                  (!Array.isArray(formData.otherDatabase) || formData.otherDatabase.length === 0) &&
+                  (!Array.isArray(formData.otherHosting) || formData.otherHosting.length === 0) &&
+                  (!Array.isArray(formData.otherOrm) || formData.otherOrm.length === 0)
+                )}
               >
                 <Save className="h-4 w-4" />
                 <span className="sr-only">{isFinalized ? t('common.finalized') : t('common.saveAndFinalize')}</span>

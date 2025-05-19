@@ -15,9 +15,13 @@ import {
   setActiveApiKey,
   deleteUserApiKey,
   updateUserApiKey,
-  UserLlmApi
+  UserLlmApi,
+  ApiTestStatus,
+  LlmProvider
 } from '@/services/userSettingService';
 import { testConnection } from '@/services/llmService';
+import { supabase } from '@/lib/supabase';
+import { useLlm } from '@/contexts/LlmContext';
 
 // Define allowed provider types
 type ProviderType = 'openai' | 'gemini' | 'groq' | 'deepseek' | 'grok';
@@ -39,30 +43,10 @@ const Settings = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
   const { toast } = useToast();
+  const { llms, loading: llmsLoading, loadLlms } = useLlm();
 
-  // CRUD LLMs persistente
-  const [llms, setLlms] = useState<UserLlmApi[]>([]); // Persistente
   const [form, setForm] = useState({ provider: 'openai', model: 'gpt-4', key: '' });
-  const [editId, setEditId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  // Carregar LLMs do usuário ao montar e quando o usuário mudar
-  React.useEffect(() => {
-    const loadLlms = async () => {
-      if (!user?.id) return;
-      setLoading(true);
-      try {
-        const data = await getUserApiKeys(user.id);
-        setLlms(Array.isArray(data) ? data : []);
-      } catch (err: any) {
-        setLlms([]);
-        toast({ title: 'Erro ao carregar LLMs', description: err.message, variant: 'destructive' });
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadLlms();
-  }, [user?.id]);
 
   // Atualiza modelos ao trocar provedor
   const handleProviderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -82,7 +66,6 @@ const Settings = () => {
       model: llm.models?.[0] || '',
       key: llm.api_key
     });
-    setEditId(llm.id);
   };
 
   // Gerenciar chave: abre edição da LLM
@@ -92,73 +75,76 @@ const Settings = () => {
       model: llm.models?.[0] || '',
       key: llm.api_key
     });
-    setEditId(llm.id);
   };
 
   // Cadastro/edição de LLM
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log('handleSubmit chamado');
     e.preventDefault();
-    // Validação forte da chave
-    const provider = getProviderType(form.provider);
-    if (provider === 'gemini') {
-      if (!/^AIza[0-9A-Za-z\-_]{35,}$/.test(form.key)) {
-        toast({ title: 'Chave Gemini inválida. Cole apenas a chave secreta (começa com AIza...)' });
-        console.log('Chave Gemini inválida:', form.key);
-        return;
-      }
-    }
-    if (provider === 'openai') {
-      if (!form.key.startsWith('sk-')) {
-        toast({ title: 'Chave OpenAI inválida. Cole apenas a chave secreta (começa com sk-...)' });
-        console.log('Chave OpenAI inválida:', form.key);
-        return;
-      }
-    }
-    if (!form.key.trim()) {
-      toast({ title: 'Informe a chave secreta.' });
-      console.log('Form.key vazio, abortando submit');
-      return;
-    }
+    
     if (!user?.id) {
-      toast({ title: 'Usuário não autenticado.' });
-      console.log('Usuário não autenticado, abortando submit');
+      toast({ 
+        title: 'Erro', 
+        description: 'Usuário não encontrado',
+        variant: 'destructive'
+      });
       return;
     }
+
+    if (!form.key.trim()) {
+      toast({ 
+        title: 'Erro', 
+        description: 'Informe a chave API',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setLoading(true);
+
     try {
-      if (editId) {
-        console.log('Editando LLM:', { id: editId, ...form });
-        await updateUserApiKey(editId, {
-          api_key: form.key,
-          provider: provider,
-          models: [form.model],
-          updated_at: new Date().toISOString()
-        });
-        toast({ title: 'LLM atualizada!' });
-      } else {
-        console.log('Cadastrando nova LLM:', { ...form, user_id: user.id });
-        await addUserApiKey({
-          user_id: user.id,
-          provider: provider,
-          api_key: form.key,
-          is_active: llms.length === 0, // Primeira já ativa
-          test_status: 'untested',
-          models: [form.model],
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
-        toast({ title: 'LLM cadastrada!' });
+      // Se já existe uma LLM ativa, desativa ela primeiro
+      if (llms.some(llm => llm.is_active)) {
+        const { error: updateError } = await supabase
+          .from('user_llm_apis')
+          .update({ is_active: false })
+          .eq('user_id', user.id)
+          .eq('is_active', true);
+
+        if (updateError) throw updateError;
       }
-      // Recarregar lista
-      const data = await getUserApiKeys(user.id);
-      setLlms(Array.isArray(data) ? data : []);
+
+      // Insere a nova LLM
+      const { error: insertError } = await supabase
+        .from('user_llm_apis')
+        .insert({
+          user_id: user.id,
+          provider: form.provider as LlmProvider,
+          api_key: form.key,
+          models: [form.model],
+          is_active: true,
+          test_status: 'untested' as ApiTestStatus
+        });
+
+      if (insertError) throw insertError;
+
+      // Recarrega a lista usando o contexto
+      await loadLlms();
+      
+      // Limpa o formulário
       setForm({ provider: 'openai', model: 'gpt-4', key: '' });
-      setEditId(null);
-      console.log('Cadastro/edição finalizado com sucesso');
+      
+      toast({ 
+        title: 'Sucesso!',
+        description: 'LLM cadastrada com sucesso',
+        variant: 'default'
+      });
     } catch (err: any) {
-      toast({ title: 'Erro ao cadastrar/editar LLM', description: err?.message || String(err), variant: 'destructive' });
-      console.error('Erro no submit:', err);
+      console.error('Erro:', err);
+      toast({ 
+        title: 'Erro ao cadastrar LLM', 
+        description: err.message,
+        variant: 'destructive'
+      });
     } finally {
       setLoading(false);
     }
@@ -170,8 +156,7 @@ const Settings = () => {
     setLoading(true);
     try {
       await setActiveApiKey(user.id, id);
-      const data = await getUserApiKeys(user.id);
-      setLlms(Array.isArray(data) ? data : []);
+      await loadLlms();
       toast({ title: 'LLM ativada!' });
     } catch (err: any) {
       toast({ title: 'Erro ao ativar LLM', description: err.message, variant: 'destructive' });
@@ -186,8 +171,7 @@ const Settings = () => {
     setLoading(true);
     try {
       await deleteUserApiKey(id);
-      const data = await getUserApiKeys(user.id);
-      setLlms(Array.isArray(data) ? data : []);
+      await loadLlms();
       toast({ title: 'LLM excluída!' });
     } catch (err: any) {
       toast({ title: 'Erro ao excluir LLM', description: err.message, variant: 'destructive' });
@@ -390,35 +374,74 @@ const Settings = () => {
               <CardDescription>Cadastre e gerencie suas conexões com LLMs (OpenAI, Gemini, Groq, Grok, DeepSeek). Você pode cadastrar várias, mas apenas uma pode estar ativa.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Cadastro/edição de nova LLM */}
+              {/* Formulário de cadastro */}
               <div className="border rounded-lg p-4 bg-muted/50">
-                <form className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end" onSubmit={handleSubmit}>
+                <form 
+                  className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end" 
+                  onSubmit={handleSubmit}
+                >
                   <div>
                     <Label htmlFor="llm-provider">Provedor</Label>
-                    <select id="llm-provider" className="w-full border rounded px-2 py-2" value={form.provider} onChange={handleProviderChange}>
+                    <select 
+                      id="llm-provider" 
+                      className="w-full border rounded px-2 py-2" 
+                      value={form.provider} 
+                      onChange={handleProviderChange}
+                      disabled={loading}
+                    >
                       {Object.keys(LLM_MODELS).map(p => <option key={p} value={p}>{p.charAt(0).toUpperCase() + p.slice(1)}</option>)}
                     </select>
                   </div>
                   <div>
                     <Label htmlFor="llm-model">Modelo</Label>
-                    <select id="llm-model" className="w-full border rounded px-2 py-2" value={form.model} onChange={e => setForm(f => ({ ...f, model: e.target.value }))}>
+                    <select 
+                      id="llm-model" 
+                      className="w-full border rounded px-2 py-2" 
+                      value={form.model} 
+                      onChange={e => setForm(f => ({ ...f, model: e.target.value }))}
+                      disabled={loading}
+                    >
                       {LLM_MODELS[form.provider as ProviderType].map(m => <option key={m}>{m}</option>)}
                     </select>
                   </div>
                   <div>
                     <Label htmlFor="llm-key">Chave Secreta</Label>
-                    <Input id="llm-key" type="password" placeholder="sk-..." value={form.key} onChange={e => setForm(f => ({ ...f, key: e.target.value }))} />
+                    <Input 
+                      id="llm-key" 
+                      type="password" 
+                      placeholder="sk-..." 
+                      value={form.key} 
+                      onChange={e => setForm(f => ({ ...f, key: e.target.value }))}
+                      disabled={loading}
+                    />
                   </div>
                   <div className="md:col-span-3 flex justify-end mt-2">
-                    <button type="submit" className="btn btn-primary">{editId ? 'Salvar Alterações' : 'Cadastrar LLM'}</button>
-                    {editId && <Button type="button" variant="ghost" className="ml-2" onClick={() => { setEditId(null); setForm({ provider: 'openai', model: 'gpt-4', key: '' }); }}>Cancelar</Button>}
+                    <Button 
+                      type="submit" 
+                      disabled={loading || !form.key.trim()}
+                      variant="default"
+                    >
+                      {loading ? (
+                        <div className="flex items-center">
+                          <div className="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin mr-2"></div>
+                          <span>Cadastrando...</span>
+                        </div>
+                      ) : (
+                        'Cadastrar LLM'
+                      )}
+                    </Button>
                   </div>
                 </form>
               </div>
-              {/* Listagem de LLMs cadastradas (cards) */}
+
+              {/* Lista de LLMs */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Array.isArray(llms) && llms.length === 0 && <div className="text-center text-gray-400 col-span-2">Nenhuma LLM cadastrada ainda.</div>}
-                {Array.isArray(llms) && llms.map(llm => (
+                {llms.length === 0 && (
+                  <div className="text-center text-gray-400 col-span-2">
+                    Nenhuma LLM cadastrada ainda.
+                  </div>
+                )}
+                {llms.map(llm => (
                   <Card key={llm.id} className={`relative border-2 ${llm.is_active ? 'border-blue-500' : 'border-gray-200'}`}>
                     <div className="absolute top-2 right-2 flex gap-2">
                       <Button size="icon" variant={llm.is_active ? 'default' : 'outline'} title={llm.is_active ? 'Desativar' : 'Ativar'} onClick={() => handleActivate(llm.id)}>
@@ -429,15 +452,21 @@ const Settings = () => {
                       <Button size="icon" variant="outline" title="Testar" onClick={async () => {
                         try {
                           const testResult = await testConnection(llm);
-                          toast({ title: testResult.success ? 'Conexão testada com sucesso!' : 'Erro ao testar conexão', description: testResult.error, variant: testResult.success ? 'default' : 'destructive' });
-                          // Só recarrega a lista se o teste foi bem-sucedido
-                          if (testResult.success && user?.id) {
-                            const data = await getUserApiKeys(user.id);
-                            setLlms(Array.isArray(data) ? data : []);
+                          toast({ 
+                            title: testResult.success ? 'Conexão testada com sucesso!' : 'Erro ao testar conexão', 
+                            description: testResult.error, 
+                            variant: testResult.success ? 'default' : 'destructive' 
+                          });
+                          // Recarrega a lista após o teste
+                          if (testResult.success) {
+                            await loadLlms();
                           }
                         } catch (err: any) {
-                          toast({ title: 'Erro inesperado ao testar conexão', description: err?.message || String(err), variant: 'destructive' });
-                          // Não recarrega a lista em caso de erro
+                          toast({ 
+                            title: 'Erro inesperado ao testar conexão', 
+                            description: err?.message || String(err), 
+                            variant: 'destructive' 
+                          });
                         }
                       }}>
                         <Zap className="h-4 w-4 text-blue-500" />
@@ -450,13 +479,16 @@ const Settings = () => {
                         {llm.is_active && <span className="ml-2 text-green-600 flex items-center"><Check className="h-4 w-4 mr-1" /> Ativa</span>}
                       </CardTitle>
                       <CardDescription className="flex items-center gap-2">
-                        <span className={llm.test_status === 'success' ? 'text-green-600' : llm.test_status === 'failure' ? 'text-red-600' : 'text-gray-400'}>●</span> {llm.test_status === 'success' ? 'Conexão ativa' : llm.test_status === 'failure' ? 'Erro na conexão' : 'Não testada'}
+                        <span className={llm.test_status === 'success' ? 'text-green-600' : llm.test_status === 'failure' ? 'text-red-600' : 'text-gray-400'}>●</span> 
+                        {llm.test_status === 'success' ? 'Conexão ativa' : llm.test_status === 'failure' ? 'Erro na conexão' : 'Não testada'}
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-2">
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-gray-500">Chave:</span>
-                        <span className="text-xs font-mono truncate max-w-[120px] block" title={llm.api_key}>{llm.api_key.length > 8 ? `****${llm.api_key.slice(-4)}` : llm.api_key}</span>
+                        <span className="text-xs font-mono truncate max-w-[120px] block" title={llm.api_key}>
+                          {llm.api_key.length > 8 ? `****${llm.api_key.slice(-4)}` : llm.api_key}
+                        </span>
                         <Button size="sm" variant="outline" onClick={() => handleManageKey(llm)}><KeyRound className="h-4 w-4 mr-1" /> Gerenciar Chave</Button>
                       </div>
                     </CardContent>

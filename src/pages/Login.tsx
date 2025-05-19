@@ -59,10 +59,8 @@ const LoginPage = () => {
       });
       
       if (data.user && data.session) {
-        console.log('Login successful, triggering redirect for user ID:', data.user.id);
-        setTimeout(() => {
-          redirectAfterLogin(data.user.id);
-        }, 300);
+        console.log('Login successful, redirecting for user ID:', data.user.id);
+        redirectAfterLogin(data.user.id);
       }
       
     } catch (error: any) {
@@ -85,8 +83,12 @@ const LoginPage = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}`,
-        },
+          redirectTo: window.location.origin,
+          queryParams: {
+            prompt: 'select_account',
+            access_type: 'offline'
+          }
+        }
       });
       
       if (error) throw error;
@@ -114,7 +116,10 @@ const LoginPage = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${window.location.origin}`,
+          redirectTo: window.location.origin,
+          queryParams: {
+            prompt: 'login' // Força nova autenticação
+          }
         },
       });
       

@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { AuthProvider } from "@/hooks/useAuth";
 import AuthGuard from "@/components/AuthGuard";
+import { LlmProvider } from '@/contexts/LlmContext';
 // Importação das páginas principais do sistema
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -49,156 +50,159 @@ const App = () => (
         <Router>
           {/* Provedor de autenticação para gerenciar login/logout */}
           <AuthProvider>
-            {/* Componente para exibir notificações do sistema */}
-            <Toaster />
-            <Sonner />
-            {/* Definição das rotas da aplicação */}
-            <Routes>
-              {/* Rota da página inicial */}
-              <Route path="/" element={<Index />} />
-              {/* Rotas de autenticação */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              
-              {/* Rotas do dashboard do usuário, protegidas por autenticação */}
-              <Route 
-                path="/dashboard" 
-                element={
-                  <AuthGuard>
-                    <Dashboard />
-                  </AuthGuard>
-                } 
-              />
-              {/* Rota para o gerador de prompts dentro do dashboard */}
-              <Route 
-                path="/dashboard/prompt-generator" 
-                element={
-                  <AuthGuard>
-                    <DashboardLayout
-                      navbarComponent={<UserDashboardNavbar />}
-                      footerComponent={<UserDashboardFooter />}
-                    >
-                      <PromptGeneratorWizard />
-                    </DashboardLayout>
-                  </AuthGuard>
-                } 
-              />
-              {/* Rota para configurações do usuário */}
-              <Route 
-                path="/dashboard/settings" 
-                element={
-                  <AuthGuard>
-                    <DashboardLayout
-                      navbarComponent={<UserDashboardNavbar />}
-                      footerComponent={<UserDashboardFooter />}
-                    >
-                      <Settings />
-                    </DashboardLayout>
-                  </AuthGuard>
-                } 
-              />
-              {/* Rota para perfil do usuário */}
-              <Route 
-                path="/dashboard/profile" 
-                element={
-                  <AuthGuard>
-                    <DashboardLayout
-                      navbarComponent={<UserDashboardNavbar />}
-                      footerComponent={<UserDashboardFooter />}
-                    >
-                      <Profile />
-                    </DashboardLayout>
-                  </AuthGuard>
-                } 
-              />
-              {/* Rota para histórico do usuário */}
-              <Route 
-                path="/dashboard/history" 
-                element={
-                  <AuthGuard>
-                    <DashboardLayout
-                      navbarComponent={<UserDashboardNavbar />}
-                      footerComponent={<UserDashboardFooter />}
-                    >
-                      <History />
-                    </DashboardLayout>
-                  </AuthGuard>
-                } 
-              />
-              
-              {/* Rotas administrativas, protegidas por autenticação */}
-              <Route 
-                path="/admin" 
-                element={
-                  <AuthGuard>
-                    <AdminLayout />
-                  </AuthGuard>
-                } 
-              >
-                {/* Sub-rotas administrativas */}
-                <Route path="prompts" element={<WizardItems />} />
+            {/* Provedor de contexto de LLM para gerenciar modelos de linguagem */}
+            <LlmProvider>
+              {/* Componente para exibir notificações do sistema */}
+              <Toaster />
+              <Sonner />
+              {/* Definição das rotas da aplicação */}
+              <Routes>
+                {/* Rota da página inicial */}
+                <Route path="/" element={<Index />} />
+                {/* Rotas de autenticação */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                
+                {/* Rotas do dashboard do usuário, protegidas por autenticação */}
                 <Route 
-                  path="users" 
+                  path="/dashboard" 
                   element={
-                    <DashboardLayout
-                      navbarComponent={<AdminDashboardNavbar />}
-                      footerComponent={<AdminDashboardFooter />}
-                    >
-                      <AdminUsers />
-                    </DashboardLayout>
+                    <AuthGuard>
+                      <Dashboard />
+                    </AuthGuard>
                   } 
                 />
+                {/* Rota para o gerador de prompts dentro do dashboard */}
                 <Route 
-                  path="settings" 
+                  path="/dashboard/prompt-generator" 
                   element={
-                    <DashboardLayout
-                      navbarComponent={<AdminDashboardNavbar />}
-                      footerComponent={<AdminDashboardFooter />}
-                    >
-                      <AdminSettings />
-                    </DashboardLayout>
+                    <AuthGuard>
+                      <DashboardLayout
+                        navbarComponent={<UserDashboardNavbar />}
+                        footerComponent={<UserDashboardFooter />}
+                      >
+                        <PromptGeneratorWizard />
+                      </DashboardLayout>
+                    </AuthGuard>
                   } 
                 />
+                {/* Rota para configurações do usuário */}
                 <Route 
-                  path="logs" 
+                  path="/dashboard/settings" 
                   element={
-                    <DashboardLayout
-                      navbarComponent={<AdminDashboardNavbar />}
-                      footerComponent={<AdminDashboardFooter />}
-                    >
-                      <AdminLogs />
-                    </DashboardLayout>
+                    <AuthGuard>
+                      <DashboardLayout
+                        navbarComponent={<UserDashboardNavbar />}
+                        footerComponent={<UserDashboardFooter />}
+                      >
+                        <Settings />
+                      </DashboardLayout>
+                    </AuthGuard>
                   } 
                 />
+                {/* Rota para perfil do usuário */}
                 <Route 
-                  path="profile" 
+                  path="/dashboard/profile" 
                   element={
-                    <DashboardLayout
-                      navbarComponent={<AdminDashboardNavbar />}
-                      footerComponent={<AdminDashboardFooter />}
-                    >
-                      <AdminProfile />
-                    </DashboardLayout>
+                    <AuthGuard>
+                      <DashboardLayout
+                        navbarComponent={<UserDashboardNavbar />}
+                        footerComponent={<UserDashboardFooter />}
+                      >
+                        <Profile />
+                      </DashboardLayout>
+                    </AuthGuard>
                   } 
                 />
+                {/* Rota para histórico do usuário */}
                 <Route 
-                  path="database-setup" 
+                  path="/dashboard/history" 
                   element={
-                    <DashboardLayout
-                      navbarComponent={<AdminDashboardNavbar />}
-                      footerComponent={<AdminDashboardFooter />}
-                    >
-                      <DatabaseSetup />
-                    </DashboardLayout>
+                    <AuthGuard>
+                      <DashboardLayout
+                        navbarComponent={<UserDashboardNavbar />}
+                        footerComponent={<UserDashboardFooter />}
+                      >
+                        <History />
+                      </DashboardLayout>
+                    </AuthGuard>
                   } 
                 />
-              </Route>
-              {/* Todas as rotas personalizadas devem ser adicionadas acima da rota catch-all */}
-              {/* Rota para página não encontrada */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+                
+                {/* Rotas administrativas, protegidas por autenticação */}
+                <Route 
+                  path="/admin" 
+                  element={
+                    <AuthGuard>
+                      <AdminLayout />
+                    </AuthGuard>
+                  } 
+                >
+                  {/* Sub-rotas administrativas */}
+                  <Route path="prompts" element={<WizardItems />} />
+                  <Route 
+                    path="users" 
+                    element={
+                      <DashboardLayout
+                        navbarComponent={<AdminDashboardNavbar />}
+                        footerComponent={<AdminDashboardFooter />}
+                      >
+                        <AdminUsers />
+                      </DashboardLayout>
+                    } 
+                  />
+                  <Route 
+                    path="settings" 
+                    element={
+                      <DashboardLayout
+                        navbarComponent={<AdminDashboardNavbar />}
+                        footerComponent={<AdminDashboardFooter />}
+                      >
+                        <AdminSettings />
+                      </DashboardLayout>
+                    } 
+                  />
+                  <Route 
+                    path="logs" 
+                    element={
+                      <DashboardLayout
+                        navbarComponent={<AdminDashboardNavbar />}
+                        footerComponent={<AdminDashboardFooter />}
+                      >
+                        <AdminLogs />
+                      </DashboardLayout>
+                    } 
+                  />
+                  <Route 
+                    path="profile" 
+                    element={
+                      <DashboardLayout
+                        navbarComponent={<AdminDashboardNavbar />}
+                        footerComponent={<AdminDashboardFooter />}
+                      >
+                        <AdminProfile />
+                      </DashboardLayout>
+                    } 
+                  />
+                  <Route 
+                    path="database-setup" 
+                    element={
+                      <DashboardLayout
+                        navbarComponent={<AdminDashboardNavbar />}
+                        footerComponent={<AdminDashboardFooter />}
+                      >
+                        <DatabaseSetup />
+                      </DashboardLayout>
+                    } 
+                  />
+                </Route>
+                {/* Todas as rotas personalizadas devem ser adicionadas acima da rota catch-all */}
+                {/* Rota para página não encontrada */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </LlmProvider>
           </AuthProvider>
         </Router>
       </TooltipProvider>

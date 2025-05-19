@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from "@/components/ui/switch";
-import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
+import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, Trash2, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
@@ -237,7 +237,7 @@ const ScalabilityStep: React.FC<ScalabilityStepProps> = ({
                           {tempList.map((item, idx) => (
                             <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
                               <span className="truncate flex-1 mr-2">{item}</span>
-                              <Button variant="ghost" size="icon" onClick={() => popoverHandlers.handleRemoveItem(idx)} className="h-5 w-5"><XCircle className="h-3.5 w-3.5 text-destructive" /></Button>
+                              <Button variant="ghost" size="icon" onClick={() => popoverHandlers.handleRemoveItem(idx)} className="h-5 w-5"><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
                             </div>
                           ))}
                         </div>
@@ -260,11 +260,31 @@ const ScalabilityStep: React.FC<ScalabilityStepProps> = ({
               </div>
             </div>
             {otherItems.length > 0 && (
-              <div className="mt-2 space-y-1 border p-2 rounded-md bg-muted/30">
+              <div className="mt-2 border p-2 rounded-md bg-muted/30">
                 <p className="text-xs font-medium text-muted-foreground mb-1">{`Outras características de ${defaultTitle.toLowerCase()} adicionadas:`}</p>
-                {otherItems.map((item, index) => (
-                  <div key={`saved-other-${formDataKey}-${index}`} className="text-xs text-foreground p-1 bg-muted/50 rounded">{item}</div>
-                ))}
+                <div className="flex flex-wrap gap-2">
+                  {otherItems.map((item, index) => (
+                    <div key={`saved-other-${formDataKey}-${index}`} className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                      <span className="truncate mr-1.5">{item}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-4 w-4 p-0"
+                        onClick={() => {
+                          const newOther = otherItems.filter((_, i) => i !== index);
+                          const mainList = Array.isArray(formData[formDataKey]) ? formData[formDataKey].filter((sel: string) => sel !== item) : [];
+                          updateFormData({
+                            [otherFormFieldKey]: newOther,
+                            [formDataKey]: mainList
+                          });
+                        }}
+                        aria-label="Remover"
+                      >
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -309,7 +329,12 @@ const ScalabilityStep: React.FC<ScalabilityStepProps> = ({
                 onClick={handleSaveAndFinalize} 
                 size="icon" 
                 className="h-8 w-8"
-                disabled={isFinalized}
+                disabled={isFinalized || (
+                  formData.scalabilityFeatures.length === 0 &&
+                  formData.performanceFeatures.length === 0 &&
+                  (!Array.isArray(formData.otherScalabilityFeature) || formData.otherScalabilityFeature.length === 0) &&
+                  (!Array.isArray(formData.otherPerformanceFeature) || formData.otherPerformanceFeature.length === 0)
+                )}
               >
                 <Save className="h-4 w-4" />
                 <span className="sr-only">{isFinalized ? t('common.finalized') : t('common.saveAndFinalize')}</span>
@@ -326,7 +351,7 @@ const ScalabilityStep: React.FC<ScalabilityStepProps> = ({
               onCheckedChange={handleIsScalableChange}
             />
             <Label htmlFor="isScalable-switch" className="text-sm font-medium">
-              {t('promptGenerator.scalability.isScalable')}
+              {t('promptGenerator.scalability.isScalable') || "Seu projeto precisa ser altamente escalável?"}
             </Label>
           </div>
 
