@@ -167,10 +167,7 @@ export const testConnection = async (apiKey: UserLlmApi): Promise<TestConnection
 // Função para chamar as edge functions
 const callEdgeFunction = async (functionName: string, payload: any) => {
   try {
-    console.log(`Chamando edge function ${functionName}...`, {
-      ...payload,
-      apiKey: payload.apiKey ? '***' : undefined // Log seguro
-    });
+    console.log(`[DEBUG] Chamando edge function '${functionName}' com payload:`, payload);
     
     const response = await supabase.functions.invoke(functionName, {
       body: {
@@ -179,19 +176,28 @@ const callEdgeFunction = async (functionName: string, payload: any) => {
       }
     });
     
+    console.log(`[DEBUG] Resposta da edge function '${functionName}':`, response);
+    
     if (response.error) {
-      console.error(`Erro na edge function ${functionName}:`, response.error);
+      console.error(`[ERRO] Edge function '${functionName}':`, response.error);
+      toast({
+        description: `[ERRO] Edge function '${functionName}': ${response.error.message || 'Erro desconhecido'}`,
+        variant: "destructive"
+      });
       throw new Error(response.error.message || `Erro ao chamar ${functionName}`);
     }
     
     if (!response.data) {
+      toast({
+        description: `[ERRO] Edge function '${functionName}': Resposta vazia da função.`,
+        variant: "destructive"
+      });
       throw new Error('Resposta vazia da edge function');
     }
     
     return response.data.result || response.data;
   } catch (error: any) {
-    console.error(`Erro ao chamar edge function ${functionName}:`, error);
-    
+    console.error(`[ERRO] Falha ao chamar edge function '${functionName}':`, error);
     let errorMessage = 'Erro ao comunicar com o serviço de IA.';
     if (error.message?.includes('non-2xx status code') || error.message?.includes('401')) {
       errorMessage = 'Erro de autenticação. Verifique se sua chave de API está configurada corretamente.';
@@ -200,12 +206,10 @@ const callEdgeFunction = async (functionName: string, payload: any) => {
     } else if (error.message?.includes('API key')) {
       errorMessage = 'Chave de API inválida ou não configurada para este serviço.';
     }
-    
     toast({
       description: errorMessage,
       variant: "destructive"
     });
-    
     throw new Error(errorMessage);
   }
 };

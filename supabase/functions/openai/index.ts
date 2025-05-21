@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 
@@ -23,7 +22,8 @@ Deno.serve(async (req: Request) => {
   
   try {
     console.log("OpenAI Edge Function: Request received");
-    const { prompt, model = "gpt-4o-mini", systemContent } = await req.json();
+    const body = await req.json();
+    const { prompt, model = "gpt-4o-mini", systemContent, apiKey } = body;
     
     if (!prompt) {
       console.log("OpenAI Edge Function: Missing prompt parameter");
@@ -33,12 +33,10 @@ Deno.serve(async (req: Request) => {
       });
     }
     
-    const apiKey = Deno.env.get("OPENAI_API_KEY");
-    
     if (!apiKey) {
-      console.log("OpenAI Edge Function: Missing API Key");
-      return new Response(JSON.stringify({ error: "OPENAI_API_KEY não configurada" }), { 
-        status: 500, 
+      console.log("OpenAI Edge Function: Missing API Key in body");
+      return new Response(JSON.stringify({ error: "apiKey não enviada no body" }), { 
+        status: 400, 
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       });
     }

@@ -5,10 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, CheckCircle, Clock } from 'lucide-react';
+import { testConnection } from '@/services/llmService';
+import { useState } from 'react';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/hooks/useAuth';
 
 export const LLMApisList = () => {
   const { apis, loading, error, refreshApis } = useLLMApis();
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [activatingId, setActivatingId] = useState<string | null>(null);
 
   console.log('LLMApisList render - APIs:', apis, 'Loading:', loading, 'Error:', error); // Debug log
 
@@ -77,6 +84,20 @@ export const LLMApisList = () => {
     }
   };
 
+  // Função para ativar uma LLM usando a função RPC atômica
+  const handleActivate = async (api) => {
+    setActivatingId(api.id);
+    try {
+      if (!user?.id) throw new Error('Usuário não autenticado');
+      await supabase.rpc('set_active_llm_api', { user_id: user.id, api_id: api.id });
+      await refreshApis();
+    } catch (e) {
+      // Exibe erro se necessário
+    } finally {
+      setActivatingId(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {apis.map((api) => (
@@ -88,12 +109,37 @@ export const LLMApisList = () => {
                 <Badge variant={api.is_active ? 'default' : 'secondary'}>
                   {api.is_active ? t('status.active') : t('status.inactive')}
                 </Badge>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => handleActivate(api)}
+                  title="Ativar esta LLM"
+                >
+                  {activatingId === api.id ? <Clock className="animate-spin h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+                </Button>
               </div>
               <div className="flex items-center gap-2">
                 {getStatusIcon(api.test_status)}
                 <span className="text-sm text-muted-foreground">
                   {getStatusText(api.test_status)}
                 </span>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  disabled={loadingId === api.id}
+                  onClick={async () => {
+                    setLoadingId(api.id);
+                    try {
+                      await testConnection(api);
+                      await refreshApis();
+                    } finally {
+                      setLoadingId(null);
+                    }
+                  }}
+                  title="Testar conexão"
+                >
+                  {loadingId === api.id ? <Clock className="animate-spin h-4 w-4" /> : <Clock className="h-4 w-4" />}
+                </Button>
               </div>
             </div>
             <CardDescription>

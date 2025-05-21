@@ -5,6 +5,7 @@ import { Wand2, ChevronLeft, ChevronRight, AlertCircle, Loader2 } from 'lucide-r
 import { useAuth } from '@/hooks/useAuth';
 import { enhancePrompt } from '@/services/llmService';
 import { toast } from '@/components/ui/use-toast';
+import { useLlm } from '@/contexts/LlmContext';
 
 interface AIAssistantPanelProps {
   open: boolean;
@@ -19,17 +20,21 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
-  const [chatMessages, setChatMessages] = useState<{ sender: 'user' | 'ia'; text: string }[]>([]);
+  const [chatHistory, setChatHistory] = useState<{ sender: 'user' | 'ia' | 'system'; text: string }[]>([]);
   const [input, setInput] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [showMultipleSelectionConfirm, setShowMultipleSelectionConfirm] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [contextDetails, setContextDetails] = useState<{ label: string; description: string }[]>([]);
 
   // Obter nome do usuário logado
   const { user } = useAuth();
   const userName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'usuário';
+
+  const { llms } = useLlm();
+  const activeLlm = llms.find(l => l.is_active);
 
   const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
   const startIndex = currentPage * ITEMS_PER_PAGE;
@@ -41,7 +46,7 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [chatMessages]);
+  }, [chatHistory]);
 
   // Reset state when dialog closes
   useEffect(() => {
@@ -51,7 +56,7 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
         setShowChat(false);
         setShowMultipleSelectionConfirm(false);
         setSelectedItem(null);
-        setChatMessages([]);
+        setChatHistory([]);
       }, 300);
       return () => clearTimeout(timer);
     }
@@ -101,43 +106,32 @@ const AIAssistantPanel: React.FC<AIAssistantPanelProps> = ({ open, onClose, item
       };
     });
     
-    // Create introduction message
-    const welcomeMessage = `Olá, ${userName}! Eu sou um Assistente de IA especializado em Desenvolvimento de Software e estou aqui para ajudá-lo.`;
+    setContextDetails(selectedItemsDetails);
     
-    // Create message about selected topics
+    // Mensagem única combinada
     const selectedTopicsText = formatSelectedItemsText();
-    const topicsMessage = `Vejo que você está interessado em "${selectedTopicsText}". Eu vou te ajudar com esse tema. A seguir algumas informações importantes.`;
+    const contextMsg = `Contexto: ${selectedItemsDetails.map(item => `${item.label}${item.description ? ' - ' + item.description : ''}`).join('; ')}`;
+    const welcomeMessage = `Olá, ${userName}! ${contextMsg} Vejo que você está interessado em \"${selectedTopicsText}\". Eu vou te ajudar com esse tema. A seguir algumas informações importantes.`;
     
+    // Mensagens iniciais
+    setChatHistory([
+      { sender: 'system', text: welcomeMessage }
+    ]);
+
     try {
-      // Create a detailed prompt with all selected items
-      const detailPrompt = `O usuário selecionou os seguintes tópicos: 
-${selectedItemsDetails.map(item => `- ${item.label}${item.description ? ': ' + item.description : ''}`).join('\n')}
-
-Por favor, forneça uma resposta introdutória sobre esses tópicos no contexto de desenvolvimento de software. 
-Sua resposta deve ser em Português, clara, informativa e de 2-3 parágrafos.`;
-
-      // Add welcome messages to chat before API call
-      setChatMessages([
-        { sender: 'ia', text: welcomeMessage },
-        { sender: 'ia', text: topicsMessage }
-      ]);
-
-      // Show chat interface first
+      // Prompt inicial com contexto explícito
+      const detailPrompt = `${contextMsg}\n\nO usuário selecionou os seguintes tópicos: \n${selectedItemsDetails.map(item => `- ${item.label}${item.description ? ': ' + item.description : ''}`).join('\n')}\n\nResponda apenas sobre o contexto acima. Não mude de assunto.\nSua resposta deve ser em Português, clara, informativa e de 2-3 parágrafos.`;
       setShowChat(true);
       setShowMultipleSelectionConfirm(false);
 
       try {
         const aiResponse = await enhancePrompt(detailPrompt, user?.id || '');
-        
         // Add AI detailed response
-        setChatMessages(prev => [...prev, { sender: 'ia', text: aiResponse }]);
+        setChatHistory(prev => [...prev, { sender: 'ia', text: aiResponse }]);
       } catch (err: any) {
         console.error('Error getting initial AI response:', err);
         // Still proceed to chat but show error message
-        setChatMessages(prev => [
-          ...prev, 
-          { sender: 'ia', text: 'Não foi possível obter uma resposta detalhada da IA neste momento, mas você pode continuar a conversa digitando abaixo.' }
-        ]);
+        setChatHistory(prev => [...prev, { sender: 'ia', text: 'Não foi possível obter uma resposta detalhada da IA neste momento, mas você pode continuar a conversa digitando abaixo.' }]);
       }
     } catch (err: any) {
       console.error('Error during confirmation:', err);
@@ -163,27 +157,22 @@ Sua resposta deve ser em Português, clara, informativa e de 2-3 parágrafos.`;
     if (!input.trim() || loading) return;
     
     const userMessage = input;
-    setChatMessages((msgs) => [
-      ...msgs,
-      { sender: 'user', text: userMessage },
-    ]);
+    setChatHistory((msgs) => [...msgs, { sender: 'user', text: userMessage }]);
     setInput('');
     setLoading(true);
     setHasError(false);
     
     try {
-      const resposta = await enhancePrompt(userMessage, user?.id || '');
-      setChatMessages((msgs) => [
-        ...msgs,
-        { sender: 'ia', text: resposta }
-      ]);
+      // Montar contexto para a IA
+      const contextMsg = `Contexto: ${contextDetails.map(item => `${item.label}${item.description ? ' - ' + item.description : ''}`).join('; ')}`;
+      const chatMsgs = chatHistory.map(msg => `${msg.sender === 'user' ? 'Usuário' : msg.sender === 'ia' ? 'IA' : 'Sistema'}: ${msg.text}`).join('\n');
+      const fullPrompt = `${contextMsg}\n${chatMsgs}\nUsuário: ${userMessage}\n\nResponda apenas sobre o contexto acima. Não mude de assunto.`;
+      const resposta = await enhancePrompt(fullPrompt, user?.id || '');
+      setChatHistory((msgs) => [...msgs, { sender: 'ia', text: resposta }]);
     } catch (err: any) {
       console.error('Error during handleSend:', err);
       setHasError(true);
-      setChatMessages((msgs) => [
-        ...msgs,
-        { sender: 'ia', text: 'Erro ao obter resposta da IA. Tente novamente.' }
-      ]);
+      setChatHistory((msgs) => [...msgs, { sender: 'ia', text: 'Erro ao obter resposta da IA. Tente novamente.' }]);
     } finally {
       setLoading(false);
     }
@@ -193,18 +182,18 @@ Sua resposta deve ser em Português, clara, informativa e de 2-3 parágrafos.`;
     if (loading) return;
     
     // Find the last user message
-    const lastUserMessageIndex = [...chatMessages].reverse().findIndex(msg => msg.sender === 'user');
+    const lastUserMessageIndex = [...chatHistory].reverse().findIndex(msg => msg.sender === 'user');
     
     if (lastUserMessageIndex === -1) return;
     
-    const lastUserMessage = chatMessages[chatMessages.length - 1 - lastUserMessageIndex];
+    const lastUserMessage = chatHistory[chatHistory.length - 1 - lastUserMessageIndex];
     setLoading(true);
     setHasError(false);
     
     try {
       const resposta = await enhancePrompt(lastUserMessage.text, user?.id || '');
       // Remove last error message and add the new response
-      setChatMessages((msgs) => {
+      setChatHistory((msgs) => {
         const newMsgs = [...msgs];
         // If last message is an error message, replace it
         if (newMsgs.length > 0 && newMsgs[newMsgs.length - 1].sender === 'ia' && 
@@ -229,7 +218,7 @@ Sua resposta deve ser em Português, clara, informativa e de 2-3 parágrafos.`;
   const handleBackToSelection = () => {
     setSelectedItem(null);
     setSelectedItems([]);
-    setChatMessages([]);
+    setChatHistory([]);
     setShowChat(false);
     setShowMultipleSelectionConfirm(false);
     setCurrentPage(0);
@@ -332,7 +321,7 @@ Sua resposta deve ser em Português, clara, informativa e de 2-3 parágrafos.`;
   // Chat interface
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg w-full">
+      <DialogContent className="max-w-2xl w-full h-[70vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Wand2 className="h-5 w-5 text-blue-500" /> {title || 'Assistente de IA'}
@@ -341,18 +330,36 @@ Sua resposta deve ser em Português, clara, informativa e de 2-3 parágrafos.`;
             Chat de assistência especializada em Desenvolvimento de Software
           </DialogDescription>
         </DialogHeader>
-        <div className="flex flex-col gap-2 mt-2 h-72">
-          <div className="flex-1 overflow-y-auto border rounded p-2 bg-muted/50" style={{ minHeight: 180 }}>
-            {chatMessages.map((msg, idx) => (
-              <div key={idx} className={`mb-2 flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`} >
-                <div className={`rounded px-3 py-1 max-w-[90%] ${msg.sender === 'user' ? 'bg-blue-100 text-right' : 'bg-gray-100 text-left'}`} >
-                  <span className="text-xs">{msg.text}</span>
+        <div className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 overflow-y-auto border rounded p-6 bg-muted/50 space-y-4" style={{ minHeight: 200, maxHeight: 'none', overflowX: 'hidden' }}>
+            {chatHistory.map((msg, idx) => (
+              <div key={idx} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div
+                  className={`rounded-2xl px-5 py-3 shadow`}
+                  style={{
+                    maxWidth: '95%',
+                    background: msg.sender === 'user' ? '#DBEAFE' : msg.sender === 'ia' ? '#EFF6FF' : '#F3F4F6',
+                    border: msg.sender === 'ia' ? '1.5px solid #60A5FA' : msg.sender === 'system' ? '1.5px solid #E5E7EB' : undefined,
+                    textAlign: msg.sender === 'user' ? 'right' : 'left',
+                    fontSize: msg.sender === 'system' ? 15 : 16,
+                    fontWeight: msg.sender === 'system' ? 500 : 400,
+                    wordBreak: 'break-word',
+                  }}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    {msg.sender === 'system' && <span className="text-xs text-gray-500 font-semibold">Sistema</span>}
+                    {msg.sender === 'ia' && (
+                      <span className="text-xs text-blue-700 font-semibold bg-blue-100 border border-blue-400 rounded px-2 py-0.5">{activeLlm ? `${activeLlm.provider.toUpperCase()} - ${activeLlm.models?.[0]}` : 'LLM'}</span>
+                    )}
+                    {msg.sender === 'user' && <span className="text-xs text-gray-700 font-semibold">Você</span>}
+                  </div>
+                  <div className="text-base whitespace-pre-line">{msg.text}</div>
                 </div>
               </div>
             ))}
             {loading && (
               <div className="flex justify-center my-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
               </div>
             )}
             {hasError && (
@@ -370,30 +377,32 @@ Sua resposta deve ser em Português, clara, informativa e de 2-3 parágrafos.`;
             )}
             <div ref={chatEndRef} />
           </div>
-          <form
-            className="flex gap-2 mt-2"
-            onSubmit={e => {
-              e.preventDefault();
-              if (!loading) handleSend();
-            }}
-          >
-            <textarea
-              className="flex-1 border rounded px-2 py-2 text-sm min-h-[48px] resize-y"
-              placeholder="Digite sua dúvida..."
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              rows={3}
-              style={{ minHeight: 48 }}
-              disabled={loading}
-            />
-            <Button type="submit" variant="default" className="px-4 h-auto" disabled={loading || !input.trim()}>
-              {loading ? 'Enviando...' : 'Enviar'}
-            </Button>
-          </form>
-          <div className="flex justify-end mt-1">
-            <Button variant="ghost" size="sm" onClick={handleBackToSelection}>
-              Voltar para lista de itens
-            </Button>
+          <div className="w-full flex flex-col gap-2 mt-2">
+            <form
+              className="flex gap-2 w-full"
+              onSubmit={e => {
+                e.preventDefault();
+                if (!loading) handleSend();
+              }}
+            >
+              <textarea
+                className="flex-1 border rounded px-3 py-2 text-base min-h-[48px] resize-y"
+                placeholder="Digite sua dúvida..."
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                rows={3}
+                style={{ minHeight: 48 }}
+                disabled={loading}
+              />
+              <Button type="submit" variant="default" className="px-6 h-auto text-base font-semibold" disabled={loading || !input.trim()}>
+                {loading ? 'Enviando...' : 'Enviar'}
+              </Button>
+            </form>
+            <div className="flex justify-end w-full">
+              <Button variant="ghost" size="sm" onClick={handleBackToSelection}>
+                Voltar para lista de itens
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>

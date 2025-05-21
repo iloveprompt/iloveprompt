@@ -8,7 +8,7 @@ import { useLanguage } from '@/i18n/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Check, Edit, Trash2, KeyRound, Zap } from 'lucide-react';
+import { Check, Edit, Trash2, KeyRound, Zap, RefreshCw } from 'lucide-react';
 import {
   getUserApiKeys,
   addUserApiKey,
@@ -17,7 +17,8 @@ import {
   updateUserApiKey,
   UserLlmApi,
   ApiTestStatus,
-  LlmProvider
+  LlmProvider,
+  getActiveApiKey
 } from '@/services/userSettingService';
 import { testConnection } from '@/services/llmService';
 import { supabase } from '@/lib/supabase';
@@ -47,6 +48,7 @@ const Settings = () => {
 
   const [form, setForm] = useState({ provider: 'openai', model: 'gpt-4', key: '' });
   const [loading, setLoading] = useState(false);
+  const [loadingById, setLoadingById] = useState<Record<string, boolean>>({});
 
   // Atualiza modelos ao trocar provedor
   const handleProviderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -147,28 +149,68 @@ const Settings = () => {
       });
     } finally {
       setLoading(false);
+      await loadLlms(); // Garante atualização do contexto após qualquer erro
     }
   };
 
   // Ativar LLM
   const handleActivate = async (id: string) => {
     if (!user?.id) return;
-    setLoading(true);
+    // Zera todos os loadings exceto o atual
+    setLoadingById({ [id]: true });
     try {
       await setActiveApiKey(user.id, id);
+      const activeLlm = await getActiveApiKey(user.id);
+      if (activeLlm) {
+        const testResult = await testConnection({ ...activeLlm, is_active: true });
+        if (!testResult.success) {
+          toast({ 
+            title: 'Erro ao ativar LLM', 
+            description: testResult.error || 'A chave ativada não está funcionando. Corrija ou teste outra LLM.', 
+            variant: 'destructive' 
+          });
+        } else {
+          toast({ title: 'LLM ativada e pronta para uso!' });
+        }
+      } else {
+        toast({ title: 'Erro', description: 'Não foi possível encontrar a LLM ativada.', variant: 'destructive' });
+      }
       await loadLlms();
-      toast({ title: 'LLM ativada!' });
     } catch (err: any) {
       toast({ title: 'Erro ao ativar LLM', description: err.message, variant: 'destructive' });
     } finally {
-      setLoading(false);
+      setLoadingById({});
+      await loadLlms();
+    }
+  };
+
+  // Testar LLM
+  const handleTest = async (llm: UserLlmApi) => {
+    setLoadingById(prev => ({ ...prev, [llm.id]: true }));
+    try {
+      const testResult = await testConnection(llm);
+      toast({ 
+        title: testResult.success ? 'Conexão testada com sucesso!' : 'Erro ao testar conexão', 
+        description: testResult.success ? 'A LLM está pronta para uso.' : (testResult.error || 'Falha ao testar a LLM.'),
+        variant: testResult.success ? 'default' : 'destructive' 
+      });
+      await loadLlms();
+    } catch (err: any) {
+      toast({ 
+        title: 'Erro inesperado ao testar conexão', 
+        description: err?.message || String(err), 
+        variant: 'destructive' 
+      });
+    } finally {
+      setLoadingById(prev => ({ ...prev, [llm.id]: false }));
+      await loadLlms();
     }
   };
 
   // Excluir LLM
   const handleDelete = async (id: string) => {
     if (!user?.id) return;
-    setLoading(true);
+    setLoadingById(prev => ({ ...prev, [id]: true }));
     try {
       await deleteUserApiKey(id);
       await loadLlms();
@@ -176,7 +218,8 @@ const Settings = () => {
     } catch (err: any) {
       toast({ title: 'Erro ao excluir LLM', description: err.message, variant: 'destructive' });
     } finally {
-      setLoading(false);
+      setLoadingById(prev => ({ ...prev, [id]: false }));
+      await loadLlms();
     }
   };
 
@@ -444,32 +487,19 @@ const Settings = () => {
                 {llms.map(llm => (
                   <Card key={llm.id} className={`relative border-2 ${llm.is_active ? 'border-blue-500' : 'border-gray-200'}`}>
                     <div className="absolute top-2 right-2 flex gap-2">
-                      <Button size="icon" variant={llm.is_active ? 'default' : 'outline'} title={llm.is_active ? 'Desativar' : 'Ativar'} onClick={() => handleActivate(llm.id)}>
-                        {llm.is_active ? <Check className="h-4 w-4 text-green-600" /> : <Zap className="h-4 w-4 text-green-600" />}
+                      <Button 
+                        size="icon" 
+                        variant={llm.is_active ? 'default' : 'outline'} 
+                        title={llm.test_status === 'failure' ? 'Corrija a conexão antes de ativar' : (llm.is_active ? 'Desativar' : 'Ativar')} 
+                        onClick={() => handleActivate(llm.id)} 
+                        disabled={!!loadingById[llm.id] || llm.test_status === 'failure'}
+                      >
+                        {loadingById[llm.id] ? <div className="w-4 h-4 border-2 border-t-transparent border-green-500 rounded-full animate-spin" /> : <Check className="h-4 w-4 text-green-600" />}
                       </Button>
-                      <Button size="icon" variant="outline" title="Editar" onClick={() => handleEdit(llm)}><Edit className="h-4 w-4" /></Button>
-                      <Button size="icon" variant="outline" title="Excluir" onClick={() => handleDelete(llm.id)}><Trash2 className="h-4 w-4 text-red-500" /></Button>
-                      <Button size="icon" variant="outline" title="Testar" onClick={async () => {
-                        try {
-                          const testResult = await testConnection(llm);
-                          toast({ 
-                            title: testResult.success ? 'Conexão testada com sucesso!' : 'Erro ao testar conexão', 
-                            description: testResult.error, 
-                            variant: testResult.success ? 'default' : 'destructive' 
-                          });
-                          // Recarrega a lista após o teste
-                          if (testResult.success) {
-                            await loadLlms();
-                          }
-                        } catch (err: any) {
-                          toast({ 
-                            title: 'Erro inesperado ao testar conexão', 
-                            description: err?.message || String(err), 
-                            variant: 'destructive' 
-                          });
-                        }
-                      }}>
-                        <Zap className="h-4 w-4 text-blue-500" />
+                      <Button size="icon" variant="outline" title="Editar/gerenciar chave" onClick={() => handleEdit(llm)} disabled={!!loadingById[llm.id]}><Edit className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="outline" title="Excluir" onClick={() => handleDelete(llm.id)} disabled={!!loadingById[llm.id]}><Trash2 className="h-4 w-4 text-red-500" /></Button>
+                      <Button size="icon" variant="outline" title="Testar" onClick={() => handleTest(llm)} disabled={!!loadingById[llm.id]}>
+                        {loadingById[llm.id] ? <div className="w-4 h-4 border-2 border-t-transparent border-blue-500 rounded-full animate-spin" /> : <RefreshCw className="h-4 w-4 text-blue-500" />}
                       </Button>
                     </div>
                     <CardHeader className="pb-2">
@@ -489,7 +519,6 @@ const Settings = () => {
                         <span className="text-xs font-mono truncate max-w-[120px] block" title={llm.api_key}>
                           {llm.api_key.length > 8 ? `****${llm.api_key.slice(-4)}` : llm.api_key}
                         </span>
-                        <Button size="sm" variant="outline" onClick={() => handleManageKey(llm)}><KeyRound className="h-4 w-4 mr-1" /> Gerenciar Chave</Button>
                       </div>
                     </CardContent>
                   </Card>

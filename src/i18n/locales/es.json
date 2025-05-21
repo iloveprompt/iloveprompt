@@ -536,7 +536,7 @@
     "objective": {
       "title": "Objetivo",
       "description": "¿Cuál es el objetivo principal de tu proyecto?",
-      "defineObjectives": "Definir objetivos específicos",
+      "defineObjectives": "¿Desea definir objetivos específicos para el proyecto?",
       "primaryObjective": "Objetivo Principal",
       "primaryObjectivePlaceholder": "El objetivo principal de tu proyecto",
       "ecommerce": "Comercio Electrónico / Tienda Online",
@@ -579,7 +579,7 @@
     "requirements": {
       "title": "Requisitos",
       "description": "Especifica los requisitos para tu proyecto",
-      "defineRequirements": "Definir requisitos específicos",
+      "defineRequirements": "¿Desea definir requisitos específicos para el proyecto?",
       "userTypes": "Tipos de Usuarios",
       "userTypesPlaceholder": "Ej: clientes, administradores, moderadores",
       "functionalRequirements": "Requisitos Funcionales",
@@ -976,7 +976,7 @@
     "scalability": {
       "title": "Escalabilidad",
       "description": "¿Cómo debería escalar tu proyecto?",
-      "isScalable": "El proyecto necesita ser altamente escalable",
+      "isScalable": "¿Su proyecto necesita ser altamente escalable?",
       "scalabilityFeatures": "Características de Escalabilidad",
       "scalability": "Escalabilidad",
       "redis": "Redis (para caché/colas)",
@@ -1045,7 +1045,8 @@
     "integrations": {
       "options": {
         "videoStreaming": "APIs de Video y Streaming"
-      }
+      },
+      "needsIntegrations": "¿Su proyecto necesita integraciones?"
     },
     "wizard": {
       "confirmGlobalResetTitle": "Confirmar Reinicio Global",

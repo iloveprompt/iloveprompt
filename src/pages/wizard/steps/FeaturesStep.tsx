@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
+import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, Trash2, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -59,38 +59,34 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({
     }
   }, []);
 
-  const getSuggestedFeaturesBySystemType = (systemType: string, t: (key: string) => string): string[] => {
-    // This function now returns display strings directly
+  const getSuggestedFeaturesBySystemType = (systemType: string): string[] => {
     switch (systemType) {
       case 'ecommerce':
         return [
-          t('promptGenerator.features.ecommerceFeatures.catalog') || "Catálogo de Produtos com Filtros e Busca Avançada",
-          t('promptGenerator.features.ecommerceFeatures.cart') || "Carrinho de Compras Persistente",
-          t('promptGenerator.features.ecommerceFeatures.checkout') || "Checkout Seguro com Múltiplas Formas de Pagamento",
-          t('promptGenerator.features.ecommerceFeatures.inventoryManagement') || "Gerenciamento de Pedidos e Estoque",
-          // ... add other ecommerce features with t()
+          'catalog',
+          'cart',
+          'checkout',
+          'inventoryManagement',
         ];
       case 'saas':
       case 'microsaas':
         return [
-          t('promptGenerator.features.saasFeatures.userAuthentication') || "Autenticação de Usuários (Email/Senha, Social Login)",
-          t('promptGenerator.features.saasFeatures.subscriptionManagement') || "Gerenciamento de Assinaturas e Planos (Ex: Stripe, Paddle)",
-          // ... add other saas features with t()
+          'userAuthentication',
+          'subscriptionManagement',
         ];
-      // Add other cases as before, ensuring to use t() for translatable strings
       default:
         return [
-          t('promptGenerator.features.default.auth') || "Autenticação de Usuários",
-          t('promptGenerator.features.default.dashboard') || "Painel de Controle (Dashboard)",
-          t('promptGenerator.features.default.contentManagement') || "Gerenciamento de Conteúdo Básico",
-          t('promptGenerator.features.default.profileSettings') || "Configurações de Perfil",
+          'auth',
+          'dashboard',
+          'contentManagement',
+          'profileSettings',
         ];
     }
   };
   
   // Combine initial specific options (keys) with suggested features (display strings)
   // For display, we'll try to translate keys, otherwise show the key/string
-  const suggestedFeatures = getSuggestedFeaturesBySystemType(systemType, t);
+  const suggestedFeatures = getSuggestedFeaturesBySystemType(systemType);
   
   // Create a unified list of options for display and selection management
   // We need to be careful here: specificFeaturesOptions are keys, suggestedFeatures are display strings.
@@ -98,11 +94,9 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({
   // The `formData.specificFeatures` will store the selected *display strings*.
   
   const allFeaturesOptions: string[] = React.useMemo(() => {
-    const translatedSpecificOptions = featuresOptions.map(opt =>
-      t(`promptGenerator.features.${opt.value}`) || opt.label || opt.value
-    );
-    return Array.from(new Set([...translatedSpecificOptions, ...suggestedFeatures]));
-  }, [t, systemType, featuresOptions, suggestedFeatures]);
+    const specificOptionValues = featuresOptions.map(opt => opt.value);
+    return Array.from(new Set([...specificOptionValues, ...suggestedFeatures]));
+  }, [systemType, featuresOptions, suggestedFeatures]);
 
 
   const handleSpecificFeatureChange = (featureValue: string, checked: boolean) => {
@@ -180,7 +174,7 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({
 
   return (
     <div className="space-y-6">
-      <Card className="p-4 sm:p-6">
+      <Card className={`p-4 sm:p-6 relative${isFinalized ? ' border-2 border-green-500' : ''}`}>
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start">
             <div>
@@ -211,7 +205,7 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({
                 onClick={handleSaveAndFinalize} 
                 size="icon" 
                 className="h-8 w-8"
-                disabled={isFinalized || formData.dynamicFeatures.length === 0}
+                disabled={isFinalized || ((formData.specificFeatures.length === 0 && formData.otherSpecificFeatures.length === 0))}
               >
                 <Save className="h-4 w-4" />
                 <span className="sr-only">{isFinalized ? t('common.finalized') : t('common.saveAndFinalize')}</span>
@@ -236,7 +230,19 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({
                       htmlFor={`feature-${feature.value}`}
                       className="cursor-pointer text-xs font-normal whitespace-normal leading-tight"
                     >
-                      {feature.label}
+                      {
+                        (() => {
+                          // Busca o label do featuresData.json
+                          const featureObj = featuresOptions.find(opt => opt.value === feature.value);
+                          // Tenta traduzir
+                          const translated = t(`promptGenerator.features.default.${feature.value}`);
+                          // Se a tradução não existir ou for igual à chave, usa o label do JSON
+                          if (translated && !translated.startsWith('promptGenerator.features.default.')) {
+                            return translated;
+                          }
+                          return featureObj?.label || feature.value;
+                        })()
+                      }
                     </Label>
                   </div>
                 ))}
@@ -292,7 +298,7 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({
                                   onClick={() => handleRemoveOtherSpecificFromList(idx)}
                                   className="h-5 w-5"
                                 >
-                                  <XCircle className="h-3.5 w-3.5 text-destructive" />
+                                  <Trash2 className="h-3.5 w-3.5 text-destructive" />
                                 </Button>
                               </div>
                             ))}
@@ -350,13 +356,31 @@ const FeaturesStep: React.FC<FeaturesStepProps> = ({
                 </div>
               </div>
               {Array.isArray(formData.otherSpecificFeatures) && formData.otherSpecificFeatures.length > 0 && (
-                <div className="mt-2 space-y-1 border p-2 rounded-md bg-muted/30">
+                <div className="mt-2 border p-2 rounded-md bg-muted/30">
                   <p className="text-xs font-medium text-muted-foreground mb-1">Outras Funcionalidades Adicionadas:</p>
-                  {formData.otherSpecificFeatures.map((feat, index) => (
-                    <div key={`saved-other-feat-${index}`} className="text-xs text-foreground p-1 bg-muted/50 rounded">
-                      {feat}
-                    </div>
-                  ))}
+                  <div className="flex flex-wrap gap-2">
+                    {formData.otherSpecificFeatures.map((item, index) => (
+                      <div key={`saved-other-feature-${index}`} className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                        <span className="truncate mr-1.5">{item}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-4 w-4 p-0"
+                          onClick={() => {
+                            const newOther = formData.otherSpecificFeatures.filter((_, i) => i !== index);
+                            const newSpecific = Array.isArray(formData.specificFeatures) ? formData.specificFeatures.filter(sel => sel !== item) : [];
+                            updateFormData({
+                              otherSpecificFeatures: newOther,
+                              specificFeatures: newSpecific
+                            });
+                          }}
+                          aria-label="Remover"
+                        >
+                          <Trash2 className="h-3 w-3 text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

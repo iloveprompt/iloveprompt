@@ -50,8 +50,6 @@ const ProjectStep: React.FC<ProjectStepProps> = ({
   const handleSaveAndFinalize = () => {
     // Basic validation: check if title is filled
     if (formData.title.trim() === '') {
-      // Optionally, show a toast or message to the user
-      // For simplicity, using alert. In a real app, use a toast notification.
       alert(t('promptGenerator.project.titleRequiredError') || "O título do projeto é obrigatório.");
       return;
     }
@@ -60,7 +58,7 @@ const ProjectStep: React.FC<ProjectStepProps> = ({
 
   return (
     <div className="space-y-6">
-      <Card className="p-4 sm:p-6 relative">
+      <Card className={`p-4 sm:p-6 relative${isFinalized ? ' border-2 border-green-500' : ''}`}>
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0">
           <div className="flex justify-between items-start"> {/* Changed items-center to items-start */}
             <div>
@@ -105,7 +103,7 @@ const ProjectStep: React.FC<ProjectStepProps> = ({
               id="project-title"
               value={formData.title}
               onChange={(e) => updateFormData({ title: e.target.value })}
-              placeholder={t('promptGenerator.project.projectTitlePlaceholder') || "Ex: Plataforma de E-commerce"}
+              placeholder={t('promptGenerator.project.projectTitlePlaceholder') || "Nome do projeto"}
               required
             />
           </div>

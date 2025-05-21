@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input'; // Added Input import
 import RadioSpecifyItem from '@/components/RadioSpecifyItem';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, ListPlus, RotateCcw, Save, CheckCircle, Wand2 } from 'lucide-react'; // Added ListPlus, RotateCcw, Save, CheckCircle, Wand2
+import { ChevronLeft, ChevronRight, ListPlus, RotateCcw, Save, CheckCircle, Wand2, Trash2 } from 'lucide-react'; // Added ListPlus, RotateCcw, Save, CheckCircle, Wand2, Trash2
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import systemTypesData from '../data/systemTypesData.json';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -61,22 +61,21 @@ const SystemTypeStep: React.FC<SystemTypeStepProps> = ({
   const [aiOpen, setAIOpen] = useState(false);
 
   const handleSystemTypeChange = (value: string) => {
-    // If a regular type is selected, clear otherType
-    const newOtherType = value !== 'other' ? '' : formData.otherType;
+    // Se um tipo regular for selecionado, limpar otherType
     updateFormData('systemType', {
       selected: value,
-      otherType: newOtherType,
+      otherType: value === 'other' ? formData.otherType : '',
     });
     updateFormData('features', { dynamicFeatures: [] }); 
   };
   
   const handleOtherTypeSave = (specifiedValue: string) => {
     updateFormData('systemType', {
-      selected: 'other', // Ensure 'other' is selected
+      selected: 'other',
       otherType: specifiedValue,
     });
-    updateFormData('features', { dynamicFeatures: [] }); // Also clear/reset features
-    setIsOtherPopoverOpen(false); // Close popover on save
+    updateFormData('features', { dynamicFeatures: [] });
+    setIsOtherPopoverOpen(false);
   };
 
 
@@ -100,7 +99,11 @@ const SystemTypeStep: React.FC<SystemTypeStepProps> = ({
   };
 
   const handleSaveAndFinalize = () => {
-    // Perform any local validation if necessary before finalizing
+    // Não permitir finalizar se não houver tipo selecionado ou preenchido
+    if (!formData.selected && !formData.otherType) {
+      alert('Escolha um tipo de sistema ou especifique um personalizado.');
+      return;
+    }
     markAsFinalized();
   };
 
@@ -109,7 +112,7 @@ const SystemTypeStep: React.FC<SystemTypeStepProps> = ({
 
   return (
     <div className="space-y-6">
-      <Card className="p-4 sm:p-6 relative">
+      <Card className={`p-4 sm:p-6 relative${isFinalized ? ' border-2 border-green-500' : ''}`}>
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start"> {/* Changed items-center to items-start */}
             <div>
@@ -214,6 +217,28 @@ const SystemTypeStep: React.FC<SystemTypeStepProps> = ({
                 </div>
               )}
             </div>
+
+            {formData.selected === 'other' && formData.otherType && (
+              <div className="mt-2 border p-2 rounded-md bg-muted/30">
+                <p className="text-xs font-medium text-muted-foreground mb-1">Tipo Personalizado Adicionado:</p>
+                <div className="flex flex-wrap gap-2">
+                  <div className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                    <span className="truncate mr-1.5">{formData.otherType}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-4 w-4 p-0"
+                      onClick={() => {
+                        updateFormData('systemType', { selected: '', otherType: '' });
+                      }}
+                      aria-label="Remover"
+                    >
+                      <Trash2 className="h-3 w-3 text-destructive" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
 
           </div>
           {/* Action Buttons DIV removed from here */}

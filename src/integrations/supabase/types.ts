@@ -40,7 +40,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "document_templates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       generated_documents: {
         Row: {
@@ -81,6 +89,13 @@ export type Database = {
             referencedRelation: "prompts"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "generated_documents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       llm_system_messages: {
@@ -111,7 +126,15 @@ export type Database = {
           title?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "llm_system_messages_created_by_admin_id_fkey"
+            columns: ["created_by_admin_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       prompt_usage: {
         Row: {
@@ -141,6 +164,13 @@ export type Database = {
             columns: ["prompt_id"]
             isOneToOne: false
             referencedRelation: "prompts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prompt_usage_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
             referencedColumns: ["id"]
           },
         ]
@@ -173,7 +203,15 @@ export type Database = {
           user_id?: string | null
           wizard_data?: Json
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "prompts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscription_plans: {
         Row: {
@@ -245,46 +283,62 @@ export type Database = {
           ip_address?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "system_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_llm_apis: {
         Row: {
           api_key: string
-          created_at: string
+          created_at: string | null
           id: string
-          is_active: boolean
+          is_active: boolean | null
           last_tested_at: string | null
           models: string[] | null
           provider: Database["public"]["Enums"]["llm_provider"]
-          test_status: Database["public"]["Enums"]["api_test_status"]
-          updated_at: string
+          test_status: Database["public"]["Enums"]["api_test_status"] | null
+          updated_at: string | null
           user_id: string
         }
         Insert: {
           api_key: string
-          created_at?: string
+          created_at?: string | null
           id?: string
-          is_active?: boolean
+          is_active?: boolean | null
           last_tested_at?: string | null
           models?: string[] | null
           provider: Database["public"]["Enums"]["llm_provider"]
-          test_status?: Database["public"]["Enums"]["api_test_status"]
-          updated_at?: string
+          test_status?: Database["public"]["Enums"]["api_test_status"] | null
+          updated_at?: string | null
           user_id: string
         }
         Update: {
           api_key?: string
-          created_at?: string
+          created_at?: string | null
           id?: string
-          is_active?: boolean
+          is_active?: boolean | null
           last_tested_at?: string | null
           models?: string[] | null
           provider?: Database["public"]["Enums"]["llm_provider"]
-          test_status?: Database["public"]["Enums"]["api_test_status"]
-          updated_at?: string
+          test_status?: Database["public"]["Enums"]["api_test_status"] | null
+          updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_llm_apis_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_profiles: {
         Row: {
@@ -314,7 +368,15 @@ export type Database = {
           timezone?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_role_assignments: {
         Row: {
@@ -337,7 +399,21 @@ export type Database = {
             foreignKeyName: "user_role_assignments_role_id_fkey"
             columns: ["role_id"]
             isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["role_id"]
+          },
+          {
+            foreignKeyName: "user_role_assignments_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
             referencedRelation: "user_roles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_role_assignments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
             referencedColumns: ["id"]
           },
         ]
@@ -415,6 +491,13 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
             referencedColumns: ["id"]
           },
         ]
@@ -643,9 +726,71 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      admin_user_view: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string | null
+          plan_name: string | null
+          role_id: string | null
+          role_name: string | null
+          subscription_status: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_role_assignments_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users_view"
+            referencedColumns: ["role_id"]
+          },
+          {
+            foreignKeyName: "user_role_assignments_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "user_roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_users_view: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string | null
+          plan_name: string | null
+          role_id: string | null
+          role_name: string | null
+          subscription_status: string | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      check_auth_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          is_authenticated: boolean
+          current_user_id: string
+          has_rls_enabled: boolean
+        }[]
+      }
+      clear_user_session: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_tables: {
         Args: Record<PropertyKey, never>
         Returns: string[]
@@ -658,17 +803,60 @@ export type Database = {
           prompt_limit: number
         }[]
       }
+      http_setup_user: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       is_admin: {
         Args: { user_id: string }
         Returns: boolean
+      }
+      setup_new_user: {
+        Args: { user_id: string }
+        Returns: undefined
+      }
+      sync_existing_users: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          synced_user_id: string
+          profile_created: boolean
+          role_assigned: boolean
+          subscription_created: boolean
+        }[]
+      }
+      test_api_access: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          table_name: string
+          has_policy: boolean
+          policy_roles: string[]
+          table_grants: string[]
+        }[]
+      }
+      validate_user_metadata: {
+        Args: { metadata: Json }
+        Returns: Json
       }
     }
     Enums: {
       api_test_status: "untested" | "success" | "failure"
       llm_provider: "openai" | "gemini" | "groq" | "deepseek" | "grok"
+      provider_enum: "openai" | "anthropic" | "google" | "mistral"
+      test_status_enum: "pending" | "success" | "failed"
     }
     CompositeTypes: {
-      [_ in never]: never
+      admin_user_view_type: {
+        id: string | null
+        email: string | null
+        full_name: string | null
+        avatar_url: string | null
+        created_at: string | null
+        updated_at: string | null
+        role_id: string | null
+        role_name: string | null
+        subscription_status: string | null
+        plan_name: string | null
+      }
     }
   }
 }
@@ -783,6 +971,8 @@ export const Constants = {
     Enums: {
       api_test_status: ["untested", "success", "failure"],
       llm_provider: ["openai", "gemini", "groq", "deepseek", "grok"],
+      provider_enum: ["openai", "anthropic", "google", "mistral"],
+      test_status_enum: ["pending", "success", "failed"],
     },
   },
 } as const

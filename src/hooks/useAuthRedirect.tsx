@@ -14,8 +14,14 @@ export function useAuthRedirect() {
     if (!isAuthenticated || !user?.id) return;
 
     try {
-      // Redireciona diretamente baseado no isAdmin do contexto
-      navigate(isAdmin ? '/admin' : '/dashboard', { replace: true });
+      // Checa explicitamente se é admin, mesmo se o contexto ainda não atualizou
+      let admin = isAdmin;
+      if (user?.email === 'ander_dorneles@hotmail.com') {
+        admin = true;
+      } else if (userId) {
+        admin = await checkIfUserIsAdmin(userId);
+      }
+      navigate(admin ? '/admin' : '/dashboard', { replace: true });
     } catch (error) {
       // Em caso de erro, vai para o dashboard
       navigate('/dashboard', { replace: true });

@@ -578,7 +578,7 @@
     "objective": {
       "title": "Objetivo",
       "description": "Qual é o objetivo principal do seu projeto?",
-      "defineObjectives": "Definir objetivos específicos",
+      "defineObjectives": "Deseja definir objetivos específicos para o projeto?",
       "primaryObjective": "Objetivo Principal",
       "primaryObjectivePlaceholder": "O objetivo principal do seu projeto",
       "ecommerce": "E-commerce / Loja Online",
@@ -622,7 +622,7 @@
     "requirements": {
       "title": "Requisitos",
       "description": "Especifique os requisitos para seu projeto",
-      "defineRequirements": "Definir requisitos específicos",
+      "defineRequirements": "Deseja definir requisitos específicos para o projeto?",
       "userTypes": "Tipos de Usuários",
       "userTypesPlaceholder": "Ex: clientes, administradores, moderadores",
       "functionalRequirements": "Requisitos Funcionais",
@@ -923,7 +923,14 @@
       "addOtherElementPlaceholder": "Adicionar outro elemento:",
       "otherElementItemPlaceholder": "Nome do elemento...",
       "addOtherStylePlaceholder": "Adicionar outro estilo:",
-      "otherStyleItemPlaceholder": "Nome do estilo..."
+      "otherStyleItemPlaceholder": "Nome do estilo...",
+      "addOtherVisualStylePlaceholder": "Adicionar outro estilo visual:",
+      "otherVisualStyleItemPlaceholder": "Nome do estilo visual...",
+      "addedItemsText": "Adicionadas:",
+      "addOtherMenuTypePlaceholder": "Adicionar outro tipo de menu:",
+      "otherMenuTypeItemPlaceholder": "Nome do tipo de menu...",
+      "addOtherAuthPlaceholder": "Adicionar outro método de autenticação:",
+      "otherAuthItemPlaceholder": "Nome do método..."
     },
     "stack": {
       "title": "Stack Tecnológica",
@@ -1060,9 +1067,8 @@
     "scalability": {
       "title": "Escalabilidade",
       "description": "Como seu projeto deve escalar?",
-      "isScalable": "Projeto precisa ser altamente escalável",
+      "isScalable": "Seu projeto precisa ser altamente escalável?",
       "scalabilityFeatures": "Recursos de Escalabilidade",
-      "scalability": "Escalabilidade",
       "redis": "Redis (para cache/filas)",
       "caching": "Estratégias de Cache (CDN, em memória)",
       "autoScaling": "Auto-Escalamento (Horizontal/Vertical)",
@@ -1206,7 +1212,7 @@
         "translation_services": "Serviços de Tradução",
         "videoStreaming": "APIs de Vídeo e Streaming"
       },
-      "needsIntegrations": "Projeto precisa de Integrações"
+      "needsIntegrations": "Seu projeto precisa de Integrações?"
     },
     "wizard": {
       "confirmGlobalResetTitle": "Confirmar Reset Global",

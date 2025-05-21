@@ -2,6 +2,13 @@ import { Tabs, Tab, Box, IconButton, Paper, Menu, MenuItem, Button } from '@mui/
 import { ContentCopy, Visibility, Code, Description, Article, Assignment, MoreVert } from '@mui/icons-material';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { enhancePrompt } from '@/services/llmService';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import CircularProgress from '@mui/material/CircularProgress';
 
 interface PromptPreviewProps {
   previewContent: string;
@@ -24,6 +31,10 @@ const PromptPreview: React.FC<PromptPreviewProps> = ({
   const { toast } = useToast();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isDocMenuOpen = Boolean(anchorEl);
+  const { user } = useAuth();
+  const [iaDialogOpen, setIaDialogOpen] = useState(false);
+  const [iaLoading, setIaLoading] = useState(false);
+  const [iaResult, setIaResult] = useState<string | null>(null);
 
   // Função para mudar a aba ativa
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -46,11 +57,24 @@ const PromptPreview: React.FC<PromptPreviewProps> = ({
     setAnchorEl(null);
   };
 
+  // Função para processar via IA
+  const handleIaProcess = async () => {
+    setIaDialogOpen(true);
+    setIaLoading(true);
+    setIaResult(null);
+    try {
+      const result = await enhancePrompt(tabContents[activeTab] || '', user?.id || '');
+      setIaResult(result);
+    } catch (err: any) {
+      setIaResult('Erro ao processar com IA.');
+    } finally {
+      setIaLoading(false);
+    }
+  };
+
   // Conteúdo de cada aba
   const tabContents = [
     previewContent,
-    codeContent,
-    markdownContent,
     generatedPromptContent,
     documentationContent
   ];
@@ -58,8 +82,6 @@ const PromptPreview: React.FC<PromptPreviewProps> = ({
   // Nomes e ícones das abas
   const tabLabels = [
     { label: 'Preview', icon: <Visibility /> },
-    { label: 'Código', icon: <Code /> },
-    { label: 'Markdown', icon: <Description /> },
     { label: 'Prompt Gerado', icon: <Article /> },
     { label: 'Documentação', icon: <Assignment /> },
   ];
@@ -113,15 +135,18 @@ const PromptPreview: React.FC<PromptPreviewProps> = ({
           }}
         >
           {/* Botão de copiar para todas as abas, exceto Documentação */}
-          {activeTab !== 4 && (
-            <Box sx={{ position: 'absolute', top: 4, right: 4 }}>
+          {activeTab !== 2 && (
+            <Box sx={{ position: 'absolute', top: 4, right: 4, display: 'flex', gap: 1 }}>
               <IconButton onClick={() => handleCopyContent(tabContents[activeTab] || '')} size="small">
                 <ContentCopy fontSize="small" />
+              </IconButton>
+              <IconButton onClick={handleIaProcess} size="small" title="Melhorar com IA">
+                <SmartToyIcon fontSize="small" color="primary" />
               </IconButton>
             </Box>
           )}
           {/* Botão de menu na aba Documentação */}
-          {activeTab === 4 && (
+          {activeTab === 2 && (
             <Box sx={{ position: 'absolute', top: 4, right: 4 }}>
               <IconButton onClick={handleDocMenuOpen} size="small">
                 <MoreVert fontSize="small" />
@@ -143,6 +168,22 @@ const PromptPreview: React.FC<PromptPreviewProps> = ({
           {tabContents[activeTab] || <span style={{ color: '#888' }}>Sem conteúdo</span>}
         </Box>
       </Box>
+      {/* Modal de resultado da IA */}
+      <Dialog open={iaDialogOpen} onClose={() => setIaDialogOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Resultado da IA</DialogTitle>
+        <DialogContent>
+          {iaLoading ? (
+            <Box display="flex" alignItems="center" gap={2} py={4}>
+              <CircularProgress size={28} color="primary" />
+              <span>Processando com IA...</span>
+            </Box>
+          ) : (
+            <Box sx={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: 14, color: '#222', py: 2 }}>
+              {iaResult}
+            </Box>
+          )}
+        </DialogContent>
+      </Dialog>
     </Paper>
   );
 };

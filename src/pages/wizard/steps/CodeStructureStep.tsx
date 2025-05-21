@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
+import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, Trash2, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import {
@@ -67,6 +67,8 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [aiOpen, setAIOpen] = useState(false);
 
+  const singleChoiceCategories: Array<'folderOrganization' | 'architecturalPattern'> = ['folderOrganization', 'architecturalPattern'];
+
   useEffect(() => {
     try {
       if (Array.isArray(codeStructureData)) {
@@ -86,12 +88,16 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({
     return effectiveKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
   };
 
-  const handleCheckboxChange = (category: keyof CodeStructureFormData, option: string, checked: boolean) => {
-    const currentSelection = formData[category] as string[];
-    const updatedOptions = checked
-      ? [...currentSelection, option]
-      : currentSelection.filter(o => o !== option);
-    updateFormData({ [category]: updatedOptions } as Partial<CodeStructureFormData>);
+  const handleOptionChange = (category: keyof CodeStructureFormData, option: string) => {
+    if (singleChoiceCategories.includes(category as any)) {
+      updateFormData({ [category]: [option] } as Partial<CodeStructureFormData>);
+    } else {
+      const currentSelection = formData[category] as string[];
+      const updatedOptions = currentSelection.includes(option)
+        ? currentSelection.filter(o => o !== option)
+        : [...currentSelection, option];
+      updateFormData({ [category]: updatedOptions } as Partial<CodeStructureFormData>);
+    }
   };
 
   const createPopoverHandlers = (
@@ -156,6 +162,15 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({
     markAsFinalized();
   };
   
+  const toggleSelectAllBestPractices = () => {
+    const allSelected = bestPracticeOptions.length > 0 && bestPracticeOptions.every(opt => formData.bestPractices.includes(opt));
+    if (allSelected) {
+      updateFormData({ bestPractices: [] });
+    } else {
+      updateFormData({ bestPractices: [...bestPracticeOptions] });
+    }
+  };
+
   const renderSection = (
     titleKey: string,
     defaultTitle: string,
@@ -176,14 +191,6 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({
     const allSelected = options.length > 0 && options.every(opt => (formData[formDataKey] as string[]).includes(opt));
     const otherItems = (Array.isArray(formData[otherFormFieldKey]) ? formData[otherFormFieldKey] : []) as string[];
 
-    const toggleSelectAllForSection = () => {
-      if (allSelected) {
-        updateFormData({ [formDataKey]: [] } as Partial<CodeStructureFormData>);
-      } else {
-        updateFormData({ [formDataKey]: [...options] } as Partial<CodeStructureFormData>);
-      }
-    };
-
     return (
       <AccordionItem value={`${formDataKey}-accordion`} className="border-0">
         <AccordionTrigger className="text-base font-medium text-foreground py-2 hover:no-underline">
@@ -191,15 +198,26 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({
         </AccordionTrigger>
         <AccordionContent className="pt-1 pb-0">
           <div className="space-y-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5"> {/* Removed minHeight style */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
               {currentItemsToDisplay.map((option) => (
-                <div key={option} className="flex items-start space-x-1.5"> {/* Removed h-7 */}
-                  <Checkbox 
-                    id={`${formDataKey}-${option}`}
-                    checked={(formData[formDataKey] as string[]).includes(option)}
-                    onCheckedChange={(checked) => handleCheckboxChange(formDataKey, option, checked === true)}
-                    className="mt-0.5"
-                  />
+                <div key={option} className="flex items-start space-x-1.5">
+                  {(formDataKey === 'folderOrganization' || formDataKey === 'architecturalPattern') ? (
+                    <input
+                      type="radio"
+                      id={`${formDataKey}-${option}`}
+                      name={`radio-${formDataKey}`}
+                      checked={(formData[formDataKey] as string[])[0] === option}
+                      onChange={() => handleOptionChange(formDataKey, option)}
+                      className="mt-0.5 accent-primary h-4 w-4"
+                    />
+                  ) : (
+                    <Checkbox
+                      id={`${formDataKey}-${option}`}
+                      checked={(formData[formDataKey] as string[]).includes(option)}
+                      onCheckedChange={(checked) => handleOptionChange(formDataKey, option)}
+                      className="mt-0.5"
+                    />
+                  )}
                   <Label htmlFor={`${formDataKey}-${option}`} className="cursor-pointer text-xs font-normal whitespace-normal leading-tight">
                     {t(`promptGenerator.codeStructure.${option}`) || formatKeyAsFallback(option)}
                   </Label>
@@ -207,12 +225,14 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({
               ))}
             </div>
             <div className="flex items-center justify-between space-x-2 mt-2 pt-2">
-              {options.length > 0 && (
-                <Button variant="outline" size="sm" className="text-xs" onClick={toggleSelectAllForSection}>
-                  {allSelected ? (t('common.unselectAll') || 'Desmarcar Todos') : (t('common.selectAll') || 'Selecionar Todos')}
+              {formDataKey === 'bestPractices' && options.length > 0 && (
+                <Button variant="outline" size="sm" className="text-xs" onClick={toggleSelectAllBestPractices}>
+                  {bestPracticeOptions.length > 0 && bestPracticeOptions.every(opt => formData.bestPractices.includes(opt))
+                    ? (t('common.unselectAll') || 'Desmarcar Todos')
+                    : (t('common.selectAll') || 'Selecionar Todos')}
                 </Button>
               )}
-              <div className="flex items-center space-x-2">
+              <div className={(formDataKey === 'folderOrganization' || formDataKey === 'architecturalPattern') ? 'flex justify-end flex-1' : ''}>
                 <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
                   <PopoverTrigger asChild>
                     <Button variant="outline" size="sm" className="text-xs">
@@ -235,7 +255,7 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({
                           {tempList.map((item, idx) => (
                             <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
                               <span className="truncate flex-1 mr-2">{item}</span>
-                              <Button variant="ghost" size="icon" onClick={() => popoverHandlers.handleRemoveItem(idx)} className="h-5 w-5"><XCircle className="h-3.5 w-3.5 text-destructive" /></Button>
+                              <Button variant="ghost" size="icon" onClick={() => popoverHandlers.handleRemoveItem(idx)} className="h-5 w-5"><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
                             </div>
                           ))}
                         </div>
@@ -258,11 +278,30 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({
               </div>
             </div>
             {otherItems.length > 0 && (
-              <div className="mt-2 space-y-1 border p-2 rounded-md bg-muted/30">
+              <div className="mt-2 border p-2 rounded-md bg-muted/30">
                 <p className="text-xs font-medium text-muted-foreground mb-1">{`Outros ${defaultTitle.toLowerCase()} adicionados:`}</p>
-                {otherItems.map((item, index) => (
-                  <div key={`saved-other-${formDataKey}-${index}`} className="text-xs text-foreground p-1 bg-muted/50 rounded">{item}</div>
-                ))}
+                <div className="flex flex-wrap gap-2">
+                  {otherItems.map((item, index) => (
+                    <div key={`saved-other-${formDataKey}-${index}`} className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                      <span className="truncate mr-1.5">{item}</span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-4 w-4 p-0"
+                        onClick={() => {
+                          const newOther = otherItems.filter((_, i) => i !== index);
+                          updateFormData({
+                            [otherFormFieldKey]: newOther,
+                            [formDataKey]: (formData[formDataKey] as string[]).filter(sel => sel !== item)
+                          });
+                        }}
+                        aria-label="Remover"
+                      >
+                        <Trash2 className="h-3 w-3 text-destructive" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -276,7 +315,7 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({
 
   return (
     <div className="space-y-6">
-      <Card className="p-4 sm:p-6">
+      <Card className={`p-4 sm:p-6 relative${isFinalized ? ' border-2 border-green-500' : ''}`}>
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start">
             <div>
@@ -307,7 +346,11 @@ const CodeStructureStep: React.FC<CodeStructureStepProps> = ({
                 onClick={handleSaveAndFinalize} 
                 size="icon" 
                 className="h-8 w-8"
-                disabled={isFinalized}
+                disabled={isFinalized || (
+                  formData.folderOrganization.length === 0 && (!Array.isArray(formData.otherOrganizationStyle) || formData.otherOrganizationStyle.length === 0) &&
+                  formData.architecturalPattern.length === 0 && (!Array.isArray(formData.otherArchPattern) || formData.otherArchPattern.length === 0) &&
+                  formData.bestPractices.length === 0 && (!Array.isArray(formData.otherBestPractice) || formData.otherBestPractice.length === 0)
+                )}
               >
                 <Save className="h-4 w-4" />
                 <span className="sr-only">{isFinalized ? t('common.finalized') : t('common.saveAndFinalize')}</span>

@@ -53,6 +53,19 @@ import RestrictionsStep from './steps/RestrictionsStep';
 import GenerateStep from './steps/GenerateStep';
 import IntegrationsStep from './steps/IntegrationsStep';
 
+// Importar securityData para usar os labels corretos
+import securityData from './data/securityData.json';
+import systemTypesData from './data/systemTypesData.json';
+import objectivesData from './data/objectivesData.json';
+import featuresData from './data/featuresData.json';
+import nonFunctionalRequirementsData from './data/nonFunctionalRequirementsData.json';
+import stackData from './data/stackData.json';
+import codeStructureData from './data/codeStructureData.json';
+import scalabilityData from './data/scalabilityData.json';
+import restrictionsData from './data/restrictionsData.json';
+import integrationsData from './data/integrationsData.json';
+import uxuiData from './data/uxuiData.json';
+
 // Define wizard steps with dynamic title based on language and icons
 const getWizardSteps = (t: (key: string) => string) => [
   { 
@@ -134,6 +147,315 @@ const getWizardSteps = (t: (key: string) => string) => [
     color: '#FD7E14' // Orange
   }
 ];
+
+const BADGE_COLOR = '#4ade80'; // verde
+
+// Função utilitária para exibir o mesmo texto do SystemTypeStep
+function getSystemTypeDisplay(typeId: string, t?: (key: string) => string): string {
+  // Busca o objeto do tipo
+  const typeObj = Array.isArray(systemTypesData) ? systemTypesData.find((item: any) => item.id === typeId) : null;
+  // Busca tradução customizada
+  const translation = t ? t(`promptGenerator.systemType.${typeId}`) : undefined;
+  // Se houver label e descrição, monta igual ao step
+  if (typeObj) {
+    if (typeObj.label && typeObj.description) {
+      return `${typeObj.label} - ${typeObj.description}`;
+    }
+    if (typeObj.label) return typeObj.label;
+  }
+  // Se houver tradução, usa
+  if (translation && translation !== `promptGenerator.systemType.${typeId}`) return translation;
+  // Fallback
+  return typeId ? typeId.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()) : '';
+}
+
+// Função utilitária exportada no topo do arquivo
+export const generatePreviewMarkdownWithAI = (data: any, aiText: string, t: (key: string) => string): string => {
+  let md = '';
+  // Informações do Projeto
+  md += `## Informações do Projeto\n`;
+  if (data.project.title) md += `**Título do Projeto:** ${data.project.title}\n`;
+  md += `**Autor:** ${data.project.author || 'Não especificado'}\n`;
+  md += `**E-mail:** ${data.project.email || 'Não especificado'}\n`;
+  if (data.project.url) md += `**URL:** ${data.project.url}\n`;
+  md += `**Versão:** ${data.project.version || '1.0.0'}\n`;
+
+  // --- MAPAS DE LABELS ---
+  const systemTypeMap = Object.fromEntries((systemTypesData||[]).map((i:any)=>[i.id,i.label]));
+  const objectivesMap = Object.fromEntries((objectivesData||[]).map((i:any)=>[i.id,i.label]));
+  const featuresMap = Object.fromEntries((featuresData||[]).map((i:any)=>[i.value||i.id,i.label]));
+  const nfrMap = Object.fromEntries((nonFunctionalRequirementsData||[]).map((i:any)=>[i.id,i.label]));
+  const securityMap = Object.fromEntries((securityData||[]).map((i:any)=>[i.id,i.label]));
+  const stackMap = Object.fromEntries((stackData||[]).map((i:any)=>[i.id,i.label]));
+  const codeStructureMap = Object.fromEntries((codeStructureData||[]).map((i:any)=>[i.id,i.label]));
+  const scalabilityMap = Object.fromEntries((scalabilityData||[]).map((i:any)=>[i.id,i.label]));
+  const restrictionsMap = Object.fromEntries((restrictionsData||[]).map((i:any)=>[i.id,i.label]));
+  const integrationsMap = Object.fromEntries((integrationsData||[]).map((i:any)=>[i.id,i.label]));
+  // UXUI
+  const uxuiMap = Object.fromEntries((uxuiData||[]).map((i:any)=>[i.id,i.label]));
+
+  // Tipo de Sistema
+  const hasSystemType = (data.systemType && ((data.systemType.selected && data.systemType.selected !== 'other') || (data.systemType.selected === 'other' && data.systemType.otherType)));
+  if (hasSystemType) {
+    md += `\n## Tipo de Sistema\n`;
+    if (data.systemType.selected === 'other' && data.systemType.otherType) {
+      md += `- ${data.systemType.otherType}\n`;
+    } else if (data.systemType.selected) {
+      md += `- ${getSystemTypeDisplay(data.systemType.selected, t)}\n`;
+    }
+  }
+  md += `\n`;
+
+  // Objetivo
+  if (data.objective.primaryObjective || data.objective.selectedObjectives.length > 0 || (Array.isArray(data.objective.otherObjective) && data.objective.otherObjective.length > 0) ) {
+    md += `## ${data.objective.primaryObjective ? '**Objetivo Principal:**' : 'Objetivo'}\n`;
+    if (data.objective.primaryObjective) {
+      if (aiText) {
+        const cleanAiText = aiText.replace(/\*\*Objetivo Principal\*\*:?:?\s*/i, '');
+        md += `**${cleanAiText}**\n\n`;
+      } else {
+        md += `**${data.objective.primaryObjective}**\n\n`;
+      }
+    }
+    if (data.objective.selectedObjectives.length > 0) {
+      md += `**${data.objective.additionalObjectivesTitle || 'Objetivos Adicionais'}**:\n`;
+      data.objective.selectedObjectives.forEach((objKey: string) => {
+        if (objKey !== 'Other') {
+          md += `- ${objectivesMap[objKey] || objKey}\n`;
+        }
+      });
+      md += "\n";
+    }
+    if (Array.isArray(data.objective.otherObjective) && data.objective.otherObjective.length > 0) {
+      md += `**${data.objective.specifiedOtherObjectivesTitle || 'Outros Objetivos Especificados'}**:\n`;
+      data.objective.otherObjective.forEach(customObj => {
+        if (customObj.trim()) md += `- ${customObj.trim()}\n`;
+      });
+      md += "\n";
+    }
+  }
+
+  // Requirements
+  if (data.requirements.userTypes.length > 0 || 
+      data.requirements.functionalRequirements.length > 0 || 
+      data.requirements.nonFunctionalRequirements.length > 0) {
+    md += `## ${data.requirements.userTypes.length > 0 ? '**Tipos de Usuários**: ' + data.requirements.userTypes.join(', ') : 'Requisitos'}\n`;
+    if (data.requirements.functionalRequirements.length > 0) {
+      md += `**${data.requirements.functionalRequirementsTitle || 'Requisitos Funcionais'}**:\n`;
+      data.requirements.functionalRequirements.forEach((r: string) => {
+        md += `- ${r}\n`;
+      });
+      md += "\n";
+    }
+    const hasSelectedNFRs = data.requirements.nonFunctionalRequirements.filter((r: string) => r !== 'Other').length > 0;
+    if (hasSelectedNFRs) {
+      md += `**${data.requirements.nonFunctionalRequirementsTitle || 'Requisitos Não-Funcionais'}**:\n`;
+      data.requirements.nonFunctionalRequirements.forEach((reqKey: string) => {
+        if (reqKey !== 'Other') {
+          md += `- ${nfrMap[reqKey] || reqKey}\n`;
+        }
+      });
+      md += "\n";
+    }
+    if (Array.isArray(data.requirements.otherRequirement) && data.requirements.otherRequirement.length > 0) {
+      data.requirements.otherRequirement.forEach((other: string) => {
+        if (other && other.trim()) md += `- ${other.trim()}\n`;
+      });
+      md += "\n";
+    }
+  }
+
+  // Features
+  if (data.features.specificFeatures.length > 0 || data.features.dynamicFeatures.length > 0 || data.features.otherFeature) {
+    md += `## ${data.features.specificFeatures.length > 0 ? '**Funcionalidades Específicas**' : data.features.dynamicFeatures.length > 0 ? '**Funcionalidades Dinâmicas**' : 'Funcionalidade'}\n`;
+    if (data.features.specificFeatures.length > 0) {
+      data.features.specificFeatures.forEach((f: string) => {
+        md += `- ${featuresMap[f] || f}\n`;
+      });
+    }
+    if (data.features.dynamicFeatures.length > 0) {
+      data.features.dynamicFeatures.forEach((f: string) => {
+        md += `- ${featuresMap[f] || f}\n`;
+      });
+    }
+    if (data.features.otherFeature) md += `- ${data.features.otherFeature}\n`;
+    if (Array.isArray(data.features.otherSpecificFeatures) && data.features.otherSpecificFeatures.length > 0) {
+      data.features.otherSpecificFeatures.forEach((other: string) => {
+        if (other && other.trim()) md += `- ${other.trim()}\n`;
+      });
+    }
+    md += "\n";
+  }
+
+  // UX/UI
+  let uxuiContent = "";
+  // Paleta de Cores
+  if (data.uxui.colorPalette.length > 0) {
+    data.uxui.colorPalette.forEach((pal: string) => {
+      let palLabel = uxuiMap[pal] || pal;
+      uxuiContent += `- Tipo de Paleta: ${palLabel}.\n`;
+      if (pal === 'custom' && Array.isArray(data.uxui.customColors) && data.uxui.customColors.length > 0) {
+        uxuiContent += `- Cores da Paleta: ${JSON.stringify(data.uxui.customColors)}\n`;
+      } else if (Array.isArray(data.uxui.customColors) && data.uxui.customColors.length > 0) {
+        uxuiContent += `- Cores da Paleta: ${JSON.stringify(data.uxui.customColors)}\n`;
+      }
+    });
+  }
+  // Página Inicial (Landing Page)
+  if (data.uxui.landingPage) {
+    // Estrutura
+    const struct = data.uxui.landingPageDetails.structure;
+    const structItems = [];
+    ['hero','benefits','testimonials','cta'].forEach(key => { if (struct[key]) structItems.push(uxuiMap[key] || key); });
+    if (Array.isArray(struct.otherValues)) struct.otherValues.forEach((val: string) => { if (val) structItems.push(val); });
+    if (structItems.length > 0) uxuiContent += `- Estrutura: ${structItems.join(', ')}\n`;
+    // Elementos
+    const elem = data.uxui.landingPageDetails.elements;
+    const elemItems = [];
+    ['video','form','animations'].forEach(key => { if (elem[key]) elemItems.push(uxuiMap[key] || key); });
+    if (Array.isArray(elem.otherValues)) elem.otherValues.forEach((val: string) => { if (val) elemItems.push(val); });
+    if (elemItems.length > 0) uxuiContent += `- Elementos: ${elemItems.join(', ')}\n`;
+    // Estilo
+    const style = data.uxui.landingPageDetails.style;
+    const styleItems = [];
+    ['modern','minimalist','corporate','creative'].forEach(key => { if (style[key]) styleItems.push(uxuiMap[key] || key); });
+    if (Array.isArray(style.otherValues)) style.otherValues.forEach((val: string) => { if (val) styleItems.push(val); });
+    if (styleItems.length > 0) uxuiContent += `- Estilo: ${styleItems.join(', ')}\n`;
+  }
+  // Painel do Usuário
+  if (data.uxui.userDashboard) {
+    const dash = data.uxui.userDashboardDetails;
+    const dashItems = [];
+    if (Array.isArray(dash.features)) dash.features.forEach((f: string) => dashItems.push(uxuiMap[f] || f));
+    if (Array.isArray(dash.otherDashboardFeatures)) dash.otherDashboardFeatures.forEach((f: string) => { if (f) dashItems.push(f); });
+    if (dashItems.length > 0) uxuiContent += `- Painel do Usuário: ${dashItems.join(', ')}\n`;
+  }
+  // Estilo Visual
+  if (data.uxui.visualStyle && data.uxui.visualStyle !== 'other') {
+    uxuiContent += `- Estilo Visual: ${uxuiMap[data.uxui.visualStyle] || data.uxui.visualStyle}\n`;
+  } else if (data.uxui.visualStyle === 'other' && Array.isArray(data.uxui.otherVisualStyles) && data.uxui.otherVisualStyles.length > 0) {
+    uxuiContent += `- Estilo Visual: ${data.uxui.otherVisualStyles.join(', ')}\n`;
+  }
+  // Tipo de Menu
+  if (data.uxui.menuType && data.uxui.menuType !== 'other') {
+    uxuiContent += `- Tipo de Menu: ${uxuiMap[data.uxui.menuType] || data.uxui.menuType}\n`;
+  } else if (data.uxui.menuType === 'other' && Array.isArray(data.uxui.otherMenuTypes) && data.uxui.otherMenuTypes.length > 0) {
+    uxuiContent += `- Tipo de Menu: ${data.uxui.otherMenuTypes.join(', ')}\n`;
+  }
+  // Autenticação
+  const authItems = [];
+  if (Array.isArray(data.uxui.authentication)) data.uxui.authentication.forEach((a: string) => authItems.push(uxuiMap[a] || a));
+  if (Array.isArray(data.uxui.otherAuthMethods)) data.uxui.otherAuthMethods.forEach((a: string) => { if (a) authItems.push(a); });
+  if (authItems.length > 0) uxuiContent += `**${data.uxui.authenticationTitle || 'Autenticação'}**: ${authItems.join(', ')}\n`;
+  if (uxuiContent) md += `## ${data.uxui.title}\n${uxuiContent}\n`;
+
+  // Stack
+  let stackContent = "";
+  if (data.stack.separateFrontendBackend) {
+    if (data.stack.frontend.length > 0) stackContent += `**${data.stack.frontendTitle || 'Frontend'}**: ${data.stack.frontend.map((f: string) => stackMap[f] || f).join(', ')}\n`;
+    if (data.stack.backend.length > 0) stackContent += `**${data.stack.backendTitle || 'Backend'}**: ${data.stack.backend.map((f: string) => stackMap[f] || f).join(', ')}\n`;
+  } else {
+    if (data.stack.fullstack.length > 0) stackContent += `**${data.stack.fullstackTitle || 'Fullstack'}**: ${data.stack.fullstack.map((f: string) => stackMap[f] || f).join(', ')}\n`;
+  }
+  if (data.stack.database.length > 0) stackContent += `**${data.stack.databaseTitle || 'Banco de Dados'}**: ${data.stack.database.map((f: string) => stackMap[f] || f).join(', ')}\n`;
+  // Adicionar ORM
+  if (data.stack.orm && data.stack.orm.length > 0) {
+    stackContent += `**${data.stack.ormTitle || 'ORM / Ferramentas de BD'}**: ${data.stack.orm.map((f: string) => stackMap[f] || f).join(', ')}\n`;
+  }
+  if (Array.isArray(data.stack.otherOrm) && data.stack.otherOrm.length > 0) {
+    stackContent += `**${data.stack.ormTitle || 'ORM / Ferramentas de BD'} (${data.stack.otherOrmTitle || 'Outros'})**: ${data.stack.otherOrm.join(', ')}\n`;
+  }
+  // Adicionar Hosting
+  if (data.stack.hosting && data.stack.hosting.length > 0) {
+    stackContent += `**${data.stack.hostingTitle || 'Hospedagem / Deploy'}**: ${data.stack.hosting.map((f: string) => stackMap[f] || f).join(', ')}\n`;
+  }
+  if (Array.isArray(data.stack.otherHosting) && data.stack.otherHosting.length > 0) {
+    stackContent += `**${data.stack.hostingTitle || 'Hospedagem / Deploy'} (${data.stack.otherHostingTitle || 'Outros'})**: ${data.stack.otherHosting.join(', ')}\n`;
+  }
+  if (stackContent.replace(/\s/g, "") !== "") md += `## ${data.stack.title}\n${stackContent}\n`;
+
+  // Security
+  let securityContent = "";
+  if (data.security.selectedSecurity.length > 0) {
+    data.security.selectedSecurity.forEach((s: string) => {
+      securityContent += `- ${securityMap[s] || s}\n`;
+    });
+  }
+  if (Array.isArray(data.security.otherSecurityFeature) && data.security.otherSecurityFeature.length > 0) {
+    data.security.otherSecurityFeature.forEach((other: string) => {
+      if (other && other.trim()) securityContent += `- ${other.trim()}\n`;
+    });
+  }
+  if (securityContent.replace(/\s/g, "") !== "") md += `## ${data.security.title}\n${securityContent}\n`;
+
+  // Code Structure
+  let codeStructureContent = "";
+  if (data.codeStructure.folderOrganization.length > 0) codeStructureContent += `**${data.codeStructure.folderOrganizationTitle || 'Organização de Pastas'}**: ${data.codeStructure.folderOrganization.map((f: string) => codeStructureMap[f] || f).join(', ')}\n`;
+  if (Array.isArray(data.codeStructure.otherOrganizationStyle) && data.codeStructure.otherOrganizationStyle.length > 0) {
+    data.codeStructure.otherOrganizationStyle.forEach((other: string) => {
+      if (other && other.trim()) codeStructureContent += `- ${other.trim()}\n`;
+    });
+  }
+  if (data.codeStructure.architecturalPattern.length > 0) codeStructureContent += `**${data.codeStructure.architecturalPatternTitle || 'Padrão Arquitetural'}**: ${data.codeStructure.architecturalPattern.map((f: string) => codeStructureMap[f] || f).join(', ')}\n`;
+  if (Array.isArray(data.codeStructure.otherArchPattern) && data.codeStructure.otherArchPattern.length > 0) {
+    data.codeStructure.otherArchPattern.forEach((other: string) => {
+      if (other && other.trim()) codeStructureContent += `- ${other.trim()}\n`;
+    });
+  }
+  if (data.codeStructure.bestPractices.length > 0) codeStructureContent += `**${data.codeStructure.bestPracticesTitle || 'Melhores Práticas'}**: ${data.codeStructure.bestPractices.map((f: string) => codeStructureMap[f] || f).join(', ')}\n`;
+  if (Array.isArray(data.codeStructure.otherBestPractice) && data.codeStructure.otherBestPractice.length > 0) {
+    data.codeStructure.otherBestPractice.forEach((other: string) => {
+      if (other && other.trim()) codeStructureContent += `- ${other.trim()}\n`;
+    });
+  }
+  if (codeStructureContent.replace(/\s/g, "") !== "") md += `## ${data.codeStructure.title}\n${codeStructureContent}\n`;
+
+  // Scalability
+  let scalabilityContent = "";
+  if (data.scalability.isScalable) {
+    if (data.scalability.scalabilityFeatures.length > 0) scalabilityContent += `**${data.scalability.scalabilityFeaturesTitle || 'Recursos de Escalabilidade'}**: ${data.scalability.scalabilityFeatures.map((f: string) => scalabilityMap[f] || f).join(', ')}\n`;
+    if (Array.isArray(data.scalability.otherScalabilityFeature) && data.scalability.otherScalabilityFeature.length > 0) {
+      data.scalability.otherScalabilityFeature.forEach((other: string) => {
+        if (other && other.trim()) scalabilityContent += `- ${other.trim()}\n`;
+      });
+    }
+    if (data.scalability.performanceFeatures.length > 0) scalabilityContent += `**${data.scalability.performanceFeaturesTitle || 'Recursos de Performance'}**: ${data.scalability.performanceFeatures.map((f: string) => scalabilityMap[f] || f).join(', ')}\n`;
+    if (Array.isArray(data.scalability.otherPerformanceFeature) && data.scalability.otherPerformanceFeature.length > 0) {
+      data.scalability.otherPerformanceFeature.forEach((other: string) => {
+        if (other && other.trim()) scalabilityContent += `- ${other.trim()}\n`;
+      });
+    }
+  }
+  if (scalabilityContent.replace(/\s/g, "") !== "") md += `## ${data.scalability.title}\n${data.scalability.isScalable ? 'Escalável' : 'Não Escalável'}\n${scalabilityContent}\n`;
+
+  // Restrictions
+  let restrictionsContent = "";
+  if (data.restrictions.avoidInCode.length > 0) {
+    data.restrictions.avoidInCode.forEach((r: string) => {
+      restrictionsContent += `- Evitar: ${restrictionsMap[r] || r}\n`;
+    });
+  }
+  if (restrictionsContent.replace(/\s/g, "") !== "") md += `## ${data.restrictions.title}\n${restrictionsContent}\n`;
+
+  // Integrations
+  if (
+    data.integrations &&
+    typeof data.integrations === 'object' &&
+    'needsIntegrations' in data.integrations &&
+    data.integrations.needsIntegrations
+  ) {
+    const selected = Array.isArray(data.integrations.selectedIntegrations) ? data.integrations.selectedIntegrations : [];
+    const uniqueIntegrations = Array.from(new Set(selected));
+    if (uniqueIntegrations.length > 0) {
+      md += `## ${data.integrations.title}\n`;
+      uniqueIntegrations.forEach((integration: string) => {
+        md += `- ${integrationsMap[integration] || integration}\n`;
+      });
+      md += '\n';
+    }
+  }
+  return md;
+};
 
 const PromptGeneratorWizard = () => {
   const { t } = useLanguage();
@@ -355,6 +677,28 @@ const PromptGeneratorWizard = () => {
   const [formData, setFormData] = useState(initialFormData);
 
   const [generatedPrompt, setGeneratedPrompt] = useState('');
+  const [aiEnhancedObjective, setAiEnhancedObjective] = useState('');
+
+  // Novo: controlar steps obrigatórios salvos
+  const isProjectSaved = finalizedSteps['project'];
+  const isSystemTypeSaved = finalizedSteps['systemType'];
+  const isObjectiveSaved = finalizedSteps['objective'];
+  const [showRequiredStepsModal, setShowRequiredStepsModal] = useState(false);
+  const [missingSteps, setMissingSteps] = useState<string[]>([]);
+
+  // Novo: interceptar geração do prompt para checar steps obrigatórios
+  const handleTryGeneratePrompt = () => {
+    const missing: string[] = [];
+    if (!isProjectSaved) missing.push('Informações do Projeto');
+    if (!isSystemTypeSaved) missing.push('Tipo de Sistema');
+    if (!isObjectiveSaved) missing.push('Objetivo do Projeto');
+    if (missing.length > 0) {
+      setMissingSteps(missing);
+      setShowRequiredStepsModal(true);
+      return false;
+    }
+    return true;
+  };
 
   useEffect(() => {
     const newFilledSteps: Record<string, boolean> = {};
@@ -527,7 +871,10 @@ const PromptGeneratorWizard = () => {
       case 2: // Objective
         return <ObjectiveStep 
           formData={formData.objective} 
+          systemTypeSelected={formData.systemType.selected}
+          systemTypeOther={formData.systemType.otherType}
           {...stepProps}
+          onAiEnhanced={setAiEnhancedObjective}
         />;
       case 3: // Requirements
         return <RequirementsStep 
@@ -581,7 +928,21 @@ const PromptGeneratorWizard = () => {
             <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
               <div className="flex justify-between items-start">
                 <div>
-                  <CardTitle className="mb-1">{t('promptGenerator.generate.title')}</CardTitle>
+                  <CardTitle className="mb-1 flex gap-2 items-center">
+                    {t('promptGenerator.generate.title')}
+                    {/* Badges dos steps obrigatórios */}
+                    <span className="flex gap-1 ml-2">
+                      <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: isProjectSaved ? BADGE_COLOR : '#e5e7eb', color: isProjectSaved ? '#fff' : '#222' }}>
+                        Projeto {isProjectSaved && <CheckCircle className="inline w-3 h-3 ml-1" />}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: isSystemTypeSaved ? BADGE_COLOR : '#e5e7eb', color: isSystemTypeSaved ? '#fff' : '#222' }}>
+                        Tipo {isSystemTypeSaved && <CheckCircle className="inline w-3 h-3 ml-1" />}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: isObjectiveSaved ? BADGE_COLOR : '#e5e7eb', color: isObjectiveSaved ? '#fff' : '#222' }}>
+                        Objetivo {isObjectiveSaved && <CheckCircle className="inline w-3 h-3 ml-1" />}
+                      </span>
+                    </span>
+                  </CardTitle>
                   <CardDescription className="text-sm text-muted-foreground">
                     {t('promptGenerator.generate.description')}
                   </CardDescription>
@@ -619,7 +980,8 @@ const PromptGeneratorWizard = () => {
                 formData={formData}
                 markAsFinalized={() => handleMarkAsFinalized(wizardSteps[currentStep].id)}
                 isFinalized={finalizedSteps[wizardSteps[currentStep].id] || false}
-                onPromptGenerated={setGeneratedPrompt}
+                goToPromptTab={goToPromptTab}
+                onPromptGenerated={handlePromptGenerated}
               />
             </CardContent>
           </Card>
@@ -637,278 +999,30 @@ const PromptGeneratorWizard = () => {
     return translated;
   };
 
-  const generatePreviewMarkdown = (data: typeof formData): string => {
-    let md = "";
-
-    // Project Info
-    if (data.project.title || data.project.author || data.project.email || data.project.url) {
-      md += `# ${getLabelOrTranslation('promptGenerator.project.title', 'Informações do Projeto')}\n`;
-      if (data.project.title) md += `**${getLabelOrTranslation('promptGenerator.project.projectTitle', 'Título do Projeto')}:** ${data.project.title}\n`;
-      if (data.project.author) md += `**${getLabelOrTranslation('promptGenerator.project.author', 'Autor')}:** ${data.project.author}\n`;
-      if (data.project.email) md += `**${getLabelOrTranslation('promptGenerator.project.email', 'Email')}:** ${data.project.email}\n`;
-      if (data.project.url) md += `**${getLabelOrTranslation('promptGenerator.project.url', 'Website')}:** ${data.project.url}\n`;
-      if (data.project.version) md += `**${getLabelOrTranslation('promptGenerator.project.version', 'Versão')}:** ${data.project.version}\n`;
-      md += "\n";
-    }
-
-    // System Type
-    if (data.systemType.selected && (data.systemType.selected !== 'other' || data.systemType.otherType)) {
-      md += `## ${getLabelOrTranslation('promptGenerator.systemType.title', 'Tipo de Sistema')}\n`;
-      const systemTypeId = data.systemType.selected.toLowerCase().replace(/\s+/g, '');
-      const selectedType = data.systemType.selected === 'other' 
-        ? data.systemType.otherType 
-        : getLabelOrTranslation(`promptGenerator.systemType.${systemTypeId}`, data.systemType.selected);
-      md += `- ${selectedType}\n`;
-      if (data.systemType.examples && data.systemType.examples.length > 0) {
-        md += `  - ${getLabelOrTranslation('promptGenerator.systemType.examples', 'Exemplos')}: ${data.systemType.examples.join(', ')}\n`;
-      }
-      md += "\n";
-    }
-
-    // Objective
-    if (data.objective.primaryObjective || data.objective.selectedObjectives.length > 0 || (Array.isArray(data.objective.otherObjective) && data.objective.otherObjective.length > 0) ) {
-      md += `## ${getLabelOrTranslation('promptGenerator.objective.title', 'Objetivo')}\n`;
-      if (data.objective.primaryObjective) {
-        md += `**${getLabelOrTranslation('promptGenerator.objective.primaryObjective', 'Objetivo Principal')}:** ${data.objective.primaryObjective}\n\n`;
-      }
-      if (data.objective.selectedObjectives.length > 0) {
-        md += `**${getLabelOrTranslation('promptGenerator.objective.additionalObjectivesTitle', 'Objetivos Adicionais')}:**\n`;
-        data.objective.selectedObjectives.forEach((objKey: string) => {
-          if (objKey !== 'Other') {
-            const objectiveLabel = getLabelOrTranslation(`promptGenerator.objective.${objKey}`, objKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()));
-            md += `- ${objectiveLabel}\n`;
-          }
-        });
-        md += "\n";
-      }
-      if (Array.isArray(data.objective.otherObjective) && data.objective.otherObjective.length > 0) {
-        md += `**${getLabelOrTranslation('promptGenerator.objective.specifiedOtherObjectivesTitle', 'Outros Objetivos Especificados:')}**\n`;
-        data.objective.otherObjective.forEach(customObj => {
-          if (customObj.trim()) md += `- ${customObj.trim()}\n`;
-        });
-        md += "\n";
-      }
-    }
-    // Requirements
-    if (data.requirements.userTypes.length > 0 || 
-        data.requirements.functionalRequirements.length > 0 || 
-        data.requirements.nonFunctionalRequirements.length > 0 || 
-        (Array.isArray(data.requirements.otherRequirement) && data.requirements.otherRequirement.length > 0)) {
-      md += `## ${getLabelOrTranslation('promptGenerator.requirements.title', 'Requisitos')}\n`;
-      if (data.requirements.userTypes.length > 0) {
-        md += `**${getLabelOrTranslation('promptGenerator.requirements.userTypes', 'Tipos de Usuários')}:** ${data.requirements.userTypes.join(', ')}\n\n`;
-      }
-      if (data.requirements.functionalRequirements.length > 0) {
-        md += `**${getLabelOrTranslation('promptGenerator.requirements.functionalRequirements', 'Requisitos Funcionais')}:**\n`;
-        data.requirements.functionalRequirements.forEach(r => {
-          if (r.trim()) md += `- ${r.trim()}\n`;
-        });
-        md += "\n";
-      }
-      const hasSelectedNFRs = data.requirements.nonFunctionalRequirements.filter(r => r !== 'Other').length > 0;
-      const hasOtherNFRs = Array.isArray(data.requirements.otherRequirement) && data.requirements.otherRequirement.length > 0;
-      if (hasSelectedNFRs || hasOtherNFRs) {
-        md += `**${getLabelOrTranslation('promptGenerator.requirements.nonFunctionalRequirements', 'Requisitos Não-Funcionais')}:**\n`;
-        data.requirements.nonFunctionalRequirements.forEach(reqKey => {
-          if (reqKey !== 'Other') {
-            const reqLabel = getLabelOrTranslation(`promptGenerator.requirements.${reqKey}`, reqKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()));
-            md += `- ${reqLabel}\n`;
-          }
-        });
-        if (hasOtherNFRs) {
-          data.requirements.otherRequirement.forEach(customReq => {
-            if (customReq.trim()) md += `- ${customReq.trim()}\n`;
-          });
-        }
-        md += "\n";
-      }
-    }
-    // Features
-    if (data.features.specificFeatures.length > 0 || data.features.dynamicFeatures.length > 0 || data.features.otherFeature) {
-      md += `## ${getLabelOrTranslation('promptGenerator.features.title', 'Funcionalidades')}\n`;
-      if (data.features.specificFeatures.length > 0) {
-         md += `### ${getLabelOrTranslation('promptGenerator.features.specificFeatures', 'Funcionalidades Específicas')}\n${data.features.specificFeatures.map(f => `- ${getLabelOrTranslation(`promptGenerator.features.${f}`, f)}`).join('\n')}\n`;
-      }
-      if (data.features.dynamicFeatures.length > 0) {
-        md += `### ${getLabelOrTranslation('promptGenerator.features.dynamicFeatures', 'Funcionalidades Dinâmicas')}\n${data.features.dynamicFeatures.map(f => `- ${getLabelOrTranslation(`promptGenerator.features.${f}`, f)}`).join('\n')}\n`;
-      }
-      if (data.features.otherFeature) md += `- ${getLabelOrTranslation('common.other', 'Outro')}: ${data.features.otherFeature}\n`;
-      md += "\n";
-    }
-    // UX/UI
-    let uxuiContent = "";
-    // Paleta de Cores
-    if (data.uxui.colorPalette.length > 0) {
-      data.uxui.colorPalette.forEach(pal => {
-        let palLabel = pal;
-        const paletteTranslations: Record<string, string> = {
-          techInnovation: 'Tecnologia/Inovação',
-          creativityDesign: 'Criatividade/Design',
-          healthWellness: 'Saúde/Bem-estar',
-          foodGastronomy: 'Alimentos/Gastronomia',
-          educationLearning: 'Educação/Aprendizado',
-          corporateFinance: 'Corporativo/Finanças',
-          legalConsulting: 'Jurídico/Consultoria',
-          newsInformation: 'Notícias/Informação',
-          portfolioPersonal: 'Portfólio/Pessoal',
-          realEstate: 'Imobiliário',
-          fashionLuxury: 'Moda/Luxo',
-          artCulture: 'Arte/Cultura',
-          minimalism: 'Minimalismo',
-          natureSustainability: 'Natureza/Sustentabilidade',
-          travelAdventure: 'Viagem/Aventura',
-          kidsToys: 'Infantil/Brinquedos',
-          musicEntertainment: 'Música/Entretenimento',
-          sportsFitness: 'Esportes/Fitness',
-          weddingEvents: 'Casamento/Eventos',
-          communityNGO: 'Comunidade/ONG',
-          custom: 'Paleta Personalizada',
-        };
-        if (pal === 'custom') palLabel = 'Paleta Personalizada';
-        else palLabel = paletteTranslations[pal] || pal;
-        uxuiContent += `- Tipo de Paleta: ${palLabel}.\n`;
-        if (pal === 'custom' && Array.isArray(data.uxui.customColors) && data.uxui.customColors.length > 0) {
-          uxuiContent += `- Cores da Paleta: ${JSON.stringify(data.uxui.customColors)}\n`;
-        } else if (Array.isArray(data.uxui.customColors) && data.uxui.customColors.length > 0) {
-          uxuiContent += `- Cores da Paleta: ${JSON.stringify(data.uxui.customColors)}\n`;
-        }
-      });
-    }
-    // Página Inicial (Landing Page)
-    if (data.uxui.landingPage) {
-      // Estrutura
-      const struct = data.uxui.landingPageDetails.structure;
-      const structItems = [];
-      ['hero','benefits','testimonials','cta'].forEach(key => { if (struct[key]) structItems.push(getLabelOrTranslation(`promptGenerator.uxui.structureItems.${key}`, key)); });
-      if (Array.isArray(struct.otherValues)) struct.otherValues.forEach(val => { if (val) structItems.push(val); });
-      if (structItems.length > 0) uxuiContent += `- Estrutura: ${structItems.join(', ')}\n`;
-      // Elementos
-      const elem = data.uxui.landingPageDetails.elements;
-      const elemItems = [];
-      ['video','form','animations'].forEach(key => { if (elem[key]) elemItems.push(getLabelOrTranslation(`promptGenerator.uxui.elementsItems.${key}`, key)); });
-      if (Array.isArray(elem.otherValues)) elem.otherValues.forEach(val => { if (val) elemItems.push(val); });
-      if (elemItems.length > 0) uxuiContent += `- Elementos: ${elemItems.join(', ')}\n`;
-      // Estilo
-      const style = data.uxui.landingPageDetails.style;
-      const styleItems = [];
-      ['modern','minimalist','corporate','creative'].forEach(key => { if (style[key]) styleItems.push(getLabelOrTranslation(`promptGenerator.uxui.styleItems.${key}`, key)); });
-      if (Array.isArray(style.otherValues)) style.otherValues.forEach(val => { if (val) styleItems.push(val); });
-      if (styleItems.length > 0) uxuiContent += `- Estilo: ${styleItems.join(', ')}\n`;
-    }
-    // Painel do Usuário
-    if (data.uxui.userDashboard) {
-      const dash = data.uxui.userDashboardDetails;
-      const dashItems = [];
-      if (Array.isArray(dash.features)) dash.features.forEach(f => dashItems.push(getLabelOrTranslation(`promptGenerator.uxui.dashboardFeatures.${f}`, f)));
-      if (Array.isArray(dash.otherDashboardFeatures)) dash.otherDashboardFeatures.forEach(f => { if (f) dashItems.push(f); });
-      if (dashItems.length > 0) uxuiContent += `- Painel do Usuário: ${dashItems.join(', ')}\n`;
-    }
-    // Estilo Visual
-    if (data.uxui.visualStyle && data.uxui.visualStyle !== 'other') {
-      uxuiContent += `- Estilo Visual: ${getLabelOrTranslation(`promptGenerator.uxui.visualStyleItems.${data.uxui.visualStyle}`, data.uxui.visualStyle)}\n`;
-    } else if (data.uxui.visualStyle === 'other' && Array.isArray(data.uxui.otherVisualStyles) && data.uxui.otherVisualStyles.length > 0) {
-      uxuiContent += `- Estilo Visual: ${data.uxui.otherVisualStyles.join(', ')}\n`;
-    }
-    // Tipo de Menu
-    if (data.uxui.menuType && data.uxui.menuType !== 'other') {
-      uxuiContent += `- Tipo de Menu: ${getLabelOrTranslation(`promptGenerator.uxui.menuTypeItems.${data.uxui.menuType}`, data.uxui.menuType)}\n`;
-    } else if (data.uxui.menuType === 'other' && Array.isArray(data.uxui.otherMenuTypes) && data.uxui.otherMenuTypes.length > 0) {
-      uxuiContent += `- Tipo de Menu: ${data.uxui.otherMenuTypes.join(', ')}\n`;
-    }
-    // Autenticação
-    const authItems = [];
-    if (Array.isArray(data.uxui.authentication)) data.uxui.authentication.forEach(a => authItems.push(getLabelOrTranslation(`promptGenerator.uxui.authItems.${a}`, a)));
-    if (Array.isArray(data.uxui.otherAuthMethods)) data.uxui.otherAuthMethods.forEach(a => { if (a) authItems.push(a); });
-    if (authItems.length > 0) uxuiContent += `**${getLabelOrTranslation('promptGenerator.uxui.authentication', 'Autenticação')}:** ${authItems.join(', ')}\n`;
-    if (uxuiContent) md += `## ${getLabelOrTranslation('promptGenerator.uxui.title', 'UX/UI')}\n${uxuiContent}\n`;
-    // Stack
-    let stackContent = "";
-    if (data.stack.separateFrontendBackend) {
-      if (data.stack.frontend.length > 0 || (Array.isArray(data.stack.otherFrontend) && data.stack.otherFrontend.length > 0)) stackContent += `**${getLabelOrTranslation('promptGenerator.stack.frontend', 'Frontend')}:** ${[...data.stack.frontend, ...(Array.isArray(data.stack.otherFrontend) ? data.stack.otherFrontend : [])].filter(Boolean).map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
-      if (data.stack.backend.length > 0 || (Array.isArray(data.stack.otherBackend) && data.stack.otherBackend.length > 0)) stackContent += `**${getLabelOrTranslation('promptGenerator.stack.backend', 'Backend')}:** ${[...data.stack.backend, ...(Array.isArray(data.stack.otherBackend) ? data.stack.otherBackend : [])].filter(Boolean).map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
-    } else {
-      if (data.stack.fullstack.length > 0 || (Array.isArray(data.stack.otherFullstack) && data.stack.otherFullstack.length > 0)) stackContent += `**${getLabelOrTranslation('promptGenerator.stack.fullstack', 'Fullstack')}:** ${[...data.stack.fullstack, ...(Array.isArray(data.stack.otherFullstack) ? data.stack.otherFullstack : [])].filter(Boolean).map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
-    }
-    if (data.stack.database.length > 0 || (Array.isArray(data.stack.otherDatabase) && data.stack.otherDatabase.length > 0)) stackContent += `**${getLabelOrTranslation('promptGenerator.stack.database', 'Banco de Dados')}:** ${[...data.stack.database, ...(Array.isArray(data.stack.otherDatabase) ? data.stack.otherDatabase : [])].filter(Boolean).map(f => getLabelOrTranslation(`promptGenerator.stack.${f}`, f)).join(', ')}\n`;
-    if (stackContent.replace(/\s/g, "") !== "") md += `## ${getLabelOrTranslation('promptGenerator.stack.title', 'Stack Tecnológica')}\n${stackContent}\n`;
-    // Security
-    let securityContent = "";
-    if (data.security.selectedSecurity.length > 0) {
-      data.security.selectedSecurity.forEach(s => {
-        const securityId = s.toLowerCase().replace(/\s+/g, '');
-        securityContent += `- ${getLabelOrTranslation(`promptGenerator.security.${securityId}`, s)}\n`;
-      });
-    }
-    if (Array.isArray(data.security.otherSecurityFeature) && data.security.otherSecurityFeature.length > 0) {
-      data.security.otherSecurityFeature.forEach(other => {
-        if (other && other.trim()) securityContent += `- ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
-      });
-    }
-    if (securityContent.replace(/\s/g, "") !== "") md += `## ${getLabelOrTranslation('promptGenerator.security.title', 'Segurança')}\n${securityContent}\n`;
-    // Code Structure
-    let codeStructureContent = "";
-    if (data.codeStructure.folderOrganization.length > 0) codeStructureContent += `**${getLabelOrTranslation('promptGenerator.codeStructure.folderOrganization', 'Organização de Pastas')}:** ${data.codeStructure.folderOrganization.map(f => getLabelOrTranslation(`promptGenerator.codeStructure.${f}`, f)).join(', ')}\n`;
-    if (Array.isArray(data.codeStructure.otherOrganizationStyle) && data.codeStructure.otherOrganizationStyle.length > 0) {
-      data.codeStructure.otherOrganizationStyle.forEach(other => {
-        if (other && other.trim()) codeStructureContent += `  - ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
-      });
-    }
-    if (data.codeStructure.architecturalPattern.length > 0) codeStructureContent += `**${getLabelOrTranslation('promptGenerator.codeStructure.architecturalPattern', 'Padrão Arquitetural')}:** ${data.codeStructure.architecturalPattern.map(f => getLabelOrTranslation(`promptGenerator.codeStructure.${f}`, f)).join(', ')}\n`;
-    if (Array.isArray(data.codeStructure.otherArchPattern) && data.codeStructure.otherArchPattern.length > 0) {
-      data.codeStructure.otherArchPattern.forEach(other => {
-        if (other && other.trim()) codeStructureContent += `  - ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
-      });
-    }
-    if (data.codeStructure.bestPractices.length > 0) codeStructureContent += `**${getLabelOrTranslation('promptGenerator.codeStructure.bestPractices', 'Melhores Práticas')}:** ${data.codeStructure.bestPractices.map(f => getLabelOrTranslation(`promptGenerator.codeStructure.${f}`, f)).join(', ')}\n`;
-    if (Array.isArray(data.codeStructure.otherBestPractice) && data.codeStructure.otherBestPractice.length > 0) {
-      data.codeStructure.otherBestPractice.forEach(other => {
-        if (other && other.trim()) codeStructureContent += `  - ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
-      });
-    }
-    if (codeStructureContent.replace(/\s/g, "") !== "") md += `## ${getLabelOrTranslation('promptGenerator.codeStructure.title', 'Estrutura de Código')}\n${codeStructureContent}\n`;
-    // Scalability
-    let scalabilityContent = "";
-    if (data.scalability.isScalable) {
-      if (data.scalability.scalabilityFeatures.length > 0) scalabilityContent += `**${getLabelOrTranslation('promptGenerator.scalability.scalabilityFeatures', 'Recursos de Escalabilidade')}:** ${data.scalability.scalabilityFeatures.map(f => getLabelOrTranslation(`promptGenerator.scalability.${f}`, f)).join(', ')}\n`;
-      if (Array.isArray(data.scalability.otherScalabilityFeature) && data.scalability.otherScalabilityFeature.length > 0) {
-        data.scalability.otherScalabilityFeature.forEach(other => {
-          if (other && other.trim()) scalabilityContent += `  - ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
-        });
-      }
-      if (data.scalability.performanceFeatures.length > 0) scalabilityContent += `**${getLabelOrTranslation('promptGenerator.scalability.performanceFeatures', 'Recursos de Performance')}:** ${data.scalability.performanceFeatures.map(f => getLabelOrTranslation(`promptGenerator.scalability.${f}`, f)).join(', ')}\n`;
-      if (Array.isArray(data.scalability.otherPerformanceFeature) && data.scalability.otherPerformanceFeature.length > 0) {
-        data.scalability.otherPerformanceFeature.forEach(other => {
-          if (other && other.trim()) scalabilityContent += `  - ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
-        });
-      }
-    }
-    if (scalabilityContent.replace(/\s/g, "") !== "") md += `## ${getLabelOrTranslation('promptGenerator.scalability.title', 'Escalabilidade')}\n${getLabelOrTranslation('promptGenerator.scalability.isScalable', 'Escalável')}\n${scalabilityContent}\n`;
-    // Restrictions
-    let restrictionsContent = "";
-    if (data.restrictions.avoidInCode.length > 0) {
-      data.restrictions.avoidInCode.forEach(r => {
-        const restrictionId = r.toLowerCase().replace(/\s+/g, '');
-        restrictionsContent += `- ${getLabelOrTranslation(`promptGenerator.restrictions.${restrictionId}`, r)}\n`;
-      });
-    }
-    if (Array.isArray(data.restrictions.otherRestriction) && data.restrictions.otherRestriction.length > 0) {
-      data.restrictions.otherRestriction.forEach(other => {
-        if (other && other.trim()) restrictionsContent += `- ${getLabelOrTranslation('common.other', 'Outro')}: ${other.trim()}\n`;
-      });
-    }
-    if (restrictionsContent.replace(/\s/g, "") !== "") md += `## ${getLabelOrTranslation('promptGenerator.restrictions.title', 'Restrições')}\n${restrictionsContent}\n`;
-    return md;
-  };
-
   useEffect(() => {
-    setPreviewMarkdown(generatePreviewMarkdown(formData));
-  }, [formData, t]); // t is a dependency if translations inside generatePreviewMarkdown change
+    setPreviewMarkdown(generatePreviewMarkdownWithAI(formData, aiEnhancedObjective, t));
+  }, [formData, aiEnhancedObjective, t]);
 
   // Update the onStepChange prop
   const handleStepChange = () => {
     console.log('Step changed');
     // If we need to track the current step, we can update it within the navigation component
     // The current step is accessible in the navigation.position property
+  };
+
+  const goToPromptTab = () => {
+    const generateIndex = wizardSteps.findIndex(step => step.id === 'generate');
+    if (generateIndex !== -1) {
+      setCurrentStep(generateIndex);
+      window.scrollTo(0, 0);
+    }
+  };
+
+  // Função para atualizar o prompt gerado globalmente
+  const handlePromptGenerated = (prompt: string) => {
+    setGeneratedPrompt(prompt);
+    setAiEnhancedObjective(prompt); // Garante que o preview e a aba "Prompt Gerado" mostrem o texto da IA
+    goToPromptTab();
   };
 
   return (
@@ -984,13 +1098,22 @@ const PromptGeneratorWizard = () => {
                         style={isActive ? { transform: 'scale(1.1)' } : {}}
                       >
                         <div 
-                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center mb-1 transition-all duration-200 ease-in-out border-2" // Reverted mb-0 to mb-1
+                          className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center mb-1 transition-all duration-200 ease-in-out border-2 relative" // Adiciona relative
                           style={{ 
                             ...iconBgStyle, 
                             borderColor: isActive ? step.color : (isFinalized ? 'rgba(74, 222, 128, 0.4)' : 'transparent') // Use isFinalized
                           }}
                         >
                           <StepIcon size={24} style={{ color: isActive ? step.color : undefined }} className={iconClasses} />
+                          {/* Novo: marcador de step salvo */}
+                          {isFinalized && (
+                            <span
+                              className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center bg-green-500 border-2 border-white"
+                              style={{ zIndex: 20 }}
+                            >
+                              <CheckCircle className="w-3 h-3 text-white" />
+                            </span>
+                          )}
                         </div>
                         <span className={titleClasses} style={{color: isActive ? step.color : undefined}}>
                           {step.title}
@@ -1056,10 +1179,26 @@ const PromptGeneratorWizard = () => {
             <div className="flex-1 md:w-2/5 lg:w-1/3 mt-6 md:mt-0 p-1">
               <div className="sticky top-24"> {/* Sticky positioning for preview */}
                 <PromptPreview 
-                  previewContent={previewMarkdown}
-                  codeContent={previewMarkdown}
-                  markdownContent={previewMarkdown}
-                  generatedPromptContent={generatedPrompt}
+                  previewContent={
+                    aiEnhancedObjective
+                      ? generatePreviewMarkdownWithAI(formData, aiEnhancedObjective, t)
+                      : previewMarkdown
+                  }
+                  codeContent={
+                    aiEnhancedObjective
+                      ? generatePreviewMarkdownWithAI(formData, aiEnhancedObjective, t)
+                      : previewMarkdown
+                  }
+                  markdownContent={
+                    aiEnhancedObjective
+                      ? generatePreviewMarkdownWithAI(formData, aiEnhancedObjective, t)
+                      : previewMarkdown
+                  }
+                  generatedPromptContent={
+                    generatedPrompt
+                      ? generatedPrompt
+                      : 'Nenhum texto gerado pela IA ainda. Clique em "Melhorar com IA" para ver o resultado aqui.'
+                  }
                   documentationContent={''}
                 />
               </div>
@@ -1069,6 +1208,40 @@ const PromptGeneratorWizard = () => {
           {/* Navigation Buttons and top border removed */}
         </div>
       </Card>
+      {/* Modal de steps obrigatórios faltantes */}
+      <AlertDialog open={showRequiredStepsModal} onOpenChange={setShowRequiredStepsModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Preencha os passos obrigatórios</AlertDialogTitle>
+            <AlertDialogDescription>
+              Você precisa preencher os seguintes passos antes de gerar o prompt:
+              <ul className="mt-2 mb-2 list-disc list-inside text-red-600">
+                {missingSteps.map((step, idx) => (
+                  <li key={idx}>{step}</li>
+                ))}
+              </ul>
+              Deseja ir para o primeiro passo faltante agora?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              setShowRequiredStepsModal(false);
+              // Ir para o primeiro step faltante
+              if (missingSteps.length > 0) {
+                const stepMap: Record<string, number> = {
+                  'Informações do Projeto': 0,
+                  'Tipo de Sistema': 1,
+                  'Objetivo do Projeto': 2
+                };
+                setCurrentStep(stepMap[missingSteps[0]] ?? 0);
+              }
+            }}>
+              Ir para o passo
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

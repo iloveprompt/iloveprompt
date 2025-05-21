@@ -72,7 +72,8 @@ Deno.serve(async (req: Request) => {
   
   try {
     console.log("Gemini Edge Function: Request received");
-    const { prompt, model = "gemini-1.5-flash" } = await req.json();
+    const body = await req.json();
+    const { prompt, model = "gemini-1.5-flash", apiKey } = body;
     
     if (!prompt) {
       console.log("Gemini Edge Function: Missing prompt parameter");
@@ -82,12 +83,10 @@ Deno.serve(async (req: Request) => {
       });
     }
     
-    const apiKey = Deno.env.get("GEMINI_API_KEY");
-    
     if (!apiKey) {
-      console.log("Gemini Edge Function: Missing API Key");
-      return new Response(JSON.stringify({ error: "GEMINI_API_KEY não configurada" }), { 
-        status: 500, 
+      console.log("Gemini Edge Function: Missing API Key in body");
+      return new Response(JSON.stringify({ error: "apiKey não enviada no body" }), { 
+        status: 400, 
         headers: { ...corsHeaders, "Content-Type": "application/json" } 
       });
     }
@@ -96,19 +95,18 @@ Deno.serve(async (req: Request) => {
     console.log(`Prompt preview: ${prompt.substring(0, 100)}...`);
     
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: prompt }]
             }]
-          }]
-        }),
-      });
+          }),
+        });
 
       if (!response.ok) {
         const errorText = await response.text();

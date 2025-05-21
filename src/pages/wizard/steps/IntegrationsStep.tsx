@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
+import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, Trash2, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -21,6 +21,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 interface IntegrationsFormData {
   selectedIntegrations: string[];
   otherIntegrations?: string[];
+  needsIntegrations?: boolean;
 }
 
 interface IntegrationsStepProps {
@@ -31,47 +32,51 @@ interface IntegrationsStepProps {
   isFinalized?: boolean;
 }
 
-const itemsPerPage = 12;
-
 const IntegrationsStep: React.FC<IntegrationsStepProps> = ({ formData, updateFormData, markAsFinalized, resetStep, isFinalized }) => {
   const { t } = useLanguage();
   const [currentPage, setCurrentPage] = useState(0);
   const [isOtherPopoverOpen, setIsOtherPopoverOpen] = useState(false);
   const [currentOtherInput, setCurrentOtherInput] = useState('');
   const [tempOtherList, setTempOtherList] = useState<string[]>([]);
-  const [needsIntegrations, setNeedsIntegrations] = useState(false);
   const [aiOpen, setAIOpen] = useState(false);
 
   const allOptions = integrationsData.map(item => item.id);
-  const selected = formData.selectedIntegrations || [];
-  const otherItems = formData.otherIntegrations || [];
+  const selected = Array.isArray(formData.selectedIntegrations) ? formData.selectedIntegrations : [];
+  const otherItems = Array.isArray(formData.otherIntegrations) ? formData.otherIntegrations : [];
+  const needsIntegrations = formData.needsIntegrations ?? false;
 
+  const itemsPerPage = 12;
   const totalPages = Math.ceil(integrationsData.length / itemsPerPage);
   const optionsToShow = integrationsData.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage);
+
+  // Wrapper para garantir atualização correta do campo 'integrations' no formData global
+  const updateIntegrations = (data: Partial<IntegrationsFormData>) => {
+    updateFormData({ ...data });
+  };
 
   // Handlers
   const handleCheckboxChange = (option: string, checked: boolean) => {
     const updated = checked
       ? [...selected, option]
       : selected.filter(o => o !== option);
-    updateFormData({ selectedIntegrations: updated });
+    updateIntegrations({ selectedIntegrations: updated });
   };
   
   const handleSelectAll = () => {
     if (selected.length === allOptions.length) {
-      updateFormData({ selectedIntegrations: [] });
+      updateIntegrations({ selectedIntegrations: [] });
     } else {
-      updateFormData({ selectedIntegrations: allOptions });
+      updateIntegrations({ selectedIntegrations: allOptions });
     }
   };
 
   // Popover para outros
   useEffect(() => {
     if (isOtherPopoverOpen) {
-      setTempOtherList(Array.isArray(otherItems) ? otherItems : []);
+      setTempOtherList(Array.isArray(formData.otherIntegrations) ? formData.otherIntegrations : []);
       setCurrentOtherInput('');
     }
-  }, [isOtherPopoverOpen, otherItems]);
+  }, [isOtherPopoverOpen, formData.otherIntegrations]);
   
   const handleAddOther = () => {
     if (currentOtherInput.trim() && tempOtherList.length < 10) {
@@ -81,13 +86,25 @@ const IntegrationsStep: React.FC<IntegrationsStepProps> = ({ formData, updateFor
   };
   const handleRemoveOther = (index: number) => setTempOtherList(tempOtherList.filter((_, i) => i !== index));
   const handleSaveOther = () => {
-    updateFormData({ otherIntegrations: tempOtherList });
+    const newSelected = Array.from(new Set([...selected, ...tempOtherList]));
+    updateIntegrations({
+      otherIntegrations: tempOtherList,
+      selectedIntegrations: newSelected
+    });
     setIsOtherPopoverOpen(false);
   };
   
+  // Switch precisa de integrações
+  const handleNeedsIntegrations = (checked: boolean) => {
+    updateIntegrations({ needsIntegrations: checked });
+    if (!checked) {
+      updateIntegrations({ selectedIntegrations: [], otherIntegrations: [] });
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <Card className="p-4 sm:p-6">
+      <Card className={`p-4 sm:p-6 relative${isFinalized ? ' border-2 border-green-500' : ''}`}>
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start">
             <div>
@@ -137,10 +154,10 @@ const IntegrationsStep: React.FC<IntegrationsStepProps> = ({ formData, updateFor
             <Switch
               id="needsIntegrations-switch"
               checked={needsIntegrations}
-              onCheckedChange={setNeedsIntegrations}
+              onCheckedChange={handleNeedsIntegrations}
             />
             <Label htmlFor="needsIntegrations-switch" className="text-sm font-medium">
-              {t('promptGenerator.integrations.needsIntegrations')}
+              {t('promptGenerator.integrations.needsIntegrations') || "Seu projeto precisa de Integrações?"}
             </Label>
           </div>
           {/* Só mostra a lista se needsIntegrations estiver true */}
@@ -182,7 +199,14 @@ const IntegrationsStep: React.FC<IntegrationsStepProps> = ({ formData, updateFor
                           {t('promptGenerator.integrations.otherPlaceholder') || 'Adicionar outra integração:'}
                         </Label>
                         <div className="flex items-center space-x-2">
-                          <Input id={`other-integration-input`} value={currentOtherInput} onChange={(e) => setCurrentOtherInput(e.target.value)} placeholder={t('promptGenerator.integrations.otherPlaceholder') || 'Sua integração...'} className="text-xs h-8" onKeyDown={(e) => { if (e.key === 'Enter' && currentOtherInput.trim()) handleAddOther(); }} />
+                          <Input
+                            id={`other-integration-input`}
+                            value={currentOtherInput}
+                            onChange={e => setCurrentOtherInput(e.target.value)}
+                            placeholder={t('promptGenerator.integrations.otherPlaceholder') || 'Sua integração...'}
+                            className="text-xs h-8"
+                            onKeyDown={e => { if (e.key === 'Enter' && currentOtherInput.trim()) handleAddOther(); }}
+                          />
                           <Button size="icon" onClick={handleAddOther} disabled={!currentOtherInput.trim() || tempOtherList.length >= 10} className="h-8 w-8 flex-shrink-0"><PlusCircle className="h-4 w-4" /></Button>
                         </div>
                         {tempOtherList.length > 0 && (
@@ -191,7 +215,7 @@ const IntegrationsStep: React.FC<IntegrationsStepProps> = ({ formData, updateFor
                             {tempOtherList.map((item, idx) => (
                               <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
                                 <span className="truncate flex-1 mr-2">{item}</span>
-                                <Button variant="ghost" size="icon" onClick={() => handleRemoveOther(idx)} className="h-5 w-5"><XCircle className="h-3.5 w-3.5 text-destructive" /></Button>
+                                <Button variant="ghost" size="icon" onClick={() => handleRemoveOther(idx)} className="h-5 w-5"><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
                               </div>
                             ))}
                           </div>
@@ -214,12 +238,32 @@ const IntegrationsStep: React.FC<IntegrationsStepProps> = ({ formData, updateFor
                 </div>
               </div>
               {/* Outros itens salvos, se houver */}
-              {otherItems.length > 0 && (
-                <div className="mt-2 space-y-1 border p-2 rounded-md bg-muted/30">
-                  <p className="text-xs font-medium text-muted-foreground mb-1">{t('promptGenerator.integrations.otherAdded') || 'Outras integrações adicionadas:'}</p>
-                  {otherItems.map((item, index) => (
-                    <div key={`saved-other-integration-${index}`} className="text-xs text-foreground p-1 bg-muted/50 rounded">{item}</div>
-                  ))}
+              {Array.isArray(formData.otherIntegrations) && formData.otherIntegrations.length > 0 && (
+                <div className="mt-2 border p-2 rounded-md bg-muted/30">
+                  <p className="text-xs font-medium text-muted-foreground mb-1">Outras Integrações Adicionadas:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {formData.otherIntegrations.map((item, index) => (
+                      <div key={`saved-other-integration-${index}`} className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                        <span className="truncate mr-1.5">{item}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-4 w-4 p-0"
+                          onClick={() => {
+                            const newOther = formData.otherIntegrations.filter((_, i) => i !== index);
+                            const newSelected = Array.isArray(formData.selectedIntegrations) ? formData.selectedIntegrations.filter(sel => sel !== item) : [];
+                            updateFormData({
+                              otherIntegrations: newOther,
+                              selectedIntegrations: newSelected
+                            });
+                          }}
+                          aria-label="Remover"
+                        >
+                          <Trash2 className="h-3 w-3 text-destructive" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </>

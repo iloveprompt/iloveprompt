@@ -6,20 +6,27 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { savePromptToDatabase } from '@/services/promptService';
 import { enhancePrompt } from '@/services/llmService';
-import { FileText, Wand2, Sparkles, Loader2 } from 'lucide-react';
+import { FileText, Wand2, Sparkles, Loader2, CheckCircle, Circle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { useLlm } from '@/contexts/LlmContext';
+import { generatePreviewMarkdownWithAI } from '../PromptGeneratorWizard';
 
 interface GenerateStepProps {
   formData: any;
   markAsFinalized: () => void;
   isFinalized: boolean;
   onPromptGenerated?: (prompt: string) => void;
+  onTryGeneratePrompt?: () => boolean;
+  goToPromptTab?: () => void;
 }
 
 const GenerateStep: React.FC<GenerateStepProps> = ({ 
   formData,
   markAsFinalized,
   isFinalized,
-  onPromptGenerated
+  onPromptGenerated,
+  onTryGeneratePrompt,
+  goToPromptTab
 }) => {
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -27,51 +34,131 @@ const GenerateStep: React.FC<GenerateStepProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [generatedPrompt, setGeneratedPrompt] = useState('');
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [progressStep, setProgressStep] = useState<'preparando'|'enviando'|'aguardando'|'finalizado'>('preparando');
+  const [llmInfo, setLlmInfo] = useState<{provider: string, model: string}|null>(null);
+  const { llms } = useLlm();
   
+  // Importar os steps do wizard para exibir no modal
+  const wizardSteps = [
+    { id: 'project', label: t('promptGenerator.project.title') },
+    { id: 'systemType', label: t('promptGenerator.systemType.title') },
+    { id: 'objective', label: t('promptGenerator.objective.title') },
+    { id: 'requirements', label: t('promptGenerator.requirements.title') },
+    { id: 'features', label: t('promptGenerator.features.title') },
+    { id: 'uxui', label: t('promptGenerator.uxui.title') },
+    { id: 'stack', label: t('promptGenerator.stack.title') },
+    { id: 'security', label: t('promptGenerator.security.title') },
+    { id: 'codeStructure', label: t('promptGenerator.codeStructure.title') },
+    { id: 'scalability', label: t('promptGenerator.scalability.title') },
+    { id: 'restrictions', label: t('promptGenerator.restrictions.title') },
+    { id: 'integrations', label: t('promptGenerator.integrations.title') },
+  ];
+  // Função para checar se o step está preenchido
+  const isStepFilled = (stepId: string) => {
+    switch (stepId) {
+      case 'project':
+        return !!formData.project?.title;
+      case 'systemType':
+        return !!formData.systemType?.selected && (formData.systemType.selected !== 'other' || !!formData.systemType.otherType);
+      case 'objective':
+        return !!formData.objective?.primaryObjective || (formData.objective?.selectedObjectives?.length > 0);
+      case 'requirements':
+        return (formData.requirements?.userTypes?.length > 0 || formData.requirements?.functionalRequirements?.length > 0 || formData.requirements?.nonFunctionalRequirements?.length > 0);
+      case 'features':
+        return (formData.features?.specificFeatures?.length > 0 || formData.features?.dynamicFeatures?.length > 0 || formData.features?.otherSpecificFeatures?.length > 0);
+      case 'uxui':
+        return (formData.uxui?.colorPalette?.length > 0 || formData.uxui?.visualStyle || formData.uxui?.menuType || formData.uxui?.authentication?.length > 0);
+      case 'stack':
+        return (formData.stack?.frontend?.length > 0 || formData.stack?.backend?.length > 0 || formData.stack?.fullstack?.length > 0 || formData.stack?.database?.length > 0 || formData.stack?.hosting?.length > 0 || formData.stack?.orm?.length > 0);
+      case 'security':
+        return (formData.security?.selectedSecurity?.length > 0 || formData.security?.otherSecurityFeature?.length > 0);
+      case 'codeStructure':
+        return (formData.codeStructure?.folderOrganization?.length > 0 || formData.codeStructure?.architecturalPattern?.length > 0 || formData.codeStructure?.bestPractices?.length > 0);
+      case 'scalability':
+        return (formData.scalability?.scalabilityFeatures?.length > 0 || formData.scalability?.performanceFeatures?.length > 0);
+      case 'restrictions':
+        return (formData.restrictions?.avoidInCode?.length > 0 || formData.restrictions?.otherRestriction?.length > 0);
+      case 'integrations':
+        return (formData.integrations?.selectedIntegrations?.length > 0);
+      default:
+        return false;
+    }
+  };
+
   const handleGenerate = async () => {
+    if (isGenerating) return;
     setIsGenerating(true);
-    
-    // Simulate generation delay
-    setTimeout(async () => {
-      const prompt = generatePromptFromFormData(formData);
-      setGeneratedPrompt(prompt);
-      if (onPromptGenerated) onPromptGenerated(prompt);
+    if (onTryGeneratePrompt && !onTryGeneratePrompt()) {
       setIsGenerating(false);
-      
+      return;
+    }
+    // Validação obrigatória dos campos principais
+    const mainObjective = formData.objective?.primaryObjective || formData.objective;
+    if (!formData.systemType || (formData.systemType === 'outro' && !formData.systemTypeCustom?.trim())) {
+      toast({
+        title: 'Tipo de sistema obrigatório',
+        description: 'Escolha um tipo de sistema ou especifique um personalizado antes de gerar o prompt.',
+        variant: 'destructive'
+      });
+      setIsGenerating(false);
+      return;
+    }
+    if (!mainObjective || typeof mainObjective !== 'string' || !mainObjective.trim()) {
+      toast({
+        title: 'Objetivo principal obrigatório',
+        description: 'Preencha o objetivo principal do projeto antes de gerar o prompt.',
+        variant: 'destructive'
+      });
+      setIsGenerating(false);
+      return;
+    }
+    setShowProgressModal(true);
+    setProgressStep('preparando');
+    // Buscar LLM ativa
+    let activeLlm = llms.find(l => l.is_active);
+    setLlmInfo(activeLlm ? { provider: activeLlm.provider, model: activeLlm.models?.[0] || '' } : { provider: 'Desconhecido', model: '' });
+    try {
+      await new Promise(res => setTimeout(res, 800));
+      setProgressStep('enviando');
+      const prompt = generatePreviewMarkdownWithAI(formData, '', t);
+      await new Promise(res => setTimeout(res, 600));
+      setProgressStep('aguardando');
+      let promptLLM = prompt;
       if (user) {
-        // Auto-save the generated prompt
         try {
-          setIsSaving(true);
-          await savePromptToDatabase({
-            user_id: user.id,
-            title: formData.project.title || 'Prompt sem título',
-            content: prompt,
-            wizard_data: formData,
-            created_at: new Date(),
-            updated_at: new Date(),
-          });
-          
+          promptLLM = await enhancePrompt(prompt, user.id);
+        } catch (e) {
+          setShowProgressModal(false);
+          setIsGenerating(false);
           toast({
-            title: t('promptGenerator.generate.success'),
-            description: t('promptGenerator.generate.promptGenerated'),
+            title: 'Erro ao gerar com IA',
+            description: 'Não foi possível gerar o prompt com a LLM ativa.',
+            variant: 'destructive'
           });
-        } catch (error) {
-          console.error('Erro ao salvar prompt:', error);
-          toast({
-            title: t('promptGenerator.generate.error'),
-            description: t('promptGenerator.generate.errorSaving'),
-            variant: 'destructive',
-          });
-        } finally {
-          setIsSaving(false);
+          return;
         }
-      } else {
-        toast({
-          title: t('promptGenerator.generate.success'),
-          description: t('promptGenerator.generate.promptGenerated'),
-        });
       }
-    }, 1500);
+      setGeneratedPrompt(promptLLM);
+      if (onPromptGenerated) onPromptGenerated(promptLLM);
+      setProgressStep('finalizado');
+      await new Promise(res => setTimeout(res, 1200));
+      setShowProgressModal(false);
+      setIsGenerating(false);
+      if (goToPromptTab) goToPromptTab();
+      toast({
+        title: t('promptGenerator.generate.success'),
+        description: t('promptGenerator.generate.promptGenerated'),
+      });
+    } catch (e) {
+      setShowProgressModal(false);
+      setIsGenerating(false);
+      toast({
+        title: 'Erro ao gerar prompt',
+        description: 'Ocorreu um erro inesperado.',
+        variant: 'destructive'
+      });
+    }
   };
   
   const handleCopyToClipboard = () => {
@@ -152,25 +239,15 @@ Melhore-o tornando mais detalhado, estruturado, e eficaz para gerar um resultado
   };
   
   const generatePromptFromFormData = (data: any) => {
-    // This is a simplified version of generating a prompt
-    // In a real application, this would be more sophisticated
     let prompt = '';
-    
-    // Project Information
-    prompt += `# Projeto: ${data.project.title || 'Sem título'}\n`;
-    prompt += `Autor: ${data.project.author || 'Não especificado'}\n`;
-    prompt += `Email: ${data.project.email || 'Não especificado'}\n`;
-    if (data.project.url) prompt += `URL: ${data.project.url}\n`;
-    prompt += `Versão: ${data.project.version}\n\n`;
-    
-    // System Type
-    prompt += `## Tipo de Sistema\n`;
-    if (data.systemType.selected) {
-      const systemType = data.systemType.selected === 'other' 
-        ? data.systemType.otherType 
-        : t(`promptGenerator.systemType.${data.systemType.selected}`);
-      prompt += `${systemType}\n\n`;
-    }
+    // Título
+    prompt += `# ${data.project.title || 'Sem título'}\n`;
+    prompt += `## Informações do Projeto\n`;
+    prompt += `**Autor:** ${data.project.author || 'Não especificado'}\n`;
+    prompt += `**E-mail:** ${data.project.email || 'Não especificado'}\n`;
+    if (data.project.url) prompt += `**URL:** ${data.project.url}\n`;
+    prompt += `**Versão:** ${data.project.version || '1.0.0'}\n\n`;
+    prompt += `## Tipo de Sistema\n- ${data.systemTypeCustom || data.systemType || 'Não especificado'}\n\n`;
     
     // Objective
     if (data.objective.defineObjectives) {
@@ -278,15 +355,20 @@ Melhore-o tornando mais detalhado, estruturado, e eficaz para gerar um resultado
       prompt += `## Design e UX/UI\n`;
       // Estilo Visual
       if (data.uxui.visualStyle) {
-        prompt += `- Estilo Visual: ${t('promptGenerator.uxui.visualStyleOptions.' + data.uxui.visualStyle)}\n`;
+        const visualStyleLabel = t('promptGenerator.uxui.visualStyleOptions.' + data.uxui.visualStyle);
+        prompt += `- Estilo Visual: ${visualStyleLabel && !visualStyleLabel.startsWith('promptGenerator') ? visualStyleLabel : data.uxui.visualStyle}\n`;
       }
       // Tipo de Menu
       if (data.uxui.menuType) {
-        prompt += `- Tipo de Menu: ${t('promptGenerator.uxui.menuTypeOptions.' + data.uxui.menuType)}\n`;
+        const menuTypeLabel = t('promptGenerator.uxui.menuTypeOptions.' + data.uxui.menuType);
+        prompt += `- Tipo de Menu: ${menuTypeLabel && !menuTypeLabel.startsWith('promptGenerator') ? menuTypeLabel : data.uxui.menuType}\n`;
       }
       // Autenticação
       if (data.uxui.authentication && Array.isArray(data.uxui.authentication) && data.uxui.authentication.length > 0) {
-        const authLabels = data.uxui.authentication.map((a: string) => t('promptGenerator.uxui.authOptions.' + a)).join(', ');
+        const authLabels = data.uxui.authentication.map((a: string) => {
+          const label = t('promptGenerator.uxui.authOptions.' + a);
+          return label && !label.startsWith('promptGenerator') ? label : a;
+        }).join(', ');
         prompt += `- Autenticação: ${authLabels}\n`;
       }
       prompt += '\n';
@@ -299,6 +381,50 @@ Melhore-o tornando mais detalhado, estruturado, e eficaz para gerar um resultado
 
   return (
     <>
+      {/* Modal de progresso da geração do prompt via LLM */}
+      <Dialog open={showProgressModal} onOpenChange={setShowProgressModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Gerando Prompt com IA</DialogTitle>
+            <DialogDescription asChild>
+              <section>
+                {llmInfo && (
+                  <div className="mb-2">
+                    <span className="font-bold">LLM:</span> {llmInfo.provider.toUpperCase()}<br/>
+                    <span className="font-bold">Modelo:</span> {llmInfo.model}
+                  </div>
+                )}
+                {/* NOVO: Lista de steps preenchidos e não preenchidos */}
+                <div className="mb-3">
+                  <h4 className="font-semibold mb-1">Etapas do Wizard:</h4>
+                  <ul className="grid grid-cols-2 gap-1">
+                    {wizardSteps.map(step => (
+                      <li key={step.id} className="flex items-center gap-2 text-xs">
+                        {isStepFilled(step.id)
+                          ? <CheckCircle className="text-green-500 w-4 h-4" />
+                          : <Circle className="text-gray-400 w-4 h-4" />
+                        }
+                        <span className={isStepFilled(step.id) ? 'text-green-700 font-medium' : 'text-gray-500'}>
+                          {step.label}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-1 text-xs text-gray-500">
+                    <span>Somente as etapas preenchidas serão consideradas na geração do prompt.</span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2 mt-2">
+                  <span className={progressStep==='preparando' ? 'font-bold text-blue-600' : ''}>1. Preparando dados...</span>
+                  <span className={progressStep==='enviando' ? 'font-bold text-blue-600' : ''}>2. Enviando para LLM...</span>
+                  <span className={progressStep==='aguardando' ? 'font-bold text-blue-600' : ''}>3. Aguardando resposta da IA...</span>
+                  <span className={progressStep==='finalizado' ? 'font-bold text-green-600' : ''}>4. Prompt gerado!</span>
+                </div>
+              </section>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
       <div className="flex flex-row gap-2 mb-4 items-center">
         <Button 
           onClick={handleGenerate} 

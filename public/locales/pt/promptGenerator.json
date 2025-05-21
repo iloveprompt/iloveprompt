@@ -1,0 +1,14 @@
+{
+  "features": {
+    "default": {
+      "userManagement": "Gestão de Usuários",
+      "fileUpload": "Upload de Arquivos",
+      "notifications": "Sistema de Notificações",
+      "reporting": "Relatórios e Análises",
+      "search": "Sistema de Busca",
+      "payments": "Processamento de Pagamentos",
+      "chat": "Chat em Tempo Real",
+      "api": "API RESTful"
+    }
+  }
+} 

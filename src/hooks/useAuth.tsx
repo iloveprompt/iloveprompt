@@ -160,6 +160,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     let isSubscribed = true;
     let authSubscription: { data: { subscription: { unsubscribe: () => void } } } | null = null;
+    let refreshInterval: NodeJS.Timeout | null = null;
     
     const initializeAuth = async () => {
       try {
@@ -232,6 +233,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             setIsAdmin(isUserAdmin);
           }
         }
+
+        // Adicionar intervalo para forçar refresh da sessão a cada 2 minutos
+        refreshInterval = setInterval(async () => {
+          const { data: refreshedSession } = await supabase.auth.getSession();
+          if (!refreshedSession?.session?.access_token) {
+            // Sessão expirada, forçar logout
+            await signOut();
+          } else {
+            setSession(refreshedSession.session);
+            setUser(refreshedSession.session.user);
+          }
+        }, 2 * 60 * 1000); // 2 minutos
       } catch (error) {
         // Em caso de erro na inicialização, limpar o estado por segurança
         setSession(null);
@@ -251,6 +264,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       isSubscribed = false;
       if (authSubscription?.data?.subscription) {
         authSubscription.data.subscription.unsubscribe();
+      }
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
       }
     };
   }, []);

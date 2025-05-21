@@ -1,3 +1,4 @@
+
 // Importa a função para criar a raiz da aplicação React
 import { createRoot } from 'react-dom/client'
 // Importa o componente principal da aplicação

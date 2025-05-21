@@ -9,7 +9,7 @@ import { ColorSwatch, HexColorPicker } from '../components/ColorPicker';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, XCircle, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
+import { RotateCcw, Save, CheckCircle as CheckCircleIcon, ListPlus, PlusCircle, Trash2, ChevronLeft, ChevronRight, Wand2 } from 'lucide-react';
 import {
   Accordion,
   AccordionContent,
@@ -673,7 +673,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
 
   return (
     <div className="space-y-6">
-      <Card className="p-4 sm:p-6">
+      <Card className={`p-4 sm:p-6 relative${isFinalized ? ' border-2 border-green-500' : ''}`}>
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start">
             <div>
@@ -745,18 +745,70 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                     </RadioGroup>
                     {totalPagesVisualStyle > 1 && (
                       <div className="flex flex-row justify-end items-center gap-2 mt-2">
-                        <Button variant="outline" size="sm" className="text-xs" style={{ minWidth: 120 }}>
+                        <Button variant="outline" size="sm" className="text-xs" style={{ minWidth: 120 }} onClick={() => setIsOtherVisualStylePopoverOpen(true)}>
                           <ListPlus className="h-3 w-3 mr-1.5" />
                           {t('promptGenerator.objective.notInList') || 'Não está na lista?'}
                         </Button>
-                        <div className="flex flex-row items-center gap-1">
-                          <Button variant="ghost" size="icon" onClick={() => setCurrentPageVisualStyle(p => Math.max(0, p - 1))} disabled={currentPageVisualStyle === 0} className="h-7 w-7">
-                            <ChevronLeft className="h-4 w-4" />
-                          </Button>
-                          <span className="text-xs text-muted-foreground">{`${t('common.page')} ${currentPageVisualStyle + 1} ${t('common.of')} ${totalPagesVisualStyle}`}</span>
-                          <Button variant="ghost" size="icon" onClick={() => setCurrentPageVisualStyle(p => Math.min(totalPagesVisualStyle - 1, p + 1))} disabled={currentPageVisualStyle === totalPagesVisualStyle - 1} className="h-7 w-7">
-                            <ChevronRight className="h-4 w-4" />
-                          </Button>
+                        {/* Popover IMEDIATAMENTE após o botão */}
+                        <Popover open={isOtherVisualStylePopoverOpen} onOpenChange={setIsOtherVisualStylePopoverOpen}>
+                          <PopoverTrigger asChild>
+                            <span></span>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80 p-4" side="top" align="end">
+                            <div className="space-y-3">
+                              <Label htmlFor="other-visual-style-input" className="text-sm font-medium">
+                                {t('promptGenerator.uxui.addOtherVisualStylePlaceholder') || 'Adicionar outro estilo visual:'}
+                              </Label>
+                              <div className="flex items-center space-x-2">
+                                <Input id="other-visual-style-input" value={currentOtherVisualStyleInput} onChange={(e) => setCurrentOtherVisualStyleInput(e.target.value)} placeholder={t('promptGenerator.uxui.otherVisualStyleItemPlaceholder') || 'Nome do estilo...'} className="text-xs h-8" onKeyDown={(e) => { if (e.key === 'Enter' && currentOtherVisualStyleInput.trim()) handleAddOtherVisualStyle(); }} />
+                                <Button size="icon" onClick={handleAddOtherVisualStyle} disabled={!currentOtherVisualStyleInput.trim() || tempOtherVisualStylesList.length >= 10} className="h-8 w-8 flex-shrink-0"><PlusCircle className="h-4 w-4" /></Button>
+                              </div>
+                              {tempOtherVisualStylesList.length > 0 && (
+                                <div className="mt-2 space-y-1 max-h-28 overflow-y-auto border p-2 rounded-md">
+                                  <p className="text-xs text-muted-foreground mb-1">{(t('promptGenerator.uxui.addedItemsText') || 'Adicionadas:') + ` (${tempOtherVisualStylesList.length}/10)`}</p>
+                                  {tempOtherVisualStylesList.map((item, idx) => (
+                                    <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
+                                      <span className="truncate flex-1 mr-2">{item}</span>
+                                      <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherVisualStyle(idx)} className="h-5 w-5"><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              {tempOtherVisualStylesList.length >= 10 && <p className="text-xs text-destructive mt-1">{t('promptGenerator.objective.limitReached')}</p>}
+                              <div className="flex justify-end space-x-2 mt-3">
+                                <Button size="sm" variant="ghost" onClick={() => {setIsOtherVisualStylePopoverOpen(false); setCurrentOtherVisualStyleInput(''); setTempOtherVisualStylesList(Array.isArray(formData.otherVisualStyles) ? formData.otherVisualStyles : []); }} className="text-xs h-8">{t('common.cancel')}</Button>
+                                <Button size="sm" onClick={handleSaveOtherVisualStyles} className="text-xs h-8">{t('common.saveOtherItems')}</Button>
+                              </div>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    )}
+                    {/* Exibir outros estilos visuais adicionados fora do popover */}
+                    {Array.isArray(formData.otherVisualStyles) && formData.otherVisualStyles.length > 0 && (
+                      <div className="mt-2 border p-2 rounded-md bg-muted/30">
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Outros Estilos Visuais Adicionados:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {formData.otherVisualStyles.map((item, index) => (
+                            <div key={`saved-other-visual-style-${index}`} className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                              <span className="truncate mr-1.5">{item}</span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-4 w-4 p-0"
+                                onClick={() => {
+                                  const newOther = formData.otherVisualStyles.filter((_, i) => i !== index);
+                                  updateFormData({
+                                    otherVisualStyles: newOther,
+                                    visualStyle: newOther.length > 0 ? 'other' : ''
+                                  });
+                                }}
+                                aria-label="Remover"
+                              >
+                                <Trash2 className="h-3 w-3 text-destructive" />
+                              </Button>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     )}
@@ -890,18 +942,70 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                     </RadioGroup>
                     {totalPagesMenuType > 1 && (
                       <div className="flex flex-row justify-end items-center gap-2 mt-2">
-                        <Button variant="outline" size="sm" className="text-xs" style={{ minWidth: 120 }}>
+                        <Button variant="outline" size="sm" className="text-xs" style={{ minWidth: 120 }} onClick={() => setIsOtherMenuTypePopoverOpen(true)}>
                           <ListPlus className="h-3 w-3 mr-1.5" />
                           {t('promptGenerator.objective.notInList') || 'Não está na lista?'}
                         </Button>
-                        <div className="flex flex-row items-center gap-1">
-                          <Button variant="ghost" size="icon" onClick={() => setCurrentPageMenuType(p => Math.max(0, p - 1))} disabled={currentPageMenuType === 0} className="h-7 w-7">
-                            <ChevronLeft className="h-4 w-4" />
-                          </Button>
-                          <span className="text-xs text-muted-foreground">{`${t('common.page')} ${currentPageMenuType + 1} ${t('common.of')} ${totalPagesMenuType}`}</span>
-                          <Button variant="ghost" size="icon" onClick={() => setCurrentPageMenuType(p => Math.min(totalPagesMenuType - 1, p + 1))} disabled={currentPageMenuType === totalPagesMenuType - 1} className="h-7 w-7">
-                            <ChevronRight className="h-4 w-4" />
-                          </Button>
+                        {/* Popover IMEDIATAMENTE após o botão */}
+                        <Popover open={isOtherMenuTypePopoverOpen} onOpenChange={setIsOtherMenuTypePopoverOpen}>
+                          <PopoverTrigger asChild>
+                            <span></span>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80 p-4" side="top" align="end">
+                            <div className="space-y-3">
+                              <Label htmlFor="other-menu-type-input" className="text-sm font-medium">
+                                {t('promptGenerator.uxui.addOtherMenuTypePlaceholder') || 'Adicionar outro tipo de menu:'}
+                              </Label>
+                              <div className="flex items-center space-x-2">
+                                <Input id="other-menu-type-input" value={currentOtherMenuTypeInput} onChange={(e) => setCurrentOtherMenuTypeInput(e.target.value)} placeholder={t('promptGenerator.uxui.otherMenuTypeItemPlaceholder') || 'Nome do tipo de menu...'} className="text-xs h-8" onKeyDown={(e) => { if (e.key === 'Enter' && currentOtherMenuTypeInput.trim()) handleAddOtherMenuType(); }} />
+                                <Button size="icon" onClick={handleAddOtherMenuType} disabled={!currentOtherMenuTypeInput.trim() || tempOtherMenuTypesList.length >= 10} className="h-8 w-8 flex-shrink-0"><PlusCircle className="h-4 w-4" /></Button>
+                              </div>
+                              {tempOtherMenuTypesList.length > 0 && (
+                                <div className="mt-2 space-y-1 max-h-28 overflow-y-auto border p-2 rounded-md">
+                                  <p className="text-xs text-muted-foreground mb-1">{(t('promptGenerator.uxui.addedItemsText') || 'Adicionadas:') + ` (${tempOtherMenuTypesList.length}/10)`}</p>
+                                  {tempOtherMenuTypesList.map((item, idx) => (
+                                    <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
+                                      <span className="truncate flex-1 mr-2">{item}</span>
+                                      <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherMenuType(idx)} className="h-5 w-5"><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              {tempOtherMenuTypesList.length >= 10 && <p className="text-xs text-destructive mt-1">{t('promptGenerator.objective.limitReached')}</p>}
+                              <div className="flex justify-end space-x-2 mt-3">
+                                <Button size="sm" variant="ghost" onClick={() => {setIsOtherMenuTypePopoverOpen(false); setCurrentOtherMenuTypeInput(''); setTempOtherMenuTypesList(Array.isArray(formData.otherMenuTypes) ? formData.otherMenuTypes : []); }} className="text-xs h-8">{t('common.cancel')}</Button>
+                                <Button size="sm" onClick={handleSaveOtherMenuTypes} className="text-xs h-8">{t('common.saveOtherItems')}</Button>
+                              </div>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    )}
+                    {/* Exibir outros tipos de menu adicionados fora do popover */}
+                    {Array.isArray(formData.otherMenuTypes) && formData.otherMenuTypes.length > 0 && (
+                      <div className="mt-2 border p-2 rounded-md bg-muted/30">
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Outros Tipos de Menu Adicionados:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {formData.otherMenuTypes.map((item, index) => (
+                            <div key={`saved-other-menu-type-${index}`} className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                              <span className="truncate mr-1.5">{item}</span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-4 w-4 p-0"
+                                onClick={() => {
+                                  const newOther = formData.otherMenuTypes.filter((_, i) => i !== index);
+                                  updateFormData({
+                                    otherMenuTypes: newOther,
+                                    menuType: newOther.length > 0 ? 'other' : ''
+                                  });
+                                }}
+                                aria-label="Remover"
+                              >
+                                <Trash2 className="h-3 w-3 text-destructive" />
+                              </Button>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     )}
@@ -932,24 +1036,72 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                       ))}
                     </div>
                     {totalPagesAuth > 1 && (
-                      <div className="flex flex-row items-center justify-between gap-2 mt-2">
-                        <Button variant="outline" size="sm" className="text-xs" onClick={toggleSelectAllAuth}>
-                          {allAuthSelected ? t('common.unselectAll') : t('common.selectAll')}
+                      <div className="flex flex-row items-center justify-end gap-2 mt-2">
+                        <Button variant="outline" size="sm" className="text-xs" onClick={() => setIsOtherAuthPopoverOpen(true)}>
+                          <ListPlus className="h-3 w-3 mr-1.5" />
+                          {t('promptGenerator.objective.notInList') || 'Não está na lista?'}
                         </Button>
-                        <div className="flex flex-row items-center gap-2">
-                          <Button variant="outline" size="sm" className="text-xs" style={{ minWidth: 120 }}>
-                            <ListPlus className="h-3 w-3 mr-1.5" />
-                            {t('promptGenerator.objective.notInList') || 'Não está na lista?'}
-                          </Button>
-                          <div className="flex flex-row items-center gap-1">
-                            <Button variant="ghost" size="icon" onClick={() => setCurrentPageAuth(p => Math.max(0, p - 1))} disabled={currentPageAuth === 0} className="h-7 w-7">
-                              <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                            <span className="text-xs text-muted-foreground">{`${t('common.page')} ${currentPageAuth + 1} ${t('common.of')} ${totalPagesAuth}`}</span>
-                            <Button variant="ghost" size="icon" onClick={() => setCurrentPageAuth(p => Math.min(totalPagesAuth - 1, p + 1))} disabled={currentPageAuth === totalPagesAuth - 1} className="h-7 w-7">
-                              <ChevronRight className="h-4 w-4" />
-                            </Button>
-                          </div>
+                        {/* Popover IMEDIATAMENTE após o botão */}
+                        <Popover open={isOtherAuthPopoverOpen} onOpenChange={setIsOtherAuthPopoverOpen}>
+                          <PopoverTrigger asChild>
+                            <span></span>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80 p-4" side="top" align="end">
+                            <div className="space-y-3">
+                              <Label htmlFor="other-auth-input" className="text-sm font-medium">
+                                {t('promptGenerator.uxui.addOtherAuthPlaceholder') || 'Adicionar outro método de autenticação:'}
+                              </Label>
+                              <div className="flex items-center space-x-2">
+                                <Input id="other-auth-input" value={currentOtherAuthInput} onChange={(e) => setCurrentOtherAuthInput(e.target.value)} placeholder={t('promptGenerator.uxui.otherAuthItemPlaceholder') || 'Nome do método...'} className="text-xs h-8" onKeyDown={(e) => { if (e.key === 'Enter' && currentOtherAuthInput.trim()) handleAddOtherAuth(); }} />
+                                <Button size="icon" onClick={handleAddOtherAuth} disabled={!currentOtherAuthInput.trim() || tempOtherAuthList.length >= 10} className="h-8 w-8 flex-shrink-0"><PlusCircle className="h-4 w-4" /></Button>
+                              </div>
+                              {tempOtherAuthList.length > 0 && (
+                                <div className="mt-2 space-y-1 max-h-28 overflow-y-auto border p-2 rounded-md">
+                                  <p className="text-xs text-muted-foreground mb-1">{(t('promptGenerator.uxui.addedItemsText') || 'Adicionadas:') + ` (${tempOtherAuthList.length}/10)`}</p>
+                                  {tempOtherAuthList.map((item, idx) => (
+                                    <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
+                                      <span className="truncate flex-1 mr-2">{item}</span>
+                                      <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherAuth(idx)} className="h-5 w-5"><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              {tempOtherAuthList.length >= 10 && <p className="text-xs text-destructive mt-1">{t('promptGenerator.objective.limitReached')}</p>}
+                              <div className="flex justify-end space-x-2 mt-3">
+                                <Button size="sm" variant="ghost" onClick={() => {setIsOtherAuthPopoverOpen(false); setCurrentOtherAuthInput(''); setTempOtherAuthList(Array.isArray(formData.otherAuthMethods) ? formData.otherAuthMethods : []); }} className="text-xs h-8">{t('common.cancel')}</Button>
+                                <Button size="sm" onClick={handleSaveOtherAuths} className="text-xs h-8">{t('common.saveOtherItems')}</Button>
+                              </div>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    )}
+                    {/* Exibir outros métodos de autenticação adicionados fora do popover */}
+                    {Array.isArray(formData.otherAuthMethods) && formData.otherAuthMethods.length > 0 && (
+                      <div className="mt-2 border p-2 rounded-md bg-muted/30">
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Outros Métodos de Autenticação Adicionados:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {formData.otherAuthMethods.map((item, index) => (
+                            <div key={`saved-other-auth-${index}`} className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                              <span className="truncate mr-1.5">{item}</span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-4 w-4 p-0"
+                                onClick={() => {
+                                  const newOther = formData.otherAuthMethods.filter((_, i) => i !== index);
+                                  const newAuth = formData.authentication.filter(a => a !== item);
+                                  updateFormData({
+                                    otherAuthMethods: newOther,
+                                    authentication: newAuth
+                                  });
+                                }}
+                                aria-label="Remover"
+                              >
+                                <Trash2 className="h-3 w-3 text-destructive" />
+                              </Button>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     )}
@@ -1037,9 +1189,9 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                           if (!isOpen) setCurrentOtherLpStructureInput(''); 
                         }}>
                           <PopoverTrigger asChild>
-                            <Button variant="outline" size="sm" className="text-xs">
+                            <Button variant="outline" size="sm" className="text-xs" onClick={() => setIsOtherLpStructurePopoverOpen(true)}>
                               <ListPlus className="h-3 w-3 mr-1.5" />
-                              {t('promptGenerator.objective.notInList')}
+                              {t('promptGenerator.objective.notInList') || 'Não está na lista?'}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-80 p-4" side="top" align="end">
@@ -1057,7 +1209,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                                   {tempOtherLpStructureList.map((item, idx) => (
                                     <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
                                       <span className="truncate flex-1 mr-2">{item}</span>
-                                      <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherLpStructure(idx)} className="h-5 w-5"><XCircle className="h-3.5 w-3.5 text-destructive" /></Button>
+                                      <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherLpStructure(idx)} className="h-5 w-5"><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
                                     </div>
                                   ))}
                                 </div>
@@ -1079,14 +1231,39 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                         )}
                       </div>
                     </div>
-                     {formData.landingPageDetails.structure.otherValues && formData.landingPageDetails.structure.otherValues.length > 0 && (
-                        <div className="mt-2 space-y-1 border p-2 rounded-md bg-muted/30">
-                          <p className="text-xs font-medium text-muted-foreground mb-1">{t('promptGenerator.uxui.addedOtherStructure')}</p>
+                     {Array.isArray(formData.landingPageDetails.structure.otherValues) && formData.landingPageDetails.structure.otherValues.length > 0 && (
+                      <div className="mt-2 border p-2 rounded-md bg-muted/30">
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Outras Seções de Estrutura Adicionadas:</p>
+                        <div className="flex flex-wrap gap-2">
                           {formData.landingPageDetails.structure.otherValues.map((item, index) => (
-                            <div key={`saved-other-lp-structure-${index}`} className="text-xs text-foreground p-1 bg-muted/50 rounded">{item}</div>
+                            <div key={`saved-other-structure-${index}`} className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                              <span className="truncate mr-1.5">{item}</span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-4 w-4 p-0"
+                                onClick={() => {
+                                  const newOther = formData.landingPageDetails.structure.otherValues.filter((_, i) => i !== index);
+                                  updateFormData({
+                                    landingPageDetails: {
+                                      ...formData.landingPageDetails,
+                                      structure: {
+                                        ...formData.landingPageDetails.structure,
+                                        otherValues: newOther,
+                                        other: newOther.length > 0
+                                      }
+                                    }
+                                  });
+                                }}
+                                aria-label="Remover"
+                              >
+                                <Trash2 className="h-3 w-3 text-destructive" />
+                              </Button>
+                            </div>
                           ))}
                         </div>
-                      )}
+                      </div>
+                    )}
                   </div>
 
                   {/* LP Elements Section */}
@@ -1119,9 +1296,9 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                           if (!isOpen) setCurrentOtherLpElementsInput('');
                         }}>
                           <PopoverTrigger asChild>
-                            <Button variant="outline" size="sm" className="text-xs">
+                            <Button variant="outline" size="sm" className="text-xs" onClick={() => setIsOtherLpElementsPopoverOpen(true)}>
                               <ListPlus className="h-3 w-3 mr-1.5" />
-                              {t('promptGenerator.objective.notInList')}
+                              {t('promptGenerator.objective.notInList') || 'Não está na lista?'}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-80 p-4" side="top" align="end">
@@ -1139,7 +1316,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                                   {tempOtherLpElementsList.map((item, idx) => (
                                     <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
                                       <span className="truncate flex-1 mr-2">{item}</span>
-                                      <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherLpElement(idx)} className="h-5 w-5"><XCircle className="h-3.5 w-3.5 text-destructive" /></Button>
+                                      <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherLpElement(idx)} className="h-5 w-5"><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
                                     </div>
                                   ))}
                                 </div>
@@ -1161,12 +1338,37 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                         )}
                       </div>
                     </div>
-                    {formData.landingPageDetails.elements.otherValues && formData.landingPageDetails.elements.otherValues.length > 0 && !isOtherLpElementsPopoverOpen && (
-                      <div className="mt-2 space-y-1 border p-2 rounded-md bg-muted/30">
-                        <p className="text-xs font-medium text-muted-foreground mb-1">{t('promptGenerator.uxui.addedOtherElements') || "Outros Elementos Adicionados:"}</p>
-                        {formData.landingPageDetails.elements.otherValues.map((item, index) => (
-                          <div key={`saved-other-lp-elements-${index}`} className="text-xs text-foreground p-1 bg-muted/50 rounded">{item}</div>
-                        ))}
+                    {Array.isArray(formData.landingPageDetails.elements.otherValues) && formData.landingPageDetails.elements.otherValues.length > 0 && (
+                      <div className="mt-2 border p-2 rounded-md bg-muted/30">
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Outros Elementos Adicionados:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {formData.landingPageDetails.elements.otherValues.map((item, index) => (
+                            <div key={`saved-other-element-${index}`} className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                              <span className="truncate mr-1.5">{item}</span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-4 w-4 p-0"
+                                onClick={() => {
+                                  const newOther = formData.landingPageDetails.elements.otherValues.filter((_, i) => i !== index);
+                                  updateFormData({
+                                    landingPageDetails: {
+                                      ...formData.landingPageDetails,
+                                      elements: {
+                                        ...formData.landingPageDetails.elements,
+                                        otherValues: newOther,
+                                        other: newOther.length > 0
+                                      }
+                                    }
+                                  });
+                                }}
+                                aria-label="Remover"
+                              >
+                                <Trash2 className="h-3 w-3 text-destructive" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1201,9 +1403,9 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                           if (!isOpen) setCurrentOtherLpStyleInput('');
                         }}>
                           <PopoverTrigger asChild>
-                            <Button variant="outline" size="sm" className="text-xs">
+                            <Button variant="outline" size="sm" className="text-xs" onClick={() => setIsOtherLpStylePopoverOpen(true)}>
                               <ListPlus className="h-3 w-3 mr-1.5" />
-                              {t('promptGenerator.objective.notInList')}
+                              {t('promptGenerator.objective.notInList') || 'Não está na lista?'}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-80 p-4" side="top" align="end">
@@ -1221,7 +1423,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                                   {tempOtherLpStyleList.map((item, idx) => (
                                     <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
                                       <span className="truncate flex-1 mr-2">{item}</span>
-                                      <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherLpStyle(idx)} className="h-5 w-5"><XCircle className="h-3.5 w-3.5 text-destructive" /></Button>
+                                      <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherLpStyle(idx)} className="h-5 w-5"><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
                                     </div>
                                   ))}
                                 </div>
@@ -1243,12 +1445,37 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                         )}
                       </div>
                     </div>
-                    {formData.landingPageDetails.style.otherValues && formData.landingPageDetails.style.otherValues.length > 0 && (
-                      <div className="mt-2 space-y-1 border p-2 rounded-md bg-muted/30">
-                        <p className="text-xs font-medium text-muted-foreground mb-1">{t('promptGenerator.uxui.addedOtherStyles') || "Outros Estilos Adicionados:"}</p>
-                        {formData.landingPageDetails.style.otherValues.map((item, index) => (
-                          <div key={`saved-other-lp-style-${index}`} className="text-xs text-foreground p-1 bg-muted/50 rounded">{item}</div>
-                        ))}
+                    {Array.isArray(formData.landingPageDetails.style.otherValues) && formData.landingPageDetails.style.otherValues.length > 0 && (
+                      <div className="mt-2 border p-2 rounded-md bg-muted/30">
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Outros Estilos Adicionados:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {formData.landingPageDetails.style.otherValues.map((item, index) => (
+                            <div key={`saved-other-style-${index}`} className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                              <span className="truncate mr-1.5">{item}</span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-4 w-4 p-0"
+                                onClick={() => {
+                                  const newOther = formData.landingPageDetails.style.otherValues.filter((_, i) => i !== index);
+                                  updateFormData({
+                                    landingPageDetails: {
+                                      ...formData.landingPageDetails,
+                                      style: {
+                                        ...formData.landingPageDetails.style,
+                                        otherValues: newOther,
+                                        other: newOther.length > 0
+                                      }
+                                    }
+                                  });
+                                }}
+                                aria-label="Remover"
+                              >
+                                <Trash2 className="h-3 w-3 text-destructive" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1299,7 +1526,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                     <div className="flex items-center space-x-2">
                       <Popover open={isOtherDashboardFeaturePopoverOpen} onOpenChange={setIsOtherDashboardFeaturePopoverOpen}>
                         <PopoverTrigger asChild>
-                          <Button variant="outline" size="sm" className="text-xs">
+                          <Button variant="outline" size="sm" className="text-xs" onClick={() => setIsOtherDashboardFeaturePopoverOpen(true)}>
                             <ListPlus className="h-3 w-3 mr-1.5" />
                             {t('promptGenerator.objective.notInList') || "Não está na lista?"}
                           </Button>
@@ -1334,7 +1561,7 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                                   <div key={idx} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
                                     <span className="truncate flex-1 mr-2">{feat}</span>
                                     <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherDashboardFeature(idx)} className="h-5 w-5">
-                                      <XCircle className="h-3.5 w-3.5 text-destructive" />
+                                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
                                     </Button>
                                   </div>
                                 ))}
@@ -1373,11 +1600,34 @@ const UXUIStep: React.FC<UXUIStepProps> = ({
                     </div>
                   </div>
                   {Array.isArray(formData.userDashboardDetails.otherDashboardFeatures) && formData.userDashboardDetails.otherDashboardFeatures.length > 0 && (
-                    <div className="mt-2 space-y-1 border p-2 rounded-md bg-muted/30">
+                    <div className="mt-2 border p-2 rounded-md bg-muted/30">
                       <p className="text-xs font-medium text-muted-foreground mb-1">Outras Funcionalidades do Painel Adicionadas:</p>
-                      {formData.userDashboardDetails.otherDashboardFeatures.map((feat, index) => (
-                        <div key={`saved-other-dash-${index}`} className="text-xs text-foreground p-1 bg-muted/50 rounded">{feat}</div>
-                      ))}
+                      <div className="flex flex-wrap gap-2">
+                        {formData.userDashboardDetails.otherDashboardFeatures.map((feat, index) => (
+                          <div key={`saved-other-dash-${index}`} className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                            <span className="truncate mr-1.5">{feat}</span>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-4 w-4 p-0"
+                              onClick={() => {
+                                const newOther = formData.userDashboardDetails.otherDashboardFeatures.filter((_, i) => i !== index);
+                                const newFeatures = Array.isArray(formData.userDashboardDetails.features) ? formData.userDashboardDetails.features.filter(f => f !== feat) : [];
+                                updateFormData({
+                                  userDashboardDetails: {
+                                    ...formData.userDashboardDetails,
+                                    otherDashboardFeatures: newOther,
+                                    features: newFeatures
+                                  }
+                                });
+                              }}
+                              aria-label="Remover"
+                            >
+                              <Trash2 className="h-3 w-3 text-destructive" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>

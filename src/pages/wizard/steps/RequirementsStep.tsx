@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Plus, Trash, ChevronLeft, ChevronRight, ListPlus, PlusCircle, XCircle, RotateCcw, Save, CheckCircle as CheckCircleIcon, Wand2 } from 'lucide-react';
+import { Plus, Trash, ChevronLeft, ChevronRight, ListPlus, PlusCircle, Trash2, RotateCcw, Save, CheckCircle as CheckCircleIcon, Wand2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -191,7 +191,7 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
 
   return (
     <div className="space-y-6">
-      <Card className="p-4 sm:p-6">
+      <Card className={`p-4 sm:p-6 relative${isFinalized ? ' border-2 border-green-500' : ''}`}>
         <CardHeader className="px-0 pt-0 sm:px-0 sm:pt-0 pb-0">
           <div className="flex justify-between items-start">
             <div>
@@ -222,7 +222,20 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
                 onClick={handleSaveAndFinalize} 
                 size="icon" 
                 className="h-8 w-8"
-                disabled={isFinalized || (formData.defineRequirements && formData.userTypes.length === 0 && formData.functionalRequirements.length === 0 && formData.nonFunctionalRequirements.length === 0 && otherNfrArray.length === 0)}
+                disabled={isFinalized || (
+                  (formData.defineRequirements &&
+                    formData.userTypes.length === 0 &&
+                    formData.functionalRequirements.length === 0 &&
+                    formData.nonFunctionalRequirements.length === 0 &&
+                    otherNfrArray.length === 0
+                  ) ||
+                  (!formData.defineRequirements &&
+                    formData.userTypes.length === 0 &&
+                    formData.functionalRequirements.length === 0 &&
+                    formData.nonFunctionalRequirements.length === 0 &&
+                    otherNfrArray.length === 0
+                  )
+                )}
               >
                 <Save className="h-4 w-4" />
                 <span className="sr-only">{isFinalized ? t('common.finalized') : t('common.saveAndFinalize')}</span>
@@ -234,7 +247,9 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
         <CardContent className="px-0 pb-0 sm:px-0 sm:pb-0 space-y-1 pt-4">
           <div className="flex items-center space-x-2 py-0 my-0">
             <Switch checked={formData.defineRequirements} onCheckedChange={(checked) => updateFormData({ defineRequirements: checked })} id="define-requirements-toggle"/>
-            <Label htmlFor="define-requirements-toggle" className="text-sm font-medium text-foreground">{t('promptGenerator.requirements.defineRequirements') || "Definir requisitos detalhados"}</Label>
+            <Label htmlFor="define-requirements-toggle" className="text-sm font-medium text-foreground">
+              {t('promptGenerator.requirements.defineRequirements') || "Deseja definir requisitos específicos para o projeto?"}
+            </Label>
           </div>
 
           {formData.defineRequirements && (
@@ -253,7 +268,7 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
                       {userTypesToDisplay.map((userType, index) => (
                         <div key={index} className="flex items-center justify-between bg-muted/50 p-1.5 rounded-md text-xs">
                           <span className="truncate flex-1 mr-1">{userType}</span>
-                          <Button variant="ghost" size="icon" onClick={() => handleRemoveUserType(index)} className="h-6 w-6 flex-shrink-0"><Trash className="h-3.5 w-3.5 text-destructive" /></Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleRemoveUserType(index)} className="h-6 w-6 flex-shrink-0"><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
                         </div>))}
                     </div>
                     {totalUserTypesPages > 1 && (<div className="flex items-center justify-center space-x-1 mt-1">
@@ -279,7 +294,7 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
                       {functionalReqsToDisplay.map((requirement, index) => (
                         <div key={index} className="flex items-center justify-between bg-muted/50 p-1.5 rounded-md text-xs">
                           <span className="truncate flex-1 mr-1">{requirement}</span>
-                          <Button variant="ghost" size="icon" onClick={() => handleRemoveFunctionalRequirement(index)} className="h-6 w-6 flex-shrink-0"><Trash className="h-3.5 w-3.5 text-destructive" /></Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleRemoveFunctionalRequirement(index)} className="h-6 w-6 flex-shrink-0"><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
                         </div>))}
                     </div>
                     {totalFunctionalReqsPages > 1 && (<div className="flex items-center justify-center space-x-1 mt-1">
@@ -327,7 +342,7 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
                                 <p className="text-xs text-muted-foreground mb-1">{`Adicionados (${tempOtherNfrList.length}/${MAX_ITEMS}):`}</p>
                                 {tempOtherNfrList.map((obj, index) => (<div key={index} className="flex items-center justify-between text-xs bg-muted/50 p-1.5 rounded">
                                   <span className="truncate flex-1 mr-2">{obj}</span>
-                                  <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherNfrFromList(index)} className="h-5 w-5"><XCircle className="h-3.5 w-3.5 text-destructive" /></Button>
+                                  <Button variant="ghost" size="icon" onClick={() => handleRemoveOtherNfrFromList(index)} className="h-5 w-5"><Trash2 className="h-3.5 w-3.5 text-destructive" /></Button>
                                 </div>))}
                               </div>)}
                               {tempOtherNfrList.length >= MAX_ITEMS && (<p className="text-xs text-destructive mt-1">{`Limite de ${MAX_ITEMS} requisitos atingido.`}</p>)}
@@ -349,6 +364,35 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
                 </Accordion>
               </div>
             </>
+          )}
+
+          {Array.isArray(formData.otherRequirement) && formData.otherRequirement.length > 0 && (
+            <div className="mt-2 border p-2 rounded-md bg-muted/30">
+              <p className="text-xs font-medium text-muted-foreground mb-1">Outros Requisitos Adicionados:</p>
+              <div className="flex flex-wrap gap-2">
+                {formData.otherRequirement.map((item, index) => (
+                  <div key={`saved-other-requirement-${index}`} className="flex items-center bg-muted/50 rounded px-2 py-1 text-xs text-foreground">
+                    <span className="truncate mr-1.5">{item}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-4 w-4 p-0"
+                      onClick={() => {
+                        const newOther = formData.otherRequirement.filter((_, i) => i !== index);
+                        const newNFR = Array.isArray(formData.nonFunctionalRequirements) ? formData.nonFunctionalRequirements.filter(sel => sel !== item) : [];
+                        updateFormData({
+                          otherRequirement: newOther,
+                          nonFunctionalRequirements: newNFR
+                        });
+                      }}
+                      aria-label="Remover"
+                    >
+                      <Trash2 className="h-3 w-3 text-destructive" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
         </CardContent>
