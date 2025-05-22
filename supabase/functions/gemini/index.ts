@@ -2,150 +2,145 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+// Testado e funcionando 
+// Chave API : AIzaSyBYEHqWbNFt0FHsPj2KnTapmMUudZ2BN9M
+// JSON par Teste
+//{
+//  "prompt": "Seu prompt aqui, por exemplo: Qual a capital do Brasil?",
+//  "model": "gemini-1.5-flash",
+//  "apiKey": "SUA_CHAVE_API_DO_GEMINI_REAL"
+//}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, Origin, X-Requested-With, Accept, apikey, x-client-info",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, Origin, X-Requested-With, Accept, apikey, x-client-info"
 };
-
-Deno.serve(async (req: Request) => {
+const handleError = (error)=>{
+  console.error("Erro:", error);
+  let status = 500;
+  let message = error.message || "Erro interno do servidor";
+  if (error.message?.includes("API key")) {
+    status = 401;
+    message = "Chave de API inválida ou não fornecida";
+  } else if (error.response?.status) {
+    status = error.response.status;
+    message = error.response.statusText || message;
+  }
+  return new Response(JSON.stringify({
+    error: message
+  }), {
+    status,
+    headers: {
+      ...corsHeaders,
+      "Content-Type": "application/json"
+    }
+  });
+};
+Deno.serve(async (req)=>{
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+    return new Response("ok", {
+      headers: corsHeaders
+    });
   }
-
-  // Handle LLM registration
-  if (req.method === "POST") {
-    try {
-      const { action, ...params } = await req.json();
-      
-      if (action === 'register') {
-        const { api_key, name, model } = params;
-        
-        if (!api_key || !name || !model) {
-          return new Response(JSON.stringify({ 
-            error: "api_key, name e model são obrigatórios" 
-          }), { 
-            status: 400,
-            headers: { ...corsHeaders, "Content-Type": "application/json" }
-          });
-        }
-
-        const supabase = createClient(
-          Deno.env.get('SUPABASE_URL')!,
-          Deno.env.get('SUPABASE_ANON_KEY')!,
-        );
-
-        const { data, error } = await supabase
-          .from('user_llm_apis')
-          .insert({
-            api_key,
-            name,
-            model,
-            provider: 'gemini',
-            created_at: new Date().toISOString()
-          })
-          .select();
-
-        if (error) throw error;
-
-        return new Response(JSON.stringify({ success: true, data }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" }
-        });
-      }
-    } catch (e) {
-      console.error("Registration Error:", e);
-      return new Response(JSON.stringify({ 
-        error: e.message || "Erro desconhecido" 
-      }), { 
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
-    }
-  }
-  
   if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Método não permitido" }), { 
-      status: 405, 
-      headers: { ...corsHeaders, "Content-Type": "application/json" } 
+    return new Response(JSON.stringify({
+      error: "Método não permitido"
+    }), {
+      status: 405,
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json"
+      }
     });
   }
-  
   try {
-    console.log("Gemini Edge Function: Request received");
-    const body = await req.json();
-    const { prompt, model = "gemini-1.5-flash", apiKey } = body;
-    
+    // Estas variáveis (prompt, model, apiKey) são extraídas diretamente do JSON da requisição
+    // e, portanto, serão os valores fornecidos pelo usuário no frontend.
+    const { prompt, model, apiKey } = await req.json();
     if (!prompt) {
-      console.log("Gemini Edge Function: Missing prompt parameter");
-      return new Response(JSON.stringify({ error: "Prompt é obrigatório" }), { 
-        status: 400, 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
-      });
+      throw new Error("O prompt é obrigatório");
     }
-    
     if (!apiKey) {
-      console.log("Gemini Edge Function: Missing API Key in body");
-      return new Response(JSON.stringify({ error: "apiKey não enviada no body" }), { 
-        status: 400, 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
-      });
+      throw new Error("API key é obrigatória");
     }
-    
-    console.log(`Gemini Edge Function: Sending prompt to ${model} model`);
-    console.log(`Prompt preview: ${prompt.substring(0, 100)}...`);
-    
-    try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    // --- Início das Alterações para lidar com a seleção de modelo do frontend ---
+    // Lista de modelos permitidos para sua aplicação
+    const allowedModels = [
+      // OK
+      "gemini-1.5-flash",
+      "gemini-1.5-flash-latest",
+      "gemini-1.5-flash-8b",
+      "gemini-1.5-pro",
+      "gemini-2.0-flash",
+      "gemini-2.5-pro-preview-05-06",
+      "gemini-2.0-flash-lite"
+    ];
+    // Valida e seleciona o modelo
+    let selectedModel = "gemini-1.5-flash";
+    if (model && typeof model === 'string' && allowedModels.includes(model)) {
+      selectedModel = model;
+    } else {
+      console.warn(`Modelo "${model}" não é válido ou não está na lista de modelos permitidos. Usando o modelo padrão: ${selectedModel}`);
+    }
+    // --- Fim das Alterações ---
+    console.log(`Chamando Gemini API com modelo: ${selectedModel}`);
+    // Agora, use selectedModel na URL
+    const geminiApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
+    // Suas instruções de sistema completas foram adicionadas aqui.
+    // Elas serão enviadas como um 'system_instruction' separado.
+    const systemInstructions = `Você é um Gerente de Projeto de TI em uma Equipe de Desenvolvimento de Software. Você é um **Gerente de Projeto de TI** experiente e multifacetado, com uma visão estratégica e tática sobre o ciclo de vida do desenvolvimento de software. Sua principal habilidade é **analisar uma demanda ou problema de TI** e identificar os especialistas necessários para resolvê-lo, coordenando suas ações e consolidando os resultados. Você tambem é um Engenheiro de Software **engenheiro de software** experiente, com um olhar aguçado para detalhes e uma vasta experiência em depuração e garantia de qualidade de código. Use sua vasta experiencia como **engenheiro de software**, usando as informações fornecidadas pelo usuario, para melhorar a criação de um prompt bem detalhado, qualificado e perfeito, Você tambem é um Arquiteto de Software **arquiteto de software** experiente, responsável por definir a estrutura geral, os princípios e os padrões de design de um sistema. Sua visão abrange desde a escolha das tecnologias até a garantia de que a solução atenda aos requisitos não funcionais. Use sua vasta experiencia como **arquiteto de software**, usando as informações fornecidadas pelo usuario, para melhorar a criação de um prompt bem detalhado, qualificado e perfeito, Você tambem é um Engenheiro de segurança **engenheiro de segurança** com experiência em ambientes corporativos, especializado em encontrar e corrigir vulnerabilidades de segurança em código. Use sua vasta experiencia como **engenheiro de segurança**, usando as informações fornecidadas pelo usuario, para melhorar a criação de um prompt bem detalhado, qualificado e perfeito, Você tambem é um Designer de UX/UI **designer de ux/ui** com uma paixão por criar experiências digitais intuitivas, eficientes e visualmente atraentes. Sua expertise abrange desde a pesquisa com usuários até o design de interfaces e a prototipagem. Use sua vasta experiencia como **designer de ux/ui**, usando as informações fornecidadas pelo usuario, para melhorar a criação de um prompt bem detalhado, qualificado e perfeito, Você tambem é um  Engenheiro de Prompt **engenheiro de prompt** com profundo entendimento de modelos de linguagem (LLMs), suas capacidades e limitações. Sua expertise reside em formular as entradas (prompts) mais eficazes para extrair respostas precisas, relevantes e no formato desejado. Use sua vasta experiencia como **engenheiro de prompt**, usando as informações fornecidadas pelo usuario, para melhorar a criação de um prompt bem detalhado, qualificado e perfeito. Com base na esperiencia dessa equipe altamente qualificada, o resultado final deve ser um prompt completo, bem detalhado que tenha uma lista de itens nescessarios no prompt : Requisitos, Requisitos não funcionais, Funcionalidades (features), Desing UX/UI, Stack Tecnológica baseada em FullStack ou não, Recursos de Segurança, Extrutura de Código, Escabilitade, Performance, Padrão Arquitetural, Melhores Práticas, Escalabilidade, Integrações via API e Restrições (evitar na codificação).`;
+    const requestBody = {
+      // O campo 'system_instruction' agora contém todo o texto que você forneceu.
+      system_instruction: {
+        parts: [
+          {
+            text: systemInstructions
+          }
+        ]
+      },
+      // O prompt do usuário continua no array 'contents'.
+      contents: [
         {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{ text: prompt }]
-            }]
-          }),
-        });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Gemini API Error:", errorText);
-        return new Response(JSON.stringify({ 
-          error: `Erro na API Gemini: ${response.status} - ${errorText}` 
-        }), { 
-          status: 500, 
-          headers: { ...corsHeaders, "Content-Type": "application/json" } 
-        });
+          role: "user",
+          parts: [
+            {
+              text: prompt
+            }
+          ]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 2000
       }
-      
-      const data = await response.json();
-      const result = data.candidates[0].content.parts[0].text;
-      
-      console.log("Gemini Edge Function: Response received successfully");
-      console.log(`Response preview: ${result.substring(0, 100)}...`);
-      
-      return new Response(JSON.stringify({ result }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    } catch (generationError) {
-      console.error("Gemini API Error:", generationError);
-      return new Response(JSON.stringify({ 
-        error: `Erro na API Gemini: ${generationError.message || "Erro desconhecido"}`,
-        details: generationError
-      }), { 
-        status: 500, 
-        headers: { ...corsHeaders, "Content-Type": "application/json" } 
-      });
-    }
-  } catch (e) {
-    console.error("Gemini Edge Function General Error:", e);
-    return new Response(JSON.stringify({ 
-      error: e.message || "Erro desconhecido",
-      stack: e.stack
-    }), { 
-      status: 500, 
-      headers: { ...corsHeaders, "Content-Type": "application/json" } 
+    };
+    const response = await fetch(geminiApiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(requestBody)
     });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error?.message || `Erro na API do Gemini: ${response.statusText}`);
+    }
+    const data = await response.json();
+    const result = data.candidates[0]?.content?.parts[0]?.text;
+    if (!result) {
+      throw new Error("Resposta vazia do Gemini");
+    }
+    return new Response(JSON.stringify({
+      result
+    }), {
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json"
+      }
+    });
+  } catch (error) {
+    return handleError(error);
   }
 });
+
